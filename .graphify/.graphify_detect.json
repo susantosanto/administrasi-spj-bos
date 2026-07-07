@@ -1,0 +1,37 @@
+{
+  "files": {
+    "code": [],
+    "document": [
+      "PANDUAN_ARSITEKTUR_DEPLOY_LARAVEL_SPJ.md",
+      "PERBANDINGAN_TEKNOLOGI_SPJ.md",
+      "RISET_ARSITEKTUR_DAPODIK_ERAPOR_DAN_FRAMEWORK.md",
+      "Skema Aplikasi SPJ.txt",
+      "Skema_Aplikasi_SPJ.md",
+      "plan-frontend.md"
+    ],
+    "paper": [],
+    "image": [],
+    "video": []
+  },
+  "total_files": 6,
+  "total_words": 15578,
+  "needs_graph": false,
+  "warning": "Corpus is ~15.578 words - fits in a single context window. You may not need a graph.",
+  "skipped_sensitive": [],
+  "graphifyignore_patterns": 0,
+  "scope": {
+    "requested_mode": "all",
+    "resolved_mode": "all",
+    "source": "cli",
+    "root": ".",
+    "git_root": ".",
+    "candidate_count": null,
+    "included_count": 6,
+    "excluded_untracked_count": 0,
+    "excluded_ignored_count": 0,
+    "excluded_sensitive_count": 0,
+    "missing_committed_count": 0,
+    "warnings": [],
+    "recommendation": null
+  }
+}

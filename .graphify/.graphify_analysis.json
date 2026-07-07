@@ -1,0 +1,151 @@
+{
+  "communities": {
+    "0": [
+      "component-card-design",
+      "feature-dokumen-wajib",
+      "page-cetak",
+      "page-dokumen-wajib",
+      "route-cetak",
+      "route-dokumen-wajib",
+      "template-dokumen-wajib-6",
+      "ui-state-patterns"
+    ],
+    "1": [
+      "panduan-arsitektur-deploy",
+      "perbandingan-teknologi",
+      "plan-frontend",
+      "riset-arsitektur",
+      "sidebar-menu",
+      "skema-aplikasi-spj",
+      "state-management"
+    ],
+    "2": [
+      "feature-realisasi",
+      "page-realisasi",
+      "route-pengaturan",
+      "route-realisasi",
+      "template-realisasi-3"
+    ],
+    "3": [
+      "bukti-fisik-9",
+      "feature-bku",
+      "feature-cetak",
+      "template-bku-17"
+    ],
+    "4": [
+      "page-bku",
+      "route-bku"
+    ],
+    "5": [
+      "page-dashboard",
+      "route-dashboard"
+    ],
+    "6": [
+      "page-data-guru",
+      "route-data-guru"
+    ],
+    "7": [
+      "page-data-sekolah",
+      "route-data-sekolah"
+    ],
+    "8": [
+      "page-landing",
+      "route-landing"
+    ],
+    "9": [
+      "page-login",
+      "route-login"
+    ],
+    "10": [
+      "feature-data-entry"
+    ],
+    "11": [
+      "feature-login"
+    ],
+    "12": [
+      "feature-pengaturan"
+    ],
+    "13": [
+      "feature-upload"
+    ]
+  },
+  "cohesion": {
+    "0": 0.2857142857142857,
+    "1": 0.38095238095238093,
+    "2": 0.4,
+    "3": 0.5,
+    "4": 1,
+    "5": 1,
+    "6": 1,
+    "7": 1,
+    "8": 1,
+    "9": 1,
+    "10": 1,
+    "11": 1,
+    "12": 1,
+    "13": 1
+  },
+  "gods": [],
+  "surprises": [
+    {
+      "source": "Cetak Page",
+      "target": "17 BKU Templates",
+      "source_files": [
+        "",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "uses",
+      "note": "Bridges community 0 → community 3"
+    },
+    {
+      "source": "Realisasi Page",
+      "target": "Card Design System",
+      "source_files": [
+        "",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "uses",
+      "note": "Bridges community 2 → community 0"
+    },
+    {
+      "source": "Skema SPJ",
+      "target": "Bukti Fisik",
+      "source_files": [
+        "",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "defines",
+      "note": "Bridges community 1 → community 3"
+    }
+  ],
+  "questions": [
+    {
+      "type": "no_signal",
+      "question": null,
+      "why": "Not enough signal to generate questions. This usually means the corpus has no AMBIGUOUS edges, no bridge nodes, no INFERRED relationships, and all communities are tightly cohesive. Add more files or run with --mode deep to extract richer edges."
+    }
+  ],
+  "labels": {
+    "0": "Community 0",
+    "1": "Community 1",
+    "2": "Community 2",
+    "3": "Community 3",
+    "4": "Community 4",
+    "5": "Community 5",
+    "6": "Community 6",
+    "7": "Community 7",
+    "8": "Community 8",
+    "9": "Community 9",
+    "10": "Community 10",
+    "11": "Community 11",
+    "12": "Community 12",
+    "13": "Community 13"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

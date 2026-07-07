@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | SPJ BOS/BOSP Administrasi Keuangan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .login-card-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#191c1e",
+                        "danger": "#DC2626",
+                        "warning": "#EAB308",
+                        "background": "#f8f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container-low": "#f3f4f6",
+                        "on-primary": "#ffffff",
+                        "primary": "#004ac6",
+                        "on-primary-container": "#eeefff",
+                        "surface-container": "#edeef0",
+                        "primary-container": "#2563eb",
+                        "outline": "#737686",
+                        "surface": "#f8f9fb",
+                        "on-surface-variant": "#434655",
+                        "on-surface": "#191c1e",
+                        "outline-variant": "#c3c6d7",
+                        "text-high": "#111827",
+                        "text-low": "#6B7280"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "margin-page": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1", "letterSpacing": "0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background font-body-lg text-on-background overflow-hidden">
+<main class="flex min-h-screen w-full">
+<!-- Left Side: Visual/Illustration -->
+<section class="hidden lg:flex lg:w-1/2 relative bg-primary items-center justify-center overflow-hidden">
+<!-- Animated Decorative Elements -->
+<div class="absolute inset-0 opacity-20">
+<div class="absolute top-10 left-10 w-64 h-64 bg-white rounded-full mix-blend-overlay blur-3xl animate-float"></div>
+<div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-container rounded-full mix-blend-overlay blur-3xl animate-float" style="animation-delay: -2s"></div>
+</div>
+<div class="relative z-10 w-full max-w-xl px-xl text-center">
+<div class="mb-lg inline-flex items-center justify-center p-md bg-white/10 backdrop-blur-md rounded-xl border border-white/20 animate-float">
+<span class="material-symbols-outlined text-white text-[64px]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<h1 class="font-headline-lg text-white mb-md">Manajemen Keuangan Sekolah Jadi Lebih Mudah</h1>
+<p class="text-white/80 font-body-lg mb-xl">Sistem Informasi SPJ BOS/BOSP terintegrasi untuk membantu operator sekolah dalam pelaporan administrasi yang cepat, akurat, dan transparan.</p>
+<!-- Illustration Image -->
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary-container to-white/30 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+<img class="relative rounded-xl shadow-2xl w-full border border-white/10 transform transition duration-500 hover:scale-[1.02]" data-alt="A high-quality 3D digital illustration of a professional modern workspace with a laptop displaying financial charts and documents. The scene features a clean aesthetic with a primary blue color palette, soft studio lighting, and minimal office decorations. The mood is professional, organized, and technologically advanced, suitable for an educational administration software interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA06xyYWcp_Q2dWXTUBD_vRT8GsG0peZz2ochHXni_NkwBR1KJQAgHHYA8WSlWfQhkQKcNDbcvqH1BhAHlMy49SIwtuHIKr_mt9-RA9x18IjWnRu3CtpSJm6Pvz1Et-sObm3T-xqqxgp0NJ1q7HTnz7hVJ965PGoGoY2Kh4BlEiqHk0QvWucPy38il7ivezQYNYq6IzHG9mk-ryiS8FX7om5lN68S7sVgYyhMckkGNNmJshyiMUsYr7p95-it40LtQAl9Jqlwxlr8R-"/>
+</div>
+</div>
+<!-- Bottom Left Info -->
+<div class="absolute bottom-md left-md flex items-center gap-sm text-white/60">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span class="font-label-md">Sistem Terenkripsi &amp; Aman</span>
+</div>
+</section>
+<!-- Right Side: Login Form -->
+<section class="w-full lg:w-1/2 flex flex-col justify-between p-lg md:p-xl bg-surface">
+<!-- Top Logo/Identity (Mobile only or small screens) -->
+<div class="lg:hidden flex items-center gap-md mb-xl">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[24px]">school</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-primary">SPJ BOS/BOSP</h2>
+<p class="text-[12px] text-text-low">Administrasi Keuangan Sekolah</p>
+</div>
+</div>
+<div class="flex-1 flex items-center justify-center">
+<div class="w-full max-w-md">
+<div class="mb-xl">
+<h2 class="font-headline-lg text-text-high mb-xs">Selamat Datang</h2>
+<p class="text-text-low font-body-lg">Silakan masuk ke akun Anda untuk melanjutkan akses ke dasbor administrasi.</p>
+</div>
+<form class="space-y-lg" id="loginForm">
+<!-- Username Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-text-high" for="username">Username / NIP</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<input class="block w-full pl-xl pr-md py-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline-variant" id="username" name="username" placeholder="Masukkan username Anda" required="" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-text-high" for="password">Password</label>
+<a class="text-[12px] font-semibold text-primary hover:underline" href="#">Lupa Password?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<input class="block w-full pl-xl pr-xl py-md bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-outline-variant" id="password" name="password" placeholder="Masukkan kata sandi" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-md flex items-center text-outline hover:text-text-high transition-colors" onclick="togglePassword()" type="button">
+<span class="material-symbols-outlined text-[20px]" id="passwordIcon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" id="remember" name="remember" type="checkbox"/>
+<label class="ml-sm font-label-md text-text-low select-none cursor-pointer" for="remember">Ingat Saya</label>
+</div>
+<!-- Submit Button -->
+<button class="w-full flex justify-center items-center gap-md bg-primary hover:bg-primary/90 text-white font-semibold py-md px-lg rounded-lg shadow-lg shadow-primary/20 transition-all duration-200 active:scale-[0.98]" type="submit">
+<span>Masuk</span>
+<span class="material-symbols-outlined text-[20px]">login</span>
+</button>
+</form>
+<!-- Extra Info for Mobile -->
+<div class="mt-xl pt-lg border-t border-outline-variant/30 text-center">
+<p class="text-body-sm text-text-low">Butuh bantuan? Hubungi <a class="text-primary font-semibold" href="#">Pusat Layanan</a></p>
+</div>
+</div>
+</div>
+<!-- Bottom Footer Info -->
+<footer class="mt-auto flex flex-col sm:flex-row justify-between items-center gap-md border-t border-outline-variant/20 pt-lg">
+<div class="flex items-center gap-sm">
+<span class="bg-surface-container-low px-sm py-xs rounded text-[11px] font-bold text-text-low">VERSI 1.0.0</span>
+<span class="text-[12px] text-text-low">© 2024 SPJ BOS/BOSP Indonesia</span>
+</div>
+<div class="flex items-center gap-xs text-text-low text-[12px]">
+<span>Dikembangkan oleh</span>
+<span class="font-semibold text-text-high">Tim IT Pendidikan</span>
+</div>
+</footer>
+</section>
+</main>
+<!-- Simple Interaction Script -->
+<script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.innerText = 'visibility_off';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.innerText = 'visibility';
+            }
+        }
+
+        // Form Submit Interaction
+        const form = document.getElementById('loginForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Memproses...</span>
+            `;
+
+            // Simulating API call
+            setTimeout(() => {
+                alert('Login simulasi berhasil!');
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }, 1500);
+        });
+
+        // Add subtle animation on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginSection = document.querySelector('section:last-child');
+            loginSection.classList.add('opacity-0', 'translate-x-4');
+            setTimeout(() => {
+                loginSection.style.transition = 'all 0.8s ease-out';
+                loginSection.classList.remove('opacity-0', 'translate-x-4');
+            }, 100);
+        });
+    </script>
+</body></html>

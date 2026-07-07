@@ -1,0 +1,128 @@
+Skema : "Aplikasi SPJ"
+
+Proses 1 :
+One klik "Sampurasun/Selamat Datang"
+
+Proses 2 :
+
+Fitur utama :
+1. PENDATAAN :
+- NPSN			:
+- Nama sekolah		:
+- Kecamatan		: 
+- Kabupaten		: 
+- Alamat Sekolah	: Jl/KP, RT, RW, Desa, Email
+ 
+Nama KS & NIP/ Nama Bendahara & NIP/ Pengawas Bina & NIP/ Nama Sekdik & NIP/ 
+
+2. Upload
+- Menu upload Data Profil Sekolah
+- Menu upload Data Guru dan Tendik
+
+
+Konsep bukti fisik :
+A. HONOR
+- Daftar penerima honor : guru/ tendik/penjaga/tenaga perpus/ekskul
+- SK
+- Daftar penerima honor kegiatan
+- Narsum
+- Daftar penerima upah kerja
+
+B. PERJALANAN DINAS
+- Daftar penerima
+- Surat Tugas
+- SPPD
+- Resume
+- Dokumen
+- Undangan (undangan)
+
+C. Mamin
+- Mamin Rapat
+	- Surat Undangan
+	- Daftar Hadir
+	- Resume
+	- foto
+- Mamin kegiatan
+dua pilihan :
+	- Mamin kegiatan : (Undangan / Surat Perintah) : Keterangan : undangan berlaku untuk kegiatan 
+	- Daftar Hadir
+	- Resume
+	- foto
+- Mamin Tamu
+	- Surat Undangan
+	- Daftar Hadir
+	- Resume
+	- foto
+
+D. Penggandaan
+- Master yang digandakan nya apa
+
+E. Cetak Foto (non silah)
+- Bukti Dok foto
+
+F. Cetak Banner
+- Bukti foto banner/spanduk
+
+G. Sewa
+- Sewa mobilitas
+- Sewa Sound 
+- Sewa Kendaraan : BF: SIM/STNK dan foto penggunaan alat transportasi
+
+H. Pemeliharaan
+- Servis Fasilitas sekolah : 
+- Servis peralatan
+- Servis/pemeliharaan bangunan
+
+I. Tagihan
+- Tagihan Listrik
+- Tagihan Air (Pribadi/Lembaga Pemerintah) - isi data sesuai klasifikasi
+- 
+
+Workshop :
+Sekolah :
+- Undangan
+- Daftar Hadir
+- Proposal
+- Resume
+- Foto
+- Honor Narsum
+
+Eksternal :
+- Undangan
+- Daftar Hadir
+- Proposal
+- Resume
+- Foto
+- Surat Tugas Pemberangkatan
+
+
+Dokumen wajib (luar Arkas)
+Jika siplah :
+- cukup isi : Dok. PBJ : Dokumen Perncanaan, Surat Pesanan, BAST, BAHP, Negosiasi Perbandingan
+Jika tidak siplah :
+- Dok. PBJ : Dokumen Perncanaan, Surat Pesanan, BAST, BAHP, Negosiasi Perbandingan
+- Register KAS
+- Berita Acara Pemeriksaan KAS
+- Lembar kritk/saran
+- Lembar pegaduan
+- Papan Bosp
+
+Realisasi Dana BOSP
+- (Atur alur)
+
+- Kumpulan cover
+- Kumpulan sekat
+
+Muatan tambahan :
+- RKT
+- RKJM
+
+PR :
+- Proposal
+- Program Kerja
+
+
+
+
+
+- Situs Gugus

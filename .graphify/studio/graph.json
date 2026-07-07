@@ -1,0 +1,673 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "community_labels": {
+      "0": "Community 0",
+      "1": "Community 1",
+      "2": "Community 2",
+      "3": "Community 3",
+      "4": "Community 4",
+      "5": "Community 5",
+      "6": "Community 6",
+      "7": "Community 7",
+      "8": "Community 8",
+      "9": "Community 9",
+      "10": "Community 10",
+      "11": "Community 11",
+      "12": "Community 12",
+      "13": "Community 13"
+    }
+  },
+  "topology_signature": "n=40;e=35;bukti-fisik-9,component-card-design,feature-bku,feature-cetak,feature-data-entry,feature-dokumen-wajib,feature-login,feature-pengaturan,feature-realisasi,feature-upload,page-bku,page-cetak,page-dashboard,page-data-guru,page-data-sekolah,page-dokumen-wajib,page-landing,page-login,page-realisasi,panduan-arsitektur-deploy,perbandingan-teknologi,plan-frontend,riset-arsitektur,route-bku,route-cetak,route-dashboard,route-data-guru,route-data-sekolah,route-dokumen-wajib,route-landing,route-login,route-pengaturan,route-realisasi,sidebar-menu,skema-aplikasi-spj,state-management,template-bku-17,template-dokumen-wajib-6,template-realisasi-3,ui-state-patterns|bukti-fisik-9\tfeature-bku\tuses;bukti-fisik-9\tfeature-cetak\tuses;bukti-fisik-9\tskema-aplikasi-spj\tdefines;component-card-design\tpage-cetak\tuses;component-card-design\tpage-dokumen-wajib\tuses;component-card-design\tpage-realisasi\tuses;component-card-design\tplan-frontend\tcontains;feature-cetak\ttemplate-bku-17\tuses;feature-dokumen-wajib\ttemplate-dokumen-wajib-6\tuses;feature-realisasi\ttemplate-realisasi-3\tuses;page-bku\troute-bku\trenders;page-cetak\troute-cetak\trenders;page-cetak\ttemplate-bku-17\tuses;page-cetak\tui-state-patterns\tuses;page-dashboard\troute-dashboard\trenders;page-data-guru\troute-data-guru\trenders;page-data-sekolah\troute-data-sekolah\trenders;page-dokumen-wajib\troute-dokumen-wajib\trenders;page-dokumen-wajib\ttemplate-dokumen-wajib-6\tuses;page-dokumen-wajib\tui-state-patterns\tuses;page-landing\troute-landing\trenders;page-login\troute-login\trenders;page-realisasi\troute-pengaturan\trenders;page-realisasi\troute-realisasi\trenders;page-realisasi\ttemplate-realisasi-3\tuses;page-realisasi\tui-state-patterns\tuses;panduan-arsitektur-deploy\tplan-frontend\tdepends;panduan-arsitektur-deploy\tskema-aplikasi-spj\tdepends;perbandingan-teknologi\tplan-frontend\tdepends;perbandingan-teknologi\tskema-aplikasi-spj\tdepends;plan-frontend\tsidebar-menu\tcontains;plan-frontend\tskema-aplikasi-spj\tdepends;plan-frontend\tstate-management\tcontains;plan-frontend\tui-state-patterns\tcontains;riset-arsitektur\tskema-aplikasi-spj\tdepends",
+  "nodes": [
+    {
+      "id": "skema-aplikasi-spj",
+      "type": "file",
+      "file_type": "markdown",
+      "name": "Skema Aplikasi SPJ",
+      "label": "Skema SPJ",
+      "description": "Schema file defining the SPJ application's core features: data entry, file uploads, bukti fisik, workshop, dokumen wajib, realisasi dana BOSP, and PR pengadaan.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "plan-frontend",
+      "type": "file",
+      "file_type": "markdown",
+      "name": "Plan Frontend Blueprint",
+      "label": "Frontend Blueprint",
+      "description": "Frontend blueprint for SPJ app using React + Vite + Tailwind CSS. Defines 9 routes, 8 sidebar menu items, page layouts, component hierarchy, template cards, UI state patterns, and PDF generation approach.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "perbandingan-teknologi",
+      "type": "file",
+      "file_type": "markdown",
+      "name": "Perbandingan Teknologi SPJ",
+      "label": "Tech Comparison",
+      "description": "Technology comparison document analyzing options for SPJ app: Supabase Free→Pro, VPS+PostgreSQL, SQLite, Google Apps Script, Electron, File-Based JSON. Recommends Supabase Free Tier for blueprint.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "panduan-arsitektur-deploy",
+      "type": "file",
+      "file_type": "markdown",
+      "name": "Panduan Arsitektur Deploy Laravel SPJ",
+      "label": "Architecture Guide",
+      "description": "Architecture deployment guide for SPJ app using Laravel + SQLite, modeled after eRapor (local installation). Covers installer flow, database setup, Dapodik integration.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "riset-arsitektur",
+      "type": "file",
+      "file_type": "markdown",
+      "name": "Riset Arsitektur Dapodik eRapor",
+      "label": "Dapodik eRapor Research",
+      "description": "Research document on Dapodik and eRapor architecture patterns, framework comparison, and integration approaches for school financial applications.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "feature-login",
+      "type": "feature",
+      "name": "Login Authentication",
+      "label": "Login Auth",
+      "description": "Admin-only login with animated split layout. Form validation, loading state, error messages, smooth transition animations.",
+      "community": 11,
+      "community_name": "Community 11"
+    },
+    {
+      "id": "feature-data-entry",
+      "type": "feature",
+      "name": "Pendataan Sekolah",
+      "label": "Data Entry",
+      "description": "Data entry for school profile and officials. Supports both manual form and Excel upload.",
+      "community": 10,
+      "community_name": "Community 10"
+    },
+    {
+      "id": "feature-upload",
+      "type": "feature",
+      "name": "Upload Data",
+      "label": "Excel Upload",
+      "description": "Upload data profil sekolah and data guru via Excel (.xlsx) files. Drag & drop or browse file upload.",
+      "community": 13,
+      "community_name": "Community 13"
+    },
+    {
+      "id": "feature-bku",
+      "type": "feature",
+      "name": "BKU Transaction Table",
+      "label": "BKU Table",
+      "description": "Excel-like BKU transaction table with columns for No, Tanggal, Uraian, Kode Rekening, Debet, Kredit, Saldo, Bukti, Aksi. Sort, filter, auto-calculate saldo.",
+      "community": 3,
+      "community_name": "Community 3"
+    },
+    {
+      "id": "feature-cetak",
+      "type": "feature",
+      "name": "Cetak Dokumen SPJ",
+      "label": "Cetak Documents",
+      "description": "Main document composition and printing page per BKU transaction. Split view with Card Grid, Document Editor, Document Preview. Footer actions for print and export.",
+      "community": 3,
+      "community_name": "Community 3"
+    },
+    {
+      "id": "feature-dokumen-wajib",
+      "type": "feature",
+      "name": "Dokumen Wajib",
+      "label": "Wajib Docs",
+      "description": "Mandatory documents outside ARKAS. Toggle SIPLAH/non-SIPLAH controls which documents appear.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "feature-realisasi",
+      "type": "feature",
+      "name": "Realisasi Dana BOSP",
+      "label": "Realisasi BOSP",
+      "description": "Realization of BOSP funds with 3 tabs: Cover, Sekat, Alur. Auto-calculate selisih, export per tab to PDF.",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "feature-pengaturan",
+      "type": "feature",
+      "name": "Pengaturan Aplikasi",
+      "label": "Settings",
+      "description": "Application settings with 4 tabs: Profil Sekolah, Data Master, Backup & Restore, Tentang.",
+      "community": 12,
+      "community_name": "Community 12"
+    },
+    {
+      "id": "route-landing",
+      "type": "route",
+      "name": "/ (Landing Page)",
+      "label": "Landing Route",
+      "description": "Opening page with school branding, hero section, features section, info section, footer.",
+      "community": 8,
+      "community_name": "Community 8"
+    },
+    {
+      "id": "route-login",
+      "type": "route",
+      "name": "/login (Login)",
+      "label": "Login Route",
+      "description": "Admin-only login page with split layout: left = animated illustration, right = login form.",
+      "community": 9,
+      "community_name": "Community 9"
+    },
+    {
+      "id": "route-dashboard",
+      "type": "route",
+      "name": "/dashboard (Dashboard)",
+      "label": "Dashboard Route",
+      "description": "Main dashboard with stats cards, recent BKU table, document progress bars.",
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "route-data-sekolah",
+      "type": "route",
+      "name": "/data-sekolah (Data Sekolah)",
+      "label": "Data Sekolah Route",
+      "description": "School data input page with Form/Upload tabs for profile and officials.",
+      "community": 7,
+      "community_name": "Community 7"
+    },
+    {
+      "id": "route-data-guru",
+      "type": "route",
+      "name": "/data-guru (Data Guru)",
+      "label": "Data Guru Route",
+      "description": "Teacher and education staff data input page with Form/Upload tabs.",
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "route-bku",
+      "type": "route",
+      "name": "/bku (BKU)",
+      "label": "BKU Route",
+      "description": "BKU transaction table page with period filter, sort, auto-calculate saldo, print icon.",
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "route-cetak",
+      "type": "route",
+      "name": "/bku/cetak/:id (Cetak)",
+      "label": "Cetak Route",
+      "description": "Dynamic route for document composition per BKU transaction.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "route-dokumen-wajib",
+      "type": "route",
+      "name": "/dokumen-wajib (Wajib)",
+      "label": "Dokumen Wajib Route",
+      "description": "Mandatory documents page with SIPLAH toggle and conditional document cards.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "route-realisasi",
+      "type": "route",
+      "name": "/realisasi (Realisasi)",
+      "label": "Realisasi Route",
+      "description": "Realization page with 3 tabs: Cover, Sekat, Alur.",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "route-pengaturan",
+      "type": "route",
+      "name": "/pengaturan (Pengaturan)",
+      "label": "Pengaturan Route",
+      "description": "Settings page with 4 tabs for profile, master data, backup, about.",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "page-landing",
+      "type": "page",
+      "name": "LandingPage Components",
+      "label": "Landing Page",
+      "description": "Landing page components: LandingNavbar, HeroSection, FeaturesSection, InfoSection, Footer.",
+      "community": 8,
+      "community_name": "Community 8"
+    },
+    {
+      "id": "page-login",
+      "type": "page",
+      "name": "LoginPage Components",
+      "label": "Login Page",
+      "description": "Login page components: LoginIllustration, LoginForm, AppInfo.",
+      "community": 9,
+      "community_name": "Community 9"
+    },
+    {
+      "id": "page-dashboard",
+      "type": "page",
+      "name": "DashboardPage Components",
+      "label": "Dashboard Page",
+      "description": "Dashboard components: StatsCards, RecentBKUTable, DocumentProgress.",
+      "community": 5,
+      "community_name": "Community 5"
+    },
+    {
+      "id": "page-data-sekolah",
+      "type": "page",
+      "name": "DataSekolahPage Components",
+      "label": "Data Sekolah Page",
+      "description": "School data page components: DataSekolahForm, DataSekolahUpload, TabSwitcher.",
+      "community": 7,
+      "community_name": "Community 7"
+    },
+    {
+      "id": "page-data-guru",
+      "type": "page",
+      "name": "DataGuruPage Components",
+      "label": "Data Guru Page",
+      "description": "Teacher data page components: DataGuruForm, DataGuruUpload, DataGuruTable.",
+      "community": 6,
+      "community_name": "Community 6"
+    },
+    {
+      "id": "page-bku",
+      "type": "page",
+      "name": "BKUPage Components",
+      "label": "BKU Page",
+      "description": "BKU table page components: BKUTable, BKUFilter, BKUActions, PrintButton.",
+      "community": 4,
+      "community_name": "Community 4"
+    },
+    {
+      "id": "page-cetak",
+      "type": "page",
+      "name": "CetakPage Components",
+      "label": "Cetak Page",
+      "description": "Document composition page components: DocumentSidebar, DocumentCard, DocumentEditor, DocumentPreview, PreviewControls, PrintActions, BatchProcessor.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "page-dokumen-wajib",
+      "type": "page",
+      "name": "DokumenWajibPage Components",
+      "label": "Dokumen Wajib Page",
+      "description": "Mandatory documents page components: DokumenCard, UploadDokumen, SiplahToggle.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "page-realisasi",
+      "type": "page",
+      "name": "RealisasiPage Components",
+      "label": "Realisasi Page",
+      "description": "Realization page components: CoverForm, SekatTable, AlurFlow.",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "template-bku-17",
+      "type": "concept",
+      "name": "17 BKU Utama Templates",
+      "label": "17 BKU Templates",
+      "description": "17 document templates for BKU transactions grouped into 7 gradient categories. Each template has card with gradient header, icon, title, sub-type, and action buttons.",
+      "community": 3,
+      "community_name": "Community 3"
+    },
+    {
+      "id": "template-dokumen-wajib-6",
+      "type": "concept",
+      "name": "6 Dokumen Wajib Templates",
+      "label": "6 Wajib Templates",
+      "description": "6 mandatory document templates outside ARKAS: Dok. PBJ, Register KAS, Berita Acara, Lembar Kritik/Saran, Lembar Pengaduan, Papan BOS.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "template-realisasi-3",
+      "type": "concept",
+      "name": "3 Realisasi Templates",
+      "label": "3 Realisasi Templates",
+      "description": "3 realization document templates: Cover, Sekat, Alur. Tab-based navigation.",
+      "community": 2,
+      "community_name": "Community 2"
+    },
+    {
+      "id": "state-management",
+      "type": "concept",
+      "name": "State Management",
+      "label": "State Management",
+      "description": "React Context / Zustand for lightweight state management. State sections: documents, dokumenWajib, realisasi, ui.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "ui-state-patterns",
+      "type": "concept",
+      "name": "UI State Patterns",
+      "label": "UI Patterns",
+      "description": "Reusable UI patterns: Empty State, Loading State, Error State, Confirmation Dialog, Toast Notification.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "component-card-design",
+      "type": "concept",
+      "name": "Card-Based Premium Design",
+      "label": "Card Design System",
+      "description": "Premium card design system with gradient headers, rounded-2xl shadow, hover effects, status indicators, action buttons. 3 card variants.",
+      "community": 0,
+      "community_name": "Community 0"
+    },
+    {
+      "id": "sidebar-menu",
+      "type": "concept",
+      "name": "Sidebar Navigation",
+      "label": "Sidebar Navigation",
+      "description": "Sidebar with 8 menu items: Dashboard, Data Sekolah, Data Guru, BKU, Dokumen SPJ, Dokumen Wajib, Realisasi, Pengaturan.",
+      "community": 1,
+      "community_name": "Community 1"
+    },
+    {
+      "id": "bukti-fisik-9",
+      "type": "concept",
+      "name": "9+ Bukti Fisik Categories",
+      "label": "Bukti Fisik",
+      "description": "Physical evidence categories: Honor, Perjalanan Dinas, Mamin, Penggandaan, Cetak Foto, Cetak Banner, Sewa, Pemeliharaan, Tagihan.",
+      "community": 3,
+      "community_name": "Community 3"
+    }
+  ],
+  "links": [
+    {
+      "source": "feature-bku",
+      "target": "bukti-fisik-9",
+      "relation": "uses",
+      "_src": "feature-bku",
+      "_tgt": "bukti-fisik-9",
+      "confidence_score": 1
+    },
+    {
+      "source": "feature-cetak",
+      "target": "bukti-fisik-9",
+      "relation": "uses",
+      "_src": "feature-cetak",
+      "_tgt": "bukti-fisik-9",
+      "confidence_score": 1
+    },
+    {
+      "source": "feature-cetak",
+      "target": "template-bku-17",
+      "relation": "uses",
+      "_src": "feature-cetak",
+      "_tgt": "template-bku-17",
+      "confidence_score": 1
+    },
+    {
+      "source": "feature-dokumen-wajib",
+      "target": "template-dokumen-wajib-6",
+      "relation": "uses",
+      "_src": "feature-dokumen-wajib",
+      "_tgt": "template-dokumen-wajib-6",
+      "confidence_score": 1
+    },
+    {
+      "source": "feature-realisasi",
+      "target": "template-realisasi-3",
+      "relation": "uses",
+      "_src": "feature-realisasi",
+      "_tgt": "template-realisasi-3",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-cetak",
+      "target": "component-card-design",
+      "relation": "uses",
+      "_src": "page-cetak",
+      "_tgt": "component-card-design",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-cetak",
+      "target": "template-bku-17",
+      "relation": "uses",
+      "_src": "page-cetak",
+      "_tgt": "template-bku-17",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-cetak",
+      "target": "ui-state-patterns",
+      "relation": "uses",
+      "_src": "page-cetak",
+      "_tgt": "ui-state-patterns",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-dokumen-wajib",
+      "target": "component-card-design",
+      "relation": "uses",
+      "_src": "page-dokumen-wajib",
+      "_tgt": "component-card-design",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-dokumen-wajib",
+      "target": "template-dokumen-wajib-6",
+      "relation": "uses",
+      "_src": "page-dokumen-wajib",
+      "_tgt": "template-dokumen-wajib-6",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-dokumen-wajib",
+      "target": "ui-state-patterns",
+      "relation": "uses",
+      "_src": "page-dokumen-wajib",
+      "_tgt": "ui-state-patterns",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-realisasi",
+      "target": "component-card-design",
+      "relation": "uses",
+      "_src": "page-realisasi",
+      "_tgt": "component-card-design",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-realisasi",
+      "target": "template-realisasi-3",
+      "relation": "uses",
+      "_src": "page-realisasi",
+      "_tgt": "template-realisasi-3",
+      "confidence_score": 1
+    },
+    {
+      "source": "page-realisasi",
+      "target": "ui-state-patterns",
+      "relation": "uses",
+      "_src": "page-realisasi",
+      "_tgt": "ui-state-patterns",
+      "confidence_score": 1
+    },
+    {
+      "source": "panduan-arsitektur-deploy",
+      "target": "skema-aplikasi-spj",
+      "relation": "depends",
+      "_src": "panduan-arsitektur-deploy",
+      "_tgt": "skema-aplikasi-spj",
+      "confidence_score": 1
+    },
+    {
+      "source": "perbandingan-teknologi",
+      "target": "skema-aplikasi-spj",
+      "relation": "depends",
+      "_src": "perbandingan-teknologi",
+      "_tgt": "skema-aplikasi-spj",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "component-card-design",
+      "relation": "contains",
+      "_src": "plan-frontend",
+      "_tgt": "component-card-design",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "panduan-arsitektur-deploy",
+      "relation": "depends",
+      "_src": "plan-frontend",
+      "_tgt": "panduan-arsitektur-deploy",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "perbandingan-teknologi",
+      "relation": "depends",
+      "_src": "plan-frontend",
+      "_tgt": "perbandingan-teknologi",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "sidebar-menu",
+      "relation": "contains",
+      "_src": "plan-frontend",
+      "_tgt": "sidebar-menu",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "skema-aplikasi-spj",
+      "relation": "depends",
+      "_src": "plan-frontend",
+      "_tgt": "skema-aplikasi-spj",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "state-management",
+      "relation": "contains",
+      "_src": "plan-frontend",
+      "_tgt": "state-management",
+      "confidence_score": 1
+    },
+    {
+      "source": "plan-frontend",
+      "target": "ui-state-patterns",
+      "relation": "contains",
+      "_src": "plan-frontend",
+      "_tgt": "ui-state-patterns",
+      "confidence_score": 1
+    },
+    {
+      "source": "riset-arsitektur",
+      "target": "skema-aplikasi-spj",
+      "relation": "depends",
+      "_src": "riset-arsitektur",
+      "_tgt": "skema-aplikasi-spj",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-bku",
+      "target": "page-bku",
+      "relation": "renders",
+      "_src": "route-bku",
+      "_tgt": "page-bku",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-cetak",
+      "target": "page-cetak",
+      "relation": "renders",
+      "_src": "route-cetak",
+      "_tgt": "page-cetak",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-dashboard",
+      "target": "page-dashboard",
+      "relation": "renders",
+      "_src": "route-dashboard",
+      "_tgt": "page-dashboard",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-data-guru",
+      "target": "page-data-guru",
+      "relation": "renders",
+      "_src": "route-data-guru",
+      "_tgt": "page-data-guru",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-data-sekolah",
+      "target": "page-data-sekolah",
+      "relation": "renders",
+      "_src": "route-data-sekolah",
+      "_tgt": "page-data-sekolah",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-dokumen-wajib",
+      "target": "page-dokumen-wajib",
+      "relation": "renders",
+      "_src": "route-dokumen-wajib",
+      "_tgt": "page-dokumen-wajib",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-landing",
+      "target": "page-landing",
+      "relation": "renders",
+      "_src": "route-landing",
+      "_tgt": "page-landing",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-login",
+      "target": "page-login",
+      "relation": "renders",
+      "_src": "route-login",
+      "_tgt": "page-login",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-pengaturan",
+      "target": "page-realisasi",
+      "relation": "renders",
+      "_src": "route-pengaturan",
+      "_tgt": "page-realisasi",
+      "confidence_score": 1
+    },
+    {
+      "source": "route-realisasi",
+      "target": "page-realisasi",
+      "relation": "renders",
+      "_src": "route-realisasi",
+      "_tgt": "page-realisasi",
+      "confidence_score": 1
+    },
+    {
+      "source": "skema-aplikasi-spj",
+      "target": "bukti-fisik-9",
+      "relation": "defines",
+      "_src": "skema-aplikasi-spj",
+      "_tgt": "bukti-fisik-9",
+      "confidence_score": 1
+    }
+  ],
+  "hyperedges": []
+}

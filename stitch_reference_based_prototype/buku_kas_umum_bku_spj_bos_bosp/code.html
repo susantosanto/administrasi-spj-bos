@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BKU - SPJ BOS/BOSP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#191c1e",
+                    "danger": "#DC2626",
+                    "warning": "#EAB308",
+                    "background": "#f8f9fb",
+                    "surface-container-lowest": "#ffffff",
+                    "grad-honor": "linear-gradient(135deg, #3B82F6, #4F46E5)",
+                    "inverse-primary": "#b4c5ff",
+                    "grad-travel": "linear-gradient(135deg, #10B981, #0D9488)",
+                    "tertiary-container": "#a65900",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-surface": "#2e3132",
+                    "grad-food": "linear-gradient(135deg, #F97316, #D97706)",
+                    "surface-container-low": "#f3f4f6",
+                    "on-tertiary-container": "#ffede1",
+                    "on-tertiary-fixed-variant": "#6e3900",
+                    "secondary-fixed-dim": "#68dba9",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#d9dadc",
+                    "secondary": "#006c4a",
+                    "surface-bright": "#f8f9fb",
+                    "primary": "#004ac6",
+                    "on-primary-container": "#eeefff",
+                    "tertiary-fixed-dim": "#ffb77d",
+                    "on-error-container": "#93000a",
+                    "surface-container": "#edeef0",
+                    "inverse-on-surface": "#f0f1f3",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "grad-realization": "linear-gradient(135deg, #F97316, #DC2626)",
+                    "text-high": "#111827",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "grad-maintenance": "linear-gradient(135deg, #F43F5E, #DB2777)",
+                    "outline": "#737686",
+                    "tertiary-fixed": "#ffdcc3",
+                    "on-secondary-fixed": "#002114",
+                    "grad-support": "linear-gradient(135deg, #A855F7, #7C3AED)",
+                    "surface-tint": "#0053db",
+                    "surface": "#f8f9fb",
+                    "surface-variant": "#e1e2e4",
+                    "on-surface-variant": "#434655",
+                    "on-surface": "#191c1e",
+                    "tertiary": "#824500",
+                    "grad-admin": "linear-gradient(135deg, #4B5563, #334155)",
+                    "surface-container-highest": "#e1e2e4",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#005137",
+                    "secondary-container": "#82f5c1",
+                    "outline-variant": "#c3c6d7",
+                    "secondary-fixed": "#85f8c4",
+                    "text-low": "#6B7280",
+                    "primary-fixed": "#dbe1ff",
+                    "on-tertiary-fixed": "#2f1500",
+                    "grad-workshop": "linear-gradient(135deg, #06B6D4, #0284C7)",
+                    "on-secondary-container": "#00714e",
+                    "surface-container-high": "#e7e8ea",
+                    "primary-container": "#2563eb",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.8rem",
+                    "xl": "1rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "xl": "32px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "base": "4px",
+                    "margin-page": "24px",
+                    "gutter": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "label-md": ["Inter"],
+                    "label-xs": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "body-sm": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+        .financial-table tr:nth-child(even) { background-color: #f9fafb; }
+        .financial-table th { position: sticky; top: 0; z-index: 10; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Shell Container -->
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest flex flex-col h-screen p-md gap-sm shadow-lg z-50">
+<div class="flex items-center gap-md mb-xl px-sm">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary leading-tight">SPJ BOS</h1>
+<p class="text-label-xs text-on-surface-variant font-medium">Administrasi Keuangan</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">school</span>
+<span class="font-label-md text-label-md">Data Sekolah</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">groups</span>
+<span class="font-label-md text-label-md">Data Guru</span>
+</a>
+<!-- Active Tab: BKU -->
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-md text-label-md">BKU</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">description</span>
+<span class="font-label-md text-label-md">Dokumen SPJ</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">assignment_turned_in</span>
+<span class="font-label-md text-label-md">Dokumen Wajib</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">trending_up</span>
+<span class="font-label-md text-label-md">Realisasi</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary">settings</span>
+<span class="font-label-md text-label-md">Pengaturan</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<button class="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all rounded-lg active:scale-95">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Keluar</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col overflow-hidden">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-lg py-md w-full bg-surface-container-low border-b border-outline-variant z-40">
+<div class="flex items-center gap-md">
+<div class="hidden md:block">
+<h2 class="font-headline-md text-headline-md font-extrabold text-primary">Buku Kas Umum</h2>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface border border-outline-variant rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all w-64" placeholder="Cari transaksi..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border-2 border-surface-container-low"></span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-container-high p-1 pr-3 rounded-full transition-all">
+<img class="w-8 h-8 rounded-full border border-primary object-cover" data-alt="A professional headshot of a female school administrator in her 40s, wearing business formal attire, with a friendly and focused expression. The background is a slightly blurred office setting with organized bookshelves. The lighting is soft and professional, emphasizing a corporate and reliable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBONtGYdQ0mqOopyjU8cBIxyPBlyO2k0I2gCSodtfKuNSNOxdDVFczVjs_F7txPhuEmc5TSESwSnkCa1RtJuSIUQ-aQJCgkCFhqkzKkpIMBbA-CvOgLxU5AyTgSdOhoSELX3Cx0lcBuNoVzy9lmZ-WfM-wtnH54VNgc75VJJmGdGktFglZnOH131jmD2WA-E-A6yx3Hdv-VcouWkFZJKWvOwVSL73U-Q9QLZ_zC21aAJujw6pugE0BQKTYZIUadvD02FZDrSRAdCCG_"/>
+<div class="text-left hidden sm:block">
+<p class="text-label-md leading-none">Admin Sekolah</p>
+<p class="text-label-xs text-on-surface-variant">Bendahara BOS</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<section class="flex-1 overflow-y-auto p-margin-page custom-scrollbar">
+<!-- BKU Summary Cards (Bento-ish) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
+<div class="glass-card p-lg rounded-xl shadow-lg border-l-4 border-primary">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-md text-on-surface-variant">Total Penerimaan</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold">Rp 125.000.000</h3>
+<p class="text-label-xs text-secondary mt-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                            +12% dari semester lalu
+                        </p>
+</div>
+<div class="glass-card p-lg rounded-xl shadow-lg border-l-4 border-danger">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-md text-on-surface-variant">Total Pengeluaran</span>
+<span class="material-symbols-outlined text-danger" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold">Rp 42.500.000</h3>
+<p class="text-label-xs text-on-surface-variant mt-xs">34 Transaksi terverifikasi</p>
+</div>
+<div class="glass-card p-lg rounded-xl shadow-lg border-l-4 border-warning">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-md text-on-surface-variant">Draft SPJ</span>
+<span class="material-symbols-outlined text-warning" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold">12 Dokumen</h3>
+<p class="text-label-xs text-on-surface-variant mt-xs">Memerlukan Review</p>
+</div>
+<div class="bg-primary text-on-primary p-lg rounded-xl shadow-lg relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-md opacity-80">Saldo Kas Sekarang</span>
+<span class="material-symbols-outlined opacity-80">wallet</span>
+</div>
+<h3 class="font-headline-md text-headline-md font-bold">Rp 82.500.000</h3>
+<button class="mt-md text-label-md flex items-center gap-sm bg-white/20 hover:bg-white/30 px-md py-1 rounded-full transition-colors backdrop-blur-md">
+                                Lihat Detail Saldo
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Background decoration -->
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[100px]">savings</span>
+</div>
+</div>
+</div>
+<!-- Filter & Action Bar -->
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-lg mb-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-md border border-outline-variant">
+<div class="flex flex-wrap items-center gap-md">
+<div class="flex flex-col gap-xs">
+<label class="text-label-xs text-on-surface-variant font-semibold">Tahun Anggaran</label>
+<select class="bg-surface border border-outline-variant rounded-lg px-md py-2 text-label-md focus:ring-primary focus:border-primary">
+<option>2024</option>
+<option>2023</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-xs text-on-surface-variant font-semibold">Semester</label>
+<select class="bg-surface border border-outline-variant rounded-lg px-md py-2 text-label-md focus:ring-primary focus:border-primary">
+<option>Semester 1 (Ganjil)</option>
+<option>Semester 2 (Genap)</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-xs text-on-surface-variant font-semibold">Bulan</label>
+<select class="bg-surface border border-outline-variant rounded-lg px-md py-2 text-label-md focus:ring-primary focus:border-primary">
+<option>Januari</option>
+<option>Februari</option>
+<option>Maret</option>
+<option>April</option>
+</select>
+</div>
+<button class="mt-auto mb-1 p-2 bg-surface hover:bg-surface-container-high rounded-lg border border-outline-variant transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<div class="flex flex-wrap items-center gap-sm">
+<button class="flex items-center gap-sm bg-surface border border-outline-variant text-on-surface px-lg py-2 rounded-lg hover:bg-surface-container-high transition-all active:scale-95 font-label-md">
+<span class="material-symbols-outlined">upload_file</span>
+                            Import Excel
+                        </button>
+<button class="flex items-center gap-sm bg-surface border border-outline-variant text-on-surface px-lg py-2 rounded-lg hover:bg-surface-container-high transition-all active:scale-95 font-label-md">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+                            Export PDF
+                        </button>
+<button class="flex items-center gap-sm bg-primary text-on-primary px-lg py-2 rounded-lg hover:brightness-110 shadow-md transition-all active:scale-95 font-label-md">
+<span class="material-symbols-outlined">add</span>
+                            Tambah Transaksi
+                        </button>
+</div>
+</div>
+<!-- BKU Financial Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-2xl border border-outline-variant overflow-hidden">
+<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h4 class="font-headline-sm text-headline-sm font-bold text-on-surface">Rincian Buku Kas Umum</h4>
+<div class="flex items-center gap-sm">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-label-xs text-on-surface-variant">Semua data terenkripsi &amp; aman</span>
+</div>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full financial-table border-collapse text-left">
+<thead class="bg-surface-container text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="px-lg py-md font-label-md text-xs whitespace-nowrap">No</th>
+<th class="px-lg py-md font-label-md text-xs whitespace-nowrap">Tanggal</th>
+<th class="px-lg py-md font-label-md text-xs">Uraian Transaksi</th>
+<th class="px-lg py-md font-label-md text-xs">Kode Rekening</th>
+<th class="px-lg py-md font-label-md text-xs text-right">Debet (Rp)</th>
+<th class="px-lg py-md font-label-md text-xs text-right">Kredit (Rp)</th>
+<th class="px-lg py-md font-label-md text-xs text-right">Saldo (Rp)</th>
+<th class="px-lg py-md font-label-md text-xs text-center sticky right-0 bg-surface-container border-l border-outline-variant">Aksi</th>
+</tr>
+</thead>
+<tbody class="text-body-sm text-on-surface">
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-lg py-md border-b border-outline-variant">01</td>
+<td class="px-lg py-md border-b border-outline-variant whitespace-nowrap">02 Jan 2024</td>
+<td class="px-lg py-md border-b border-outline-variant">
+<div class="flex flex-col">
+<span class="font-semibold">Saldo Awal Tahun 2024</span>
+<span class="text-label-xs text-on-surface-variant">Penerimaan Dana BOS Tahap I</span>
+</div>
+</td>
+<td class="px-lg py-md border-b border-outline-variant font-mono text-xs">4.2.1.01.01</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium text-secondary">85.000.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium">0</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-bold">85.000.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-center sticky right-0 bg-white group-hover:bg-surface-container transition-colors border-l border-outline-variant">
+<div class="flex items-center justify-center gap-sm">
+<button class="p-1.5 hover:bg-primary/10 text-primary rounded-lg transition-colors" title="Cetak Kwitansi">
+<span class="material-symbols-outlined text-sm">print</span>
+</button>
+<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded-lg transition-colors" title="Edit Data">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-lg py-md border-b border-outline-variant">02</td>
+<td class="px-lg py-md border-b border-outline-variant whitespace-nowrap">05 Jan 2024</td>
+<td class="px-lg py-md border-b border-outline-variant">
+<div class="flex flex-col">
+<span class="font-semibold">Pembayaran Honor Guru GTT</span>
+<span class="text-label-xs text-on-surface-variant">Bulan Januari - 5 Orang</span>
+</div>
+</td>
+<td class="px-lg py-md border-b border-outline-variant font-mono text-xs">5.1.02.02.01</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium">0</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium text-danger">7.500.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-bold">77.500.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-center sticky right-0 bg-white group-hover:bg-surface-container transition-colors border-l border-outline-variant">
+<div class="flex items-center justify-center gap-sm">
+<button class="p-1.5 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">print</span>
+</button>
+<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-lg py-md border-b border-outline-variant">03</td>
+<td class="px-lg py-md border-b border-outline-variant whitespace-nowrap">10 Jan 2024</td>
+<td class="px-lg py-md border-b border-outline-variant">
+<div class="flex flex-col">
+<span class="font-semibold">Pembelian Alat Tulis Kantor (ATK)</span>
+<span class="text-label-xs text-on-surface-variant">Faktur #ATK-9901 (Toko Buku Jaya)</span>
+</div>
+</td>
+<td class="px-lg py-md border-b border-outline-variant font-mono text-xs">5.2.02.01.01</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium">0</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium text-danger">1.250.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-bold">76.250.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-center sticky right-0 bg-white group-hover:bg-surface-container transition-colors border-l border-outline-variant">
+<div class="flex items-center justify-center gap-sm">
+<button class="p-1.5 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">print</span>
+</button>
+<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-lg py-md border-b border-outline-variant">04</td>
+<td class="px-lg py-md border-b border-outline-variant whitespace-nowrap">15 Jan 2024</td>
+<td class="px-lg py-md border-b border-outline-variant">
+<div class="flex flex-col">
+<span class="font-semibold">Langganan Internet &amp; Listrik</span>
+<span class="text-label-xs text-on-surface-variant">Tagihan Januari 2024</span>
+</div>
+</td>
+<td class="px-lg py-md border-b border-outline-variant font-mono text-xs">5.2.02.05.02</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium">0</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-medium text-danger">2.800.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-right font-bold">73.450.000</td>
+<td class="px-lg py-md border-b border-outline-variant text-center sticky right-0 bg-white group-hover:bg-surface-container transition-colors border-l border-outline-variant">
+<div class="flex items-center justify-center gap-sm">
+<button class="p-1.5 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">print</span>
+</button>
+<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded-lg transition-colors">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+<tfoot class="bg-surface-container-low font-bold">
+<tr>
+<td class="px-lg py-lg text-right" colspan="4">TOTAL BULAN INI</td>
+<td class="px-lg py-lg text-right text-secondary">85.000.000</td>
+<td class="px-lg py-lg text-right text-danger">11.550.000</td>
+<td class="px-lg py-lg text-right text-primary text-lg">73.450.000</td>
+<td class="px-lg py-lg bg-surface-container-low sticky right-0 border-l border-outline-variant"></td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<!-- Footer Pagination -->
+<div class="mt-md flex justify-between items-center text-label-xs text-on-surface-variant">
+<p>Menampilkan 1 - 4 dari 4 entri</p>
+<div class="flex gap-xs">
+<button class="px-3 py-1 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">Sebelumnya</button>
+<button class="px-3 py-1 bg-primary text-on-primary rounded-lg">1</button>
+<button class="px-3 py-1 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">Selanjutnya</button>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Floating Toast Notification (Micro-interaction) -->
+<div class="fixed bottom-margin-page right-margin-page bg-on-background text-on-primary-container px-lg py-md rounded-xl shadow-2xl flex items-center gap-md translate-y-24 opacity-0 transition-all duration-500 z-[100] glass-card border-none" id="toast">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+<div class="flex flex-col">
+<p class="font-bold text-label-md">Data Diperbarui</p>
+<p class="text-xs opacity-70">Sinkronisasi data BKU berhasil.</p>
+</div>
+<button class="ml-4 hover:bg-white/10 p-1 rounded-full" onclick="hideToast()">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<script>
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(hideToast, 5000);
+        }
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('translate-y-24', 'opacity-0');
+        }
+
+        // Simulate a load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(showToast, 1500);
+        });
+
+        // Add ripple effect or scale on buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.95)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

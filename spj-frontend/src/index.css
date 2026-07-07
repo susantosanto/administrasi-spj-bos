@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   SPJ BOS/BOSP Design System - Global Styles
+   Material Design 3 Inspired Corporate Modern
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: #f8f9fb;
+  color: #191c1e;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Material Symbols Outlined */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+/* Selection */
+::selection {
+  background: #dbe1ff;
+  color: #00174b;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c3c6d7;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #737686;
+}
+
+/* ============================================
+   Component Classes
+   ============================================ */
+@layer components {
+  /* Glass Card - frosted glass effect */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  /* Bento Card - hover lift effect */
+  .bento-card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  .bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+
+  /* Financial Table */
+  .financial-table tr:nth-child(even) {
+    background-color: #f9fafb;
+  }
+  .financial-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* Custom Scrollbar Container */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+  /* Sidebar Nav Item */
+  .nav-item {
+    @apply flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 cursor-pointer;
+  }
+  .nav-item:hover {
+    @apply bg-surface-container-high;
+  }
+  .nav-item-active {
+    @apply bg-primary-container text-on-primary-container font-semibold;
+  }
+}
+
+/* ============================================
+   Utility Animations
+   ============================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

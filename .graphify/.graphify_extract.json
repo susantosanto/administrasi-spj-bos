@@ -1,0 +1,424 @@
+{
+  "nodes": [
+    {
+      "id": "skema-aplikasi-spj",
+      "type": "file",
+      "name": "Skema Aplikasi SPJ",
+      "description": "Schema file defining the SPJ application's core features: data entry (NPSN, nama sekolah, pejabat), file uploads (profil sekolah, data guru), bukti fisik categories (9+ types: honor, perjalanan dinas, mamin, penggandaan, cetak foto, cetak banner, sewa, pemeliharaan, tagihan), workshop (internal/external), dokumen wajib (SIPLAH/non-SIPLAH), realisasi dana BOSP, and PR pengadaan."
+    },
+    {
+      "id": "plan-frontend",
+      "type": "file",
+      "name": "Plan Frontend Blueprint",
+      "description": "Frontend blueprint for SPJ app using React + Vite + Tailwind CSS. Defines 9 routes, 8 sidebar menu items, page layouts, component hierarchy, template cards (26 types across 3 groups), UI state patterns (empty, loading, error, confirmation, toast), state management (React Context/Zustand), and PDF generation approach."
+    },
+    {
+      "id": "perbandingan-teknologi",
+      "type": "file",
+      "name": "Perbandingan Teknologi SPJ",
+      "description": "Technology comparison document analyzing options for SPJ app: Supabase Free→Pro, VPS+PostgreSQL, SQLite, Google Apps Script, Electron, File-Based JSON. Recommends Supabase Free Tier for blueprint (Rp0), upgrade path to production. Target 600 users."
+    },
+    {
+      "id": "panduan-arsitektur-deploy",
+      "type": "file",
+      "name": "Panduan Arsitektur Deploy Laravel SPJ",
+      "description": "Architecture deployment guide for SPJ app using Laravel + SQLite, modeled after eRapor (local installation). Covers installer flow, database setup, Dapodik integration, deployment strategies, and installation for non-IT staff."
+    },
+    {
+      "id": "riset-arsitektur",
+      "type": "file",
+      "name": "Riset Arsitektur Dapodik eRapor Framework",
+      "description": "Research document on Dapodik and eRapor architecture patterns, framework comparison, and integration approaches for school financial applications."
+    },
+    {
+      "id": "feature-login",
+      "type": "feature",
+      "name": "Login Authentication",
+      "description": "Admin-only login with animated split layout (left: illustration, right: form). Form validation, loading state, error messages, smooth transition animations."
+    },
+    {
+      "id": "feature-data-entry",
+      "type": "feature",
+      "name": "Pendataan Sekolah",
+      "description": "Data entry for school profile (NPSN, nama, kecamatan, kabupaten, alamat, email) and school officials (KS, Bendahara, Pengawas, Sekdik with NIP). Supports both manual form and Excel upload."
+    },
+    {
+      "id": "feature-upload",
+      "type": "feature",
+      "name": "Upload Data",
+      "description": "Upload data profil sekolah and data guru & tendik via Excel (.xlsx) files. Drag & drop or browse file upload interface."
+    },
+    {
+      "id": "feature-bku",
+      "type": "feature",
+      "name": "BKU Transaction Table",
+      "description": "Excel-like BKU (Buku Kas Umum) transaction table with columns: No, Tanggal, Uraian, Kode Rekening, Debet, Kredit, Saldo, Bukti, Aksi (print icon). Features: sort by column, filter by period (Bulan/Tahun/Semester), auto-calculate Saldo, print icon navigates to /bku/cetak/:id."
+    },
+    {
+      "id": "feature-cetak",
+      "type": "feature",
+      "name": "Cetak Dokumen SPJ",
+      "description": "Main document composition and printing page per BKU transaction. Split view: Card Grid (document type switching) | Document Editor (form input) | Document Preview (real-time multi-page). Footer actions: Cetak Dokumen, Export PDF, Cetak Semua, Export Semua."
+    },
+    {
+      "id": "feature-dokumen-wajib",
+      "type": "feature",
+      "name": "Dokumen Wajib (Luar ARKAS)",
+      "description": "Mandatory documents outside ARKAS. Toggle SIPLAH/non-SIPLAH controls which documents appear. SIPLAH: only Dok. PBJ. Non-SIPLAH: Dok. PBJ + Register KAS + Berita Acara Pemeriksaan KAS + Lembar Kritik/Saran + Lembar Pengaduan + Papan BOS."
+    },
+    {
+      "id": "feature-realisasi",
+      "type": "feature",
+      "name": "Realisasi Dana BOSP",
+      "description": "Realization of BOSP funds with 3 tabs: Cover (tahun anggaran, nama sekolah, dana BOSP, sumber dana), Sekat (kode rekening, uraian, anggaran, realisasi, selisih), Alur (fund usage flow). Auto-calculate selisih, export per tab to PDF."
+    },
+    {
+      "id": "feature-pengaturan",
+      "type": "feature",
+      "name": "Pengaturan Aplikasi",
+      "description": "Application settings with 4 tabs: Profil Sekolah (8 fields), Data Master (4 setting items), Backup & Restore (export/import/reset with confirmation dialog), Tentang (app info table)."
+    },
+    {
+      "id": "route-landing",
+      "type": "route",
+      "name": "/ (Landing Page)",
+      "description": "Opening page with school branding. Hero section 'Sampurasun! Selamat Datang', features section with 3-4 cards, info section, footer."
+    },
+    {
+      "id": "route-login",
+      "type": "route",
+      "name": "/login (Login)",
+      "description": "Admin-only login page with split layout: left = animated illustration, right = login form."
+    },
+    {
+      "id": "route-dashboard",
+      "type": "route",
+      "name": "/dashboard (Dashboard)",
+      "description": "Main dashboard with stats cards (Total BKU, Total Dokumen), recent BKU table (5 rows), document progress bars."
+    },
+    {
+      "id": "route-data-sekolah",
+      "type": "route",
+      "name": "/data-sekolah (Data Sekolah)",
+      "description": "School data input page with Form/Upload tabs. Form fields: NPSN, nama sekolah, kecamatan, kabupaten, alamat, email, plus 4 officials (KS, Bendahara, Pengawas, Sekdik) with NIP."
+    },
+    {
+      "id": "route-data-guru",
+      "type": "route",
+      "name": "/data-guru (Data Guru)",
+      "description": "Teacher and education staff data input page with Form/Upload tabs. Fields: nama guru, NIP, NUPTK, golongan, jabatan, mata pelajaran, status (PNS/CPNS/PPP/Honorer)."
+    },
+    {
+      "id": "route-bku",
+      "type": "route",
+      "name": "/bku (BKU)",
+      "description": "BKU transaction table page with period filter, sort, auto-calculate saldo, print icon per row."
+    },
+    {
+      "id": "route-cetak",
+      "type": "route",
+      "name": "/bku/cetak/:id (Cetak Dokumen)",
+      "description": "Dynamic route for document composition per BKU transaction. Split view with Card Grid, Document Editor, Document Preview, and footer actions."
+    },
+    {
+      "id": "route-dokumen-wajib",
+      "type": "route",
+      "name": "/dokumen-wajib (Dokumen Wajib)",
+      "description": "Mandatory documents page with SIPLAH toggle. Displays Dok. PBJ + conditional non-SIPLAH documents (Register KAS, Berita Acara, Lembar Kritik/Saran, Lembar Pengaduan, Papan BOS)."
+    },
+    {
+      "id": "route-realisasi",
+      "type": "route",
+      "name": "/realisasi (Realisasi Dana BOSP)",
+      "description": "Realization page with 3 tabs: Cover, Sekat, Alur. Auto-calculate selisih, export per tab."
+    },
+    {
+      "id": "route-pengaturan",
+      "type": "route",
+      "name": "/pengaturan (Pengaturan)",
+      "description": "Settings page with 4 tabs: Profil Sekolah, Data Master, Backup & Restore, Tentang."
+    },
+    {
+      "id": "page-landing",
+      "type": "page",
+      "name": "LandingPage",
+      "description": "Landing page components: LandingNavbar, HeroSection, FeaturesSection, InfoSection, Footer."
+    },
+    {
+      "id": "page-login",
+      "type": "page",
+      "name": "LoginPage",
+      "description": "Login page components: LoginIllustration (animated SVG), LoginForm, AppInfo."
+    },
+    {
+      "id": "page-dashboard",
+      "type": "page",
+      "name": "DashboardPage",
+      "description": "Dashboard components: StatsCards, RecentBKUTable, DocumentProgress."
+    },
+    {
+      "id": "page-data-sekolah",
+      "type": "page",
+      "name": "DataSekolahPage",
+      "description": "School data page components: DataSekolahForm, DataSekolahUpload, TabSwitcher."
+    },
+    {
+      "id": "page-data-guru",
+      "type": "page",
+      "name": "DataGuruPage",
+      "description": "Teacher data page components: DataGuruForm, DataGuruUpload, DataGuruTable."
+    },
+    {
+      "id": "page-bku",
+      "type": "page",
+      "name": "BKUPage",
+      "description": "BKU table page components: BKUTable, BKUFilter, BKUActions, PrintButton."
+    },
+    {
+      "id": "page-cetak",
+      "type": "page",
+      "name": "CetakPage",
+      "description": "Document composition page components: DocumentSidebar, DocumentCard, DocumentEditor, DocumentPreview, PreviewControls, PrintActions, BatchProcessor."
+    },
+    {
+      "id": "page-dokumen-wajib",
+      "type": "page",
+      "name": "DokumenWajibPage",
+      "description": "Mandatory documents page components: DokumenCard, UploadDokumen, SiplahToggle."
+    },
+    {
+      "id": "page-realisasi",
+      "type": "page",
+      "name": "RealisasiPage",
+      "description": "Realization page components: CoverForm, SekatTable, AlurFlow."
+    },
+    {
+      "id": "template-bku-17",
+      "type": "concept",
+      "name": "17 BKU Utama Templates",
+      "description": "17 document templates for BKU transactions grouped into 7 gradient categories: Honor & Narasumber (blue), Perjalanan Dinas (emerald), Makan & Minum (orange), Dokumen Pendukung (purple), Workshop (pink), Sewa & Pemeliharaan (cyan), Tagihan (red). Each template has card with gradient header, icon, title, sub-type, and 4 action buttons (view, edit, print, download)."
+    },
+    {
+      "id": "template-dokumen-wajib-6",
+      "type": "concept",
+      "name": "6 Dokumen Wajib Templates",
+      "description": "6 mandatory document templates outside ARKAS: Dok. PBJ, Register KAS, Berita Acara Pemeriksaan KAS, Lembar Kritik/Saran, Lembar Pengaduan, Papan BOS. Card-based design with upload status indicators."
+    },
+    {
+      "id": "template-realisasi-3",
+      "type": "concept",
+      "name": "3 Realisasi Templates",
+      "description": "3 realization document templates: Cover (tahun anggaran, nama sekolah, dana BOSP), Sekat (kode rekening, uraian, anggaran, realisasi), Alur (fund usage flow). Tab-based navigation."
+    },
+    {
+      "id": "state-management",
+      "type": "concept",
+      "name": "State Management",
+      "description": "React Context / Zustand for lightweight state management. State sections: documents (26 types with draft/published status), dokumenWajib (6 types with upload status), realisasi (cover/sekat/alur data), ui (sidebar, modal, toast, theme)."
+    },
+    {
+      "id": "ui-state-patterns",
+      "type": "concept",
+      "name": "UI State Patterns",
+      "description": "Reusable UI patterns: Empty State (icon + message + CTA), Loading State (spinner + skeleton), Error State (icon + message + retry), Confirmation Dialog (title + message + cancel/confirm), Toast Notification (success/error/info with auto-dismiss)."
+    },
+    {
+      "id": "component-card-design",
+      "type": "concept",
+      "name": "Card-Based Premium Design",
+      "description": "Premium card design system with gradient headers, rounded-2xl shadow, hover effects (shadow-2xl, -translate-y-1), status indicators (green/yellow/red dots), action buttons (view, edit, print, download). 3 card variants: Type A (BKU edit+download), Type B (Dokumen Wajib upload), Type C (Realisasi tab-based)."
+    },
+    {
+      "id": "sidebar-menu",
+      "type": "concept",
+      "name": "Sidebar Navigation",
+      "description": "Sidebar with 8 menu items: Dashboard, Data Sekolah, Data Guru, BKU, Dokumen SPJ (Cetak), Dokumen Wajib, Realisasi, Pengaturan. Plus logo, school name, user info, and logout button."
+    },
+    {
+      "id": "bukti-fisik-9",
+      "type": "concept",
+      "name": "9+ Bukti Fisik Categories",
+      "description": "Physical evidence categories: A. Honor (5 sub-types), B. Perjalanan Dinas (6 sub-types), C. Mamin (3 sub-types: rapat, kegiatan, tamu), D. Penggandaan, E. Cetak Foto, F. Cetak Banner, G. Sewa (3 sub-types), H. Pemeliharaan (3 sub-types), I. Tagihan (2 sub-types). Each requires specific supporting documents."
+    }
+  ],
+  "edges": [
+    {
+      "from": "plan-frontend",
+      "to": "skema-aplikasi-spj",
+      "relation": "depends"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "perbandingan-teknologi",
+      "relation": "depends"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "panduan-arsitektur-deploy",
+      "relation": "depends"
+    },
+    {
+      "from": "perbandingan-teknologi",
+      "to": "skema-aplikasi-spj",
+      "relation": "depends"
+    },
+    {
+      "from": "panduan-arsitektur-deploy",
+      "to": "skema-aplikasi-spj",
+      "relation": "depends"
+    },
+    {
+      "from": "riset-arsitektur",
+      "to": "skema-aplikasi-spj",
+      "relation": "depends"
+    },
+    {
+      "from": "route-landing",
+      "to": "page-landing",
+      "relation": "renders"
+    },
+    {
+      "from": "route-login",
+      "to": "page-login",
+      "relation": "renders"
+    },
+    {
+      "from": "route-dashboard",
+      "to": "page-dashboard",
+      "relation": "renders"
+    },
+    {
+      "from": "route-data-sekolah",
+      "to": "page-data-sekolah",
+      "relation": "renders"
+    },
+    {
+      "from": "route-data-guru",
+      "to": "page-data-guru",
+      "relation": "renders"
+    },
+    {
+      "from": "route-bku",
+      "to": "page-bku",
+      "relation": "renders"
+    },
+    {
+      "from": "route-cetak",
+      "to": "page-cetak",
+      "relation": "renders"
+    },
+    {
+      "from": "route-dokumen-wajib",
+      "to": "page-dokumen-wajib",
+      "relation": "renders"
+    },
+    {
+      "from": "route-realisasi",
+      "to": "page-realisasi",
+      "relation": "renders"
+    },
+    {
+      "from": "route-pengaturan",
+      "to": "page-dokumen-wajib",
+      "relation": "renders"
+    },
+    {
+      "from": "page-cetak",
+      "to": "template-bku-17",
+      "relation": "uses"
+    },
+    {
+      "from": "page-dokumen-wajib",
+      "to": "template-dokumen-wajib-6",
+      "relation": "uses"
+    },
+    {
+      "from": "page-realisasi",
+      "to": "template-realisasi-3",
+      "relation": "uses"
+    },
+    {
+      "from": "page-cetak",
+      "to": "component-card-design",
+      "relation": "uses"
+    },
+    {
+      "from": "page-dokumen-wajib",
+      "to": "component-card-design",
+      "relation": "uses"
+    },
+    {
+      "from": "page-realisasi",
+      "to": "component-card-design",
+      "relation": "uses"
+    },
+    {
+      "from": "page-cetak",
+      "to": "ui-state-patterns",
+      "relation": "uses"
+    },
+    {
+      "from": "page-dokumen-wajib",
+      "to": "ui-state-patterns",
+      "relation": "uses"
+    },
+    {
+      "from": "page-realisasi",
+      "to": "ui-state-patterns",
+      "relation": "uses"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "state-management",
+      "relation": "contains"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "ui-state-patterns",
+      "relation": "contains"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "sidebar-menu",
+      "relation": "contains"
+    },
+    {
+      "from": "plan-frontend",
+      "to": "component-card-design",
+      "relation": "contains"
+    },
+    {
+      "from": "feature-bku",
+      "to": "bukti-fisik-9",
+      "relation": "uses"
+    },
+    {
+      "from": "feature-cetak",
+      "to": "bukti-fisik-9",
+      "relation": "uses"
+    },
+    {
+      "from": "feature-cetak",
+      "to": "template-bku-17",
+      "relation": "uses"
+    },
+    {
+      "from": "feature-dokumen-wajib",
+      "to": "template-dokumen-wajib-6",
+      "relation": "uses"
+    },
+    {
+      "from": "feature-realisasi",
+      "to": "template-realisasi-3",
+      "relation": "uses"
+    },
+    {
+      "from": "skema-aplikasi-spj",
+      "to": "bukti-fisik-9",
+      "relation": "defines"
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
