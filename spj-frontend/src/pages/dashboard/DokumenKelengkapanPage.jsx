@@ -73,9 +73,63 @@ const DOKUMEN_NON_SIPLAH = [
       { name: 'keterangan', label: 'Keterangan', type: 'text', placeholder: 'Keterangan tambahan' },
     ]
   },
+
+  // ─── DOKUMEN KELENGKAPAN (dipindah dari halaman LPJ) ──────────────────
+  { id: 'R-CVR', nama: 'Template Cover', deskripsi: 'Cover laporan LPJ BOS/BOSP', icon: 'folder', gradient: 'from-orange-500 to-red-600',
+    templateTitle: 'COVER LAPORAN LPJ',
+    subItems: ['Nama Sekolah', 'Tahun Anggaran', 'Dana BOSP'],
+    formFields: [
+      { name: 'namaSekolah', label: 'Nama Sekolah', type: 'text', placeholder: 'SD Negeri ...' },
+      { name: 'tahunAnggaran', label: 'Tahun Anggaran', type: 'text', placeholder: '2026' },
+      { name: 'danaBosp', label: 'Dana BOSP (Rp)', type: 'number', placeholder: '0' },
+    ]
+  },
+  { id: 'R-SKT', nama: 'Template Sekat Cover', deskripsi: 'Sekat pembatas cover laporan', icon: 'view_agenda', gradient: 'from-orange-500 to-red-600',
+    templateTitle: 'SEKAT COVER LAPORAN',
+    subItems: ['Informasi Sekolah', 'Periode Laporan'],
+    formFields: [
+      { name: 'periode', label: 'Periode Laporan', type: 'text', placeholder: 'Januari - Juni 2026' },
+    ]
+  },
+  { id: 'R-ALR', nama: 'Realisasi Penggunaan Dana', deskripsi: 'Tabel realisasi anggaran vs penggunaan', icon: 'table_chart', gradient: 'from-orange-500 to-red-600',
+    templateTitle: 'REALISASI PENGGUNAAN DANA',
+    subItems: ['Kode Rekening', 'Anggaran', 'Realisasi', 'Selisih'],
+    formFields: [
+      { name: 'kodeRekening', label: 'Kode Rekening', type: 'text', placeholder: '5.1.02.02.01.0013' },
+      { name: 'anggaran', label: 'Anggaran (Rp)', type: 'number', placeholder: '0' },
+      { name: 'realisasi', label: 'Realisasi (Rp)', type: 'number', placeholder: '0' },
+    ]
+  },
+  { id: 'R-ILB', nama: 'Instrumen Laporan BOS', deskripsi: 'Form instrumen pelaporan BOS', icon: 'assignment', gradient: 'from-orange-500 to-red-600',
+    templateTitle: 'INSTRUMEN LAPORAN BOS',
+    subItems: ['Instrumen 1-10', 'Checklist Kelengkapan', 'Verifikasi'],
+    formFields: []
+  },
+  { id: 'DH', nama: 'Blanko Daftar Hadir', deskripsi: 'Template daftar hadir kegiatan', icon: 'group_add', gradient: 'from-gray-600 to-slate-700',
+    templateTitle: 'DAFTAR HADIR',
+    subItems: ['Nama', 'Jabatan', 'Tanda Tangan', 'Keterangan'],
+    formFields: [
+      { name: 'kegiatan', label: 'Nama Kegiatan', type: 'text', placeholder: 'Contoh: Rapat Komite Sekolah' },
+      { name: 'tanggal', label: 'Tanggal', type: 'date' },
+      { name: 'tempat', label: 'Tempat', type: 'text', placeholder: 'Ruang Guru / Aula' },
+      { name: 'waktu', label: 'Waktu', type: 'text', placeholder: '08:00 - 12:00 WIB' },
+    ]
+  },
+  { id: 'SU', nama: 'Blanko Surat Undangan', deskripsi: 'Template surat undangan resmi', icon: 'mail', gradient: 'from-gray-600 to-slate-700',
+    templateTitle: 'SURAT UNDANGAN',
+    subItems: ['Perihal', 'Yang Diundang', 'Hari/Tanggal', 'Tempat', 'Acara'],
+    formFields: [
+      { name: 'nomor', label: 'Nomor Surat', type: 'text', placeholder: '001/UND/III/2025' },
+      { name: 'kepada', label: 'Kepada Yth.', type: 'text', placeholder: 'Nama / Jabatan' },
+      { name: 'perihal', label: 'Perihal', type: 'text', placeholder: 'Undangan Rapat Komite' },
+      { name: 'tanggal', label: 'Hari/Tanggal', type: 'text', placeholder: 'Senin, 20 Januari 2025' },
+      { name: 'waktu', label: 'Waktu', type: 'text', placeholder: '08:00 WIB - Selesai' },
+      { name: 'tempat', label: 'Tempat', type: 'text', placeholder: 'Ruang Rapat Utama' },
+    ]
+  },
 ]
 
-export default function DokumenWajibPage() {
+export default function DokumenKelengkapanPage() {
   const [siplah, setSiplah] = useState(false)
   const [status, setStatus] = useState({})
   const [selectedDokumen, setSelectedDokumen] = useState(null)
