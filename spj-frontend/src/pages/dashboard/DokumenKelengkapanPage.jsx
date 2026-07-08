@@ -83,7 +83,7 @@ export default function DokumenWajibPage() {
   const toast = useToast()
 
   useEffect(() => {
-    const stored = storageHelper.get('dokumen_wajib_status', {})
+    const stored = storageHelper.get('dokumen_kelengkapan_status', {})
     setStatus(stored)
   }, [])
 
@@ -95,7 +95,7 @@ export default function DokumenWajibPage() {
     const next = status[id] === 'Selesai' ? 'Belum' : 'Selesai'
     const updated = { ...status, [id]: next }
     setStatus(updated)
-    storageHelper.set('dokumen_wajib_status', updated)
+    storageHelper.set('dokumen_kelengkapan_status', updated)
     toast.success(`Status diubah ke ${next === 'Selesai' ? 'Selesai' : 'Belum'}`)
   }
 
@@ -116,7 +116,7 @@ export default function DokumenWajibPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Topbar title="Dokumen Wajib" subtitle="Dokumen di luar ARKAS yang harus dilampirkan" />
+      <Topbar title="Dokumen Kelengkapan" subtitle="Dokumen di luar ARKAS yang harus dilampirkan" />
 
       <div className="p-lg space-y-lg flex-1">
         {/* SIPLAH Toggle */}
@@ -192,7 +192,7 @@ export default function DokumenWajibPage() {
                 <span className="material-symbols-outlined text-white text-4xl">{selectedDokumen.icon}</span>
                 <div>
                   <h2 className="font-headline-md text-headline-md font-bold text-white">{selectedDokumen.nama}</h2>
-                  <p className="text-white/80 text-sm">Dokumen Wajib {siplah ? 'SIPLAH' : 'Non-SIPLAH'}</p>
+                  <p className="text-white/80 text-sm">Dokumen Kelengkapan {siplah ? 'SIPLAH' : 'Non-SIPLAH'}</p>
                 </div>
               </div>
               <button onClick={() => setSelectedDokumen(null)} className="text-white/80 hover:text-white">

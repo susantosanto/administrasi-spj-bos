@@ -130,7 +130,7 @@ export default function PengaturanPage() {
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-outline-variant">
                 <span className="text-text-low">Nama Aplikasi</span>
-                <span className="font-label-md text-text-high">SPJ BOS/BOSP</span>
+                <span className="font-label-md text-text-high">LPJ BOS/BOSP</span>
               </div>
               <div className="flex justify-between py-2 border-b border-outline-variant">
                 <span className="text-text-low">Versi</span>

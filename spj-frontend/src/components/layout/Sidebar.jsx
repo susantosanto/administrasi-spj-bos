@@ -6,8 +6,8 @@ const menuItems = [
   { label: 'Data Sekolah', icon: 'school', path: '/dashboard/data-sekolah' },
   { label: 'Data Guru', icon: 'groups', path: '/dashboard/data-guru' },
   { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku' },
-  { label: 'Dokumen SPJ', icon: 'description', path: '/dashboard/dokumen-spj' },
-  { label: 'Dokumen Wajib', icon: 'assignment_turned_in', path: '/dashboard/dokumen-wajib' },
+  { label: 'Dokumen LPJ', icon: 'description', path: '/dashboard/dokumen-lpj' },
+  { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
   { label: 'Pengaturan', icon: 'settings', path: '/dashboard/pengaturan' },
 ]
 
@@ -30,8 +30,8 @@ export default function Sidebar() {
           <span className="material-symbols-outlined text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
         </div>
         <div>
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">SPJ BOS/BOSP</h1>
-          <p className="font-label-xs text-label-xs text-text-low">Cetak Dokumen SPJ</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">LPJ BOS/BOSP</h1>
+          <p className="font-label-xs text-label-xs text-text-low">Cetak Dokumen LPJ</p>
         </div>
       </div>
 

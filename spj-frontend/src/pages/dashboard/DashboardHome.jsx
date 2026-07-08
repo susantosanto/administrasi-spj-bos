@@ -21,12 +21,12 @@ const DOKUMEN_TYPES = [
   { id: 'WS-E', nama: 'Workshop Eksternal', kategori: 'Workshop' },
   { id: 'PR', nama: 'PR Pengadaan', kategori: 'Pengadaan & Koran' },
   { id: 'RK', nama: 'Rekening Koran', kategori: 'Pengadaan & Koran' },
-  { id: 'D-PBJ', nama: 'Dokumen PBJ', kategori: 'Dokumen Wajib' },
-  { id: 'D-RK', nama: 'Register KAS', kategori: 'Dokumen Wajib' },
-  { id: 'D-BK', nama: 'BAP KAS', kategori: 'Dokumen Wajib' },
-  { id: 'D-KS', nama: 'Kritik & Saran', kategori: 'Dokumen Wajib' },
-  { id: 'D-PD', nama: 'Pengaduan', kategori: 'Dokumen Wajib' },
-  { id: 'D-PB', nama: 'Papan BOS', kategori: 'Dokumen Wajib' },
+  { id: 'D-PBJ', nama: 'Dokumen PBJ', kategori: 'Dokumen Kelengkapan' },
+  { id: 'D-RK', nama: 'Register KAS', kategori: 'Dokumen Kelengkapan' },
+  { id: 'D-BK', nama: 'BAP KAS', kategori: 'Dokumen Kelengkapan' },
+  { id: 'D-KS', nama: 'Kritik & Saran', kategori: 'Dokumen Kelengkapan' },
+  { id: 'D-PD', nama: 'Pengaduan', kategori: 'Dokumen Kelengkapan' },
+  { id: 'D-PB', nama: 'Papan BOS', kategori: 'Dokumen Kelengkapan' },
   { id: 'R-CVR', nama: 'Cover Realisasi', kategori: 'Realisasi BOSP' },
   { id: 'R-SKT', nama: 'Sekat Realisasi', kategori: 'Realisasi BOSP' },
   { id: 'R-ALR', nama: 'Alur Realisasi', kategori: 'Realisasi BOSP' },
@@ -50,7 +50,7 @@ export default function DashboardHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Topbar title="Beranda Utama" subtitle="Ringkasan dokumen SPJ" />
+      <Topbar title="Beranda Utama" subtitle="Ringkasan dokumen LPJ" />
 
       <div className="p-lg space-y-lg flex-1">
         {/* Welcome Card */}
@@ -61,12 +61,12 @@ export default function DashboardHome() {
                 Sampurasun, {sekolah?.namaSekolah ? `${sekolah.namaSekolah}` : 'Operator Sekolah'}!
               </h2>
               <p className="text-white/80 font-body-sm">
-                Kelola dan cetak dokumen SPJ BOS/BOSP dengan mudah. Pilih dokumen yang ingin Anda kerjakan.
+                Kelola dan cetak dokumen LPJ BOS/BOSP dengan mudah. Pilih dokumen yang ingin Anda kerjakan.
               </p>
             </div>
-            <Link to="/dashboard/dokumen-spj" className="hidden md:flex items-center gap-sm bg-white/20 hover:bg-white/30 px-lg py-2 rounded-lg font-label-md transition-all active:scale-95">
+            <Link to="/dashboard/dokumen-lpj" className="hidden md:flex items-center gap-sm bg-white/20 hover:bg-white/30 px-lg py-2 rounded-lg font-label-md transition-all active:scale-95">
               <span className="material-symbols-outlined">description</span>
-              Buka Dokumen SPJ
+              Buka Dokumen LPJ
             </Link>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function DashboardHome() {
             <div className="relative z-10">
               <p className="font-label-md opacity-80 mb-xs">Total Dokumen</p>
               <h3 className="font-headline-md text-headline-md font-bold">{totalDokumen} Jenis</h3>
-              <p className="text-xs opacity-70 mt-sm">26 template dokumen SPJ</p>
+              <p className="text-xs opacity-70 mt-sm">26 template dokumen LPJ</p>
             </div>
             <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl opacity-10 rotate-12">description</span>
           </div>
@@ -114,10 +114,10 @@ export default function DashboardHome() {
           <h3 className="font-headline-sm text-headline-sm font-bold text-text-high mb-md">Akses Cepat</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
             {[
-              { label: 'Dokumen SPJ', icon: 'description', path: '/dashboard/dokumen-spj', color: 'text-primary' },
+              { label: 'Dokumen LPJ', icon: 'description', path: '/dashboard/dokumen-lpj', color: 'text-primary' },
               { label: 'Data Sekolah', icon: 'school', path: '/dashboard/data-sekolah', color: 'text-secondary' },
               { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku', color: 'text-tertiary' },
-              { label: 'Dokumen Wajib', icon: 'assignment_turned_in', path: '/dashboard/dokumen-wajib', color: 'text-danger' },
+              { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan', color: 'text-danger' },
             ].map(q => (
               <Link
                 key={q.path}
@@ -131,11 +131,46 @@ export default function DashboardHome() {
           </div>
         </div>
 
+        {/* Download Dokumen Referensi */}
+        <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
+          <div className="flex items-center gap-sm mb-md">
+            <span className="material-symbols-outlined text-primary">download</span>
+            <h3 className="font-headline-sm text-headline-sm font-bold text-text-high">Dokumen Referensi</h3>
+          </div>
+          <p className="text-text-low text-sm mb-md">Unduh dokumen regulasi dan pedoman teknis BOS/BOSP</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {[
+              { judul: 'PERMENDAGRI', sub: 'Peraturan Menteri Dalam Negeri', file: 'permendagri.pdf', icon: 'policy' },
+              { judul: 'Juknis BOSP', sub: 'PERMENDIKDASMEN', file: 'juknis-bosp.pdf', icon: 'menu_book' },
+              { judul: 'TKA', sub: 'PERMENDIKDASMEN', file: 'tka.pdf', icon: 'calculate' },
+              { judul: 'PERBUP Kab. Bandung Barat', sub: 'Transaksi Tunai & Non Tunai', file: 'perbup.pdf', icon: 'gavel' },
+              { judul: 'Standar Satuan Harga (SSH)', sub: 'Tahun Berlaku', file: 'ssh.pdf', icon: 'receipt' },
+              { judul: 'Permendikbudristek No. 18', sub: 'Th. 2022', file: 'permendikbudristek-18.pdf', icon: 'newspaper' },
+            ].map((doc) => (
+              <a
+                key={doc.file}
+                href={`/docs/${doc.file}`}
+                download
+                className="flex items-center gap-md p-md bg-surface-container-low rounded-xl hover:bg-primary/5 border border-outline-variant hover:border-primary/30 transition-all group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <span className="material-symbols-outlined text-primary">{doc.icon}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-label-md text-text-high font-medium truncate">{doc.judul}</p>
+                  <p className="font-label-xs text-text-low truncate">{doc.sub}</p>
+                </div>
+                <span className="material-symbols-outlined text-text-low group-hover:text-primary transition-colors">download</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
         {/* Recent Document Status */}
         <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
           <div className="flex justify-between items-center mb-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high">Status Dokumen Terbaru</h3>
-            <Link to="/dashboard/dokumen-spj" className="flex items-center gap-sm text-primary font-label-md hover:underline">
+            <Link to="/dashboard/dokumen-lpj" className="flex items-center gap-sm text-primary font-label-md hover:underline">
               Lihat Semua <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
@@ -165,11 +200,11 @@ export default function DashboardHome() {
 
       {/* Floating FAB */}
       <Link
-        to="/dashboard/dokumen-spj"
+        to="/dashboard/dokumen-lpj"
         className="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 group z-50"
       >
         <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>print</span>
-        <span className="absolute right-16 px-4 py-2 bg-on-background text-white rounded-lg text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Buka Dokumen SPJ</span>
+        <span className="absolute right-16 px-4 py-2 bg-on-background text-white rounded-lg text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Buka Dokumen LPJ</span>
       </Link>
     </div>
   )

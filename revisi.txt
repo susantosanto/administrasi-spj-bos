@@ -1,0 +1,62 @@
+revisi :
+Dashboard :
+penambahan fitur unduhan :
+1. PERMENDAGRI
+2. PERMENDIKDASMEN Juknis BOSP
+3. PERMENDIKDASMEN TKA
+4. PERBUP Kab. Bandung Barat tentang transasksi tunai dan non tunai
+5. Standar Satuan Harga (SSH) tahun sekian
+6. PERMENDIKBUDRISTEK no.18 th 2022
+
+KLasifikasi Surat :
+
+Honorarium
+honorer
+
+
+perjalanan dinas :
+munculkan satu ruangan
+1. rapat - input data = output :
+2. workshop - input data = output
+3. Koordinasi - input data = output :
+4. Bank - input data = output :
+5. Pendamping - input data = output :
+	- input data : (nama gugus dan ketua gugus)
+
+
+Upah :
+1. Seharusnya, sediakan kotak (ceklis). untuk pembayaran di akumulasikan dari berapa kali kehadirannya.
+
+Mamin :
+khusus mamin kegiatan - satu ruangan - dua : kolom IHT dan kolom Kegiatan
+					IHT : Surat undangan, daftar hadir : dh peserta dan narasumber, dokumentasi,
+					kegiatan : SP daftar hadir dan dokumentasi
+mamin tamu (tidak perlu daftar hadir)
+
+mamin buku tamu :
+
+Notulen :
+ikuti data mentah
+
+penggandaan :
+(hanya berita)
+
+sewa :
+sewa buat 3 kolom : 1. sewa mobilitas, 2. sewa peralatan, 3. sewa bangunan/aula
+sewa mobilitas : surat perjanjian
+
+pemeliharaan :
+pemeliharaan : 1. alat 2. mebeler 3. bangunan
+(hanya berita)
+
+Tagihan :
+
+workshop :
+w. internal :
+permohonan narsum dan proposal
+
+w. eksternal (gugus) :
+
+ubah halaman Judul Halaman "Dokumen Wajib" menjadi "Dokumen Kelengkapan"
+pindahkan semua section "Dokumen Kelengkapan" di halaman "Dokumen SPJ" ke halaman "Dokumen Kelengkapan"
+Ubah Kata "SPJ" menjadi "LPJ" di semua halaman (di seluruh aplikasi)

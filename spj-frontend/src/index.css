@@ -130,3 +130,104 @@ body {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* ============================================
+   Print Styles — A4 Format
+   ============================================ */
+@media print {
+  /* Hide everything except print container */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show print container */
+  .print-container,
+  .print-container * {
+    visibility: visible;
+  }
+
+  /* Position print container */
+  .print-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm 25mm;
+    background: white;
+  }
+
+  /* Hide edit-mode elements */
+  .print-container .edit-mode-only {
+    display: none !important;
+  }
+
+  /* A4 page size */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
+/* Preview container — seperti kertas */
+.preview-container {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 25mm;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+/* Template Engine styles */
+.template-engine table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.template-engine th,
+.template-engine td {
+  border: 1px solid #d1d5db;
+  padding: 4px 8px;
+  text-align: left;
+}
+
+.template-engine th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.template-engine input,
+.template-engine textarea,
+.template-engine select {
+  font-size: 10px;
+  padding: 2px 4px;
+  border: 1px dashed #93c5fd;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.template-engine input:focus,
+.template-engine textarea:focus,
+.template-engine select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* Print-specific table styles */
+@media print {
+  .template-engine table {
+    page-break-inside: avoid;
+  }
+
+  .template-engine tr {
+    page-break-inside: avoid;
+  }
+
+  .template-engine thead {
+    display: table-header-group;
+  }
+}
+

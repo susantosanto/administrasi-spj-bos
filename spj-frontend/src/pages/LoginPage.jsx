@@ -56,7 +56,7 @@ export default function LoginPage() {
               Manajemen Keuangan Sekolah Jadi Lebih Mudah
             </h1>
             <p className="text-white/80 font-body-lg mb-xl">
-              Sistem Informasi SPJ BOS/BOSP terintegrasi untuk membantu operator
+              Sistem Informasi LPJ BOS/BOSP terintegrasi untuk membantu operator
               sekolah dalam pelaporan administrasi yang cepat, akurat, dan
               transparan.
             </p>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                     <span className="material-symbols-outlined text-white/80 text-5xl">
                       description
                     </span>
-                    <p className="text-white/60 text-xs mt-1">SPJ</p>
+                    <p className="text-white/60 text-xs mt-1">LPJ</p>
                   </div>
                   <div className="text-center">
                     <span className="material-symbols-outlined text-white/80 text-5xl">
@@ -109,7 +109,7 @@ export default function LoginPage() {
               </span>
             </Link>
             <div>
-              <h2 className="font-headline-sm text-primary">SPJ BOS/BOSP</h2>
+              <h2 className="font-headline-sm text-primary">LPJ BOS/BOSP</h2>
               <p className="text-[12px] text-text-low">
                 Administrasi Keuangan Sekolah
               </p>
@@ -289,7 +289,7 @@ export default function LoginPage() {
                 VERSI DEMO (PROTOTYPE VERSION)
               </span>
               <span className="text-[12px] text-text-low">
-                &copy; {new Date().getFullYear()} SPJ BOS/BOSP
+                &copy; {new Date().getFullYear()} LPJ BOS/BOSP
               </span>
             </div>
           </footer>

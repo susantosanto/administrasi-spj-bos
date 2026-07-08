@@ -26,7 +26,7 @@ export default function LandingPage() {
             </span>
           </div>
           <span className="font-headline-md text-headline-md font-extrabold text-primary">
-            SPJ BOS/BOSP
+            LPJ BOS/BOSP
           </span>
         </div>
         <nav className="hidden md:flex items-center gap-lg">
@@ -82,7 +82,7 @@ export default function LandingPage() {
                 Sampurasun!
                 <br />
                 <span className="text-primary">
-                  Selamat Datang di Aplikasi SPJ BOS/BOSP
+                  Selamat Datang di Aplikasi LPJ BOS/BOSP
                 </span>
               </h1>
               <p className="text-body-lg text-text-low max-w-xl">
@@ -112,7 +112,7 @@ export default function LandingPage() {
                       account_balance_wallet
                     </span>
                     <p className="font-headline-sm text-primary font-semibold">
-                      Dashboard SPJ BOS/BOSP
+                      Dashboard LPJ BOS/BOSP
                     </p>
                     <p className="text-text-low text-sm mt-1">
                       Administrasi Keuangan Sekolah
@@ -195,7 +195,7 @@ export default function LandingPage() {
                   Cetak Otomatis
                 </h3>
                 <p className="text-text-low font-body-sm">
-                  Generate Dokumen SPJ (K7, BKU, Pajak) hanya dengan satu klik.
+                  Generate Dokumen LPJ (K7, BKU, Pajak) hanya dengan satu klik.
                   Format sesuai regulasi terbaru.
                 </p>
               </div>
@@ -257,7 +257,7 @@ export default function LandingPage() {
                   <div className="flex items-center gap-sm p-sm bg-surface-container-low rounded-lg">
                     <span className="material-symbols-outlined text-secondary text-lg">tips_and_updates</span>
                     <div>
-                      <p className="font-label-xs text-text-high">Tips Cetak SPJ yang Benar</p>
+                      <p className="font-label-xs text-text-high">Tips Cetak LPJ yang Benar</p>
                       <p className="text-text-low text-[10px]">10 Juni 2025</p>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ export default function LandingPage() {
                 </h2>
                 <p className="text-text-low font-body-lg">
                   Dikembangkan atas inisiasi untuk digitalisasi birokrasi
-                  sekolah, SPJ BOS/BOSP hadir untuk menjawab tantangan
+                  sekolah, LPJ BOS/BOSP hadir untuk menjawab tantangan
                   administrasi keuangan yang seringkali membebani tenaga
                   pendidik. Kami percaya bahwa dengan sistem yang tepat, sekolah
                   bisa lebih fokus pada kualitas pendidikan siswa.
@@ -396,11 +396,11 @@ export default function LandingPage() {
               </span>
             </div>
             <span className="font-headline-sm text-headline-sm font-bold">
-              SPJ BOS/BOSP
+              LPJ BOS/BOSP
             </span>
           </div>
           <p className="text-white/60 font-body-sm">
-            &copy; {new Date().getFullYear()} SPJ BOS/BOSP Indonesia. Seluruh
+            &copy; {new Date().getFullYear()} LPJ BOS/BOSP Indonesia. Seluruh
             hak cipta dilindungi undang-undang.
           </p>
           <div className="flex gap-lg">

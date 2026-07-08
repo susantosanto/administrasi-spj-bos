@@ -8,7 +8,7 @@ import DataSekolahPage from './pages/dashboard/DataSekolahPage'
 import DataGuruPage from './pages/dashboard/DataGuruPage'
 import BKUPage from './pages/dashboard/BKUPage'
 import DokumenSPJPage from './pages/dashboard/DokumenSPJPage'
-import DokumenWajibPage from './pages/dashboard/DokumenWajibPage'
+import DokumenKelengkapanPage from './pages/dashboard/DokumenKelengkapanPage'
 import RealisasiPage from './pages/dashboard/RealisasiPage'
 import PengaturanPage from './pages/dashboard/PengaturanPage'
 
@@ -40,8 +40,11 @@ export default function App() {
             <Route path="data-sekolah" element={<DataSekolahPage />} />
             <Route path="data-guru" element={<DataGuruPage />} />
             <Route path="bku" element={<BKUPage />} />
-            <Route path="dokumen-spj" element={<DokumenSPJPage />} />
-            <Route path="dokumen-wajib" element={<DokumenWajibPage />} />
+            <Route path="dokumen-lpj" element={<DokumenSPJPage />} />
+            <Route path="dokumen-kelengkapan" element={<DokumenKelengkapanPage />} />
+            {/* Backward compatibility redirects */}
+            <Route path="dokumen-spj" element={<Navigate to="/dashboard/dokumen-lpj" replace />} />
+            <Route path="dokumen-wajib" element={<Navigate to="/dashboard/dokumen-kelengkapan" replace />} />
             <Route path="realisasi" element={<RealisasiPage />} />
             <Route path="pengaturan" element={<PengaturanPage />} />
           </Route>

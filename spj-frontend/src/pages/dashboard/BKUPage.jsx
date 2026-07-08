@@ -96,7 +96,7 @@ export default function BKUPage() {
           </div>
           <div className="mt-md p-md bg-primary-fixed/30 rounded-lg flex items-center gap-sm">
             <span className="material-symbols-outlined text-primary text-lg">info</span>
-            <p className="text-text-low text-sm">BKU yang diupload akan digunakan sebagai referensi data untuk pembuatan dokumen SPJ dan bukti fisik.</p>
+            <p className="text-text-low text-sm">BKU yang diupload akan digunakan sebagai referensi data untuk pembuatan dokumen LPJ dan bukti fisik.</p>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ export default function BKUPage() {
                             {openMenuId === item.id && (
                               <div className="absolute right-0 top-full mt-1 w-72 bg-surface-container-lowest rounded-xl shadow-2xl border border-outline-variant z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
                                 <div className="p-md bg-surface-container-low border-b border-outline-variant">
-                                  <p className="font-label-md text-text-high">Dokumen SPJ Diperlukan</p>
+                                  <p className="font-label-md text-text-high">Dokumen LPJ Diperlukan</p>
                                   <p className="text-text-low text-xs">{item.uraian}</p>
                                 </div>
                                 <div className="p-sm">
@@ -202,11 +202,11 @@ export default function BKUPage() {
                                 </div>
                                 <div className="p-sm border-t border-outline-variant">
                                   <button
-                                    onClick={() => { toast.info('Buka halaman Dokumen SPJ untuk Makan & Minum'); setOpenMenuId(null); }}
+                                    onClick={() => { toast.info('Buka halaman Dokumen LPJ untuk Makan & Minum'); setOpenMenuId(null); }}
                                     className="w-full flex items-center justify-center gap-sm p-md text-primary hover:bg-primary/5 rounded-lg transition-colors font-label-md"
                                   >
                                     <span className="material-symbols-outlined text-lg">open_in_new</span>
-                                    Buka Dokumen SPJ
+                                    Buka Dokumen LPJ
                                   </button>
                                 </div>
                               </div>
