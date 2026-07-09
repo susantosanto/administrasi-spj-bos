@@ -228,6 +228,160 @@ Bendahara: DEDE GUNAWAN, S.Pd. (NIP. 198507172020121003)
 
 ---
 
+## 📐 CLEAN CODE STANDARDS
+
+> **WAJIB**: Semua code yang ditulis harus mengikuti standar ini agar mudah dibaca oleh manusia (pemula) dan dipahami oleh AI agent.
+
+### 1. Naming Convention
+
+| Tipe | Format | Contoh |
+|------|--------|--------|
+| Component | PascalCase | `TemplateEngine.jsx`, `KopSurat.jsx` |
+| Function | camelCase | `handleOpenCard()`, `getStatus()` |
+| Variable | camelCase | `selectedSubKategori`, `formData` |
+| Constant | UPPER_SNAKE | `COLOR_MAP`, `TEMPLATE_CONFIGS` |
+| CSS Class | kebab-case | `bg-primary`, `text-on-surface` |
+| File | PascalCase (components), camelCase (utils) | `TemplateEngine.jsx`, `templateHelpers.js` |
+
+### 2. File Structure Pattern
+
+```javascript
+// ═══════════════════════════════════════════════════════════════════════════
+// NAMA BAGIAN (misal: CONSTANTS, TYPES, COMPONENT)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 1. Imports (diurutkan: external → internal → utils)
+import { useState } from 'react'
+import storageHelper from '../../utils/storageHelper'
+import TemplateEngine from '../templates/TemplateEngine'
+
+// 2. Constants/Config
+const COLORS = { ... }
+const CARDS = [ ... ]
+
+// 3. Component
+export default function MyComponent() {
+  // 3.1 State declarations
+  const [data, setData] = useState({})
+  
+  // 3.2 Effects
+  useEffect(() => { ... }, [])
+  
+  // 3.3 Helper functions
+  const getStatus = () => { ... }
+  
+  // 3.4 Event handlers
+  const handleClick = () => { ... }
+  
+  // 3.5 Render
+  return ( ... )
+}
+```
+
+### 3. Comments & Documentation
+
+```javascript
+// ✅ BAIK: Comment menjelaskan MENGAPA, bukan APA
+// Filter transaksi yang valid (tanggal + uraian harus ada)
+const validTransactions = transactions.filter(t => t.tanggal && t.uraian)
+
+// ❌ JELEK: Comment menjelaskan APA (redundan)
+// Filter transaksi
+const validTransactions = transactions.filter(t => t.tanggal && t.uraian)
+
+// ✅ BAIK: Section divider untuk bagian besar
+// ═══════════════════════════════════════════════════════════════════════════
+// TEMPLATE DEFINITIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ✅ BAIK: JSDoc untuk functions yang kompleks
+/**
+ * Parse BKU Excel file from ARKAS
+ * @param {File} file - Excel file to parse
+ * @returns {Promise<Object>} Parsed BKU data
+ */
+```
+
+### 4. Component Guidelines
+
+```javascript
+// ✅ BAIK: Single responsibility, props jelas
+function TabelFields({ blockConfig, data, onChange, mode }) {
+  // blockConfig = konfigurasi kolom
+  // data = data yang akan ditampilkan
+  // onChange = callback saat data berubah
+  // mode = 'edit' | 'print'
+  
+  return ( ... )
+}
+
+// ❌ JELEK: Terlalu banyak props, tidak jelas
+function TabelFields({ config, d, cb, m, foo, bar }) {
+  return ( ... )
+}
+```
+
+### 5. Code Readability Rules
+
+| Rule | Contoh ❌ | Contoh ✅ |
+|------|-----------|-----------|
+| Hindari magic numbers | `if (x > 5)` | `if (x > MAX_RETRY)` |
+| Hindari nested terlalu dalam | `if (a) { if (b) { if (c) { ... } } }` | Guard clause: `if (!a) return; if (!b) return; ...` |
+| Function < 50 baris | Function 200 baris | Split menjadi beberapa function |
+| Variable names deskriptif | `const d = items.filter(...)` | `const completedItems = items.filter(...)` |
+| Hindari `any` type | `let data: any` | `let data: BKUData \| null` |
+
+### 6. File Size Guidelines
+
+| Tipe | Maks | Jika lebih dari itu |
+|------|------|---------------------|
+| Component | 300 baris | Split ke child components |
+| Utility | 200 baris | Split ke multiple files |
+| Config | 150 baris | Group ke separate files |
+
+### 7. AI Agent Compatibility
+
+```javascript
+// ✅ BAIK: AI agent bisa langsung pahami
+// Component: HeaderDokumen
+// Fungsi: Menampilkan judul + nomor surat
+// Props: blockConfig (konfigurasi), data (form data), onChange (callback)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
+const SIGNATURE_ROLES = {
+  'kepala-sekolah': {
+    label: 'Kepala Sekolah,',        // Label untuk tampilan
+    defaultName: 'BADRUDDIN, S.Ag.',  // Default nama
+    defaultNip: 'NIP. 197405082014121002',  // Default NIP
+  },
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+export default function SignatureFooter({ blockConfig, data, onChange, mode }) {
+  // Extract props untuk readability
+  const roles = blockConfig.roles || ['kepala-sekolah']
+  const tempat = data.tempat || 'Cikalongwetan'
+  
+  return ( ... )
+}
+```
+
+### 8. Testing Checklist
+
+Sebelum commit, pastikan:
+- [ ] Code bisa dibaca tanpa comment (variable names jelas)
+- [ ] Function tidak lebih dari 50 baris
+- [ ] Tidak ada magic numbers (gunakan constants)
+- [ ] Comments menjelaskan MENGAPA, bukan APA
+- [ ] Build berhasil: `npm run build`
+- [ ] Tidak ada console.log yang tertinggal
+
+---
+
 ## 💡 TIPS UNTUK AI AGENT
 
 1. **Mulai dari**: Baca file ini → `PRD_IMPLEMENTASI.md` → `RESEARCH_TEMPLATE_ENGINE.md`
@@ -235,6 +389,8 @@ Bendahara: DEDE GUNAWAN, S.Pd. (NIP. 198507172020121003)
 3. **Untuk tambah card**: Edit `DokumenSPJPage.jsx` → add ke `CARDS` array
 4. **Untuk tambah template**: Edit `templateConfig.js` → add ke `TEMPLATE_CONFIGS`
 5. **Build test selalu**: `cd spj-frontend && npm run build`
+6. **Ikuti Clean Code Standards** di atas saat menulis code baru
+7. **Baca comments** yang sudah ada untuk memahami konteks
 
 ---
 
