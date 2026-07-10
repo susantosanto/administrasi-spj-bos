@@ -9,6 +9,8 @@ import { useSidebar } from '../../contexts/SidebarContext'
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+const MENU_DASHBOARD = { label: 'Dashboard', icon: 'dashboard', path: '/dashboard', exact: true }
+
 const MENU_GROUPS = [
   {
     label: 'DATA SEKOLAH',
@@ -107,6 +109,41 @@ export default function Sidebar() {
           {/* MAIN NAVIGATION — Categorized Groups                            */}
           {/* ═══════════════════════════════════════════════════════════════ */}
           <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
+            {/* Dashboard — At the Top */}
+            <NavLink
+              to={MENU_DASHBOARD.path}
+              end={MENU_DASHBOARD.exact}
+              className={({ isActive }) =>
+                `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                  )}
+                  <span
+                    className={`material-symbols-outlined text-[20px] flex-shrink-0 transition-all duration-200 ${
+                      isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'
+                    }`}
+                    style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                  >
+                    {MENU_DASHBOARD.icon}
+                  </span>
+                  <span className={`text-[13px] truncate ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                    {MENU_DASHBOARD.label}
+                  </span>
+                </>
+              )}
+            </NavLink>
+
+            {/* Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
             {MENU_GROUPS.map((group) => (
               <div key={group.label}>
                 {/* Group Header */}
