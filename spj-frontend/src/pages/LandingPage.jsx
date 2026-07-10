@@ -411,6 +411,24 @@ export default function LandingPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* SCROLLING TEXT ANIMATION                                           */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="py-6 bg-primary overflow-hidden">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center gap-8 mx-8">
+                {['Upload BKU', 'Cetak LPJ', 'Data Sekolah', 'Data Guru', '13 Template', 'Catatan', 'Realisasi', 'Arsip Digital'].map((text, j) => (
+                  <span key={j} className="flex items-center gap-8 text-white/90 font-medium">
+                    <span className="w-2 h-2 bg-white/50 rounded-full"></span>
+                    {text}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* STATS SECTION                                                      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <section className="py-16 px-6 bg-white border-y border-slate-100">
