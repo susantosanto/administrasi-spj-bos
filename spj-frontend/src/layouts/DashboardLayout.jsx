@@ -12,7 +12,7 @@ function DashboardContent() {
   }, [])
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
       <main
         className={`flex-1 flex flex-col min-h-screen transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
