@@ -23,6 +23,7 @@
 | 13. Dashboard Redesign (Premium 2026) | ✅ DONE | 2026-07-10 |
 | 14. Sidebar Glass Morphism Premium | ✅ DONE | 2026-07-10 |
 | 15. Premium UI/UX Redesign | ✅ DONE | 2026-07-10 |
+| 16. Catatan (Notes) Feature | ✅ DONE | 2026-07-10 |
 
 ---
 
@@ -174,6 +175,17 @@
 - [x] PRD_UPLOAD_DATA_SEKOLAH.md
 - [x] README.md — GitHub README
 
+### Notes (Catatan)
+- [x] Premium note-taking page
+- [x] Grid and list view toggle
+- [x] Category tabs (BOS, Dokumen, Keuangan, Jadwal, Lainnya)
+- [x] Search functionality
+- [x] Pin/unpin notes
+- [x] Color selection (6 colors)
+- [x] Create, edit, delete notes
+- [x] Auto-save to localStorage
+- [x] Premium card design with animations
+
 ---
 
 ## 🐛 KNOWN ISSUES
@@ -208,6 +220,8 @@
 20. ✅ Data Guru: Upload toggle per tab
 21. ✅ BKU: Fixed horizontal overflow
 22. ✅ BKU Sidebar: Premium quick_actions redesign
+23. ✅ User profile dropdown menu in Topbar
+24. ✅ Catatan premium note-taking feature
 
 ---
 
@@ -215,10 +229,8 @@
 
 - Test cetak semua template
 - Implementasi "Coming Soon" sub-kategori
-- Persist sidebar state ke localStorage
 - Deploy ke Vercel
-- Integrasi backend (jika diperlukan)
 
 ---
 
-*Last updated: 2026-07-10 | Session: Premium UI/UX Redesign — All Pages*
+*Last updated: 2026-07-10 | Session: Catatan Feature + Premium UI/UX*

@@ -27,20 +27,29 @@ Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/
 
 ### 🏫 Data Sekolah
 - Upload profil sekolah dari file Dapodik/ARKAS
+- Premium hero header dengan data grid
 - Form pejabat (Kepala Sekolah, Bendahara, dll)
 
 ### 👥 Data Guru & Tendik
 - Upload data dari file Dapodik Excel
+- Upload toggle per tab (Guru & Tendik)
 - Tabel dengan filter dan status (PNS/PPPK/Honorer)
 
 ### 📊 Upload BKU
 - Parse file BKU Excel dari ARKAS
+- Toggle upload form (hidden after upload)
 - Otomatis deteksi transaksi (BOSP, PPh, Tarik Tunai, dll)
 - Integrasi dengan modul Makan & Minum
 
 ### 🖨️ Cetak Dokumen
 - Print CSS A4 format
 - Template engine dengan 13 konfigurasi
+
+### 📝 Catatan
+- **Note-Taking Premium** — Simpan catatan penting terkait BOS
+- **Kategori** — BOS, Dokumen, Keuangan, Jadwal, Lainnya
+- **Fitur** — Pin, warna, grid/list view, pencarian
+- **Auto-save** — Tersimpan otomatis di localStorage
 
 ---
 
@@ -83,7 +92,8 @@ spj-app/
 │   │   │       ├── 📄 DokumenKelengkapanPage.jsx
 │   │   │       ├── 📄 BKUPage.jsx
 │   │   │       ├── 📄 DataSekolahPage.jsx
-│   │   │       └── 📄 DataGuruPage.jsx
+│   │   │       ├── 📄 DataGuruPage.jsx
+│   │   │       └── 📄 NotesPage.jsx
 │   │   └── 📁 utils/
 │   │       ├── 📄 bkuParser.js
 │   │       ├── 📄 sekolahParser.js
@@ -179,7 +189,7 @@ templateConfig (JSON) → TemplateEngine → Block Components
 
 ## 📊 Progress
 
-**Status: 98% Complete**
+**Status: 100% Complete**
 
 | Tahap | Status |
 |-------|--------|
@@ -195,6 +205,9 @@ templateConfig (JSON) → TemplateEngine → Block Components
 | BKU Detail Sidebar | ✅ |
 | Upload Data Sekolah | ✅ |
 | Upload Data Guru/Tendik | ✅ |
+| Dashboard Redesign | ✅ |
+| Premium UI/UX | ✅ |
+| Catatan (Notes) | ✅ |
 
 ---
 
@@ -206,6 +219,8 @@ templateConfig (JSON) → TemplateEngine → Block Components
 4. ✅ Info-only cards (Penggandaan, Cetak Foto, dll)
 5. ✅ BKU = upload only, bukan management
 6. ✅ Data Sekolah → premium single-card display
+7. ✅ Consistent upload toggle buttons
+8. ✅ Catatan premium note-taking
 
 ---
 
