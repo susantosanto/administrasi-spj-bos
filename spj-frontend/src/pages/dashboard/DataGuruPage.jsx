@@ -107,7 +107,7 @@ export default function DataGuruPage() {
     <div className="flex flex-col min-h-screen bg-slate-100/80">
       <Topbar title="Data Guru & Tendik" subtitle="Data guru dan tenaga kependidikan" />
 
-      <div className="p-6 space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* TABS                                                            */}
@@ -115,7 +115,7 @@ export default function DataGuruPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTab('guru')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               tab === 'guru'
                 ? 'bg-primary text-white shadow-lg shadow-primary/20'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
@@ -129,7 +129,7 @@ export default function DataGuruPage() {
           </button>
           <button
             onClick={() => setTab('tendik')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               tab === 'tendik'
                 ? 'bg-primary text-white shadow-lg shadow-primary/20'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'

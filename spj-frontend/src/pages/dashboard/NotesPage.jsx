@@ -217,12 +217,12 @@ export default function NotesPage() {
     <div className="flex flex-col min-h-screen bg-slate-100/80">
       <Topbar title="Catatan" subtitle="Catatan penting terkait BOS" />
 
-      <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* HEADER ACTIONS                                                  */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
@@ -255,7 +255,7 @@ export default function NotesPage() {
             {/* Add Note Button */}
             <button
               onClick={handleCreateNote}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-2xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-2xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               <span className="hidden sm:inline">Buat Catatan</span>
@@ -315,7 +315,7 @@ export default function NotesPage() {
           </div>
         ) : viewMode === 'grid' ? (
           /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {sortedNotes.map(note => {
               const colorStyle = COLORS.find(c => c.key === note.color) || COLORS[0]
               const catInfo = CATEGORIES.find(c => c.key === note.category) || CATEGORIES[5]

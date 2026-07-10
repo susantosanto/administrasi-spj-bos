@@ -1,5 +1,5 @@
 /**
- * Topbar — Premium Design 2026
+ * Topbar — Premium Responsive Design 2026
  * With user profile dropdown menu
  */
 import { useState, useEffect, useRef } from 'react'
@@ -41,8 +41,8 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full border-b border-slate-200/60">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full border-b border-slate-200/60">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
           onClick={toggle}
@@ -56,41 +56,41 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-          {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
+        <div className="min-w-0">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{title}</h2>
+          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 truncate">{subtitle}</p>}
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Search Bar */}
-        <div className="relative hidden lg:block">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Search Bar - Hidden on mobile */}
+        <div className="relative hidden md:block">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
           <input
-            className="pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl text-sm w-64 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
+            className="pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl text-sm w-48 lg:w-64 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
             placeholder="Cari..."
             type="text"
           />
         </div>
 
         {/* Notifications */}
-        <button className="p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
-          <span className="material-symbols-outlined text-xl">notifications</span>
+        <button className="p-2 sm:p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
+          <span className="material-symbols-outlined text-lg sm:text-xl">notifications</span>
         </button>
 
-        {/* Help */}
-        <button className="p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
+        {/* Help - Hidden on mobile */}
+        <button className="hidden sm:block p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
           <span className="material-symbols-outlined text-xl">help_outline</span>
         </button>
 
-        {/* Divider */}
-        <div className="h-8 w-px bg-slate-200 mx-1" />
+        {/* Divider - Hidden on mobile */}
+        <div className="hidden sm:block h-8 w-px bg-slate-200 mx-1" />
 
         {/* ═══ User Profile Dropdown ═══ */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className={`flex items-center gap-3 px-3 py-2 rounded-2xl transition-all duration-200 ${
+            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-2xl transition-all duration-200 ${
               showDropdown
                 ? 'bg-primary/10 shadow-sm'
                 : 'hover:bg-slate-100'
@@ -100,26 +100,26 @@ export default function Topbar({ title, subtitle }) {
               <p className="text-sm font-semibold text-slate-800 leading-tight">{user.name}</p>
               <p className="text-[10px] text-slate-500">{user.email || 'operator@sekolah.id'}</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
+              <span className="material-symbols-outlined text-white text-base sm:text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
             </div>
-            <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`}>
+            <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-200 hidden sm:block ${showDropdown ? 'rotate-180' : ''}`}>
               expand_more
             </span>
           </button>
 
           {/* ═══ Dropdown Menu ═══ */}
           {showDropdown && (
-            <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
               {/* User Info Header */}
               <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
                     <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">{user.name}</p>
-                    <p className="text-xs text-slate-500">{user.email || 'operator@sekolah.id'}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+                    <p className="text-xs text-slate-500 truncate">{user.email || 'operator@sekolah.id'}</p>
                   </div>
                 </div>
               </div>

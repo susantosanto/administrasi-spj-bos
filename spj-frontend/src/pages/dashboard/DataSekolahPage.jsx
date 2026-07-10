@@ -140,17 +140,17 @@ export default function DataSekolahPage() {
     <div className="flex flex-col min-h-screen bg-slate-100/80">
       <Topbar title="Data Sekolah" subtitle="Profil sekolah dan pejabat" />
 
-      <div className="p-6 space-y-5 flex-1 max-w-[1200px] mx-auto w-full">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1200px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* HEADER WITH TABS                                                */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
             {/* Tab: Data Sekolah */}
             <button
               onClick={() => setTab('sekolah')}
-              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+              className={`relative flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                 tab === 'sekolah'
                   ? 'bg-white text-primary shadow-lg shadow-slate-200/50'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
@@ -159,16 +159,17 @@ export default function DataSekolahPage() {
               {tab === 'sekolah' && (
                 <span className="absolute inset-0 rounded-2xl border-2 border-primary/20 pointer-events-none" />
               )}
-              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: tab === 'sekolah' ? "'FILL' 1" : "'FILL' 0" }}>
+              <span className="material-symbols-outlined text-lg sm:text-xl" style={{ fontVariationSettings: tab === 'sekolah' ? "'FILL' 1" : "'FILL' 0" }}>
                 school
               </span>
-              <span>Data Sekolah</span>
+              <span className="hidden sm:inline">Data Sekolah</span>
+              <span className="sm:hidden">Sekolah</span>
             </button>
 
             {/* Tab: Pejabat */}
             <button
               onClick={() => setTab('pejabat')}
-              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+              className={`relative flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                 tab === 'pejabat'
                   ? 'bg-white text-primary shadow-lg shadow-slate-200/50'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
@@ -177,10 +178,11 @@ export default function DataSekolahPage() {
               {tab === 'pejabat' && (
                 <span className="absolute inset-0 rounded-2xl border-2 border-primary/20 pointer-events-none" />
               )}
-              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: tab === 'pejabat' ? "'FILL' 1" : "'FILL' 0" }}>
+              <span className="material-symbols-outlined text-lg sm:text-xl" style={{ fontVariationSettings: tab === 'pejabat' ? "'FILL' 1" : "'FILL' 0" }}>
                 badge
               </span>
-              <span>Pejabat Sekolah</span>
+              <span className="hidden sm:inline">Pejabat Sekolah</span>
+              <span className="sm:hidden">Pejabat</span>
             </button>
           </div>
 

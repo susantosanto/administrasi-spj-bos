@@ -130,33 +130,33 @@ export default function DashboardHome() {
           <div className="absolute top-12 right-12 w-24 h-24 border border-white/10 rounded-2xl rotate-6 backdrop-blur-sm" />
 
           {/* Content */}
-          <div className="relative p-8 lg:p-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="relative p-5 sm:p-8 lg:p-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8">
               {/* Left Content */}
               <div className="flex-1">
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-lg shadow-black/10">
-                      <span className="material-symbols-outlined text-3xl text-white">school</span>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-lg shadow-black/10">
+                      <span className="material-symbols-outlined text-2xl sm:text-3xl text-white">school</span>
                     </div>
                     {/* Pulse dot */}
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
                   </div>
                   <div>
-                    <p className="text-blue-200 text-xs uppercase tracking-[0.2em] font-semibold mb-1">Sistem Informasi</p>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                    <p className="text-blue-200 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold mb-0.5 sm:mb-1">Sistem Informasi</p>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
                       LPJ BOS/BOSP
                     </h1>
                   </div>
                 </div>
 
-                <p className="text-blue-100/80 text-base max-w-xl mb-8 leading-relaxed">
+                <p className="text-blue-100/80 text-sm sm:text-base max-w-xl mb-6 sm:mb-8 leading-relaxed">
                   Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
                   Lengkapi semua dokumen Anda dengan mudah, cepat, dan profesional.
                 </p>
 
                 {/* Stats Row — Glass Cards */}
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {[
                     { icon: 'description', label: '26+ Dokumen LPJ' },
                     { icon: 'folder_open', label: '15+ Kelengkapan' },
@@ -164,23 +164,23 @@ export default function DashboardHome() {
                   ].map((stat) => (
                     <div
                       key={stat.label}
-                      className="flex items-center gap-2.5 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
+                      className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
                     >
-                      <span className="material-symbols-outlined text-white text-lg">{stat.icon}</span>
-                      <span className="text-sm font-semibold text-white">{stat.label}</span>
+                      <span className="material-symbols-outlined text-white text-base sm:text-lg">{stat.icon}</span>
+                      <span className="text-xs sm:text-sm font-semibold text-white">{stat.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Right Content — Clock + CTA */}
-              <div className="flex flex-col items-center lg:items-end gap-6">
+              <div className="flex flex-row lg:flex-col items-center lg:items-end gap-4 lg:gap-6">
                 {/* Clock — Premium Glass */}
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/20 shadow-lg">
-                  <div className="text-5xl font-light tracking-tight font-mono text-white mb-1">
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-4 sm:px-6 py-3 sm:py-4 border border-white/20 shadow-lg">
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight font-mono text-white mb-1">
                     {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                   </div>
-                  <div className="text-xs text-blue-200 text-center tracking-wide">
+                  <div className="text-[10px] sm:text-xs text-blue-200 text-center tracking-wide">
                     {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                   </div>
                 </div>
@@ -194,12 +194,13 @@ export default function DashboardHome() {
                   <div className="absolute inset-0 bg-gradient-to-r from-white to-blue-100 rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
 
                   {/* Button */}
-                  <div className="relative flex items-center gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-8 py-4 rounded-2xl font-bold text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                      <span className="material-symbols-outlined text-xl text-primary group-hover:text-white transition-colors">print</span>
+                  <div className="relative flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                      <span className="material-symbols-outlined text-lg sm:text-xl text-primary group-hover:text-white transition-colors">print</span>
                     </div>
-                    <span>Mulai Cetak Dokumen</span>
-                    <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <span className="hidden sm:inline">Mulai Cetak Dokumen</span>
+                    <span className="sm:hidden">Cetak</span>
+                    <span className="material-symbols-outlined text-lg sm:text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
                   </div>
                 </Link>
               </div>
@@ -219,7 +220,7 @@ export default function DashboardHome() {
             <span className="text-xs text-slate-500">Unduh dokumen regulasi BOS/BOSP</span>
           </div>
 
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {DOCUMENTS_REF.map((doc) => (
               <a
                 key={doc.file}
@@ -258,7 +259,7 @@ export default function DashboardHome() {
             <h2 className="text-lg font-bold text-slate-900">Fitur Unggulan</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {FEATURES.map((feature) => (
               <Link
                 key={feature.id}
@@ -308,14 +309,14 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* TENTANG APLIKASI                                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-3xl text-white">info</span>
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-6 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-2xl sm:text-3xl text-white">info</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold">Aplikasi LPJ BOS/BOSP</h3>
+                <h3 className="text-base sm:text-lg font-bold">Aplikasi LPJ BOS/BOSP</h3>
                 <p className="text-white/60 text-sm">Versi 1.0.0 — Tahun Anggaran 2026</p>
               </div>
             </div>
