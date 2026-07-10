@@ -1,6 +1,6 @@
 /**
  * Sidebar — Ultra Premium Glass Morphism Design 2026
- * Categorized menu groups with elegant section headers
+ * Responsive: Overlay on mobile, push on desktop
  */
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
@@ -45,7 +45,7 @@ const BOTTOM_ITEMS = [
 
 export default function Sidebar() {
   const navigate = useNavigate()
-  const { isOpen, close } = useSidebar()
+  const { isOpen, isMobile, close } = useSidebar()
 
   const handleLogout = () => {
     localStorage.removeItem('spj_auth')
@@ -54,14 +54,21 @@ export default function Sidebar() {
     navigate('/')
   }
 
+  // Close sidebar on navigation (mobile only)
+  const handleNavClick = () => {
+    if (isMobile) {
+      close()
+    }
+  }
+
   return (
     <>
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* OVERLAY — Glass blur backdrop                                       */}
+      {/* OVERLAY — Glass blur backdrop (mobile only)                        */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {isOpen && (
+      {isMobile && isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] z-40 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300"
           onClick={close}
         />
       )}
@@ -73,7 +80,7 @@ export default function Sidebar() {
         className={`fixed left-0 top-0 h-screen z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
             ? 'translate-x-0 opacity-100'
-            : '-translate-x-full opacity-0'
+            : '-translate-x-full opacity-0 pointer-events-none'
         }`}
       >
         {/* Glass Container */}
@@ -119,6 +126,7 @@ export default function Sidebar() {
             <NavLink
               to={MENU_DASHBOARD.path}
               end={MENU_DASHBOARD.exact}
+              onClick={handleNavClick}
               className={({ isActive }) =>
                 `group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 ${
                   isActive
@@ -168,6 +176,7 @@ export default function Sidebar() {
                     <NavLink
                       key={item.path}
                       to={item.path}
+                      onClick={handleNavClick}
                       className={({ isActive }) =>
                         `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                           isActive
@@ -220,6 +229,7 @@ export default function Sidebar() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                onClick={handleNavClick}
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                     isActive
@@ -251,7 +261,7 @@ export default function Sidebar() {
 
             {/* Logout Button */}
             <button
-              onClick={handleLogout}
+              onClick={() => { handleNavClick(); handleLogout(); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-red-500 hover:bg-red-50/60 transition-all duration-200 group"
             >
               <span className="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-red-500 transition-colors">
