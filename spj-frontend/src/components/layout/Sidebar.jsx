@@ -108,13 +108,13 @@ export default function Sidebar() {
           {/* ═══════════════════════════════════════════════════════════════ */}
           {/* MAIN NAVIGATION — Categorized Groups                            */}
           {/* ═══════════════════════════════════════════════════════════════ */}
-          <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
+          <nav className="flex-1 px-3 pt-3 pb-2 space-y-5 overflow-y-auto">
             {/* Dashboard — At the Top */}
             <NavLink
               to={MENU_DASHBOARD.path}
               end={MENU_DASHBOARD.exact}
               className={({ isActive }) =>
-                `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                `group relative flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 ${
                   isActive
                     ? 'bg-primary/10 text-primary'
                     : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
@@ -141,20 +141,23 @@ export default function Sidebar() {
               )}
             </NavLink>
 
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            {/* Premium Divider */}
+            <div className="relative mx-3">
+              <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-1 bg-white rounded-full shadow-sm" />
+            </div>
 
-            {MENU_GROUPS.map((group) => (
-              <div key={group.label}>
+            {MENU_GROUPS.map((group, groupIdx) => (
+              <div key={group.label} className={groupIdx > 0 ? 'mt-2' : ''}>
                 {/* Group Header */}
-                <div className="px-3 mb-2">
+                <div className="px-3 mb-2.5">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
                     {group.label}
                   </span>
                 </div>
 
                 {/* Group Items */}
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {group.items.map((item) => (
                     <NavLink
                       key={item.path}
