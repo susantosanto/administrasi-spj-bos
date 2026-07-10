@@ -55,86 +55,46 @@ export default function LoginPage() {
           backgroundSize: '60px 60px',
         }} />
 
-        {/* Premium Space Orbs - Highly Visible */}
+        {/* Premium Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           
-          {/* PRIMARY GLOW ORB 1 - Large, moving right */}
-          <div className="absolute w-[400px] h-[400px] rounded-full" 
+          {/* Soft Blue Gradient Orbs - Subtle, don't overpower text */}
+          <div className="absolute w-[500px] h-[500px] rounded-full"
                style={{
-                 background: 'radial-gradient(circle, rgba(180,220,255,0.6) 0%, rgba(100,180,255,0.3) 40%, transparent 70%)',
-                 top: '10%',
-                 left: '5%',
-                 animation: 'orb-move-1 12s ease-in-out infinite',
+                 background: 'radial-gradient(circle, rgba(0,40,120,0.3) 0%, transparent 60%)',
+                 top: '-10%',
+                 right: '-10%',
+                 animation: 'orb-move-1 20s ease-in-out infinite',
                }}
           />
           
-          {/* PRIMARY GLOW ORB 2 - Large, moving left */}
-          <div className="absolute w-[350px] h-[350px] rounded-full"
+          <div className="absolute w-[400px] h-[400px] rounded-full"
                style={{
-                 background: 'radial-gradient(circle, rgba(150,210,255,0.55) 0%, rgba(80,160,255,0.25) 40%, transparent 70%)',
-                 bottom: '5%',
-                 right: '10%',
-                 animation: 'orb-move-2 14s ease-in-out infinite',
+                 background: 'radial-gradient(circle, rgba(0,30,100,0.25) 0%, transparent 55%)',
+                 bottom: '-5%',
+                 left: '-5%',
+                 animation: 'orb-move-2 25s ease-in-out infinite',
                }}
           />
           
-          {/* MEDIUM GLOW ORB 3 - Floating */}
-          <div className="absolute w-[250px] h-[250px] rounded-full"
+          <div className="absolute w-[300px] h-[300px] rounded-full"
                style={{
-                 background: 'radial-gradient(circle, rgba(200,235,255,0.5) 0%, rgba(120,190,255,0.2) 45%, transparent 70%)',
-                 top: '40%',
-                 left: '40%',
-                 animation: 'orb-move-3 10s ease-in-out infinite',
+                 background: 'radial-gradient(circle, rgba(0,50,150,0.2) 0%, transparent 50%)',
+                 top: '50%',
+                 left: '50%',
+                 transform: 'translate(-50%, -50%)',
+                 animation: 'orb-pulse 8s ease-in-out infinite',
                }}
           />
           
-          {/* SMALL ACCENT ORB */}
-          <div className="absolute w-[180px] h-[180px] rounded-full"
-               style={{
-                 background: 'radial-gradient(circle, rgba(220,240,255,0.6) 0%, transparent 60%)',
-                 top: '60%',
-                 left: '15%',
-                 animation: 'orb-float 8s ease-in-out infinite',
-               }}
-          />
+          {/* Decorative Lines */}
+          <div className="absolute top-[20%] left-[10%] w-[200px] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent rotate-[30deg]" />
+          <div className="absolute top-[60%] right-[15%] w-[150px] h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent -rotate-[20deg]" />
           
-          {/* TINY SPARKLE ORB */}
-          <div className="absolute w-[100px] h-[100px] rounded-full"
-               style={{
-                 background: 'radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(200,230,255,0.3) 40%, transparent 70%)',
-                 top: '20%',
-                 right: '15%',
-                 animation: 'orb-pulse 6s ease-in-out infinite',
-               }}
-          />
-          
-          {/* Floating Particles - More visible */}
-          {[
-            { size: 6, top: '12%', left: '18%', delay: 0 },
-            { size: 5, top: '22%', left: '55%', delay: -1.5 },
-            { size: 7, top: '38%', left: '25%', delay: -3 },
-            { size: 4, top: '48%', left: '65%', delay: -0.8 },
-            { size: 5, top: '65%', left: '12%', delay: -2.2 },
-            { size: 4, top: '75%', left: '45%', delay: -4 },
-            { size: 6, top: '30%', left: '75%', delay: -1 },
-            { size: 5, top: '55%', left: '40%', delay: -2.8 },
-            { size: 4, top: '82%', left: '60%', delay: -0.5 },
-            { size: 5, top: '18%', left: '80%', delay: -3.5 },
-          ].map((p, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-white"
-              style={{
-                width: p.size,
-                height: p.size,
-                top: p.top,
-                left: p.left,
-                boxShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(150,200,255,0.5)',
-                animation: 'particle-drift 7s ease-in-out infinite',
-                animationDelay: `${p.delay}s`,
-              }}
-            />
-          ))}
+          {/* Small Accent Dots */}
+          <div className="absolute w-2 h-2 bg-white/30 rounded-full top-[15%] left-[25%]" />
+          <div className="absolute w-1.5 h-1.5 bg-white/25 rounded-full top-[45%] right-[20%]" />
+          <div className="absolute w-2 h-2 bg-white/20 rounded-full bottom-[25%] left-[35%]" />
         </div>
 
         {/* Content */}
