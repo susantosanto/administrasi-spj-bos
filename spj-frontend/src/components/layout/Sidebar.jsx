@@ -56,7 +56,7 @@ export default function Sidebar() {
         className={`fixed left-0 top-0 h-screen z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
             ? 'translate-x-0 opacity-100'
-            : '-translate-x-full opacity-0 lg:translate-x-0 lg:opacity-100'
+            : '-translate-x-full opacity-0'
         }`}
       >
         {/* Glass Container */}
