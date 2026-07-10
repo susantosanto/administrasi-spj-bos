@@ -217,35 +217,35 @@ export default function DataSekolahPage() {
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
 
             {/* ── Hero Header ── */}
-            <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 overflow-hidden">
+            <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
               {/* Decorative */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
 
               <div className="relative flex items-start gap-5">
                 {/* Icon */}
-                <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/10">
+                <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
                   <span className="material-symbols-outlined text-3xl text-white">school</span>
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/50 text-xs uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
+                  <p className="text-white/70 text-xs uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
                   <h2 className="text-xl font-bold text-white leading-tight mb-3">
                     {data.namaSekolah || 'SD NEGERI ...'}
                   </h2>
                   <div className="flex flex-wrap gap-3">
-                    <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-lg text-xs text-white/80">
+                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
                       <span className="material-symbols-outlined text-sm">fingerprint</span>
                       NPSN: {data.npsn || '-'}
                     </span>
                     {data.tahunAnggaran && (
-                      <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-lg text-xs text-white/80">
+                      <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
                         <span className="material-symbols-outlined text-sm">calendar_month</span>
                         TA {data.tahunAnggaran}
                       </span>
                     )}
-                    <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-lg text-xs text-white/80">
+                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
                       <span className="material-symbols-outlined text-sm">location_on</span>
                       {data.kecamatan || data.kabupaten || '-'}
                     </span>
