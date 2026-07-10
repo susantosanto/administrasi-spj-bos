@@ -60,12 +60,13 @@ export default function Sidebar() {
         }`}
       >
         {/* Glass Container */}
-        <div className="relative w-[260px] h-full bg-white/70 backdrop-blur-2xl border-r border-white/40 shadow-[1px_0_24px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden">
+        <div className="relative w-[260px] h-full bg-slate-50/80 backdrop-blur-xl border-r border-slate-200/60 shadow-[4px_0_24px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden">
 
           {/* ── Decorative Background Elements ── */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute bottom-32 -left-16 w-48 h-48 bg-gradient-to-tr from-slate-200/50 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-1/2 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-40 -left-20 w-56 h-56 bg-gradient-to-tr from-slate-300/40 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/3 right-0 w-32 h-32 bg-primary/8 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-20 right-10 w-24 h-24 bg-slate-400/10 rounded-full blur-2xl pointer-events-none" />
 
           {/* ═══════════════════════════════════════════════════════════════ */}
           {/* LOGO SECTION                                                    */}
