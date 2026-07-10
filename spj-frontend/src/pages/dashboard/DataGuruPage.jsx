@@ -171,10 +171,14 @@ export default function DataGuruPage() {
               <h2 className="text-lg font-bold text-slate-900">Data Guru</h2>
               <button
                 onClick={() => setShowUploadGuru(!showUploadGuru)}
-                className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+                  showUploadGuru
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`}
               >
-                <span className="material-symbols-outlined text-lg">upload_file</span>
-                Upload Excel
+                <span className="material-symbols-outlined text-lg">{showUploadGuru ? 'close' : 'upload_file'}</span>
+                {showUploadGuru ? 'Tutup Form' : 'Upload Excel'}
               </button>
             </div>
 
@@ -263,10 +267,14 @@ export default function DataGuruPage() {
               <h2 className="text-lg font-bold text-slate-900">Data Tendik</h2>
               <button
                 onClick={() => setShowUploadTendik(!showUploadTendik)}
-                className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+                  showUploadTendik
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`}
               >
-                <span className="material-symbols-outlined text-lg">upload_file</span>
-                Upload Excel
+                <span className="material-symbols-outlined text-lg">{showUploadTendik ? 'close' : 'upload_file'}</span>
+                {showUploadTendik ? 'Tutup Form' : 'Upload Excel'}
               </button>
             </div>
 

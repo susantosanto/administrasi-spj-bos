@@ -286,15 +286,17 @@ export default function BKUPage() {
 
       <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
         {/* ── Upload Toggle Button (always visible) ── */}
-        {!showUploadForm && (
-          <button
-            onClick={() => setShowUploadForm(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
-          >
-            <span className="material-symbols-outlined text-lg">upload</span>
-            Upload BKU
-          </button>
-        )}
+        <button
+          onClick={() => setShowUploadForm(!showUploadForm)}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+            showUploadForm
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+          }`}
+        >
+          <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload_file'}</span>
+          {showUploadForm ? 'Tutup Form' : 'Upload BKU'}
+        </button>
 
         {/* ── Upload Area ── */}
         {showUploadForm && (
@@ -351,24 +353,11 @@ export default function BKUPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="text-right text-xs text-slate-500">
-                  <p className="font-semibold">{uploadedInfo.summary.totalTransactions} transaksi</p>
-                  <p className={uploadedInfo.summary.isBalanced ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                    {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowUploadForm(!showUploadForm)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    showUploadForm
-                      ? 'bg-primary/10 text-primary border border-primary/20'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload'}</span>
-                  {showUploadForm ? 'Tutup Form' : 'Upload Ulang'}
-                </button>
+              <div className="text-right text-xs text-slate-500">
+                <p className="font-semibold">{uploadedInfo.summary.totalTransactions} transaksi</p>
+                <p className={uploadedInfo.summary.isBalanced ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                  {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
+                </p>
               </div>
             </div>
           </div>
