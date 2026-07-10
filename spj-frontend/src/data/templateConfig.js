@@ -530,6 +530,77 @@ export const TEMPLATE_CONFIGS = {
       kodeRekening: '5.1.02.02.01.0063',
     },
   },
+
+  // ─── BUKU KAS UMUM (BKU) - Excel ───
+  bku: {
+    id: 'bku',
+    label: 'Buku Kas Umum (BKU)',
+    card: 'keuangan',
+    sub_kategori: 'bku',
+    sourceFile: '/templates/BKU_SDN_Lebakleungsir.xlsx',
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'header',
+        judul: 'BUKU KAS UMUM',
+        nomor: false,
+      },
+      {
+        type: 'info-keuangan',
+        fields: ['npsn', 'namaSekolah', 'tahunAnggaran', 'bulan'],
+      },
+      {
+        type: 'table-dinamis',
+        columns: [
+          { key: 'noUrut', label: 'No. Urut', width: 8 },
+          { key: 'tanggal', label: 'Tanggal', width: 12 },
+          { key: 'kodeRekening', label: 'Kode Rekening', width: 18 },
+          { key: 'uraian', label: 'Uraian', width: 30 },
+          { key: 'jenisTransaksi', label: 'Jenis Transaksi', width: 15 },
+          { key: 'noBukti', label: 'No. Bukti', width: 12 },
+          { key: 'debet', label: 'Debet (Rp)', width: 15, format: 'currency' },
+          { key: 'kredit', label: 'Kredit (Rp)', width: 15, format: 'currency' },
+          { key: 'saldo', label: 'Saldo (Rp)', width: 15, format: 'currency' },
+          { key: 'keterangan', label: 'Keterangan', width: 15 },
+        ],
+      },
+      { type: 'signature', roles: ['bendahara', 'kepala-sekolah'] },
+    ],
+    defaults: {
+      npsn: '20212345',
+      namaSekolah: 'SD NEGERI LEBAKLEUNGSIR',
+      tahunAnggaran: '2026',
+      bulan: 'Januari',
+      program: '07 Pengembangan Standar Pembiayaan',
+      kegiatan: 'Buku Kas Umum',
+      kodeRekening: '1.1.1.01.01',
+    },
+    // BKU-specific configuration for Excel parsing (TERVERIFIKASI dari file asli ARKAS)
+    excelConfig: {
+      sheetName: 'Page1',
+      headerFields: {
+        NPSN: { row: 4, col: 4 },          // Row 5, Col E (0-indexed)
+        NAMA_SEKOLAH: { row: 6, col: 4 },   // Row 7, Col E
+        TAHUN_ANGGARAN: { row: 2, col: 0 },  // Row 3, Col A (parsed from "TAHUN : 2026")
+        ALAMAT: { row: 8, col: 4 },          // Row 9, Col E
+        KABUPATEN: { row: 10, col: 4 },      // Row 11, Col E
+        PROVINSI: { row: 12, col: 4 },       // Row 13, Col E
+      },
+      dataColumns: {
+        TANGGAL: 'A',
+        KODE_KEGIATAN: 'D',
+        KODE_REKENING: 'F',
+        NO_BUKTI: 'I',
+        URAIAN: 'K',
+        PENERIMAAN: 'N',
+        PENGELUARAN: 'Q',
+        SALDO: 'T',
+      },
+      dataStartRow: 16,   // Row 16 (data dimulai setelah header + number row)
+      dataEndRow: 340,
+      sheetRef: 'Page1'
+    }
+  },
 }
 
 export default TEMPLATE_CONFIGS

@@ -1,12 +1,30 @@
+import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
 
 export default function Topbar({ title, subtitle }) {
+  const { isOpen, toggle } = useSidebar()
   const user = storageHelper.get('auth_user', { name: 'Ahmad Operator' })
 
   return (
-    <header className="sticky top-0 z-40 bg-surface flex justify-between items-center px-lg py-md w-full border-b border-outline-variant">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-lg py-md w-full border-b border-gray-200/60">
       <div className="flex items-center gap-md">
-        <h2 className="font-headline-md text-headline-md font-extrabold text-primary">{title}</h2>
+        {/* ══ SUPER PREMIUM SIDEBAR TOGGLE BUTTON ══ */}
+        <button
+          onClick={toggle}
+          className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden group ${
+            isOpen
+              ? 'bg-primary text-on-primary shadow-lg shadow-primary/30'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 shadow-sm'
+          }`}
+          title={isOpen ? 'Tutup Sidebar' : 'Buka Menu Navigasi'}
+        >
+          {/* Shimmer */}
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+          <span className="material-symbols-outlined text-xl relative z-10">
+            {isOpen ? 'close' : 'menu'}
+          </span>
+        </button>
+        <h2 className="font-headline-md text-headline-md font-extrabold text-gray-900">{title}</h2>
       </div>
       <div className="flex items-center gap-xl">
         {/* Search Bar */}
