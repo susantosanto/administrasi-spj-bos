@@ -185,20 +185,6 @@ export default function Sidebar() {
               </NavLink>
             ))}
 
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent my-3" />
-
-            {/* User Profile */}
-            <div className="flex items-center gap-3 px-3 py-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-slate-500 text-lg">person</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-slate-800 truncate">Operator Sekolah</p>
-                <p className="text-[10px] text-slate-400 truncate">Admin</p>
-              </div>
-            </div>
-
             {/* Logout Button */}
             <button
               onClick={handleLogout}
