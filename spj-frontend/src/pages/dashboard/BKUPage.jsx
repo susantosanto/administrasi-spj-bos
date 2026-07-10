@@ -274,10 +274,10 @@ export default function BKUPage() {
   // ─── Render ───────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-slate-100/80">
       <Topbar title="Upload BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
 
-      <div className="p-lg space-y-lg flex-1">
+      <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
         {/* ── Upload Area ── */}
         <div className="bg-surface-container-lowest p-xl rounded-xl shadow-lg border border-outline-variant">
           <div className="border-2 border-dashed border-outline-variant rounded-xl p-xl text-center hover:border-primary transition-colors">
@@ -428,29 +428,6 @@ export default function BKUPage() {
               {/* Action buttons */}
               {items.length > 0 && (
                 <>
-                  {/* ══ SUPER PREMIUM SIDEBAR MENU TOGGLE ══ */}
-                  <button
-                    onClick={() => {
-                      if (sidebarTransaction) {
-                        closeSidebar()
-                      } else if (items.length > 0) {
-                        openSidebar(items[0])
-                      }
-                    }}
-                    className={`relative flex items-center gap-2 px-lg py-2 rounded-xl font-label-md font-semibold transition-all duration-500 overflow-hidden group/toggle ${
-                      sidebarTransaction
-                        ? 'bg-primary text-on-primary shadow-xl shadow-primary/40 scale-105'
-                        : 'bg-primary text-on-primary shadow-lg shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 hover:brightness-110 active:brightness-90'
-                    }`}
-                    title={sidebarTransaction ? 'Tutup Sidebar' : 'Buka Sidebar Premium'}
-                  >
-                    {/* Premium shimmer overlay */}
-                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/toggle:translate-x-full transition-transform duration-700" />
-                    <span className="material-symbols-outlined text-lg relative z-10" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      {sidebarTransaction ? 'close_fullscreen' : 'open_in_full'}
-                    </span>
-                    <span className="hidden sm:inline relative z-10">{sidebarTransaction ? 'Tutup' : 'Menu'}</span>
-                  </button>
                   <button
                     onClick={handleRefresh}
                     className="flex items-center gap-1 px-lg py-2 bg-primary-fixed/30 text-primary border border-primary/30 rounded-lg hover:bg-primary-fixed/50 transition-all text-label-md font-medium"
