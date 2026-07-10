@@ -31,10 +31,10 @@ const defaultData = {
 }
 
 const PEJABAT_ROLES = [
-  { key: 'ks', label: 'Kepala Sekolah', icon: 'person' },
-  { key: 'bendahara', label: 'Bendahara', icon: 'account_balance' },
-  { key: 'pengawas', label: 'Pengawas Bina', icon: 'supervisor_account' },
-  { key: 'sekdik', label: 'Sekretaris Dinas', icon: 'badge' },
+  { key: 'ks', label: 'Kepala Sekolah', icon: 'person', color: 'primary' },
+  { key: 'bendahara', label: 'Bendahara', icon: 'account_balance', color: 'emerald' },
+  { key: 'pengawas', label: 'Pengawas Bina', icon: 'supervisor_account', color: 'violet' },
+  { key: 'sekdik', label: 'Sekretaris Dinas', icon: 'badge', color: 'amber' },
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -140,82 +140,106 @@ export default function DataSekolahPage() {
     <div className="flex flex-col min-h-screen bg-slate-100/80">
       <Topbar title="Data Sekolah" subtitle="Profil sekolah dan pejabat" />
 
-      <div className="p-6 space-y-6 flex-1 max-w-[1200px] mx-auto w-full">
+      <div className="p-6 space-y-5 flex-1 max-w-[1200px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* TABS                                                            */}
+        {/* HEADER WITH TABS                                                */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setTab('sekolah')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              tab === 'sekolah'
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <span className="material-symbols-outlined text-lg">school</span>
-            Data Sekolah
-          </button>
-          <button
-            onClick={() => setTab('pejabat')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              tab === 'pejabat'
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <span className="material-symbols-outlined text-lg">badge</span>
-            Pejabat Sekolah
-          </button>
-
-          <div className="flex-1" />
-
-          {tab === 'sekolah' && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {/* Tab: Data Sekolah */}
             <button
-              onClick={() => setShowUpload(!showUpload)}
-              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
+              onClick={() => setTab('sekolah')}
+              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+                tab === 'sekolah'
+                  ? 'bg-white text-primary shadow-lg shadow-slate-200/50'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+              }`}
             >
-              <span className="material-symbols-outlined text-lg">upload_file</span>
-              Upload Excel
+              {tab === 'sekolah' && (
+                <span className="absolute inset-0 rounded-2xl border-2 border-primary/20 pointer-events-none" />
+              )}
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: tab === 'sekolah' ? "'FILL' 1" : "'FILL' 0" }}>
+                school
+              </span>
+              <span>Data Sekolah</span>
             </button>
-          )}
 
-          {tab === 'pejabat' && pejabatChanges && (
+            {/* Tab: Pejabat */}
             <button
-              onClick={handleSavePejabat}
-              className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+              onClick={() => setTab('pejabat')}
+              className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+                tab === 'pejabat'
+                  ? 'bg-white text-primary shadow-lg shadow-slate-200/50'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+              }`}
             >
-              <span className="material-symbols-outlined text-lg">save</span>
-              Simpan
+              {tab === 'pejabat' && (
+                <span className="absolute inset-0 rounded-2xl border-2 border-primary/20 pointer-events-none" />
+              )}
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: tab === 'pejabat' ? "'FILL' 1" : "'FILL' 0" }}>
+                badge
+              </span>
+              <span>Pejabat Sekolah</span>
             </button>
-          )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            {tab === 'sekolah' && (
+              <button
+                onClick={() => setShowUpload(!showUpload)}
+                className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 ${
+                  showUpload
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <span className="material-symbols-outlined text-lg">{showUpload ? 'close' : 'upload_file'}</span>
+                {showUpload ? 'Tutup' : 'Upload Excel'}
+              </button>
+            )}
+
+            {tab === 'pejabat' && pejabatChanges && (
+              <button
+                onClick={handleSavePejabat}
+                className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+              >
+                <span className="material-symbols-outlined text-lg">save</span>
+                Simpan Perubahan
+              </button>
+            )}
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* UPLOAD SECTION — Hidden by default                              */}
+        {/* UPLOAD SECTION — Toggle                                         */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {showUpload && tab === 'sekolah' && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm animate-in slide-in-from-top-2 duration-300">
+            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-primary/40 transition-all duration-300 bg-gradient-to-b from-slate-50/50 to-transparent">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <span className="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Sekolah</h3>
-              <p className="text-sm text-slate-500 mb-4">Upload file Excel (.xlsx) — data akan langsung terisi otomatis</p>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Sekolah</h3>
+              <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
+                Upload file Excel Dapodik — data profil sekolah akan langsung terisi otomatis
+              </p>
 
               <input type="file" ref={fileInputRef} accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" id="sekolah-upload" />
               <label
                 htmlFor="sekolah-upload"
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
                   isUploading
-                    ? 'bg-slate-400 text-white cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
+                    ? 'bg-slate-300 text-white cursor-not-allowed'
+                    : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
                 {isUploading ? 'Memproses...' : 'Pilih File Excel'}
               </label>
+
+              <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
             </div>
           </div>
         )}
@@ -226,87 +250,129 @@ export default function DataSekolahPage() {
         {tab === 'sekolah' && (
           <>
             {!hasSchoolData ? (
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                  <span className="material-symbols-outlined text-4xl text-slate-300">school</span>
+              /* ── Empty State ── */
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                  <span className="material-symbols-outlined text-5xl text-slate-300">school</span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Belum Ada Data Sekolah</h3>
-                <p className="text-sm text-slate-500 mb-6">Upload file Excel untuk mengisi data profil sekolah</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Belum Ada Data Sekolah</h3>
+                <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto">
+                  Upload file Excel untuk mengisi data profil sekolah secara otomatis
+                </p>
                 <button
                   onClick={() => setShowUpload(true)}
-                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">upload</span>
                   Upload Data Sekolah
                 </button>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              /* ── School Profile Card ── */
+              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
                 {/* Hero Header */}
-                <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+                <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 overflow-hidden">
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+                  <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
 
-                  <div className="relative flex items-start gap-5">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
-                      <span className="material-symbols-outlined text-3xl text-white">school</span>
+                  <div className="relative flex items-start gap-6">
+                    {/* School Icon */}
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center flex-shrink-0 shadow-2xl shadow-primary/30 border border-white/10">
+                      <span className="material-symbols-outlined text-4xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
                     </div>
+
+                    {/* School Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/70 text-sm uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
-                      <h2 className="text-2xl font-bold text-white leading-tight mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-2.5 py-1 bg-white/10 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white/70 uppercase tracking-widest border border-white/10">
+                          Profil Sekolah
+                        </span>
+                      </div>
+                      <h2 className="text-2xl font-bold text-white leading-tight mb-4">
                         {data.namaSekolah || 'SD NEGERI ...'}
                       </h2>
-                      <div className="flex flex-wrap gap-3">
-                        <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
-                          <span className="material-symbols-outlined text-base">fingerprint</span>
-                          NPSN: {data.npsn || '-'}
-                        </span>
+                      <div className="flex flex-wrap gap-2.5">
+                        {data.npsn && (
+                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
+                            <span className="material-symbols-outlined text-base">fingerprint</span>
+                            NPSN: {data.npsn}
+                          </span>
+                        )}
                         {data.tahunAnggaran && (
-                          <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
                             <span className="material-symbols-outlined text-base">calendar_month</span>
                             TA {data.tahunAnggaran}
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
-                          <span className="material-symbols-outlined text-base">location_on</span>
-                          {data.kecamatan || data.kabupaten || '-'}
-                        </span>
+                        {data.kecamatan && (
+                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
+                            <span className="material-symbols-outlined text-base">location_on</span>
+                            {data.kecamatan}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Data Sections */}
-                {[
-                  { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge' },
-                  { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt' },
-                  { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail' },
-                  { key: 'periodik', title: 'Data Periodik', icon: 'date_range' },
-                  { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop' },
-                ].map(section => {
-                  const fields = grouped[section.key]
-                  if (!fields || fields.length === 0) return null
-                  return (
-                    <div key={section.key} className="border-b border-slate-100 last:border-b-0">
-                      <div className="px-6 py-4 bg-slate-50 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-slate-400 text-xl">{section.icon}</span>
-                        <h4 className="text-base font-bold text-slate-700">{section.title}</h4>
-                      </div>
-                      <div className="divide-y divide-slate-50">
-                        {fields.map((f, i) => (
-                          <div key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors">
-                            <span className="text-slate-400 text-sm font-medium w-1/3 flex-shrink-0 pt-0.5">{f.label}</span>
-                            <span className="text-slate-800 text-base font-semibold flex-1 break-words">{f.value || '-'}</span>
+                <div className="divide-y divide-slate-100">
+                  {[
+                    { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge', color: 'primary' },
+                    { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt', color: 'slate' },
+                    { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail', color: 'slate' },
+                    { key: 'periodik', title: 'Data Periodik', icon: 'date_range', color: 'slate' },
+                    { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop', color: 'slate' },
+                  ].map(section => {
+                    const fields = grouped[section.key]
+                    if (!fields || fields.length === 0) return null
+                    return (
+                      <div key={section.key}>
+                        {/* Section Header */}
+                        <div className="px-8 py-4 bg-slate-50/80">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-slate-200/80 flex items-center justify-center">
+                              <span className="material-symbols-outlined text-slate-500 text-lg">{section.icon}</span>
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide">{section.title}</h4>
+                            <span className="text-xs text-slate-400 ml-auto">{fields.length} field</span>
                           </div>
-                        ))}
+                        </div>
+
+                        {/* Fields */}
+                        <div className="divide-y divide-slate-50">
+                          {fields.map((f, i) => (
+                            <div key={i} className="flex items-start gap-4 px-8 py-4 hover:bg-slate-50/30 transition-colors group">
+                              <span className="text-slate-400 text-sm font-medium w-2/5 flex-shrink-0 pt-0.5 group-hover:text-slate-600 transition-colors">
+                                {f.label}
+                              </span>
+                              <span className="text-slate-800 text-sm font-semibold flex-1 break-words">
+                                {f.value || <span className="text-slate-300">-</span>}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
 
                 {/* Footer */}
-                <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
-                  <p className="text-slate-400 text-xs">{allFields.length} field data</p>
+                <div className="px-8 py-4 bg-slate-50/80 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <p className="text-slate-400 text-xs">
+                      Total {allFields.length} field data
+                    </p>
+                    <button
+                      onClick={() => setShowUpload(true)}
+                      className="flex items-center gap-2 text-xs text-slate-500 hover:text-primary transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm">upload</span>
+                      Upload Ulang
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -317,57 +383,84 @@ export default function DataSekolahPage() {
         {/* TAB: PEJABAT SEKOLAH                                            */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {tab === 'pejabat' && (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            {/* Section Header */}
-            <div className="px-6 py-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-xl">badge</span>
+          <div className="space-y-4">
+            {/* Header Card */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shadow-inner">
+                  <span className="material-symbols-outlined text-2xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">Pejabat Sekolah</h3>
-                  <p className="text-xs text-slate-500">Data pejabat untuk tanda tangan dokumen</p>
+                  <h3 className="text-lg font-bold text-slate-900">Pejabat Sekolah</h3>
+                  <p className="text-sm text-slate-500">Data pejabat untuk tanda tangan dokumen LPJ</p>
                 </div>
               </div>
             </div>
 
-            {/* Pejabat List */}
-            <div className="divide-y divide-slate-100">
-              {PEJABAT_ROLES.map(role => (
-                <div key={role.key} className="px-6 py-5 hover:bg-slate-50/50 transition-colors">
-                  <div className="flex items-start gap-4">
-                    {/* Icon */}
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                      <span className="material-symbols-outlined text-slate-500 text-xl">{role.icon}</span>
+            {/* Pejabat Cards */}
+            {PEJABAT_ROLES.map((role, idx) => (
+              <div key={role.key} className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                {/* Card Header */}
+                <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      idx === 0 ? 'bg-primary/10' :
+                      idx === 1 ? 'bg-emerald-50' :
+                      idx === 2 ? 'bg-violet-50' :
+                      'bg-amber-50'
+                    }`}>
+                      <span className={`material-symbols-outlined text-xl ${
+                        idx === 0 ? 'text-primary' :
+                        idx === 1 ? 'text-emerald-600' :
+                        idx === 2 ? 'text-violet-600' :
+                        'text-amber-600'
+                      }`}>{role.icon}</span>
                     </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">{role.label}</h4>
+                      <p className="text-xs text-slate-400">Data untuk tanda tangan</p>
+                    </div>
+                    {data.pejabat[role.key].nama && (
+                      <div className="ml-auto">
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          Terisi
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                    {/* Fields */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
-                        <input
-                          type="text"
-                          value={data.pejabat[role.key].nama}
-                          onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
-                          placeholder={`Nama ${role.label}`}
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">NIP</label>
-                        <input
-                          type="text"
-                          value={data.pejabat[role.key].nip}
-                          onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
-                          placeholder="NIP. 000000000000000000"
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                        />
-                      </div>
+                {/* Input Fields */}
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        Nama Lengkap
+                      </label>
+                      <input
+                        type="text"
+                        value={data.pejabat[role.key].nama}
+                        onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
+                        placeholder={`Nama ${role.label}`}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        NIP
+                      </label>
+                      <input
+                        type="text"
+                        value={data.pejabat[role.key].nip}
+                        onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
+                        placeholder="NIP. 000000000000000000"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                      />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
