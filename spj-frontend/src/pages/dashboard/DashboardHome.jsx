@@ -1,6 +1,6 @@
 /**
  * Dashboard Home — Premium 2026 Design
- * HANYA WARNA BIRU PRIMARY — Fitur Focused, Informatif
+ * WARNA: Blue primary (hanya background/CTA), Icon GELAP/PROFESIONAL
  */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -75,10 +75,10 @@ const FEATURES = [
 ]
 
 const QUICK_ACTIONS = [
-  { label: 'Cetak Honor', icon: 'payments', path: '/dashboard/dokumen-lpj', color: 'primary' },
-  { label: 'Cetak SPPD', icon: 'flight_takeoff', path: '/dashboard/dokumen-lpj', color: 'primary' },
-  { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku', color: 'primary' },
-  { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan', color: 'primary' },
+  { label: 'Cetak Honor', icon: 'payments', path: '/dashboard/dokumen-lpj' },
+  { label: 'Cetak SPPD', icon: 'flight_takeoff', path: '/dashboard/dokumen-lpj' },
+  { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku' },
+  { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
 ]
 
 const DOCUMENTS_REF = [
@@ -117,7 +117,7 @@ export default function DashboardHome() {
       <div className="p-6 space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO WELCOME — PRIMARY BLUE                                        */}
+        {/* HERO — PRIMARY BLUE                                                */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-800 rounded-3xl p-8 text-white shadow-2xl shadow-primary/20">
           {/* Subtle Pattern */}
@@ -126,7 +126,6 @@ export default function DashboardHome() {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
           </div>
 
-          {/* Grid Pattern */}
           <div className="absolute inset-0 opacity-5" style={{
             backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
             backgroundSize: '40px 40px'
@@ -136,7 +135,7 @@ export default function DashboardHome() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                  <span className="material-symbols-outlined text-2xl">school</span>
+                  <span className="material-symbols-outlined text-2xl text-white">school</span>
                 </div>
                 <div>
                   <p className="text-white/60 text-xs uppercase tracking-widest font-medium">Selamat Datang</p>
@@ -151,24 +150,22 @@ export default function DashboardHome() {
                 Lengkapi semua dokumen Anda dengan mudah dan cepat.
               </p>
 
-              {/* Quick Stats — HANYA BLUE */}
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg">description</span>
+                  <span className="material-symbols-outlined text-lg text-white">description</span>
                   <span className="text-sm font-semibold">26+ Dokumen LPJ</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg">folder_open</span>
+                  <span className="material-symbols-outlined text-lg text-white">folder_open</span>
                   <span className="text-sm font-semibold">15+ Kelengkapan</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg">print</span>
+                  <span className="material-symbols-outlined text-lg text-white">print</span>
                   <span className="text-sm font-semibold">13 Template Siap Cetak</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Side: Time & CTA */}
             <div className="flex flex-col items-end gap-4">
               <div className="text-right">
                 <div className="text-4xl font-light tracking-tight font-mono">
@@ -191,17 +188,17 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* QUICK ACTIONS — PRIMARY BLUE BUTTONS                               */}
+        {/* QUICK ACTIONS — DARK ICONS                                          */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {QUICK_ACTIONS.map((action) => (
             <Link
               key={action.label}
               to={action.path}
-              className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
+              className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-xl border border-slate-200 hover:border-primary/30 hover:bg-slate-50 transition-all group"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                <span className="material-symbols-outlined text-primary text-xl group-hover:text-white transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                <span className="material-symbols-outlined text-slate-600 text-xl group-hover:text-white transition-colors">
                   {action.icon}
                 </span>
               </div>
@@ -213,11 +210,11 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* FITUR UNGGULAN — FEATURE CARDS                                      */}
+        {/* FITUR UNGGULAN — DARK ICONS                                         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-primary">auto_awesome</span>
+            <span className="material-symbols-outlined text-slate-800">auto_awesome</span>
             <h2 className="text-lg font-bold text-slate-900">Fitur Unggulan</h2>
           </div>
 
@@ -226,11 +223,11 @@ export default function DashboardHome() {
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 transition-all duration-300"
+                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300"
               >
-                {/* Icon */}
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                  <span className="material-symbols-outlined text-2xl text-primary group-hover:text-white transition-colors">
+                {/* Icon — DARK/SLATE, not blue */}
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                  <span className="material-symbols-outlined text-2xl text-slate-700 group-hover:text-white transition-colors">
                     {feature.icon}
                   </span>
                 </div>
@@ -248,12 +245,12 @@ export default function DashboardHome() {
                   {feature.description}
                 </p>
 
-                {/* Tags */}
+                {/* Tags — SLATE colors */}
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {feature.kategori.map((kat) => (
                     <span
                       key={kat}
-                      className="px-2.5 py-1 bg-primary/5 text-primary text-[10px] font-semibold rounded-lg"
+                      className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-lg"
                     >
                       {kat}
                     </span>
@@ -275,12 +272,12 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* DOKUMEN REFERENSI — BLUE ACCENT                                      */}
+        {/* DOKUMEN REFERENSI — DARK ICONS                                      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">download</span>
+              <span className="material-symbols-outlined text-slate-700">download</span>
               <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>
             </div>
             <span className="text-xs text-slate-500">Unduh dokumen regulasi BOS/BOSP</span>
@@ -292,10 +289,10 @@ export default function DashboardHome() {
                 key={doc.file}
                 href={`/docs/${doc.file}`}
                 download
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                  <span className="material-symbols-outlined text-primary group-hover:text-white text-lg transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                  <span className="material-symbols-outlined text-slate-600 group-hover:text-white text-lg transition-colors">
                     {doc.icon}
                   </span>
                 </div>
@@ -305,7 +302,7 @@ export default function DashboardHome() {
                   </p>
                   <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-lg">
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">
                   download
                 </span>
               </a>
@@ -320,7 +317,7 @@ export default function DashboardHome() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-3xl">info</span>
+                <span className="material-symbols-outlined text-3xl text-white">info</span>
               </div>
               <div>
                 <h3 className="text-lg font-bold">Aplikasi LPJ BOS/BOSP</h3>
@@ -337,8 +334,8 @@ export default function DashboardHome() {
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-white/40 text-lg">verified</span>
                 <span className="text-white/60">Status:</span>
-                <span className="flex items-center gap-1.5 text-primary-light font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-primary-light animate-pulse" />
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   Siap Digunakan
                 </span>
               </div>
@@ -348,7 +345,7 @@ export default function DashboardHome() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* FLOATING ACTION BUTTON — PRIMARY BLUE                               */}
+      {/* FAB — PRIMARY BLUE                                                  */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <Link
         to="/dashboard/dokumen-lpj"
