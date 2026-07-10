@@ -55,51 +55,71 @@ export default function LoginPage() {
           backgroundSize: '60px 60px',
         }} />
 
-        {/* Animated Background Orbs */}
+        {/* Premium Space Orbs - Highly Visible */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Large soft glow - top */}
-          <div 
-            className="absolute w-[600px] h-[600px] rounded-full opacity-30"
-            style={{
-              background: 'radial-gradient(circle, rgba(150,200,255,0.4) 0%, transparent 70%)',
-              top: '-15%',
-              left: '-10%',
-              animation: 'space-drift-1 25s ease-in-out infinite',
-            }}
+          
+          {/* PRIMARY GLOW ORB 1 - Large, moving right */}
+          <div className="absolute w-[400px] h-[400px] rounded-full" 
+               style={{
+                 background: 'radial-gradient(circle, rgba(180,220,255,0.6) 0%, rgba(100,180,255,0.3) 40%, transparent 70%)',
+                 top: '10%',
+                 left: '5%',
+                 animation: 'orb-move-1 12s ease-in-out infinite',
+               }}
           />
           
-          {/* Large soft glow - bottom */}
-          <div 
-            className="absolute w-[500px] h-[500px] rounded-full opacity-25"
-            style={{
-              background: 'radial-gradient(circle, rgba(100,180,255,0.35) 0%, transparent 70%)',
-              bottom: '-10%',
-              right: '-5%',
-              animation: 'space-drift-2 30s ease-in-out infinite',
-            }}
+          {/* PRIMARY GLOW ORB 2 - Large, moving left */}
+          <div className="absolute w-[350px] h-[350px] rounded-full"
+               style={{
+                 background: 'radial-gradient(circle, rgba(150,210,255,0.55) 0%, rgba(80,160,255,0.25) 40%, transparent 70%)',
+                 bottom: '5%',
+                 right: '10%',
+                 animation: 'orb-move-2 14s ease-in-out infinite',
+               }}
           />
           
-          {/* Medium accent glow */}
-          <div 
-            className="absolute w-[300px] h-[300px] rounded-full opacity-40"
-            style={{
-              background: 'radial-gradient(circle, rgba(200,230,255,0.3) 0%, transparent 60%)',
-              top: '30%',
-              right: '20%',
-              animation: 'space-drift-3 20s ease-in-out infinite',
-            }}
+          {/* MEDIUM GLOW ORB 3 - Floating */}
+          <div className="absolute w-[250px] h-[250px] rounded-full"
+               style={{
+                 background: 'radial-gradient(circle, rgba(200,235,255,0.5) 0%, rgba(120,190,255,0.2) 45%, transparent 70%)',
+                 top: '40%',
+                 left: '40%',
+                 animation: 'orb-move-3 10s ease-in-out infinite',
+               }}
           />
           
-          {/* Floating light particles */}
+          {/* SMALL ACCENT ORB */}
+          <div className="absolute w-[180px] h-[180px] rounded-full"
+               style={{
+                 background: 'radial-gradient(circle, rgba(220,240,255,0.6) 0%, transparent 60%)',
+                 top: '60%',
+                 left: '15%',
+                 animation: 'orb-float 8s ease-in-out infinite',
+               }}
+          />
+          
+          {/* TINY SPARKLE ORB */}
+          <div className="absolute w-[100px] h-[100px] rounded-full"
+               style={{
+                 background: 'radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(200,230,255,0.3) 40%, transparent 70%)',
+                 top: '20%',
+                 right: '15%',
+                 animation: 'orb-pulse 6s ease-in-out infinite',
+               }}
+          />
+          
+          {/* Floating Particles - More visible */}
           {[
-            { size: 4, top: '15%', left: '20%', delay: 0 },
-            { size: 3, top: '25%', left: '60%', delay: -2 },
-            { size: 5, top: '45%', left: '30%', delay: -4 },
-            { size: 3, top: '55%', left: '70%', delay: -1 },
-            { size: 4, top: '70%', left: '15%', delay: -3 },
-            { size: 3, top: '80%', left: '50%', delay: -5 },
-            { size: 2, top: '35%', left: '80%', delay: -2.5 },
-            { size: 3, top: '60%', left: '45%', delay: -1.5 },
+            { size: 6, top: '12%', left: '18%', delay: 0 },
+            { size: 5, top: '22%', left: '55%', delay: -1.5 },
+            { size: 7, top: '38%', left: '25%', delay: -3 },
+            { size: 4, top: '48%', left: '65%', delay: -0.8 },
+            { size: 5, top: '65%', left: '12%', delay: -2.2 },
+            { size: 4, top: '75%', left: '45%', delay: -4 },
+            { size: 6, top: '30%', left: '75%', delay: -1 },
+            { size: 5, top: '55%', left: '40%', delay: -2.8 },
+            { size: 4, top: '82%', left: '60%', delay: -0.5 },
+            { size: 5, top: '18%', left: '80%', delay: -3.5 },
           ].map((p, i) => (
             <div
               key={i}
@@ -109,8 +129,8 @@ export default function LoginPage() {
                 height: p.size,
                 top: p.top,
                 left: p.left,
-                opacity: 0.6,
-                animation: `particle-float 8s ease-in-out infinite`,
+                boxShadow: '0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(150,200,255,0.5)',
+                animation: 'particle-drift 7s ease-in-out infinite',
                 animationDelay: `${p.delay}s`,
               }}
             />

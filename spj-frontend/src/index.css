@@ -204,29 +204,47 @@ body {
   animation: float 6s ease-in-out infinite;
 }
 
-/* Space-Grade Animations */
-@keyframes space-drift-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(50px, -30px) scale(1.05); }
-  66% { transform: translate(-30px, 40px) scale(0.95); }
+/* Premium Space Orb Animations */
+@keyframes orb-move-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(120px, 40px) scale(1.15); }
+  50% { transform: translate(80px, 100px) scale(0.9); }
+  75% { transform: translate(-40px, 60px) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-@keyframes space-drift-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-40px, 30px) scale(1.08); }
-  66% { transform: translate(30px, -40px) scale(0.92); }
+@keyframes orb-move-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-100px, -30px) scale(1.12); }
+  50% { transform: translate(-60px, -90px) scale(0.88); }
+  75% { transform: translate(50px, -50px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-@keyframes space-drift-3 {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-  50% { transform: translate(20px, -20px) scale(1.1); opacity: 0.6; }
+@keyframes orb-move-3 {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, -50px) scale(1.2); }
+  66% { transform: translate(-50px, 40px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
-@keyframes particle-float {
-  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
-  25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
-  50% { transform: translateY(-10px) translateX(-8px); opacity: 0.5; }
-  75% { transform: translateY(-30px) translateX(-5px); opacity: 0.9; }
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-40px) scale(1.15); opacity: 0.9; }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.3); opacity: 0.9; }
+}
+
+@keyframes particle-drift {
+  0% { transform: translate(0, 0); opacity: 0.7; }
+  20% { transform: translate(20px, -30px); opacity: 1; }
+  40% { transform: translate(-15px, -50px); opacity: 0.6; }
+  60% { transform: translate(25px, -20px); opacity: 0.9; }
+  80% { transform: translate(-10px, -40px); opacity: 0.5; }
+  100% { transform: translate(0, 0); opacity: 0.7; }
 }
 
 /* ============================================
