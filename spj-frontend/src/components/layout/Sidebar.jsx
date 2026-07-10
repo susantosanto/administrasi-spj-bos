@@ -105,7 +105,6 @@ export default function Sidebar() {
                 key={item.path}
                 to={item.path}
                 end={item.exact}
-                onClick={close}
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                     isActive
@@ -155,7 +154,6 @@ export default function Sidebar() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                onClick={close}
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                     isActive
