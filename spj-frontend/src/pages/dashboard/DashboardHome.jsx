@@ -1,6 +1,7 @@
 /**
  * Dashboard Home — Premium 2026 Design
  * WARNA: Blue primary (hanya background/CTA), Icon GELAP/PROFESIONAL
+ * NO school name — General untuk semua sekolah
  */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -74,13 +75,6 @@ const FEATURES = [
   },
 ]
 
-const QUICK_ACTIONS = [
-  { label: 'Cetak Honor', icon: 'payments', path: '/dashboard/dokumen-lpj' },
-  { label: 'Cetak SPPD', icon: 'flight_takeoff', path: '/dashboard/dokumen-lpj' },
-  { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku' },
-  { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
-]
-
 const DOCUMENTS_REF = [
   { judul: 'PERMENDAGRI', sub: 'Peraturan Menteri Dalam Negeri', file: 'permendagri.pdf', icon: 'policy' },
   { judul: 'Juknis BOSP', sub: 'PERMENDIKDASMEN', file: 'juknis-bosp.pdf', icon: 'menu_book' },
@@ -95,13 +89,9 @@ const DOCUMENTS_REF = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DashboardHome() {
-  const [sekolah, setSekolah] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
-    const sek = storageHelper.get('data_sekolah', null)
-    setSekolah(sek)
-
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
@@ -117,10 +107,9 @@ export default function DashboardHome() {
       <div className="p-6 space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO — PRIMARY BLUE                                                */}
+        {/* HERO — GENERAL (No School Name)                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-800 rounded-3xl p-8 text-white shadow-2xl shadow-primary/20">
-          {/* Subtle Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
@@ -139,9 +128,7 @@ export default function DashboardHome() {
                 </div>
                 <div>
                   <p className="text-white/60 text-xs uppercase tracking-widest font-medium">Selamat Datang</p>
-                  <h1 className="text-2xl font-bold tracking-tight">
-                    {sekolah?.namaSekolah || 'Operator Sekolah'}
-                  </h1>
+                  <h1 className="text-2xl font-bold tracking-tight">Aplikasi LPJ BOS/BOSP</h1>
                 </div>
               </div>
 
@@ -188,91 +175,7 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* QUICK ACTIONS — DARK ICONS                                          */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {QUICK_ACTIONS.map((action) => (
-            <Link
-              key={action.label}
-              to={action.path}
-              className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-xl border border-slate-200 hover:border-primary/30 hover:bg-slate-50 transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                <span className="material-symbols-outlined text-slate-600 text-xl group-hover:text-white transition-colors">
-                  {action.icon}
-                </span>
-              </div>
-              <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
-                {action.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* FITUR UNGGULAN — DARK ICONS                                         */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-slate-800">auto_awesome</span>
-            <h2 className="text-lg font-bold text-slate-900">Fitur Unggulan</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {FEATURES.map((feature) => (
-              <Link
-                key={feature.id}
-                to={feature.path}
-                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300"
-              >
-                {/* Icon — DARK/SLATE, not blue */}
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                  <span className="material-symbols-outlined text-2xl text-slate-700 group-hover:text-white transition-colors">
-                    {feature.icon}
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
-                  {feature.title}
-                </h3>
-
-                {/* Subtitle */}
-                <p className="text-xs text-slate-500 mb-3">{feature.subtitle}</p>
-
-                {/* Description */}
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  {feature.description}
-                </p>
-
-                {/* Tags — SLATE colors */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {feature.kategori.map((kat) => (
-                    <span
-                      key={kat}
-                      className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-lg"
-                    >
-                      {kat}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <span className="text-xs text-slate-500">
-                    {feature.count ? `${feature.count}+ dokumen` : 'Lihat detail'}
-                  </span>
-                  <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all text-lg">
-                    arrow_forward
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* DOKUMEN REFERENSI — DARK ICONS                                      */}
+        {/* DOKUMEN REFERENSI — Setelah Hero                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
@@ -306,6 +209,62 @@ export default function DashboardHome() {
                   download
                 </span>
               </a>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* FITUR UNGGULAN                                                      */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="material-symbols-outlined text-slate-800">auto_awesome</span>
+            <h2 className="text-lg font-bold text-slate-900">Fitur Unggulan</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map((feature) => (
+              <Link
+                key={feature.id}
+                to={feature.path}
+                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
+                  <span className="material-symbols-outlined text-2xl text-slate-700 group-hover:text-white transition-colors">
+                    {feature.icon}
+                  </span>
+                </div>
+
+                <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
+                  {feature.title}
+                </h3>
+
+                <p className="text-xs text-slate-500 mb-3">{feature.subtitle}</p>
+
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">
+                  {feature.description}
+                </p>
+
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {feature.kategori.map((kat) => (
+                    <span
+                      key={kat}
+                      className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-lg"
+                    >
+                      {kat}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <span className="text-xs text-slate-500">
+                    {feature.count ? `${feature.count}+ dokumen` : 'Lihat detail'}
+                  </span>
+                  <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all text-lg">
+                    arrow_forward
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -345,7 +304,7 @@ export default function DashboardHome() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* FAB — PRIMARY BLUE                                                  */}
+      {/* FAB                                                                */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <Link
         to="/dashboard/dokumen-lpj"
