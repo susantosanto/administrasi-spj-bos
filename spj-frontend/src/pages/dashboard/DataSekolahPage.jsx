@@ -22,20 +22,9 @@ const defaultData = {
   email: '',
   tahunAnggaran: '',
   allFields: [],
-  pejabat: {
-    ks: { nama: '', nip: '' },
-    bendahara: { nama: '', nip: '' },
-    pengawas: { nama: '', nip: '' },
-    sekdik: { nama: '', nip: '' },
-  },
 }
 
-const PEJABAT_ROLES = [
-  { key: 'ks', label: 'Kepala Sekolah', icon: 'person' },
-  { key: 'bendahara', label: 'Bendahara', icon: 'account_balance' },
-  { key: 'pengawas', label: 'Pengawas Bina', icon: 'supervisor_account' },
-  { key: 'sekdik', label: 'Sekretaris Dinas Pendidikan', icon: 'badge' },
-]
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -52,20 +41,6 @@ export default function DataSekolahPage() {
     const stored = storageHelper.get('data_sekolah', null)
     if (stored) setData(stored)
   }, [])
-
-  // ─── Save Pejabat ────────────────────────────────────────────────
-  const handleSavePejabat = () => {
-    storageHelper.set('data_sekolah', { ...data })
-    toast.success('Data pejabat berhasil disimpan')
-  }
-
-  // ─── Update Pejabat ──────────────────────────────────────────────
-  const updatePejabat = (jabatan, field, value) => {
-    setData(prev => ({
-      ...prev,
-      pejabat: { ...prev.pejabat, [jabatan]: { ...prev.pejabat[jabatan], [field]: value } },
-    }))
-  }
 
   // ─── File Upload ─────────────────────────────────────────────────
   const handleFileUpload = async (e) => {
@@ -297,52 +272,25 @@ export default function DataSekolahPage() {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* PEJABAT SECTION                                                  */}
+        {/* LINK TO PEJABAT PAGE                                            */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          {/* Header */}
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-700">badge</span>
-              <h3 className="text-base font-bold text-slate-900">Pejabat Sekolah</h3>
+        <a
+          href="/dashboard/pejabat-sekolah"
+          className="block bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-primary/30 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+              <span className="material-symbols-outlined text-primary text-xl group-hover:text-white transition-colors">badge</span>
             </div>
-            <button
-              onClick={handleSavePejabat}
-              className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-primary/90 transition-all active:scale-[0.98]"
-            >
-              <span className="material-symbols-outlined text-sm">save</span>
-              Simpan
-            </button>
+            <div className="flex-1">
+              <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors">Pejabat Sekolah</h3>
+              <p className="text-xs text-slate-500">Kelola data Kepala Sekolah, Bendahara, dan Pejabat lainnya</p>
+            </div>
+            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all">
+              arrow_forward
+            </span>
           </div>
-
-          {/* Pejabat Grid */}
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {PEJABAT_ROLES.map(p => (
-              <div key={p.key} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-primary text-lg">{p.icon}</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-slate-700">{p.label}</h4>
-                </div>
-                <div className="space-y-2">
-                  <input
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                    placeholder={`Nama ${p.label}`}
-                    value={data.pejabat[p.key].nama}
-                    onChange={e => updatePejabat(p.key, 'nama', e.target.value)}
-                  />
-                  <input
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                    placeholder="NIP"
-                    value={data.pejabat[p.key].nip}
-                    onChange={e => updatePejabat(p.key, 'nip', e.target.value)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        </a>
       </div>
     </div>
   )

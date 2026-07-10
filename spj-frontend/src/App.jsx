@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import DashboardLayout from './layouts/DashboardLayout'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import DataSekolahPage from './pages/dashboard/DataSekolahPage'
+import PejabatSekolahPage from './pages/dashboard/PejabatSekolahPage'
 import DataGuruPage from './pages/dashboard/DataGuruPage'
 import BKUPage from './pages/dashboard/BKUPage'
 import DokumenSPJPage from './pages/dashboard/DokumenSPJPage'
@@ -38,6 +39,7 @@ export default function App() {
           >
             <Route index element={<DashboardHome />} />
             <Route path="data-sekolah" element={<DataSekolahPage />} />
+            <Route path="pejabat-sekolah" element={<PejabatSekolahPage />} />
             <Route path="data-guru" element={<DataGuruPage />} />
             <Route path="bku" element={<BKUPage />} />
             <Route path="dokumen-lpj" element={<DokumenSPJPage />} />
