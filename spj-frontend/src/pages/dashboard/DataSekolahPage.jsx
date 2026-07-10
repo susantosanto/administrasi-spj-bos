@@ -150,13 +150,22 @@ export default function DataSekolahPage() {
             <p className="text-sm text-slate-500">Profil sekolah dan data pejabat</p>
           </div>
 
-          <button
-            onClick={() => setShowUpload(!showUpload)}
-            className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
-          >
-            <span className="material-symbols-outlined text-lg">upload_file</span>
-            Upload Excel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => document.getElementById('pejabat-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
+            >
+              <span className="material-symbols-outlined text-lg">badge</span>
+              Pejabat
+            </button>
+            <button
+              onClick={() => setShowUpload(!showUpload)}
+              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
+            >
+              <span className="material-symbols-outlined text-lg">upload_file</span>
+              Upload Excel
+            </button>
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
@@ -283,7 +292,7 @@ export default function DataSekolahPage() {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* PEJABAT SEKOLAH — Minimalis Premium Section                      */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div id="pejabat-section" className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm scroll-mt-24">
           {/* Section Header */}
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-3">
