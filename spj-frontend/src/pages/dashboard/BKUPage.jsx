@@ -63,6 +63,7 @@ export default function BKUPage() {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [selectedMamin, setSelectedMamin] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [showUploadForm, setShowUploadForm] = useState(true)
   const [uploadedInfo, setUploadedInfo] = useState(null) // { header, summary }
   const [availableMonths, setAvailableMonths] = useState([])
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
@@ -151,7 +152,10 @@ export default function BKUPage() {
 
   // Load stored data on mount
   useEffect(() => {
-    loadFromStorage()
+    const result = loadFromStorage()
+    if (result) {
+      setShowUploadForm(false)
+    }
   }, [])
 
   // Close menu when clicking outside
@@ -208,6 +212,9 @@ export default function BKUPage() {
         footer: result.footer,
         uploadedAt: result.parsedAt,
       })
+
+      // Hide upload form after successful upload
+      setShowUploadForm(false)
 
       // Build success message
       const monthNames = result.summary.months.map(m => MONTH_NAMES[m - 1]).join(', ')
@@ -279,72 +286,74 @@ export default function BKUPage() {
 
       <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
         {/* ── Upload Area ── */}
-        <div className="bg-surface-container-lowest p-xl rounded-xl shadow-lg border border-outline-variant">
-          <div className="border-2 border-dashed border-outline-variant rounded-xl p-xl text-center hover:border-primary transition-colors">
-            <span className="material-symbols-outlined text-6xl text-outline mb-4 block">upload_file</span>
-            <h3 className="font-headline-sm text-headline-sm font-bold text-text-high mb-2">Upload File BKU Excel</h3>
-            <p className="text-text-low text-sm mb-4">File Excel (.xlsx) export BKU dari ARKAS</p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".xlsx,.xls"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="bku-file-input"
-            />
-            <label
-              htmlFor="bku-file-input"
-              className={`inline-block px-lg py-2 rounded-lg font-label-md transition-all cursor-pointer ${
-                isUploading
-                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-primary text-on-primary hover:brightness-110'
-              }`}
-            >
-              {isUploading ? 'Memproses...' : 'Pilih File Excel'}
-            </label>
-          </div>
+        {showUploadForm && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
+              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">Upload File BKU Excel</h3>
+              <p className="text-sm text-slate-500 mb-4">Export BKU dari ARKAS — data akan langsung terisi otomatis</p>
 
-          {isUploading && (
-            <div className="mt-md p-md bg-primary-fixed/30 rounded-lg flex items-center gap-sm">
-              <span className="material-symbols-outlined text-primary animate-spin">sync</span>
-              <p className="text-text-low text-sm">Memproses file BKU...</p>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".xlsx,.xls"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="bku-file-input"
+              />
+              <label
+                htmlFor="bku-file-input"
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                  isUploading
+                    ? 'bg-slate-400 text-white cursor-not-allowed'
+                    : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
+                {isUploading ? 'Memproses...' : 'Pilih File Excel'}
+              </label>
             </div>
-          )}
-
-          <div className="mt-md p-md bg-primary-fixed/30 rounded-lg flex items-center gap-sm">
-            <span className="material-symbols-outlined text-primary text-lg">info</span>
-            <p className="text-text-low text-sm">
-              BKU yang diupload akan digunakan sebagai referensi data untuk pembuatan dokumen LPJ dan bukti fisik.
-              Format sesuai standar ARKAS (sheet: Page1).
-            </p>
           </div>
-        </div>
+        )}
 
         {/* ── Sekolah Info Card (setelah upload) ── */}
         {uploadedInfo && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-md">
-                <span className="material-symbols-outlined text-primary text-3xl">school</span>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-2xl">school</span>
+                </div>
                 <div>
-                  <h4 className="font-headline-sm text-headline-sm font-bold text-text-high">
+                  <h4 className="text-lg font-bold text-slate-900">
                     {uploadedInfo.header.nama_sekolah || 'SD NEGERI ...'}
                   </h4>
-                  <p className="text-text-low text-sm">
+                  <p className="text-sm text-slate-500">
                     NPSN: {uploadedInfo.header.npsn || '-'} | Tahun: {uploadedInfo.header.tahunAnggaran || '-'}
                   </p>
-                  <p className="text-text-low text-xs">
+                  <p className="text-xs text-slate-400">
                     {uploadedInfo.header.alamat || ''}
                     {uploadedInfo.header.kabupaten ? `, ${uploadedInfo.header.kabupaten}` : ''}
                     {uploadedInfo.header.provinsi ? `, ${uploadedInfo.header.provinsi}` : ''}
                   </p>
                 </div>
               </div>
-              <div className="text-right text-xs text-text-low">
-                <p>{uploadedInfo.summary.totalTransactions} transaksi</p>
-                <p className={uploadedInfo.summary.isBalanced ? 'text-green-600' : 'text-red-600'}>
-                  {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className="text-right text-xs text-slate-500">
+                  <p className="font-semibold">{uploadedInfo.summary.totalTransactions} transaksi</p>
+                  <p className={uploadedInfo.summary.isBalanced ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                    {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowUploadForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-all"
+                >
+                  <span className="material-symbols-outlined text-lg">upload</span>
+                  Upload Ulang
+                </button>
               </div>
             </div>
           </div>
