@@ -1,5 +1,5 @@
 /**
- * Landing Page — Ultra Premium Design
+ * Landing Page — Ultra Premium White & Blue Design
  */
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -39,10 +39,10 @@ function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// DOMINANT TYPING ANIMATION
+// PREMIUM TYPING CARD — Clean White Design, Matches App Theme
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function DominantTypingText() {
+function PremiumTypingCard() {
   const texts = [
     { text: 'Upload BKU dari ARKAS', icon: 'upload_file' },
     { text: 'Cetak LPJ Satu Klik', icon: 'print' },
@@ -59,12 +59,12 @@ function DominantTypingText() {
   
   useEffect(() => {
     if (isPaused) {
-      const pauseTimeout = setTimeout(() => setIsPaused(false), 2000);
+      const pauseTimeout = setTimeout(() => setIsPaused(false), 2500);
       return () => clearTimeout(pauseTimeout);
     }
     
     const currentText = texts[textIndex].text;
-    const speed = isDeleting ? 30 : 60;
+    const speed = isDeleting ? 25 : 50;
     
     const timeout = setTimeout(() => {
       if (!isDeleting) {
@@ -89,36 +89,59 @@ function DominantTypingText() {
   
   return (
     <div className="relative">
-      {/* Glowing background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-3xl blur-xl" />
+      {/* Subtle glow */}
+      <div className="absolute -inset-6 bg-primary/5 rounded-[2.5rem] blur-2xl" />
       
-      <div className="relative bg-white/80 backdrop-blur-xl border border-primary/10 rounded-3xl px-8 py-6 md:px-12 md:py-8 shadow-xl shadow-primary/5">
-        <div className="flex items-center gap-4">
-          {/* Animated icon */}
-          <div className="w-14 h-14 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 flex-shrink-0 animate-pulse">
-            <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+      {/* Main card */}
+      <div className="relative bg-white rounded-[2rem] p-8 md:p-10 border border-slate-200/80 shadow-[0_4px_40px_-10px_rgba(0,74,198,0.12)]">
+        
+        {/* Top accent */}
+        <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent rounded-full" />
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs text-slate-400 font-medium uppercase tracking-widest">Fitur Utama</span>
+          </div>
+          <div className="flex gap-1.5">
+            {texts.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  i === textIndex ? 'w-6 bg-primary' : 'w-1.5 bg-slate-200'
+                }`} 
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="space-y-6">
+          {/* Icon */}
+          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+            <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               {texts[textIndex].icon}
             </span>
           </div>
           
+          {/* Label */}
+          <p className="text-sm text-slate-400 font-medium">Mulai dari</p>
+          
           {/* Typing text */}
-          <div className="flex-1">
-            <p className="text-sm text-slate-500 font-medium mb-1">Mulai dari</p>
-            <div className="text-2xl md:text-4xl font-bold text-slate-900 h-10 md:h-12 flex items-center">
+          <div className="min-h-[3rem] md:min-h-[4rem]">
+            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 flex items-center">
               <span>{displayText}</span>
               <span className="w-0.5 h-6 md:h-8 bg-primary ml-1 animate-pulse" />
-            </div>
+            </h3>
           </div>
           
-          {/* Dots indicator */}
-          <div className="hidden md:flex flex-col gap-2">
-            {texts.map((_, i) => (
-              <div 
-                key={i} 
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  i === textIndex ? 'bg-primary w-6' : 'bg-slate-300'
-                }`} 
-              />
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            {['BPJS', 'BOS', 'Honor', 'Pajak', 'Operasional'].map((tag, i) => (
+              <span key={i} className="px-3 py-1.5 bg-slate-100 text-slate-500 text-xs font-medium rounded-lg">
+                {tag}
+              </span>
             ))}
           </div>
         </div>
@@ -128,66 +151,43 @@ function DominantTypingText() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ULTRA PREMIUM TICKER — Gradient Cards with Glow
+// PREMIUM FEATURE PILLS — Minimalist Animated Dots
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function PremiumTicker() {
-  const items = [
-    { icon: 'upload_file', text: 'Upload BKU', gradient: 'from-blue-500 to-blue-600', shadow: 'shadow-blue-500/30', bg: 'bg-blue-50' },
-    { icon: 'print', text: 'Cetak LPJ', gradient: 'from-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-50' },
-    { icon: 'school', text: 'Data Sekolah', gradient: 'from-amber-500 to-amber-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-50' },
-    { icon: 'groups', text: 'Data Guru', gradient: 'from-rose-500 to-rose-600', shadow: 'shadow-rose-500/30', bg: 'bg-rose-50' },
-    { icon: 'description', text: '13 Template', gradient: 'from-violet-500 to-violet-600', shadow: 'shadow-violet-500/30', bg: 'bg-violet-50' },
-    { icon: 'edit_note', text: 'Catatan', gradient: 'from-cyan-500 to-cyan-600', shadow: 'shadow-cyan-500/30', bg: 'bg-cyan-50' },
-    { icon: 'analytics', text: 'Realisasi', gradient: 'from-indigo-500 to-indigo-600', shadow: 'shadow-indigo-500/30', bg: 'bg-indigo-50' },
-    { icon: 'folder', text: 'Arsip Digital', gradient: 'from-pink-500 to-pink-600', shadow: 'shadow-pink-500/30', bg: 'bg-pink-50' },
+function PremiumFeaturePills() {
+  const features = [
+    { icon: 'upload_file', label: 'Upload BKU' },
+    { icon: 'print', label: 'Cetak LPJ' },
+    { icon: 'school', label: 'Data Sekolah' },
+    { icon: 'groups', label: 'Data Guru' },
+    { icon: 'description', label: '13 Template' },
   ];
-
+  
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-slate-50 via-white to-slate-50 py-2">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] via-transparent to-primary/[0.02] animate-shimmer-bg" />
-      
-      <div className="py-4 flex animate-ticker whitespace-nowrap">
-        {[...Array(3)].map((_, setIndex) => (
-          <div key={setIndex} className="flex items-center gap-4">
-            {items.map((item, i) => (
-              <div key={`${setIndex}-${i}`} className="group cursor-default">
-                <div className={`flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border border-slate-200/60 
-                              shadow-[0_2px_8px_rgba(0,0,0,0.04)] 
-                              hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] 
-                              hover:border-slate-300/60
-                              hover:scale-105
-                              transition-all duration-300`}>
-                  <div className={`w-10 h-10 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center 
-                                  shadow-lg ${item.shadow} group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                    <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                  </div>
-                  <span className="text-slate-700 font-semibold text-sm whitespace-nowrap group-hover:text-slate-900 transition-colors duration-300">
-                    {item.text}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-      
-      {/* Premium gradient fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-50 via-white/80 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-50 via-white/80 to-transparent z-10 pointer-events-none" />
+    <div className="flex flex-wrap items-center justify-center gap-3">
+      {features.map((feature, i) => (
+        <div 
+          key={i}
+          className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group"
+        >
+          <span className="material-symbols-outlined text-primary/70 text-lg group-hover:text-primary transition-colors">
+            {feature.icon}
+          </span>
+          <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+            {feature.label}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ULTRA PREMIUM FEATURE CARD
+// FEATURE CARD
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function FeatureCard({ feature, index }) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const cardRef = useRef(null);
   
   useEffect(() => {
@@ -204,31 +204,13 @@ function FeatureCard({ feature, index }) {
     return () => observer.disconnect();
   }, [index]);
 
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
   return (
     <div
       ref={cardRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseMove={handleMouseMove}
       className={`relative group cursor-pointer transition-all duration-700 ease-out
                   ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}
                   ${feature.isLarge ? 'md:col-span-2' : ''}`}
     >
-      {isHovered && (
-        <div 
-          className="absolute inset-0 rounded-3xl pointer-events-none z-0"
-          style={{
-            background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(0, 74, 198, 0.08), transparent 40%)`,
-          }}
-        />
-      )}
-      
       <div className="relative h-full bg-white rounded-3xl border border-slate-200/80 p-7 
                       shadow-[0_1px_3px_rgba(0,0,0,0.04)] 
                       hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)] 
@@ -373,7 +355,7 @@ export default function LandingPage() {
       <main className="pt-20">
         
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO SECTION — Dominant Typing Animation                           */}
+        {/* HERO SECTION                                                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <section className="relative min-h-[750px] flex items-center overflow-hidden px-6">
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at top right, rgba(0, 74, 198, 0.04), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.03), transparent)" }} />
@@ -410,23 +392,25 @@ export default function LandingPage() {
                 </div>
               </div>
               
-              {/* Right: DOMINANT TYPING ANIMATION */}
+              {/* Right: PREMIUM TYPING CARD */}
               <div className="relative">
-                <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/8 rounded-full blur-[100px]"></div>
-                <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/8 rounded-full blur-[100px]"></div>
-                <DominantTypingText />
+                <PremiumTypingCard />
               </div>
             </div>
           </div>
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PREMIUM TICKER                                                     */}
+        {/* PREMIUM FEATURE PILLS                                              */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <PremiumTicker />
+        <section className="py-10 px-6 bg-white border-y border-slate-100">
+          <div className="container mx-auto">
+            <PremiumFeaturePills />
+          </div>
+        </section>
 
         {/* STATS */}
-        <section className="py-14 px-6 bg-white border-b border-slate-100">
+        <section className="py-14 px-6 bg-slate-50">
           <div className="container mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {STATS.map((stat, i) => (
@@ -445,7 +429,7 @@ export default function LandingPage() {
         </section>
 
         {/* FEATURES */}
-        <section id="fitur" className="py-20 px-6 bg-slate-50/50">
+        <section id="fitur" className="py-20 px-6 bg-white">
           <div className="container mx-auto">
             <div className="text-center mb-16">
               <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
@@ -470,7 +454,7 @@ export default function LandingPage() {
         </section>
 
         {/* WHY US */}
-        <section id="tentang" className="py-20 px-6 bg-white">
+        <section id="tentang" className="py-20 px-6 bg-slate-50">
           <div className="container mx-auto">
             <div className="text-center mb-14">
               <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">Tentang Kami</span>
@@ -479,7 +463,7 @@ export default function LandingPage() {
             </div>
             <div className="grid md:grid-cols-3 gap-6 mb-14">
               {WHY_US.map((item, i) => (
-                <div key={i} className="group bg-slate-50 rounded-2xl p-7 border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                <div key={i} className="group bg-white rounded-2xl p-7 border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                   <div className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
                     <span className={`material-symbols-outlined text-2xl ${item.iconColor}`}>{item.icon}</span>
                   </div>
@@ -488,8 +472,8 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <div className="bg-gradient-to-br from-primary/5 to-blue-50/50 rounded-2xl p-10 text-center border border-primary/10">
-              <span className="material-symbols-outlined text-4xl text-primary/70 mb-4 block">format_quote</span>
+            <div className="bg-white rounded-2xl p-10 text-center border border-slate-100 shadow-sm">
+              <span className="material-symbols-outlined text-4xl text-primary/40 mb-4 block">format_quote</span>
               <p className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed max-w-3xl mx-auto mb-6">
                 Kami percaya setiap sekolah berhak mendapatkan <span className="text-primary font-bold">alat terbaik</span> untuk mengelola keuangan dengan <span className="text-primary font-bold">transparan dan profesional</span>.
               </p>
@@ -507,7 +491,7 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 px-6 bg-slate-50">
+        <section className="py-16 px-6 bg-white">
           <div className="container mx-auto">
             <div className="bg-gradient-to-r from-primary to-blue-600 p-10 md:p-14 rounded-2xl text-center relative overflow-hidden">
               <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
