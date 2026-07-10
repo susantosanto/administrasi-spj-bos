@@ -76,12 +76,12 @@ const FEATURES = [
 ]
 
 const DOCUMENTS_REF = [
-  { judul: 'PERMENDAGRI', sub: 'Peraturan Menteri Dalam Negeri', file: 'permendagri.pdf', icon: 'policy' },
-  { judul: 'Juknis BOSP', sub: 'PERMENDIKDASMEN', file: 'juknis-bosp.pdf', icon: 'menu_book' },
-  { judul: 'TKA', sub: 'PERMENDIKDASMEN', file: 'tka.pdf', icon: 'calculate' },
-  { judul: 'PERBUP Kab. Bandung Barat', sub: 'Transaksi Tunai & Non Tunai', file: 'perbup.pdf', icon: 'gavel' },
-  { judul: 'Standar Satuan Harga (SSH)', sub: 'Tahun Berlaku', file: 'ssh.pdf', icon: 'receipt' },
-  { judul: 'Permendikbudristek No. 18', sub: 'Th. 2022', file: 'permendikbudristek-18.pdf', icon: 'newspaper' },
+  { judul: 'PERMENDAGRI', sub: 'Peraturan Menteri Dalam Negeri', file: 'permendagri.pdf', icon: 'policy', gradient: 'from-blue-500/10 to-indigo-500/10', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600' },
+  { judul: 'Juknis BOSP', sub: 'PERMENDIKDASMEN', file: 'juknis-bosp.pdf', icon: 'menu_book', gradient: 'from-violet-500/10 to-purple-500/10', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-600' },
+  { judul: 'TKA', sub: 'PERMENDIKDASMEN', file: 'tka.pdf', icon: 'calculate', gradient: 'from-cyan-500/10 to-teal-500/10', iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-600' },
+  { judul: 'PERBUP Kab. Bandung Barat', sub: 'Transaksi Tunai & Non Tunai', file: 'perbup.pdf', icon: 'gavel', gradient: 'from-amber-500/10 to-orange-500/10', iconBg: 'bg-amber-500/15', iconColor: 'text-amber-600' },
+  { judul: 'Standar Satuan Harga (SSH)', sub: 'Tahun Berlaku', file: 'ssh.pdf', icon: 'receipt', gradient: 'from-emerald-500/10 to-green-500/10', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-600' },
+  { judul: 'Permendikbudristek No. 18', sub: 'Th. 2022', file: 'permendikbudristek-18.pdf', icon: 'newspaper', gradient: 'from-rose-500/10 to-pink-500/10', iconBg: 'bg-rose-500/15', iconColor: 'text-rose-600' },
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -225,20 +225,23 @@ export default function DashboardHome() {
                 key={doc.file}
                 href={`/docs/${doc.file}`}
                 download
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-all group"
+                className={`relative overflow-hidden flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border border-white/60 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 group`}
               >
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-                  <span className="material-symbols-outlined text-slate-600 group-hover:text-white text-lg transition-colors">
+                {/* Decorative blur */}
+                <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
+                
+                <div className={`relative w-11 h-11 rounded-xl ${doc.iconBg} flex items-center justify-center group-hover:scale-110 transition-all duration-300`}>
+                  <span className={`material-symbols-outlined ${doc.iconColor} text-xl transition-colors`}>
                     {doc.icon}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">
+                <div className="relative flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-800 truncate">
                     {doc.judul}
                   </p>
                   <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">
+                <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all text-lg">
                   download
                 </span>
               </a>
