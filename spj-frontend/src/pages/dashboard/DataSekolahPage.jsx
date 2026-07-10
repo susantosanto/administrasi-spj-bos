@@ -1,6 +1,6 @@
 /**
  * Data Sekolah Page — Ultra Premium Design 2026
- * Unified card + Integrated upload + Minimalis Pejabat section
+ * Tabs: Data Sekolah + Pejabat (separate views)
  */
 import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
@@ -42,6 +42,7 @@ const PEJABAT_ROLES = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DataSekolahPage() {
+  const [tab, setTab] = useState('sekolah')
   const [data, setData] = useState(defaultData)
   const [isUploading, setIsUploading] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
@@ -142,22 +143,35 @@ export default function DataSekolahPage() {
       <div className="p-6 space-y-6 flex-1 max-w-[1200px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* HEADER                                                          */}
+        {/* TABS                                                            */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">Data Sekolah</h1>
-            <p className="text-sm text-slate-500">Profil sekolah dan data pejabat</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setTab('sekolah')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              tab === 'sekolah'
+                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">school</span>
+            Data Sekolah
+          </button>
+          <button
+            onClick={() => setTab('pejabat')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              tab === 'pejabat'
+                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <span className="material-symbols-outlined text-lg">badge</span>
+            Pejabat Sekolah
+          </button>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => document.getElementById('pejabat-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
-            >
-              <span className="material-symbols-outlined text-lg">badge</span>
-              Pejabat
-            </button>
+          <div className="flex-1" />
+
+          {tab === 'sekolah' && (
             <button
               onClick={() => setShowUpload(!showUpload)}
               className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all text-sm font-medium"
@@ -165,13 +179,23 @@ export default function DataSekolahPage() {
               <span className="material-symbols-outlined text-lg">upload_file</span>
               Upload Excel
             </button>
-          </div>
+          )}
+
+          {tab === 'pejabat' && pejabatChanges && (
+            <button
+              onClick={handleSavePejabat}
+              className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+            >
+              <span className="material-symbols-outlined text-lg">save</span>
+              Simpan
+            </button>
+          )}
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
         {/* UPLOAD SECTION — Hidden by default                              */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {showUpload && (
+        {showUpload && tab === 'sekolah' && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
               <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
@@ -197,162 +221,155 @@ export default function DataSekolahPage() {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* DATA SEKOLAH — Premium Card                                     */}
+        {/* TAB: DATA SEKOLAH                                               */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {!hasSchoolData ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-4xl text-slate-300">school</span>
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Belum Ada Data Sekolah</h3>
-            <p className="text-sm text-slate-500 mb-6">Upload file Excel untuk mengisi data profil sekolah</p>
-            <button
-              onClick={() => setShowUpload(true)}
-              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
-            >
-              <span className="material-symbols-outlined text-lg">upload</span>
-              Upload Data Sekolah
-            </button>
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            {/* Hero Header */}
-            <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
-
-              <div className="relative flex items-start gap-5">
-                <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
-                  <span className="material-symbols-outlined text-3xl text-white">school</span>
+        {tab === 'sekolah' && (
+          <>
+            {!hasSchoolData ? (
+              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+                <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-4xl text-slate-300">school</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white/70 text-sm uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
-                  <h2 className="text-2xl font-bold text-white leading-tight mb-3">
-                    {data.namaSekolah || 'SD NEGERI ...'}
-                  </h2>
-                  <div className="flex flex-wrap gap-3">
-                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
-                      <span className="material-symbols-outlined text-base">fingerprint</span>
-                      NPSN: {data.npsn || '-'}
-                    </span>
-                    {data.tahunAnggaran && (
-                      <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
-                        <span className="material-symbols-outlined text-base">calendar_month</span>
-                        TA {data.tahunAnggaran}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
-                      <span className="material-symbols-outlined text-base">location_on</span>
-                      {data.kecamatan || data.kabupaten || '-'}
-                    </span>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Belum Ada Data Sekolah</h3>
+                <p className="text-sm text-slate-500 mb-6">Upload file Excel untuk mengisi data profil sekolah</p>
+                <button
+                  onClick={() => setShowUpload(true)}
+                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                >
+                  <span className="material-symbols-outlined text-lg">upload</span>
+                  Upload Data Sekolah
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                {/* Hero Header */}
+                <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+
+                  <div className="relative flex items-start gap-5">
+                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
+                      <span className="material-symbols-outlined text-3xl text-white">school</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white/70 text-sm uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
+                      <h2 className="text-2xl font-bold text-white leading-tight mb-3">
+                        {data.namaSekolah || 'SD NEGERI ...'}
+                      </h2>
+                      <div className="flex flex-wrap gap-3">
+                        <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                          <span className="material-symbols-outlined text-base">fingerprint</span>
+                          NPSN: {data.npsn || '-'}
+                        </span>
+                        {data.tahunAnggaran && (
+                          <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                            <span className="material-symbols-outlined text-base">calendar_month</span>
+                            TA {data.tahunAnggaran}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                          <span className="material-symbols-outlined text-base">location_on</span>
+                          {data.kecamatan || data.kabupaten || '-'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                {/* Data Sections */}
+                {[
+                  { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge' },
+                  { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt' },
+                  { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail' },
+                  { key: 'periodik', title: 'Data Periodik', icon: 'date_range' },
+                  { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop' },
+                ].map(section => {
+                  const fields = grouped[section.key]
+                  if (!fields || fields.length === 0) return null
+                  return (
+                    <div key={section.key} className="border-b border-slate-100 last:border-b-0">
+                      <div className="px-6 py-4 bg-slate-50 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-slate-400 text-xl">{section.icon}</span>
+                        <h4 className="text-base font-bold text-slate-700">{section.title}</h4>
+                      </div>
+                      <div className="divide-y divide-slate-50">
+                        {fields.map((f, i) => (
+                          <div key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors">
+                            <span className="text-slate-400 text-sm font-medium w-1/3 flex-shrink-0 pt-0.5">{f.label}</span>
+                            <span className="text-slate-800 text-base font-semibold flex-1 break-words">{f.value || '-'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                {/* Footer */}
+                <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
+                  <p className="text-slate-400 text-xs">{allFields.length} field data</p>
                 </div>
               </div>
-            </div>
-
-            {/* Data Sections */}
-            {[
-              { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge' },
-              { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt' },
-              { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail' },
-              { key: 'periodik', title: 'Data Periodik', icon: 'date_range' },
-              { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop' },
-            ].map(section => {
-              const fields = grouped[section.key]
-              if (!fields || fields.length === 0) return null
-              return (
-                <div key={section.key} className="border-b border-slate-100 last:border-b-0">
-                  <div className="px-6 py-4 bg-slate-50 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-400 text-xl">{section.icon}</span>
-                    <h4 className="text-base font-bold text-slate-700">{section.title}</h4>
-                  </div>
-                  <div className="divide-y divide-slate-50">
-                    {fields.map((f, i) => (
-                      <div key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors">
-                        <span className="text-slate-400 text-sm font-medium w-1/3 flex-shrink-0 pt-0.5">{f.label}</span>
-                        <span className="text-slate-800 text-base font-semibold flex-1 break-words">{f.value || '-'}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-
-            {/* Footer */}
-            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-              <p className="text-slate-400 text-xs">{allFields.length} field data</p>
-              <button onClick={() => setShowUpload(true)} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">upload</span>
-                Update Data
-              </button>
-            </div>
-          </div>
+            )}
+          </>
         )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* PEJABAT SEKOLAH — Minimalis Premium Section                      */}
+        {/* TAB: PEJABAT SEKOLAH                                            */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div id="pejabat-section" className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm scroll-mt-24">
-          {/* Section Header */}
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-xl">badge</span>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900">Pejabat Sekolah</h3>
-                <p className="text-xs text-slate-500">Data pejabat untuk tanda tangan dokumen</p>
+        {tab === 'pejabat' && (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            {/* Section Header */}
+            <div className="px-6 py-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-xl">badge</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Pejabat Sekolah</h3>
+                  <p className="text-xs text-slate-500">Data pejabat untuk tanda tangan dokumen</p>
+                </div>
               </div>
             </div>
-            {pejabatChanges && (
-              <button
-                onClick={handleSavePejabat}
-                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-primary/90 transition-all active:scale-[0.98]"
-              >
-                <span className="material-symbols-outlined text-sm">save</span>
-                Simpan
-              </button>
-            )}
-          </div>
 
-          {/* Pejabat List — Minimalis */}
-          <div className="divide-y divide-slate-100">
-            {PEJABAT_ROLES.map(role => (
-              <div key={role.key} className="px-6 py-4 hover:bg-slate-50/50 transition-colors">
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-slate-500 text-xl">{role.icon}</span>
-                  </div>
-
-                  {/* Fields */}
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nama</label>
-                      <input
-                        type="text"
-                        value={data.pejabat[role.key].nama}
-                        onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
-                        placeholder={`Nama ${role.label}`}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                      />
+            {/* Pejabat List */}
+            <div className="divide-y divide-slate-100">
+              {PEJABAT_ROLES.map(role => (
+                <div key={role.key} className="px-6 py-5 hover:bg-slate-50/50 transition-colors">
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-slate-500 text-xl">{role.icon}</span>
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">NIP</label>
-                      <input
-                        type="text"
-                        value={data.pejabat[role.key].nip}
-                        onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
-                        placeholder="NIP. 000000000000000000"
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                      />
+
+                    {/* Fields */}
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                        <input
+                          type="text"
+                          value={data.pejabat[role.key].nama}
+                          onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
+                          placeholder={`Nama ${role.label}`}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">NIP</label>
+                        <input
+                          type="text"
+                          value={data.pejabat[role.key].nip}
+                          onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
+                          placeholder="NIP. 000000000000000000"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
