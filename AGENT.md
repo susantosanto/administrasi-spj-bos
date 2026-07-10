@@ -150,11 +150,32 @@ templateConfig (JSON) → TemplateEngine.jsx → Block Components
 
 - **Framework**: React 18 + Vite + Tailwind CSS
 - **Design**: Material Design 3 Corporate Modern
-- **Primary**: `#004ac6` (Biru)
-- **Secondary**: `#006c4a` (Hijau)
+- **Primary**: `#004ac6` (Biru) — **WARNA UTAMA & SATU-SATUNYA WARNA BRANDED**
 - **Background**: `#f8f9fb`
 - **Fonts**: Hanken Grotesk (Headlines), Inter (Body)
 - **Icons**: Material Symbols Outlined
+
+### ⚠️ ATURAN WARNA WAJIB
+
+**HANYA gunakan warna biru primary (#004ac6) dan variasinya!**
+
+| Komponen | Warna |
+|----------|-------|
+| Primary | `bg-primary` / `#004ac6` |
+| Primary Light | `bg-primary/10` / `bg-primary/20` |
+| Primary Dark | `text-primary` / `bg-primary` |
+| Background | `bg-white` / `bg-slate-50` / `bg-slate-100` |
+| Text | `text-slate-900` / `text-slate-700` / `text-slate-500` |
+| Border | `border-slate-200` / `border-slate-100`
+
+**DILARANG menggunakan warna lain:**
+- ❌ NO emerald/green (bg-emerald-*)
+- ❌ NO amber/yellow (bg-amber-*)
+- ❌ NO rose/red (bg-rose-*)
+- ❌ NO violet/purple (bg-violet-*)
+- ❌ NO cyan (bg-cyan-*)
+
+Gunakan shade slate untuk variasi, BUKAN warna lain!
 
 ---
 
