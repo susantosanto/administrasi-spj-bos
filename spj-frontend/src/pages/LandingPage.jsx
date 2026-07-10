@@ -89,90 +89,89 @@ function PremiumTypingCard() {
   
   return (
     <div className="relative perspective-1000">
-      {/* Background stack of documents - soft */}
-      <div className="absolute -bottom-3 -right-3 w-full h-full bg-primary/5 rounded-2xl rotate-2 border border-primary/5" />
-      <div className="absolute -bottom-1.5 -right-1.5 w-full h-full bg-primary/[0.03] rounded-2xl rotate-1 border border-primary/5" />
+      {/* Background stack of documents - premium 2026 */}
+      <div className="absolute -bottom-4 -right-4 w-full h-full bg-slate-200/50 rounded-3xl rotate-3" />
+      <div className="absolute -bottom-2 -right-2 w-full h-full bg-slate-100/80 rounded-3xl rotate-2" />
       
       {/* Main document card */}
-      <div className="relative bg-white rounded-2xl border border-slate-100 shadow-[0_8px_40px_-12px_rgba(0,74,198,0.15)] overflow-hidden">
+      <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden">
         
-        {/* Document header - soft premium blue */}
-        <div className="bg-gradient-to-r from-primary/90 via-primary to-primary/90 px-6 py-4">
+        {/* Document header - soft premium gradient 2026 */}
+        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <div className="w-11 h-11 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-white/90 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   description
                 </span>
               </div>
               <div>
-                <p className="text-white/70 text-xs font-medium uppercase tracking-wider">Laporan Pertanggungjawaban</p>
+                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Laporan Pertanggungjawaban</p>
                 <p className="text-white font-bold text-sm">LPJ BOS/BOSP</p>
               </div>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-              <p className="text-white/60 text-[10px] uppercase tracking-wider mb-0.5">Status</p>
-              <p className="text-white text-xs font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50" /> Aktif
-              </p>
+            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-3 py-2 rounded-xl">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-white/70 text-xs font-medium">Aktif</span>
             </div>
           </div>
         </div>
         
         {/* Document body */}
-        <div className="p-6">
-          {/* Document lines decoration */}
-          <div className="flex gap-2 mb-5">
-            <div className="h-2 w-20 bg-primary/10 rounded-full" />
-            <div className="h-2 w-12 bg-primary/5 rounded-full" />
+        <div className="p-6 md:p-8">
+          {/* Decorative accent */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-8 w-1 bg-gradient-to-b from-slate-800 to-slate-300 rounded-full" />
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-[0.15em]">Fitur Utama</p>
           </div>
           
-          {/* Label */}
-          <p className="text-xs text-slate-400 font-medium mb-3 uppercase tracking-wider">Fitur Utama</p>
-          
-          {/* Typing text with document feel */}
-          <div className="min-h-[2.5rem] md:min-h-[3rem] mb-5">
-            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-800 flex items-center">
-              <span className="text-primary">{displayText}</span>
-              <span className="w-0.5 h-5 md:h-7 bg-primary/60 ml-0.5 animate-pulse" />
+          {/* Typing text */}
+          <div className="min-h-[3rem] md:min-h-[4rem] mb-6">
+            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800 flex items-center">
+              <span>{displayText}</span>
+              <span className="w-[3px] h-6 md:h-8 bg-slate-800 ml-1 animate-pulse" />
             </h3>
           </div>
           
           {/* Document metadata */}
-          <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary/40 text-sm">calendar_today</span>
-              <span className="text-xs text-slate-400">TA 2024/2025</span>
+          <div className="flex items-center gap-5 pt-5 border-t border-slate-100">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center">
+                <span className="material-symbols-outlined text-slate-500 text-xs">calendar_today</span>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">TA 2024/2025</span>
             </div>
-            <div className="w-px h-3 bg-slate-200" />
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary/40 text-sm">schedule</span>
-              <span className="text-xs text-slate-400">Update Real-time</span>
+            <div className="w-px h-4 bg-slate-200" />
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center">
+                <span className="material-symbols-outlined text-slate-500 text-xs">schedule</span>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Update Real-time</span>
             </div>
           </div>
           
-          {/* Document content preview lines */}
-          <div className="mt-5 space-y-2.5">
-            <div className="h-1.5 w-full bg-gradient-to-r from-slate-100 to-slate-50 rounded-full" />
-            <div className="h-1.5 w-4/5 bg-gradient-to-r from-slate-100 to-slate-50 rounded-full" />
-            <div className="h-1.5 w-5/6 bg-gradient-to-r from-slate-100 to-slate-50 rounded-full" />
+          {/* Content lines */}
+          <div className="mt-6 space-y-2">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full" />
+            <div className="h-1.5 w-4/5 bg-slate-100/80 rounded-full" />
+            <div className="h-1.5 w-5/6 bg-slate-100/60 rounded-full" />
           </div>
         </div>
         
         {/* Document footer */}
-        <div className="px-6 py-3.5 bg-slate-50/80 border-t border-slate-100">
+        <div className="px-6 md:px-8 py-4 bg-slate-50/50 border-t border-slate-100">
           <div className="flex items-center justify-between">
             <div className="flex gap-1.5">
               {texts.map((_, i) => (
                 <div 
                   key={i} 
                   className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === textIndex ? 'w-6 bg-primary/80' : 'w-1.5 bg-slate-200'
+                    i === textIndex ? 'w-7 bg-slate-800' : 'w-1.5 bg-slate-200'
                   }`} 
                 />
               ))}
             </div>
-            <span className="text-xs text-slate-400 font-medium">Dokumen {textIndex + 1} dari {texts.length}</span>
+            <span className="text-[11px] text-slate-400 font-medium">Dokumen {textIndex + 1} dari {texts.length}</span>
           </div>
         </div>
       </div>
