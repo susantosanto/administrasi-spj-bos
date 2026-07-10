@@ -11,6 +11,7 @@ import BKUPage from './pages/dashboard/BKUPage'
 import DokumenSPJPage from './pages/dashboard/DokumenSPJPage'
 import DokumenKelengkapanPage from './pages/dashboard/DokumenKelengkapanPage'
 import RealisasiPage from './pages/dashboard/RealisasiPage'
+import NotesPage from './pages/dashboard/NotesPage'
 import PengaturanPage from './pages/dashboard/PengaturanPage'
 
 function ProtectedRoute({ children }) {
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="dokumen-spj" element={<Navigate to="/dashboard/dokumen-lpj" replace />} />
             <Route path="dokumen-wajib" element={<Navigate to="/dashboard/dokumen-kelengkapan" replace />} />
             <Route path="realisasi" element={<RealisasiPage />} />
+            <Route path="catatan" element={<NotesPage />} />
             <Route path="pengaturan" element={<PengaturanPage />} />
           </Route>
 

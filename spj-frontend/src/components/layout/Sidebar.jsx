@@ -27,6 +27,12 @@ const MENU_GROUPS = [
       { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
     ],
   },
+  {
+    label: 'CATATAN',
+    items: [
+      { label: 'Catatan', icon: 'edit_note', path: '/dashboard/catatan' },
+    ],
+  },
 ]
 
 const BOTTOM_ITEMS = [
