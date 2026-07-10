@@ -8,20 +8,17 @@ export default function Topbar({ title, subtitle }) {
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-lg py-md w-full border-b border-gray-200/60">
       <div className="flex items-center gap-md">
-        {/* ══ SUPER PREMIUM SIDEBAR TOGGLE BUTTON ══ */}
+        {/* ══ MINIMALIST TOGGLE BUTTON — Arrow Only ══ */}
         <button
           onClick={toggle}
-          className={`relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden group ${
-            isOpen
-              ? 'bg-primary text-on-primary shadow-lg shadow-primary/30'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 shadow-sm'
-          }`}
+          className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200"
           title={isOpen ? 'Tutup Sidebar' : 'Buka Menu Navigasi'}
         >
-          {/* Shimmer */}
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-          <span className="material-symbols-outlined text-xl relative z-10">
-            {isOpen ? 'close' : 'menu'}
+          <span
+            className="material-symbols-outlined text-xl transition-transform duration-300"
+            style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >
+            chevron_right
           </span>
         </button>
         <h2 className="font-headline-md text-headline-md font-extrabold text-gray-900">{title}</h2>
