@@ -271,22 +271,22 @@ export default function DataSekolahPage() {
               /* ── School Profile Card ── */
               <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
                 {/* Hero Header */}
-                <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 overflow-hidden">
+                <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
                   {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
                   <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
 
                   <div className="relative flex items-start gap-6">
                     {/* School Icon */}
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center flex-shrink-0 shadow-2xl shadow-primary/30 border border-white/10">
+                    <div className="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
                       <span className="material-symbols-outlined text-4xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
                     </div>
 
                     {/* School Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2.5 py-1 bg-white/10 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white/70 uppercase tracking-widest border border-white/10">
+                        <span className="px-2.5 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white uppercase tracking-widest border border-white/20">
                           Profil Sekolah
                         </span>
                       </div>
@@ -295,19 +295,19 @@ export default function DataSekolahPage() {
                       </h2>
                       <div className="flex flex-wrap gap-2.5">
                         {data.npsn && (
-                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white border border-white/20">
                             <span className="material-symbols-outlined text-base">fingerprint</span>
                             NPSN: {data.npsn}
                           </span>
                         )}
                         {data.tahunAnggaran && (
-                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white border border-white/20">
                             <span className="material-symbols-outlined text-base">calendar_month</span>
                             TA {data.tahunAnggaran}
                           </span>
                         )}
                         {data.kecamatan && (
-                          <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white/90 border border-white/10">
+                          <span className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2.5 rounded-xl text-sm text-white border border-white/20">
                             <span className="material-symbols-outlined text-base">location_on</span>
                             {data.kecamatan}
                           </span>
@@ -320,11 +320,11 @@ export default function DataSekolahPage() {
                 {/* Data Sections */}
                 <div className="divide-y divide-slate-100">
                   {[
-                    { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge', color: 'primary' },
-                    { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt', color: 'slate' },
-                    { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail', color: 'slate' },
-                    { key: 'periodik', title: 'Data Periodik', icon: 'date_range', color: 'slate' },
-                    { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop', color: 'slate' },
+                    { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge' },
+                    { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt' },
+                    { key: 'kontak', title: 'Kontak Sekolah', icon: 'contact_mail' },
+                    { key: 'periodik', title: 'Data Periodik', icon: 'date_range' },
+                    { key: 'sanitasi', title: 'Sanitasi', icon: 'water_drop' },
                   ].map(section => {
                     const fields = grouped[section.key]
                     if (!fields || fields.length === 0) return null
@@ -333,24 +333,20 @@ export default function DataSekolahPage() {
                         {/* Section Header */}
                         <div className="px-8 py-4 bg-slate-50/80">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-slate-200/80 flex items-center justify-center">
-                              <span className="material-symbols-outlined text-slate-500 text-lg">{section.icon}</span>
-                            </div>
-                            <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide">{section.title}</h4>
-                            <span className="text-xs text-slate-400 ml-auto">{fields.length} field</span>
+                            <span className="material-symbols-outlined text-slate-400 text-xl">{section.icon}</span>
+                            <h4 className="text-base font-bold text-slate-700">{section.title}</h4>
+                            <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full ml-auto">{fields.length} field</span>
                           </div>
                         </div>
 
-                        {/* Fields */}
-                        <div className="divide-y divide-slate-50">
+                        {/* Fields Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-100">
                           {fields.map((f, i) => (
-                            <div key={i} className="flex items-start gap-4 px-8 py-4 hover:bg-slate-50/30 transition-colors group">
-                              <span className="text-slate-400 text-sm font-medium w-2/5 flex-shrink-0 pt-0.5 group-hover:text-slate-600 transition-colors">
-                                {f.label}
-                              </span>
-                              <span className="text-slate-800 text-sm font-semibold flex-1 break-words">
-                                {f.value || <span className="text-slate-300">-</span>}
-                              </span>
+                            <div key={i} className="bg-white px-6 py-4 hover:bg-slate-50/50 transition-colors">
+                              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">{f.label}</p>
+                              <p className="text-sm font-semibold text-slate-800">
+                                {f.value || <span className="text-slate-300 font-normal italic">Belum diisi</span>}
+                              </p>
                             </div>
                           ))}
                         </div>
@@ -362,12 +358,12 @@ export default function DataSekolahPage() {
                 {/* Footer */}
                 <div className="px-8 py-4 bg-slate-50/80 border-t border-slate-100">
                   <div className="flex items-center justify-between">
-                    <p className="text-slate-400 text-xs">
-                      Total {allFields.length} field data
+                    <p className="text-slate-500 text-xs font-medium">
+                      Total {allFields.length} field data tersimpan
                     </p>
                     <button
                       onClick={() => setShowUpload(true)}
-                      className="flex items-center gap-2 text-xs text-slate-500 hover:text-primary transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl transition-all"
                     >
                       <span className="material-symbols-outlined text-sm">upload</span>
                       Upload Ulang
