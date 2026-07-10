@@ -1,11 +1,11 @@
 /**
- * Dashboard Home — Premium 2026 Design
- * WARNA: Blue primary (hanya background/CTA), Icon GELAP/PROFESIONAL
+ * Dashboard Home — Ultra Premium 2026 Design
+ * HEADER: Stunning gradient + Glass morphism effects
+ * ICON: Gelap/Profesional
  * NO school name — General untuk semua sekolah
  */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -107,75 +107,108 @@ export default function DashboardHome() {
       <div className="p-6 space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO — GENERAL (No School Name)                                    */}
+        {/* HERO — ULTRA PREMIUM HEADER                                         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-blue-800 rounded-3xl p-8 text-white shadow-2xl shadow-primary/20">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
+        <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-primary/20">
+          {/* Background Layer — Deep Blue Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#003087] via-[#004ac6] to-[#0066ff]" />
+
+          {/* Animated Light Effect */}
+          <div className="absolute inset-0">
+            <div className="absolute -top-24 -right-24 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-cyan-400/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-blue-600/40 to-indigo-500/30 rounded-full blur-3xl" />
           </div>
 
-          <div className="absolute inset-0 opacity-5" style={{
+          {/* Grid Pattern */}
+          <div className="absolute inset-0 opacity-[0.04]" style={{
             backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
+            backgroundSize: '50px 50px'
           }} />
 
-          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                  <span className="material-symbols-outlined text-2xl text-white">school</span>
+          {/* Glass Pattern Top-Right */}
+          <div className="absolute top-8 right-8 w-32 h-32 border border-white/10 rounded-3xl rotate-12 backdrop-blur-sm" />
+          <div className="absolute top-12 right-12 w-24 h-24 border border-white/10 rounded-2xl rotate-6 backdrop-blur-sm" />
+
+          {/* Content */}
+          <div className="relative p-8 lg:p-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              {/* Left Content */}
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-lg shadow-black/10">
+                      <span className="material-symbols-outlined text-3xl text-white">school</span>
+                    </div>
+                    {/* Pulse dot */}
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-blue-200 text-xs uppercase tracking-[0.2em] font-semibold mb-1">Sistem Informasi</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">
+                      LPJ BOS/BOSP
+                    </h1>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white/60 text-xs uppercase tracking-widest font-medium">Selamat Datang</p>
-                  <h1 className="text-2xl font-bold tracking-tight">Aplikasi LPJ BOS/BOSP</h1>
+
+                <p className="text-blue-100/80 text-base max-w-xl mb-8 leading-relaxed">
+                  Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
+                  Lengkapi semua dokumen Anda dengan mudah, cepat, dan profesional.
+                </p>
+
+                {/* Stats Row — Glass Cards */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {[
+                    { icon: 'description', label: '26+ Dokumen LPJ' },
+                    { icon: 'folder_open', label: '15+ Kelengkapan' },
+                    { icon: 'print', label: '13 Template Cetak' },
+                  ].map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="flex items-center gap-2.5 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-white text-lg">{stat.icon}</span>
+                      <span className="text-sm font-semibold text-white">{stat.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <p className="text-white/70 text-sm max-w-xl mb-6 leading-relaxed">
-                Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
-                Lengkapi semua dokumen Anda dengan mudah dan cepat.
-              </p>
+              {/* Right Content — Clock + CTA */}
+              <div className="flex flex-col items-center lg:items-end gap-6">
+                {/* Clock — Premium Glass */}
+                <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/20 shadow-lg">
+                  <div className="text-5xl font-light tracking-tight font-mono text-white mb-1">
+                    {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  <div className="text-xs text-blue-200 text-center tracking-wide">
+                    {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  </div>
+                </div>
 
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg text-white">description</span>
-                  <span className="text-sm font-semibold">26+ Dokumen LPJ</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg text-white">folder_open</span>
-                  <span className="text-sm font-semibold">15+ Kelengkapan</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl">
-                  <span className="material-symbols-outlined text-lg text-white">print</span>
-                  <span className="text-sm font-semibold">13 Template Siap Cetak</span>
-                </div>
+                {/* CTA Button — Ultra Premium */}
+                <Link
+                  to="/dashboard/dokumen-lpj"
+                  className="group relative overflow-hidden"
+                >
+                  {/* Button Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-white to-blue-100 rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
+
+                  {/* Button */}
+                  <div className="relative flex items-center gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-8 py-4 rounded-2xl font-bold text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                      <span className="material-symbols-outlined text-xl text-primary group-hover:text-white transition-colors">print</span>
+                    </div>
+                    <span>Mulai Cetak Dokumen</span>
+                    <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </div>
+                </Link>
               </div>
-            </div>
-
-            <div className="flex flex-col items-end gap-4">
-              <div className="text-right">
-                <div className="text-4xl font-light tracking-tight font-mono">
-                  {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                </div>
-                <div className="text-xs text-white/50 mt-1">
-                  {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                </div>
-              </div>
-
-              <Link
-                to="/dashboard/dokumen-lpj"
-                className="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-xl font-semibold text-sm hover:bg-white/90 transition-all active:scale-[0.98] shadow-lg"
-              >
-                <span className="material-symbols-outlined text-lg">print</span>
-                Mulai Cetak Dokumen
-              </Link>
             </div>
           </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* DOKUMEN REFERENSI — Setelah Hero                                    */}
+        {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
