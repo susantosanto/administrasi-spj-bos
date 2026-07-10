@@ -285,6 +285,17 @@ export default function BKUPage() {
       <Topbar title="Upload BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
 
       <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
+        {/* ── Upload Toggle Button (always visible) ── */}
+        {!showUploadForm && (
+          <button
+            onClick={() => setShowUploadForm(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+          >
+            <span className="material-symbols-outlined text-lg">upload</span>
+            Upload BKU
+          </button>
+        )}
+
         {/* ── Upload Area ── */}
         {showUploadForm && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
