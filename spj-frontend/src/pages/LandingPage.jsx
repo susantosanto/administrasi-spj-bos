@@ -88,61 +88,90 @@ function PremiumTypingCard() {
   }, [charIndex, isDeleting, textIndex, isPaused]);
   
   return (
-    <div className="relative">
-      {/* Subtle glow */}
-      <div className="absolute -inset-6 bg-primary/5 rounded-[2.5rem] blur-2xl" />
+    <div className="relative perspective-1000">
+      {/* Background stack of documents */}
+      <div className="absolute -bottom-4 -right-4 w-full h-full bg-slate-200 rounded-2xl rotate-3" />
+      <div className="absolute -bottom-2 -right-2 w-full h-full bg-slate-300/50 rounded-2xl rotate-2" />
       
-      {/* Main card */}
-      <div className="relative bg-white rounded-[2rem] p-8 md:p-10 border border-slate-200/80 shadow-[0_4px_40px_-10px_rgba(0,74,198,0.12)]">
+      {/* Main document card */}
+      <div className="relative bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
         
-        {/* Top accent */}
-        <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent rounded-full" />
-        
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-xs text-slate-400 font-medium uppercase tracking-widest">Fitur Utama</span>
-          </div>
-          <div className="flex gap-1.5">
-            {texts.map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  i === textIndex ? 'w-6 bg-primary' : 'w-1.5 bg-slate-200'
-                }`} 
-              />
-            ))}
+        {/* Document header - like a real report */}
+        <div className="bg-gradient-to-r from-primary to-blue-600 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  description
+                </span>
+              </div>
+              <div>
+                <p className="text-white/80 text-xs font-medium uppercase tracking-wider">Laporan Pertanggungjawaban</p>
+                <p className="text-white font-bold text-sm">LPJ BOS/BOSP</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-white/60 text-xs">Status</p>
+              <p className="text-emerald-300 text-xs font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /> Aktif
+              </p>
+            </div>
           </div>
         </div>
         
-        {/* Content */}
-        <div className="space-y-6">
-          {/* Icon */}
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              {texts[textIndex].icon}
-            </span>
+        {/* Document body */}
+        <div className="p-6">
+          {/* Document lines decoration */}
+          <div className="flex gap-2 mb-4">
+            <div className="h-2 w-16 bg-slate-200 rounded-full" />
+            <div className="h-2 w-24 bg-slate-100 rounded-full" />
           </div>
           
           {/* Label */}
-          <p className="text-sm text-slate-400 font-medium">Mulai dari</p>
+          <p className="text-xs text-slate-400 font-medium mb-2">Fitur Utama</p>
           
-          {/* Typing text */}
-          <div className="min-h-[3rem] md:min-h-[4rem]">
-            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 flex items-center">
-              <span>{displayText}</span>
-              <span className="w-0.5 h-6 md:h-8 bg-primary ml-1 animate-pulse" />
+          {/* Typing text with document feel */}
+          <div className="min-h-[2.5rem] md:min-h-[3rem] mb-4">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-900 flex items-center">
+              <span className="text-primary">{displayText}</span>
+              <span className="w-0.5 h-5 md:h-6 bg-primary ml-0.5 animate-pulse" />
             </h3>
           </div>
           
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 pt-2">
-            {['BPJS', 'BOS', 'Honor', 'Pajak', 'Operasional'].map((tag, i) => (
-              <span key={i} className="px-3 py-1.5 bg-slate-100 text-slate-500 text-xs font-medium rounded-lg">
-                {tag}
-              </span>
-            ))}
+          {/* Document metadata */}
+          <div className="flex items-center gap-4 pt-3 border-t border-slate-100">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
+              <span className="text-xs text-slate-400">TA 2024/2025</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-slate-400 text-sm">schedule</span>
+              <span className="text-xs text-slate-400">Update Real-time</span>
+            </div>
+          </div>
+          
+          {/* Document content preview lines */}
+          <div className="mt-4 space-y-2">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full" />
+            <div className="h-1.5 w-3/4 bg-slate-100 rounded-full" />
+            <div className="h-1.5 w-5/6 bg-slate-100 rounded-full" />
+          </div>
+        </div>
+        
+        {/* Document footer like a real LPJ */}
+        <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1.5">
+              {texts.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    i === textIndex ? 'w-5 bg-primary' : 'w-1.5 bg-slate-300'
+                  }`} 
+                />
+              ))}
+            </div>
+            <span className="text-xs text-slate-400">Dokumen {textIndex + 1} dari {texts.length}</span>
           </div>
         </div>
       </div>
