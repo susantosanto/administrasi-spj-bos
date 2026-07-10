@@ -36,12 +36,26 @@ body {
   }
 }
 
+@keyframes shimmer-bg {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .animate-ticker {
   animation: ticker 35s linear infinite;
 }
 
 .animate-ticker:hover {
   animation-play-state: paused;
+}
+
+.animate-shimmer-bg {
+  background-size: 200% 100%;
+  animation: shimmer-bg 8s ease-in-out infinite;
 }
 
 /* Material Symbols Outlined */

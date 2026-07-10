@@ -128,41 +128,54 @@ function DominantTypingText() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PREMIUM TICKER — Smooth Continuous Scroll
+// ULTRA PREMIUM TICKER — Gradient Cards with Glow
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function PremiumTicker() {
   const items = [
-    { icon: 'upload_file', text: 'Upload BKU', color: 'text-blue-600' },
-    { icon: 'print', text: 'Cetak LPJ', color: 'text-emerald-600' },
-    { icon: 'school', text: 'Data Sekolah', color: 'text-amber-600' },
-    { icon: 'groups', text: 'Data Guru', color: 'text-rose-600' },
-    { icon: 'description', text: '13 Template', color: 'text-violet-600' },
-    { icon: 'edit_note', text: 'Catatan', color: 'text-cyan-600' },
-    { icon: 'analytics', text: 'Realisasi', color: 'text-indigo-600' },
-    { icon: 'folder', text: 'Arsip Digital', color: 'text-pink-600' },
+    { icon: 'upload_file', text: 'Upload BKU', gradient: 'from-blue-500 to-blue-600', shadow: 'shadow-blue-500/30', bg: 'bg-blue-50' },
+    { icon: 'print', text: 'Cetak LPJ', gradient: 'from-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-50' },
+    { icon: 'school', text: 'Data Sekolah', gradient: 'from-amber-500 to-amber-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-50' },
+    { icon: 'groups', text: 'Data Guru', gradient: 'from-rose-500 to-rose-600', shadow: 'shadow-rose-500/30', bg: 'bg-rose-50' },
+    { icon: 'description', text: '13 Template', gradient: 'from-violet-500 to-violet-600', shadow: 'shadow-violet-500/30', bg: 'bg-violet-50' },
+    { icon: 'edit_note', text: 'Catatan', gradient: 'from-cyan-500 to-cyan-600', shadow: 'shadow-cyan-500/30', bg: 'bg-cyan-50' },
+    { icon: 'analytics', text: 'Realisasi', gradient: 'from-indigo-500 to-indigo-600', shadow: 'shadow-indigo-500/30', bg: 'bg-indigo-50' },
+    { icon: 'folder', text: 'Arsip Digital', gradient: 'from-pink-500 to-pink-600', shadow: 'shadow-pink-500/30', bg: 'bg-pink-50' },
   ];
 
   return (
-    <div className="relative overflow-hidden bg-white border-y border-slate-100">
-      <div className="py-5 flex animate-ticker whitespace-nowrap">
+    <div className="relative overflow-hidden bg-gradient-to-r from-slate-50 via-white to-slate-50 py-2">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] via-transparent to-primary/[0.02] animate-shimmer-bg" />
+      
+      <div className="py-4 flex animate-ticker whitespace-nowrap">
         {[...Array(3)].map((_, setIndex) => (
-          <div key={setIndex} className="flex items-center">
+          <div key={setIndex} className="flex items-center gap-4">
             {items.map((item, i) => (
-              <div key={`${setIndex}-${i}`} className="flex items-center mx-6 group cursor-default">
-                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center mr-3 group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-300 border border-slate-100">
-                  <span className={`material-symbols-outlined text-xl ${item.color}`}>{item.icon}</span>
+              <div key={`${setIndex}-${i}`} className="group cursor-default">
+                <div className={`flex items-center gap-3 px-5 py-3 bg-white rounded-2xl border border-slate-200/60 
+                              shadow-[0_2px_8px_rgba(0,0,0,0.04)] 
+                              hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] 
+                              hover:border-slate-300/60
+                              hover:scale-105
+                              transition-all duration-300`}>
+                  <div className={`w-10 h-10 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center 
+                                  shadow-lg ${item.shadow} group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                    <span className="material-symbols-outlined text-white text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
+                  </div>
+                  <span className="text-slate-700 font-semibold text-sm whitespace-nowrap group-hover:text-slate-900 transition-colors duration-300">
+                    {item.text}
+                  </span>
                 </div>
-                <span className="text-slate-700 font-semibold text-sm group-hover:text-primary transition-colors duration-300">{item.text}</span>
               </div>
             ))}
           </div>
         ))}
       </div>
       
-      {/* Gradient fades */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+      {/* Premium gradient fades */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-50 via-white/80 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-50 via-white/80 to-transparent z-10 pointer-events-none" />
     </div>
   );
 }
