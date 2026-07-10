@@ -177,16 +177,16 @@ export default function LandingPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden">
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* TOP APP BAR                                                        */}
+      {/* TOP APP BAR — Original Design                                      */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-white/80 backdrop-blur-xl border-b border-slate-200/60">
+      <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-white/90 backdrop-blur-md border-b border-slate-200/60">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg">
             <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               school
             </span>
           </div>
-          <span className="text-lg font-bold text-slate-900">LPJ BOS/BOSP</span>
+          <span className="text-lg font-bold text-primary">LPJ BOS/BOSP</span>
         </div>
         <nav className="hidden md:flex items-center gap-8">
           <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer" href="#fitur">
@@ -200,7 +200,7 @@ export default function LandingPage() {
           </a>
           <Link
             to="/login"
-            className="bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
+            className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
           >
             Mulai Sekarang
           </Link>
@@ -213,31 +213,29 @@ export default function LandingPage() {
       <main className="pt-24">
         
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO SECTION                                                       */}
+        {/* HERO SECTION — Original Design                                     */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <section className="relative min-h-[700px] flex items-center overflow-hidden px-6">
-          {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }} />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
-
-          <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
-            <div className="text-center md:text-left space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/10">
-                <span className="material-symbols-outlined text-emerald-400 text-lg">verified</span>
-                <span className="text-white/80 text-sm font-medium">Resmi & Terpercaya</span>
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(circle at top right, rgba(0, 74, 198, 0.05), transparent), radial-gradient(circle at bottom left, rgba(0, 108, 74, 0.05), transparent)",
+            }}
+          ></div>
+          <div className="container mx-auto grid md:grid-cols-2 gap-xl items-center relative z-10">
+            <div className="text-center md:text-left space-y-md">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
+                <span className="material-symbols-outlined text-primary text-lg">verified</span>
+                <span className="text-primary text-sm font-semibold">Resmi & Terpercaya</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
                 Sampurasun!
                 <br />
                 <span className="text-primary">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
               </h1>
-              <p className="text-lg text-slate-400 max-w-xl">
-                Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan. 
+              <p className="text-lg text-slate-600 max-w-xl">
+                Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan.
                 Kelola dana BOS/BOSP dengan standar profesionalisme tinggi dalam satu platform terpadu.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-4">
@@ -250,24 +248,22 @@ export default function LandingPage() {
                 </Link>
                 <a
                   href="#fitur"
-                  className="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-2xl font-semibold border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                  className="bg-white text-primary px-8 py-4 rounded-2xl font-semibold border-2 border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined">play_circle</span>
                   Lihat Fitur
                 </a>
               </div>
             </div>
-            
-            {/* Hero Visual */}
             <div className="relative hidden md:block">
-              <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/30 rounded-full blur-[100px]" />
-              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/30 rounded-full blur-[100px]" />
-              <div className="bg-white/10 backdrop-blur-xl p-4 rounded-[2rem] shadow-2xl relative z-10 rotate-2 hover:rotate-0 transition-transform duration-700 border border-white/20">
-                <div className="rounded-[1.5rem] w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
+              <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
+              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]"></div>
+              <div className="bg-white p-4 rounded-[2rem] shadow-2xl relative z-10 rotate-2 hover:rotate-0 transition-transform duration-700 border border-slate-200">
+                <div className="rounded-[1.5rem] w-full aspect-video bg-gradient-to-br from-primary/20 to-blue-100 flex items-center justify-center">
                   <div className="text-center p-8">
                     <span className="material-symbols-outlined text-primary text-7xl mb-4 block">account_balance_wallet</span>
-                    <p className="text-white font-bold text-xl">Dashboard LPJ BOS/BOSP</p>
-                    <p className="text-slate-400 text-sm mt-2">Administrasi Keuangan Sekolah</p>
+                    <p className="text-primary font-bold text-xl">Dashboard LPJ BOS/BOSP</p>
+                    <p className="text-slate-500 text-sm mt-2">Administrasi Keuangan Sekolah</p>
                   </div>
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-200">
