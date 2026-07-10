@@ -26,21 +26,21 @@ body {
   overflow-x: hidden;
 }
 
-/* Ultra Premium Marquee Animation — Soft & Minimalist */
-@keyframes marquee {
+/* Premium Ticker Animation */
+@keyframes ticker {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-25%);
+    transform: translateX(-33.33%);
   }
 }
 
-.animate-marquee {
-  animation: marquee 40s linear infinite;
+.animate-ticker {
+  animation: ticker 35s linear infinite;
 }
 
-.animate-marquee:hover {
+.animate-ticker:hover {
   animation-play-state: paused;
 }
 
