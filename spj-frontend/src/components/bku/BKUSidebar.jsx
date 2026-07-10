@@ -246,36 +246,51 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </div>
           )}
 
-          {/* ── Actions Premium ── */}
-          <div className="border-t border-gray-100 pt-lg">
-            <h4 className="font-label-md text-label-md font-bold text-gray-800 mb-md flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>quick_actions</span>
-              Aksi
-            </h4>
-            <div className="grid grid-cols-2 gap-md">
+          {/* ── Actions ── */}
+          <div className="space-y-2">
+            <button
+              onClick={() => { showToast?.('Detail transaksi disalin ke clipboard'); }}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                <span className="material-symbols-outlined text-primary group-hover:text-white text-lg transition-colors">content_copy</span>
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-slate-800">Salin Detail</p>
+                <p className="text-[10px] text-slate-400">Salin ke clipboard</p>
+              </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
+            </button>
+
+            {transaction.tipe === 'PEMBAYARAN' && (
               <button
-                onClick={() => { showToast?.('Info: Detail transaksi disalin ke clipboard (simulasi)'); }}
-                className="flex items-center justify-center gap-2 p-lg bg-white/80 backdrop-blur-sm rounded-2xl border border-white shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                onClick={() => onOpenMamin?.(transaction)}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group"
               >
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>content_copy</span>
-                <span className="font-label-md font-semibold text-gray-700">Salin Detail</span>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                  <span className="material-symbols-outlined text-primary group-hover:text-white text-lg transition-colors">open_in_new</span>
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-slate-800">Buka Dokumen</p>
+                  <p className="text-[10px] text-slate-400">Lihat dokumen terkait</p>
+                </div>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
               </button>
-              {transaction.tipe === 'PEMBAYARAN' && (
-                <button
-                  onClick={() => {
-                    if (onOpenMamin) {
-                      onOpenMamin(transaction)
-                    } else {
-                      showToast?.('Navigasi ke dokumen terkait (simulasi)')
-                    }
-                  }}
-                  className="flex items-center justify-center gap-2 p-lg bg-white/80 backdrop-blur-sm rounded-2xl border border-white shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-                >
-                  <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>open_in_new</span>
-                  <span className="font-label-md font-semibold text-gray-700">Buka Dokumen</span>
-                </button>
-              )}
-            </div>
+            )}
+
+            <button
+              onClick={() => showToast?.('Navigasi ke halaman Dokumen LPJ')}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                <span className="material-symbols-outlined text-primary group-hover:text-white text-lg transition-colors">description</span>
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-slate-800">Lihat Dokumen LPJ</p>
+                <p className="text-[10px] text-slate-400">Buka halaman dokumen</p>
+              </div>
+              <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
+            </button>
           </div>
 
           <div className="h-16" />
