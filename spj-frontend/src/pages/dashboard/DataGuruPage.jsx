@@ -12,21 +12,6 @@ import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const MOCK_GURU = [
-  { id: 1, nama: 'Dra. Siti Nurhaliza, M.Pd', nip: '196805151993012001', nuptk: '0672748641200143', golongan: 'IV/b', jabatan: 'Kepala Sekolah', status: 'PNS' },
-  { id: 2, nama: 'Ahmad Hidayat, S.Pd', nip: '197503202005011002', nuptk: '0774859731200532', golongan: 'III/d', jabatan: 'Guru', status: 'PNS' },
-  { id: 3, nama: 'Rina Wati, S.Pd', nip: '198006102008012003', nuptk: '0871960841200854', golongan: 'III/c', jabatan: 'Guru', status: 'PNS' },
-  { id: 4, nama: 'Budi Santoso, S.Pd', nip: '198201252010011004', nuptk: '0973071951201021', golongan: 'III/b', jabatan: 'Guru', status: 'PNS' },
-  { id: 5, nama: 'Dewi Kartika, S.Pd', nip: '198509182012012005', nuptk: '1074182061201233', golongan: 'III/a', jabatan: 'Guru', status: 'PNS' },
-  { id: 6, nama: 'Hendra Wijaya, S.Pd', nip: '198703052015011006', nuptk: '1175293171201544', golongan: 'III/a', jabatan: 'Guru', status: 'PNS' },
-  { id: 7, nama: 'Maya Sari, S.Pd', nip: '199001122018012007', nuptk: '1276304281201855', golongan: 'II/c', jabatan: 'Guru', status: 'CPNS' },
-  { id: 8, nama: 'Rudi Hartono', nip: '198807202015011008', nuptk: 'P-0001', golongan: '', jabatan: 'TU', status: 'Honorer' },
-  { id: 9, nama: 'Sri Mulyani', nip: '199205052020012009', nuptk: '', golongan: '', jabatan: 'Pustakawan', status: 'Honorer' },
-  { id: 10, nama: 'Agus Supriyadi, S.Pd', nip: '198304152010011010', nuptk: '1377415391201066', golongan: 'III/c', jabatan: 'Guru', status: 'PNS' },
-  { id: 11, nama: 'Linda Agustina, S.Pd', nip: '198608222014012011', nuptk: '1478526401201477', golongan: 'III/a', jabatan: 'Guru', status: 'PNS' },
-  { id: 12, nama: 'Eko Prasetyo', nip: '199102282022011012', nuptk: '', golongan: '', jabatan: 'Penjaga Sekolah', status: 'Honorer' },
-]
-
 const STATUS_BADGE = {
   'PNS': 'bg-blue-100 text-blue-700',
   'PPPK': 'bg-emerald-100 text-emerald-700',
@@ -53,9 +38,6 @@ export default function DataGuruPage() {
     const storedGuru = storageHelper.get('data_guru', null)
     if (storedGuru && storedGuru.length > 0) {
       setGuru(storedGuru)
-    } else {
-      setGuru(MOCK_GURU)
-      storageHelper.set('data_guru', MOCK_GURU)
     }
 
     const storedTendik = storageHelper.get('data_tendik', null)
