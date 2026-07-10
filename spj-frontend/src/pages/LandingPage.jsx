@@ -225,8 +225,9 @@ function PremiumFeaturePills() {
 // FEATURE CARD
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function FeatureCard({ feature, index }) {
+function FeatureCard({ feature, index, totalCards }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isHighlighted, setIsHighlighted] = useState(false);
   const cardRef = useRef(null);
   
   useEffect(() => {
@@ -243,38 +244,81 @@ function FeatureCard({ feature, index }) {
     return () => observer.disconnect();
   }, [index]);
 
+  // Looping highlight animation
+  useEffect(() => {
+    const delay = index * 2000;
+    const interval = setInterval(() => {
+      setIsHighlighted(true);
+      setTimeout(() => setIsHighlighted(false), 1500);
+    }, totalCards * 2000);
+    
+    const timeout = setTimeout(() => {
+      setIsHighlighted(true);
+      setTimeout(() => setIsHighlighted(false), 1500);
+    }, delay);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [index, totalCards]);
+
   return (
     <div
       ref={cardRef}
-      className={`relative group cursor-pointer transition-all duration-700 ease-out
+      className={`relative group cursor-pointer 
                   ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}
+                  transition-all duration-700 ease-out
                   ${feature.isLarge ? 'md:col-span-2' : ''}`}
+      style={{ animationDelay: `${index * 120}ms` }}
     >
-      <div className="relative h-full bg-white rounded-3xl border border-slate-200/80 p-7 
+      {/* Connecting line to next card (hidden on last) */}
+      {index < totalCards - 1 && !feature.isLarge && (
+        <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-[2px] overflow-hidden">
+          <div className={`absolute inset-0 bg-gradient-to-r from-primary/30 to-primary/10 
+                          ${isHighlighted ? 'animate-pulse' : ''}`} />
+        </div>
+      )}
+      
+      <div className={`relative h-full bg-white rounded-3xl border p-7 
                       shadow-[0_1px_3px_rgba(0,0,0,0.04)] 
-                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)] 
-                      hover:border-primary/20
-                      transition-all duration-500 overflow-hidden">
+                      transition-all duration-700 overflow-hidden
+                      ${isHighlighted 
+                        ? 'border-primary/30 shadow-[0_8px_40px_-10px_rgba(0,74,198,0.15)] scale-[1.02]' 
+                        : 'border-slate-200/80 hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)] hover:border-primary/20'}`}>
         
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-3xl`} />
+        {/* Animated glow effect */}
+        <div className={`absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-blue-500/[0.02] 
+                        transition-opacity duration-700 ${isHighlighted ? 'opacity-100' : 'opacity-0'}`} />
+        
+        {/* Animated border accent */}
+        <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient} 
+                        transition-all duration-700 ${isHighlighted ? 'opacity-100 scaleX-100' : 'opacity-0 scaleX-0'}
+                        rounded-t-3xl origin-left`} />
+        
+        {/* Animated dot indicator */}
+        <div className={`absolute top-4 right-4 w-2 h-2 rounded-full bg-primary 
+                        transition-all duration-500 ${isHighlighted ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`} />
         
         <div className={`relative w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center mb-5 
-                        group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-          <span className={`material-symbols-outlined text-xl ${feature.iconColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                        transition-all duration-700 ${isHighlighted ? 'scale-110 rotate-3' : 'group-hover:scale-110 group-hover:rotate-3'}`}>
+          <span className={`material-symbols-outlined text-xl ${feature.iconColor} transition-all duration-500 
+                          ${isHighlighted ? 'scale-110' : ''}`} 
+                style={{ fontVariationSettings: "'FILL' 1" }}>
             {feature.icon}
           </span>
         </div>
 
         <div className="relative">
-          <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors duration-300">
+          <h3 className={`text-lg font-bold mb-2 transition-colors duration-500 
+                        ${isHighlighted ? 'text-primary' : 'text-slate-900 group-hover:text-primary'}`}>
             {feature.title}
           </h3>
           <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
         </div>
 
-        <div className="absolute bottom-7 right-7 w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center 
-                        opacity-0 group-hover:opacity-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300">
+        <div className={`absolute bottom-7 right-7 w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center 
+                        transition-all duration-500 ${isHighlighted ? 'opacity-100 translate-x-0' : 'opacity-0 group-hover:opacity-100 -translate-x-3 group-hover:translate-x-0'}`}>
           <span className="material-symbols-outlined text-primary text-lg">arrow_forward</span>
         </div>
 
@@ -480,13 +524,13 @@ export default function LandingPage() {
             <div className="md:hidden overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6">
               <div className="flex gap-4 w-max">
                 {FEATURES.map((feature, i) => (
-                  <div key={i} className="w-[300px] snap-center"><FeatureCard feature={feature} index={i} /></div>
+                  <div key={i} className="w-[300px] snap-center"><FeatureCard feature={feature} index={i} totalCards={FEATURES.length} /></div>
                 ))}
               </div>
             </div>
             <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5">
               {FEATURES.map((feature, i) => (
-                <FeatureCard key={i} feature={feature} index={i} />
+                <FeatureCard key={i} feature={feature} index={i} totalCards={FEATURES.length} />
               ))}
             </div>
           </div>

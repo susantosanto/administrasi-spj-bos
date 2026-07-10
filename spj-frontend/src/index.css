@@ -26,36 +26,74 @@ body {
   overflow-x: hidden;
 }
 
-/* Premium Ticker Animation */
-@keyframes ticker {
+/* Premium Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 74, 198, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(0, 74, 198, 0.15);
+  }
+}
+
+@keyframes border-flow {
   0% {
-    transform: translateX(0);
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
   100% {
-    transform: translateX(-33.33%);
+    background-position: 0% 50%;
   }
 }
 
-@keyframes shimmer-bg {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
-.animate-ticker {
-  animation: ticker 35s linear infinite;
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
 }
 
-.animate-ticker:hover {
-  animation-play-state: paused;
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
 }
 
-.animate-shimmer-bg {
-  background-size: 200% 100%;
-  animation: shimmer-bg 8s ease-in-out infinite;
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-border-flow {
+  background-size: 200% 200%;
+  animation: border-flow 3s ease infinite;
 }
 
 /* Material Symbols Outlined */
