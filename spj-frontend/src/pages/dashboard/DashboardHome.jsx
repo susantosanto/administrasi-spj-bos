@@ -307,37 +307,109 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* TENTANG APLIKASI                                                    */}
+        {/* PREMIUM FOOTER                                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 sm:p-6 text-white">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-2xl sm:text-3xl text-white">info</span>
+        <footer className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+          {/* Top Accent Line */}
+          <div className="h-1 bg-gradient-to-r from-[#004ac6] via-blue-400 to-[#004ac6]" />
+          
+          <div className="p-6 sm:p-8 lg:p-10">
+            {/* Main Footer Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+              
+              {/* Brand Column */}
+              <div className="lg:col-span-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#004ac6] to-blue-500 flex items-center justify-center shadow-lg shadow-[#004ac6]/20">
+                    <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      school
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">LPJ BOS/BOSP</h3>
+                    <p className="text-[11px] text-slate-400 uppercase tracking-wider">Administrasi Sekolah</p>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+                  Sistem informasi terintegrasi untuk pelaporan administrasi dana BOS/BOSP yang cepat, akurat, dan transparan.
+                </p>
               </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-bold">Aplikasi LPJ BOS/BOSP</h3>
-                <p className="text-white/60 text-sm">Versi 1.0.0 — Tahun Anggaran 2026</p>
+
+              {/* Links Column */}
+              <div className="lg:col-span-3">
+                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Menu Utama</h4>
+                <div className="space-y-2.5">
+                  {[
+                    { label: 'Dokumen LPJ', path: '/dashboard/dokumen-lpj' },
+                    { label: 'Dokumen Kelengkapan', path: '/dashboard/dokumen-kelengkapan' },
+                    { label: 'Upload BKU', path: '/dashboard/bku' },
+                    { label: 'Data Sekolah', path: '/dashboard/data-sekolah' },
+                  ].map((item) => (
+                    <Link key={item.path} to={item.path} className="flex items-center gap-2 text-sm text-slate-600 hover:text-[#004ac6] transition-colors">
+                      <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Info Column */}
+              <div className="lg:col-span-4">
+                <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Informasi</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-slate-500 text-base">verified</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">Siap Digunakan</p>
+                      <p className="text-[11px] text-slate-400">Status Aktif</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-slate-500 text-base">description</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">13 Template Cetak</p>
+                      <p className="text-[11px] text-slate-400">Format Dokumen</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-slate-500 text-base">calendar_today</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-700">TA 2026</p>
+                      <p className="text-[11px] text-slate-400">Tahun Anggaran</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-white/40 text-lg">description</span>
-                <span className="text-white/60">Template:</span>
-                <span className="font-semibold">13 format</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-white/40 text-lg">verified</span>
-                <span className="text-white/60">Status:</span>
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Siap Digunakan
-                </span>
+            {/* Bottom Bar */}
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500 tracking-wider">
+                    PROTOTYPE
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    © {new Date().getFullYear()} LPJ BOS/BOSP
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-[11px] text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                    Sistem Aktif
+                  </span>
+                  <span>v1.0.0</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </footer>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
