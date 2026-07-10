@@ -39,15 +39,27 @@ export default function LoginPage() {
       <section className="hidden lg:flex lg:w-[52%] relative overflow-hidden bg-gradient-to-br from-[#004ac6] via-[#0056d4] to-[#0062e8]">
         
         {/* Subtle Pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{
+        <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
           backgroundSize: '32px 32px',
         }} />
         
-        {/* Soft Orbs */}
+        {/* Animated Glowing Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-white/[0.04] rounded-full blur-[100px]" />
-          <div className="absolute bottom-[20%] right-[15%] w-[400px] h-[400px] bg-white/[0.05] rounded-full blur-[120px]" />
+          {/* Large orb top-left */}
+          <div className="absolute w-[350px] h-[350px] bg-white/[0.08] rounded-full blur-[80px] animate-float" style={{ top: '5%', left: '10%' }} />
+          
+          {/* Large orb bottom-right */}
+          <div className="absolute w-[400px] h-[400px] bg-white/[0.1] rounded-full blur-[100px] animate-float" style={{ bottom: '10%', right: '5%', animationDelay: '-2s' }} />
+          
+          {/* Medium orb center */}
+          <div className="absolute w-[250px] h-[250px] bg-blue-300/[0.12] rounded-full blur-[60px] animate-float" style={{ top: '40%', left: '40%', animationDelay: '-1s' }} />
+          
+          {/* Small orb accent */}
+          <div className="absolute w-[150px] h-[150px] bg-white/[0.15] rounded-full blur-[50px] animate-pulse-slow" style={{ top: '70%', left: '20%' }} />
+          
+          {/* Tiny orb sparkles */}
+          <div className="absolute w-[80px] h-[80px] bg-white/[0.2] rounded-full blur-[30px] animate-float" style={{ top: '20%', right: '30%', animationDelay: '-0.5s' }} />
         </div>
         
         {/* Content */}
