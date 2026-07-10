@@ -348,11 +348,15 @@ export default function BKUPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowUploadForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-all"
+                  onClick={() => setShowUploadForm(!showUploadForm)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    showUploadForm
+                      ? 'bg-primary/10 text-primary border border-primary/20'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-lg">upload</span>
-                  Upload Ulang
+                  <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload'}</span>
+                  {showUploadForm ? 'Tutup Form' : 'Upload Ulang'}
                 </button>
               </div>
             </div>
