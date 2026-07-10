@@ -1,8 +1,8 @@
 /**
- * Landing Page — Original White & Blue Design
+ * Landing Page — Premium White & Blue Design
  */
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ANIMATED COUNTER COMPONENT
@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const ref = useState(null);
+  const ref = useRef(null);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -22,9 +22,8 @@ function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
       },
       { threshold: 0.5 }
     );
-    const el = ref.current;
-    if (el) observer.observe(el);
-    return () => { if (el) observer.unobserve(el); };
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
   }, [isVisible]);
   
   useEffect(() => {
@@ -97,38 +96,85 @@ function TypingText({ texts, speed = 80, deleteSpeed = 40, pauseTime = 2000 }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SCROLLING TEXT COMPONENT — Premium Marquee
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ScrollingText() {
+  const items = [
+    { icon: 'upload_file', text: 'Upload BKU' },
+    { icon: 'print', text: 'Cetak LPJ' },
+    { icon: 'school', text: 'Data Sekolah' },
+    { icon: 'groups', text: 'Data Guru' },
+    { icon: 'description', text: '13 Template' },
+    { icon: 'edit_note', text: 'Catatan' },
+    { icon: 'analytics', text: 'Realisasi' },
+    { icon: 'folder', text: 'Arsip Digital' },
+  ];
+
+  return (
+    <div className="relative py-5 bg-gradient-to-r from-primary via-blue-600 to-primary overflow-hidden">
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+      
+      {/* Main scrolling content */}
+      <div className="flex animate-marquee whitespace-nowrap">
+        {[...Array(4)].map((_, setIndex) => (
+          <div key={setIndex} className="flex items-center">
+            {items.map((item, i) => (
+              <div key={`${setIndex}-${i}`} className="flex items-center gap-3 mx-8 group cursor-default">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-white text-lg">{item.icon}</span>
+                </div>
+                <span className="text-white font-medium text-sm tracking-wide">{item.text}</span>
+                <span className="w-1.5 h-1.5 bg-white/40 rounded-full ml-4" />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // FEATURE CARD COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function FeatureCard({ feature, index }) {
   const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef(null);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setTimeout(() => setIsVisible(true), index * 150);
+          observer.disconnect();
         }
       },
       { threshold: 0.1 }
     );
-    const el = document.getElementById(`feature-${index}`);
-    if (el) observer.observe(el);
-    return () => { if (el) observer.unobserve(el); };
+    
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+    
+    return () => observer.disconnect();
   }, [index]);
 
   return (
     <div
-      id={`feature-${index}`}
+      ref={cardRef}
       className={`group relative bg-white p-8 rounded-3xl border border-slate-200 
                   shadow-lg hover:shadow-2xl hover:-translate-y-2 
                   transition-all duration-500 ease-out overflow-hidden
                   ${feature.isLarge ? 'md:col-span-2' : ''}
                   ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
-      style={{ transitionDelay: `${index * 100}ms` }}
     >
+      {/* Glow background */}
       <div className={`absolute top-0 right-0 w-40 h-40 ${feature.glowColor} rounded-bl-full opacity-50 group-hover:scale-150 transition-transform duration-700`} />
       
+      {/* Icon */}
       <div className={`w-16 h-16 ${feature.iconBg} rounded-2xl flex items-center justify-center mb-6 
                       group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
         <span className={`material-symbols-outlined text-3xl ${feature.iconColor}`} style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -136,6 +182,7 @@ function FeatureCard({ feature, index }) {
         </span>
       </div>
 
+      {/* Content */}
       <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">
         {feature.title}
       </h3>
@@ -143,11 +190,13 @@ function FeatureCard({ feature, index }) {
         {feature.desc}
       </p>
 
+      {/* CTA */}
       <div className="flex items-center gap-2 text-primary font-semibold text-sm opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
         <span>Pelajari Selengkapnya</span>
         <span className="material-symbols-outlined text-lg">arrow_forward</span>
       </div>
 
+      {/* Extra content for large cards */}
       {feature.isLarge && feature.extra && (
         <div className="mt-6 pt-6 border-t border-slate-100">
           {feature.extra}
@@ -249,10 +298,10 @@ const TYPING_TEXTS = [
 ];
 
 const STATS = [
-  { number: 13, suffix: '+', label: 'Template Dokumen', icon: 'description', color: 'text-blue-600' },
-  { number: 85, suffix: '%', label: 'Lebih Efisien', icon: 'speed', color: 'text-emerald-600' },
-  { number: 100, suffix: '%', label: 'Uptime Server', icon: 'cloud_done', color: 'text-violet-600' },
-  { number: 24, suffix: '/7', label: 'Akses Kapan Saja', icon: 'schedule', color: 'text-amber-600' },
+  { number: 13, suffix: '+', label: 'Template Dokumen', icon: 'description', color: 'text-blue-600', iconBg: 'bg-blue-100' },
+  { number: 85, suffix: '%', label: 'Lebih Efisien', icon: 'speed', color: 'text-emerald-600', iconBg: 'bg-emerald-100' },
+  { number: 100, suffix: '%', label: 'Uptime Server', icon: 'cloud_done', color: 'text-violet-600', iconBg: 'bg-violet-100' },
+  { number: 24, suffix: '/7', label: 'Akses Kapan Saja', icon: 'schedule', color: 'text-amber-600', iconBg: 'bg-amber-100' },
 ];
 
 const WHY_US = [
@@ -411,32 +460,19 @@ export default function LandingPage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* SCROLLING TEXT ANIMATION                                           */}
+        {/* SCROLLING TEXT ANIMATION — Premium Marquee                         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="py-6 bg-primary overflow-hidden">
-          <div className="flex whitespace-nowrap animate-marquee">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex items-center gap-8 mx-8">
-                {['Upload BKU', 'Cetak LPJ', 'Data Sekolah', 'Data Guru', '13 Template', 'Catatan', 'Realisasi', 'Arsip Digital'].map((text, j) => (
-                  <span key={j} className="flex items-center gap-8 text-white/90 font-medium">
-                    <span className="w-2 h-2 bg-white/50 rounded-full"></span>
-                    {text}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
+        <ScrollingText />
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* STATS SECTION                                                      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="py-16 px-6 bg-white border-y border-slate-100">
+        <section className="py-16 px-6 bg-white border-b border-slate-100">
           <div className="container mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {STATS.map((stat, i) => (
-                <div key={i} className="text-center group">
-                  <div className={`w-14 h-14 ${stat.iconBg || 'bg-primary/10'} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                <div key={i} className="text-center group cursor-default">
+                  <div className={`w-14 h-14 ${stat.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
                     <span className={`material-symbols-outlined text-2xl ${stat.color}`}>{stat.icon}</span>
                   </div>
                   <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
