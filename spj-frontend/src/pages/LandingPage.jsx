@@ -537,19 +537,67 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="bg-slate-900 text-white py-10 px-6" id="kontak">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-lg">school</span>
+      {/* FOOTER — Premium Elegant */}
+      <footer className="bg-white border-t border-slate-100" id="kontak">
+        {/* Main footer content */}
+        <div className="container mx-auto px-6 py-16">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                  <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
+                </div>
+                <span className="text-xl font-bold text-slate-900">LPJ BOS/BOSP</span>
+              </div>
+              <p className="text-slate-500 text-sm leading-relaxed max-w-sm mb-6">
+                Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan untuk seluruh sekolah di Indonesia.
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-xs text-slate-400 font-medium">Semua sistem berjalan normal</span>
+              </div>
             </div>
-            <span className="text-lg font-bold">LPJ BOS/BOSP</span>
+            
+            {/* Links */}
+            <div>
+              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Navigasi</p>
+              <ul className="space-y-3">
+                {['Fitur', 'Tentang', 'Kontak', 'Masuk'].map((item, i) => (
+                  <li key={i}>
+                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Legal */}
+            <div>
+              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Legal</p>
+              <ul className="space-y-3">
+                {['Syarat & Ketentuan', 'Kebijakan Privasi', 'Kebijakan Cookie'].map((item, i) => (
+                  <li key={i}>
+                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <p className="text-slate-400 text-sm">© {new Date().getFullYear()} LPJ BOS/BOSP Indonesia.</p>
-          <div className="flex gap-6">
-            <a className="text-slate-400 hover:text-white transition-colors text-sm" href="#">Syarat & Ketentuan</a>
-            <a className="text-slate-400 hover:text-white transition-colors text-sm" href="#">Kebijakan Privasi</a>
+        </div>
+        
+        {/* Bottom bar */}
+        <div className="border-t border-slate-100">
+          <div className="container mx-auto px-6 py-5">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-xs text-slate-400">
+                © {new Date().getFullYear()} LPJ BOS/BOSP Indonesia. All rights reserved.
+              </p>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-slate-400">Dibuat dengan</span>
+                <span className="material-symbols-outlined text-red-400 text-sm">favorite</span>
+                <span className="text-xs text-slate-400">untuk sekolah Indonesia</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
