@@ -1,6 +1,6 @@
 /**
  * Data Sekolah Page — Ultra Premium Design 2026
- * Unified card + Integrated upload Excel
+ * Unified card + Integrated upload + Minimalis Pejabat section
  */
 import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
@@ -22,9 +22,20 @@ const defaultData = {
   email: '',
   tahunAnggaran: '',
   allFields: [],
+  pejabat: {
+    ks: { nama: '', nip: '' },
+    bendahara: { nama: '', nip: '' },
+    pengawas: { nama: '', nip: '' },
+    sekdik: { nama: '', nip: '' },
+  },
 }
 
-
+const PEJABAT_ROLES = [
+  { key: 'ks', label: 'Kepala Sekolah', icon: 'person' },
+  { key: 'bendahara', label: 'Bendahara', icon: 'account_balance' },
+  { key: 'pengawas', label: 'Pengawas Bina', icon: 'supervisor_account' },
+  { key: 'sekdik', label: 'Sekretaris Dinas', icon: 'badge' },
+]
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -34,6 +45,7 @@ export default function DataSekolahPage() {
   const [data, setData] = useState(defaultData)
   const [isUploading, setIsUploading] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
+  const [pejabatChanges, setPejabatChanges] = useState(false)
   const toast = useToast()
   const fileInputRef = useRef(null)
 
@@ -41,6 +53,22 @@ export default function DataSekolahPage() {
     const stored = storageHelper.get('data_sekolah', null)
     if (stored) setData(stored)
   }, [])
+
+  // ─── Update Pejabat ──────────────────────────────────────────────
+  const updatePejabat = (jabatan, field, value) => {
+    setData(prev => ({
+      ...prev,
+      pejabat: { ...prev.pejabat, [jabatan]: { ...prev.pejabat[jabatan], [field]: value } },
+    }))
+    setPejabatChanges(true)
+  }
+
+  // ─── Save Pejabat ────────────────────────────────────────────────
+  const handleSavePejabat = () => {
+    storageHelper.set('data_sekolah', { ...data })
+    setPejabatChanges(false)
+    toast.success('Data pejabat berhasil disimpan')
+  }
 
   // ─── File Upload ─────────────────────────────────────────────────
   const handleFileUpload = async (e) => {
@@ -76,7 +104,7 @@ export default function DataSekolahPage() {
       })
 
       setData(newData)
-      setShowUpload(false) // Hide setelah upload selesai
+      setShowUpload(false)
       toast.success(`Data sekolah berhasil diupload: ${header.nama_sekolah || header.npsn || '-'}`)
     } catch (error) {
       console.error('Upload error:', error)
@@ -109,17 +137,17 @@ export default function DataSekolahPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-100/80">
-      <Topbar title="Data Sekolah" subtitle="Profil sekolah dan data pejabat" />
+      <Topbar title="Data Sekolah" subtitle="Profil sekolah dan pejabat" />
 
       <div className="p-6 space-y-6 flex-1 max-w-[1200px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* HEADER — Upload Button                                          */}
+        {/* HEADER                                                          */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Profil Sekolah</h1>
-            <p className="text-sm text-slate-500">Data identitas dan pejabat sekolah</p>
+            <h1 className="text-xl font-bold text-slate-900">Data Sekolah</h1>
+            <p className="text-sm text-slate-500">Profil sekolah dan data pejabat</p>
           </div>
 
           <button
@@ -132,7 +160,7 @@ export default function DataSekolahPage() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* UPLOAD SECTION — Collapsible                                     */}
+        {/* UPLOAD SECTION — Hidden by default                              */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {showUpload && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
@@ -143,14 +171,7 @@ export default function DataSekolahPage() {
               <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Sekolah</h3>
               <p className="text-sm text-slate-500 mb-4">Upload file Excel (.xlsx) — data akan langsung terisi otomatis</p>
 
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".xlsx,.xls"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="sekolah-upload"
-              />
+              <input type="file" ref={fileInputRef} accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" id="sekolah-upload" />
               <label
                 htmlFor="sekolah-upload"
                 className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
@@ -159,9 +180,7 @@ export default function DataSekolahPage() {
                     : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">
-                  {isUploading ? 'sync' : 'upload'}
-                </span>
+                <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
                 {isUploading ? 'Memproses...' : 'Pilih File Excel'}
               </label>
             </div>
@@ -169,10 +188,9 @@ export default function DataSekolahPage() {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* MAIN CARD — School Profile                                      */}
+        {/* DATA SEKOLAH — Premium Card                                     */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {!hasSchoolData ? (
-          /* Empty State */
           <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
             <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
               <span className="material-symbols-outlined text-4xl text-slate-300">school</span>
@@ -188,22 +206,16 @@ export default function DataSekolahPage() {
             </button>
           </div>
         ) : (
-          /* ══ PROFILE CARD ══ */
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-
-            {/* ── Hero Header ── */}
+            {/* Hero Header */}
             <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
-              {/* Decorative */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-3xl" />
 
               <div className="relative flex items-start gap-5">
-                {/* Icon */}
                 <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 border border-white/20">
                   <span className="material-symbols-outlined text-3xl text-white">school</span>
                 </div>
-
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white/70 text-sm uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
                   <h2 className="text-2xl font-bold text-white leading-tight mb-3">
@@ -229,7 +241,7 @@ export default function DataSekolahPage() {
               </div>
             </div>
 
-            {/* ── Data Sections ── */}
+            {/* Data Sections */}
             {[
               { key: 'identitas', title: 'Identitas Sekolah', icon: 'badge' },
               { key: 'pelengkap', title: 'Data Pelengkap', icon: 'list_alt' },
@@ -257,13 +269,10 @@ export default function DataSekolahPage() {
               )
             })}
 
-            {/* ── Footer ── */}
+            {/* Footer */}
             <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
               <p className="text-slate-400 text-xs">{allFields.length} field data</p>
-              <button
-                onClick={() => setShowUpload(true)}
-                className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
-              >
+              <button onClick={() => setShowUpload(true)} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
                 <span className="material-symbols-outlined text-sm">upload</span>
                 Update Data
               </button>
@@ -272,25 +281,69 @@ export default function DataSekolahPage() {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* LINK TO PEJABAT PAGE                                            */}
+        {/* PEJABAT SEKOLAH — Minimalis Premium Section                      */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <a
-          href="/dashboard/pejabat-sekolah"
-          className="block bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-primary/30 transition-all group"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
-              <span className="material-symbols-outlined text-primary text-xl group-hover:text-white transition-colors">badge</span>
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          {/* Section Header */}
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary text-xl">badge</span>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Pejabat Sekolah</h3>
+                <p className="text-xs text-slate-500">Data pejabat untuk tanda tangan dokumen</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-base font-bold text-slate-900 group-hover:text-primary transition-colors">Pejabat Sekolah</h3>
-              <p className="text-xs text-slate-500">Kelola data Kepala Sekolah, Bendahara, dan Pejabat lainnya</p>
-            </div>
-            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all">
-              arrow_forward
-            </span>
+            {pejabatChanges && (
+              <button
+                onClick={handleSavePejabat}
+                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-primary/90 transition-all active:scale-[0.98]"
+              >
+                <span className="material-symbols-outlined text-sm">save</span>
+                Simpan
+              </button>
+            )}
           </div>
-        </a>
+
+          {/* Pejabat List — Minimalis */}
+          <div className="divide-y divide-slate-100">
+            {PEJABAT_ROLES.map(role => (
+              <div key={role.key} className="px-6 py-4 hover:bg-slate-50/50 transition-colors">
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-slate-500 text-xl">{role.icon}</span>
+                  </div>
+
+                  {/* Fields */}
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nama</label>
+                      <input
+                        type="text"
+                        value={data.pejabat[role.key].nama}
+                        onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
+                        placeholder={`Nama ${role.label}`}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">NIP</label>
+                      <input
+                        type="text"
+                        value={data.pejabat[role.key].nip}
+                        onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
+                        placeholder="NIP. 000000000000000000"
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
