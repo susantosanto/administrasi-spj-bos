@@ -76,7 +76,7 @@ export default function DataSekolahPage() {
       })
 
       setData(newData)
-      setShowUpload(false)
+      setShowUpload(false) // Hide setelah upload selesai
       toast.success(`Data sekolah berhasil diupload: ${header.nama_sekolah || header.npsn || '-'}`)
     } catch (error) {
       console.error('Upload error:', error)
@@ -205,23 +205,23 @@ export default function DataSekolahPage() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/70 text-xs uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
-                  <h2 className="text-xl font-bold text-white leading-tight mb-3">
+                  <p className="text-white/70 text-sm uppercase tracking-[0.2em] font-semibold mb-1">Profil Sekolah</p>
+                  <h2 className="text-2xl font-bold text-white leading-tight mb-3">
                     {data.namaSekolah || 'SD NEGERI ...'}
                   </h2>
                   <div className="flex flex-wrap gap-3">
-                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
-                      <span className="material-symbols-outlined text-sm">fingerprint</span>
+                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                      <span className="material-symbols-outlined text-base">fingerprint</span>
                       NPSN: {data.npsn || '-'}
                     </span>
                     {data.tahunAnggaran && (
-                      <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
-                        <span className="material-symbols-outlined text-sm">calendar_month</span>
+                      <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                        <span className="material-symbols-outlined text-base">calendar_month</span>
                         TA {data.tahunAnggaran}
                       </span>
                     )}
-                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-lg text-xs text-white">
-                      <span className="material-symbols-outlined text-sm">location_on</span>
+                    <span className="flex items-center gap-1.5 bg-white/20 px-3 py-2 rounded-lg text-sm text-white">
+                      <span className="material-symbols-outlined text-base">location_on</span>
                       {data.kecamatan || data.kabupaten || '-'}
                     </span>
                   </div>
@@ -241,15 +241,15 @@ export default function DataSekolahPage() {
               if (!fields || fields.length === 0) return null
               return (
                 <div key={section.key} className="border-b border-slate-100 last:border-b-0">
-                  <div className="px-6 py-3 bg-slate-50 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-slate-400 text-lg">{section.icon}</span>
-                    <h4 className="text-sm font-bold text-slate-700">{section.title}</h4>
+                  <div className="px-6 py-4 bg-slate-50 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-slate-400 text-xl">{section.icon}</span>
+                    <h4 className="text-base font-bold text-slate-700">{section.title}</h4>
                   </div>
                   <div className="divide-y divide-slate-50">
                     {fields.map((f, i) => (
-                      <div key={i} className="flex items-start gap-4 px-6 py-3 hover:bg-slate-50/50 transition-colors">
-                        <span className="text-slate-400 text-xs font-medium w-1/3 flex-shrink-0 pt-0.5">{f.label}</span>
-                        <span className="text-slate-800 text-sm font-semibold flex-1 break-words">{f.value || '-'}</span>
+                      <div key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors">
+                        <span className="text-slate-400 text-sm font-medium w-1/3 flex-shrink-0 pt-0.5">{f.label}</span>
+                        <span className="text-slate-800 text-base font-semibold flex-1 break-words">{f.value || '-'}</span>
                       </div>
                     ))}
                   </div>
