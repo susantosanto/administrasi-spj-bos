@@ -1,6 +1,6 @@
 /**
  * Sidebar — Ultra Premium Glass Morphism Design 2026
- * Backdrop blur + Frosted glass + Elegant animations
+ * Categorized menu groups with elegant section headers
  */
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
@@ -9,13 +9,22 @@ import { useSidebar } from '../../contexts/SidebarContext'
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const MENU_ITEMS = [
-  { label: 'Dashboard', icon: 'dashboard', path: '/dashboard', exact: true },
-  { label: 'Data Sekolah', icon: 'school', path: '/dashboard/data-sekolah' },
-  { label: 'Data Guru', icon: 'groups', path: '/dashboard/data-guru' },
-  { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku' },
-  { label: 'Dokumen LPJ', icon: 'description', path: '/dashboard/dokumen-lpj' },
-  { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
+const MENU_GROUPS = [
+  {
+    label: 'DATA SEKOLAH',
+    items: [
+      { label: 'Data Sekolah', icon: 'school', path: '/dashboard/data-sekolah' },
+      { label: 'Data Guru & Tendik', icon: 'groups', path: '/dashboard/data-guru' },
+      { label: 'Upload BKU', icon: 'upload_file', path: '/dashboard/bku' },
+    ],
+  },
+  {
+    label: 'DOKUMEN',
+    items: [
+      { label: 'Dokumen LPJ', icon: 'description', path: '/dashboard/dokumen-lpj' },
+      { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
+    ],
+  },
 ]
 
 const BOTTOM_ITEMS = [
@@ -71,7 +80,7 @@ export default function Sidebar() {
           {/* ═══════════════════════════════════════════════════════════════ */}
           {/* LOGO SECTION                                                    */}
           {/* ═══════════════════════════════════════════════════════════════ */}
-          <div className="relative px-5 pt-6 pb-5">
+          <div className="relative px-5 pt-6 pb-4">
             <div className="flex items-center gap-3">
               {/* Logo Icon */}
               <div className="relative">
@@ -92,54 +101,64 @@ export default function Sidebar() {
                 </p>
               </div>
             </div>
-
-            {/* Divider */}
-            <div className="mt-5 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
           </div>
 
           {/* ═══════════════════════════════════════════════════════════════ */}
-          {/* MAIN NAVIGATION                                                */}
+          {/* MAIN NAVIGATION — Categorized Groups                            */}
           {/* ═══════════════════════════════════════════════════════════════ */}
-          <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-            {MENU_ITEMS.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.exact}
-                className={({ isActive }) =>
-                  `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {/* Active Indicator — Left Bar */}
-                    {isActive && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
-                    )}
+          <nav className="flex-1 px-3 py-2 space-y-4 overflow-y-auto">
+            {MENU_GROUPS.map((group) => (
+              <div key={group.label}>
+                {/* Group Header */}
+                <div className="px-3 mb-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
+                    {group.label}
+                  </span>
+                </div>
 
-                    {/* Icon */}
-                    <span
-                      className={`material-symbols-outlined text-[20px] flex-shrink-0 transition-all duration-200 ${
-                        isActive
-                          ? 'text-primary'
-                          : 'text-slate-400 group-hover:text-slate-600'
-                      }`}
-                      style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                {/* Group Items */}
+                <div className="space-y-0.5">
+                  {group.items.map((item) => (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={({ isActive }) =>
+                        `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                          isActive
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
+                        }`
+                      }
                     >
-                      {item.icon}
-                    </span>
+                      {({ isActive }) => (
+                        <>
+                          {/* Active Indicator — Left Bar */}
+                          {isActive && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                          )}
 
-                    {/* Label */}
-                    <span className={`text-[13px] truncate ${isActive ? 'font-semibold' : 'font-medium'}`}>
-                      {item.label}
-                    </span>
-                  </>
-                )}
-              </NavLink>
+                          {/* Icon */}
+                          <span
+                            className={`material-symbols-outlined text-[20px] flex-shrink-0 transition-all duration-200 ${
+                              isActive
+                                ? 'text-primary'
+                                : 'text-slate-400 group-hover:text-slate-600'
+                            }`}
+                            style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                          >
+                            {item.icon}
+                          </span>
+
+                          {/* Label */}
+                          <span className={`text-[13px] truncate ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                            {item.label}
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
 
