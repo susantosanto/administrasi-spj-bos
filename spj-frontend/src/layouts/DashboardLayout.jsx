@@ -15,9 +15,7 @@ function DashboardContent() {
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
       <Sidebar />
       <main
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isOpen ? 'ml-64' : 'ml-0'
-        }`}
+        className="flex-1 flex flex-col min-h-screen transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ml-0 lg:ml-[260px]"
       >
         <Outlet />
       </main>
