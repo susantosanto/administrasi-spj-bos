@@ -225,24 +225,24 @@ export default function NotesPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+            <span className="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg sm:text-xl">search</span>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari catatan..."
-              className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             {/* View Mode Toggle */}
             <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                <span className="material-symbols-outlined text-lg">grid_view</span>
+                <span className="material-symbols-outlined text-base sm:text-lg">grid_view</span>
               </button>
               <button
                 onClick={() => setViewMode('list')}
@@ -297,17 +297,17 @@ export default function NotesPage() {
         {/* NOTES GRID                                                      */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {sortedNotes.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <span className="material-symbols-outlined text-5xl text-slate-300">note_add</span>
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-12 sm:p-16 text-center shadow-sm">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-300">note_add</span>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Belum Ada Catatan</h3>
-            <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">Belum Ada Catatan</h3>
+            <p className="text-sm text-slate-500 mb-6 sm:mb-8 max-w-sm mx-auto">
               Buat catatan baru untuk menyimpan informasi penting terkait BOS
             </p>
             <button
               onClick={handleCreateNote}
-              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
+              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               Buat Catatan Pertama
@@ -315,26 +315,26 @@ export default function NotesPage() {
           </div>
         ) : viewMode === 'grid' ? (
           /* Grid View */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {sortedNotes.map(note => {
               const colorStyle = COLORS.find(c => c.key === note.color) || COLORS[0]
               const catInfo = CATEGORIES.find(c => c.key === note.category) || CATEGORIES[5]
               return (
                 <div
                   key={note.id}
-                  className={`group relative ${colorStyle.bg} rounded-2xl border ${colorStyle.border} p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+                  className={`group relative ${colorStyle.bg} rounded-2xl border ${colorStyle.border} p-4 sm:p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer min-h-[180px] sm:min-h-[200px] flex flex-col`}
                   onClick={() => handleEditNote(note)}
                 >
                   {/* Pin Badge */}
                   {note.isPinned && (
                     <div className="absolute top-3 right-3">
-                      <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
+                      <span className="material-symbols-outlined text-primary text-base sm:text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
                     </div>
                   )}
 
                   {/* Category Badge */}
                   <div className="flex items-center gap-2 mb-3">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
+                    <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
                       note.category === 'bos' ? 'bg-blue-100 text-blue-700' :
                       note.category === 'dokumen' ? 'bg-violet-100 text-violet-700' :
                       note.category === 'keuangan' ? 'bg-emerald-100 text-emerald-700' :
@@ -342,22 +342,23 @@ export default function NotesPage() {
                       'bg-slate-100 text-slate-700'
                     }`}>
                       <span className="material-symbols-outlined text-xs">{catInfo.icon}</span>
-                      {catInfo.label}
+                      <span className="hidden sm:inline">{catInfo.label}</span>
+                      <span className="sm:hidden">{catInfo.label.slice(0, 3)}</span>
                     </span>
                   </div>
 
                   {/* Title */}
-                  <h3 className={`text-base font-bold ${colorStyle.text} mb-2 line-clamp-2 pr-6`}>
+                  <h3 className={`text-sm sm:text-base font-bold ${colorStyle.text} mb-2 line-clamp-2 pr-6`}>
                     {note.title}
                   </h3>
 
                   {/* Content Preview */}
-                  <p className={`text-sm ${colorStyle.text} opacity-70 line-clamp-3 mb-4 whitespace-pre-line`}>
+                  <p className={`text-xs sm:text-sm ${colorStyle.text} opacity-70 line-clamp-3 mb-4 whitespace-pre-line flex-1`}>
                     {note.content}
                   </p>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-200/50">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 mt-auto">
                     <span className="text-[10px] text-slate-400 font-medium">
                       {formatDate(note.updatedAt)}
                     </span>
@@ -391,13 +392,13 @@ export default function NotesPage() {
               return (
                 <div
                   key={note.id}
-                  className={`group relative ${colorStyle.bg} rounded-2xl border ${colorStyle.border} p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer`}
+                  className={`group relative ${colorStyle.bg} rounded-2xl border ${colorStyle.border} p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer`}
                   onClick={() => handleEditNote(note)}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     {/* Pin */}
                     {note.isPinned && (
-                      <span className="material-symbols-outlined text-primary text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
+                      <span className="material-symbols-outlined text-primary text-base sm:text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>push_pin</span>
                     )}
 
                     {/* Content */}
@@ -414,21 +415,21 @@ export default function NotesPage() {
                         </span>
                         <span className="text-[10px] text-slate-400">{formatDate(note.updatedAt)}</span>
                       </div>
-                      <h3 className={`text-base font-bold ${colorStyle.text} mb-1`}>{note.title}</h3>
-                      <p className={`text-sm ${colorStyle.text} opacity-70 line-clamp-2`}>{note.content}</p>
+                      <h3 className={`text-sm sm:text-base font-bold ${colorStyle.text} mb-1 line-clamp-1`}>{note.title}</h3>
+                      <p className={`text-xs sm:text-sm ${colorStyle.text} opacity-70 line-clamp-2`}>{note.content}</p>
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleTogglePin(note.id) }}
-                        className="p-2 hover:bg-white/80 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 hover:bg-white/80 rounded-lg transition-colors"
                       >
                         <span className="material-symbols-outlined text-sm text-slate-500">push_pin</span>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id) }}
-                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 sm:p-2 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <span className="material-symbols-outlined text-sm text-red-500">delete</span>
                       </button>
