@@ -39,27 +39,38 @@ export default function LoginPage() {
       <section className="hidden lg:flex lg:w-[52%] relative overflow-hidden bg-gradient-to-br from-[#004ac6] via-[#0056d4] to-[#0062e8]">
         
         {/* Subtle Pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
+        <div className="absolute inset-0 opacity-10" style={{
           backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-          backgroundSize: '32px 32px',
+          backgroundSize: '24px 24px',
         }} />
         
-        {/* Animated Glowing Orbs */}
+        {/* Space-Grade Animated Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Large orb top-left */}
-          <div className="absolute w-[350px] h-[350px] bg-white/[0.08] rounded-full blur-[80px] animate-float" style={{ top: '5%', left: '10%' }} />
+          {/* Giant nebula orb - slow drift */}
+          <div className="absolute w-[500px] h-[500px] rounded-full blur-[120px] animate-orbit-1" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(100,150,255,0.08) 50%, transparent 70%)' }} />
           
-          {/* Large orb bottom-right */}
-          <div className="absolute w-[400px] h-[400px] bg-white/[0.1] rounded-full blur-[100px] animate-float" style={{ bottom: '10%', right: '5%', animationDelay: '-2s' }} />
+          {/* Secondary nebula - opposite orbit */}
+          <div className="absolute w-[400px] h-[400px] rounded-full blur-[100px] animate-orbit-2" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(150,200,255,0.1) 50%, transparent 70%)' }} />
           
-          {/* Medium orb center */}
-          <div className="absolute w-[250px] h-[250px] bg-blue-300/[0.12] rounded-full blur-[60px] animate-float" style={{ top: '40%', left: '40%', animationDelay: '-1s' }} />
+          {/* Floating star cluster 1 */}
+          <div className="absolute w-[200px] h-[200px] rounded-full blur-[60px] animate-drift-1" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(200,220,255,0.15) 40%, transparent 70%)' }} />
           
-          {/* Small orb accent */}
-          <div className="absolute w-[150px] h-[150px] bg-white/[0.15] rounded-full blur-[50px] animate-pulse-slow" style={{ top: '70%', left: '20%' }} />
+          {/* Floating star cluster 2 */}
+          <div className="absolute w-[150px] h-[150px] rounded-full blur-[50px] animate-drift-2" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(180,210,255,0.12) 40%, transparent 70%)' }} />
           
-          {/* Tiny orb sparkles */}
-          <div className="absolute w-[80px] h-[80px] bg-white/[0.2] rounded-full blur-[30px] animate-float" style={{ top: '20%', right: '30%', animationDelay: '-0.5s' }} />
+          {/* Distant star 1 */}
+          <div className="absolute w-[80px] h-[80px] rounded-full blur-[25px] animate-twinkle" style={{ background: 'rgba(255,255,255,0.6)', top: '15%', right: '20%' }} />
+          
+          {/* Distant star 2 */}
+          <div className="absolute w-[60px] h-[60px] rounded-full blur-[20px] animate-twinkle" style={{ background: 'rgba(255,255,255,0.5)', top: '45%', right: '35%', animationDelay: '-1s' }} />
+          
+          {/* Distant star 3 */}
+          <div className="absolute w-[40px] h-[40px] rounded-full blur-[15px] animate-twinkle" style={{ background: 'rgba(255,255,255,0.4)', bottom: '25%', left: '25%', animationDelay: '-2s' }} />
+          
+          {/* Tiny floating particles */}
+          <div className="absolute w-[20px] h-[20px] rounded-full bg-white/40 animate-float-fast" style={{ top: '20%', left: '15%', animationDelay: '-0.3s' }} />
+          <div className="absolute w-[15px] h-[15px] rounded-full bg-white/30 animate-float-fast" style={{ top: '60%', right: '20%', animationDelay: '-1.2s' }} />
+          <div className="absolute w-[12px] h-[12px] rounded-full bg-white/35 animate-float-fast" style={{ bottom: '30%', left: '40%', animationDelay: '-0.8s' }} />
         </div>
         
         {/* Content */}
