@@ -89,12 +89,12 @@ function PremiumTypingCard() {
   
   return (
     <div className="relative perspective-1000">
-      {/* Background stack of documents - premium 2026 */}
-      <div className="absolute -bottom-4 -right-4 w-full h-full bg-slate-200/50 rounded-3xl rotate-3" />
-      <div className="absolute -bottom-2 -right-2 w-full h-full bg-slate-100/80 rounded-3xl rotate-2" />
+      {/* Background stack of documents - visible shadows */}
+      <div className="absolute -bottom-5 -right-5 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-3xl rotate-3 shadow-xl" />
+      <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
       
       {/* Main document card */}
-      <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden">
+      <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
         
         {/* Document header - soft premium gradient 2026 */}
         <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-6 py-5">
@@ -118,9 +118,19 @@ function PremiumTypingCard() {
         </div>
         
         {/* Document body */}
-        <div className="p-6 md:p-8">
+        <div className="p-6 md:p-8 relative">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-slate-100/80 to-transparent rounded-bl-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-primary/[0.03] to-transparent rounded-tr-[80px] pointer-events-none" />
+          
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, slate-800 1px, transparent 0)',
+            backgroundSize: '24px 24px'
+          }} />
+          
           {/* Decorative accent */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="relative flex items-center gap-3 mb-6">
             <div className="h-8 w-1 bg-gradient-to-b from-slate-800 to-slate-300 rounded-full" />
             <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-[0.15em]">Fitur Utama</p>
           </div>
