@@ -598,37 +598,34 @@ const NomorSuratPage = () => {
         </div>
       )}
       
-      {/* FORMAT SETTINGS MODAL - FIXED */}
+      {/* FORMAT SETTINGS MODAL */}
       {showFormatModal && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowFormatModal(false)}>
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-slate-900">Edit Format</h3>
-                <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
-                  <span className="material-symbols-outlined text-slate-400">close</span>
-                </button>
-              </div>
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">Edit Format Nomor</h3>
+              <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                <span className="material-symbols-outlined text-slate-400">close</span>
+              </button>
             </div>
             
             {/* Preview */}
-            <div className="px-6 py-4 bg-primary/5 border-b border-primary/10">
-              <p className="text-xs font-medium text-primary mb-2 uppercase tracking-wider">Preview</p>
+            <div className="px-6 py-4 bg-primary/5">
+              <p className="text-xs font-medium text-primary mb-2 uppercase">Preview</p>
               <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-primary/20">
-                {(() => {
-                  const enabledSegs = formatSegments
-                    .filter(s => s.enabled)
-                    .sort((a, b) => (a.order || 0) - (b.order || 0));
-                  return enabledSegs.map((seg, i) => (
+                {formatSegments
+                  .filter(s => s.enabled)
+                  .sort((a, b) => (a.order || 0) - (b.order || 0))
+                  .map((seg, i, arr) => (
                     <span key={seg.id} className="flex items-center">
-                      {i > 0 && <span className="text-primary font-bold mx-1">{enabledSegs[i-1].separator || '/'}</span>}
-                      <span className="px-2 py-1.5 bg-primary/10 rounded-lg text-sm font-mono font-semibold text-primary">
+                      {i > 0 && <span className="text-primary font-bold mx-1">{arr[i-1].separator || '/'}</span>}
+                      <span className="px-2 py-1 bg-primary/10 rounded text-sm font-mono font-semibold text-primary">
                         {getDisplayValue(seg)}
                       </span>
                     </span>
-                  ));
-                })()}
+                  ))
+                }
               </div>
             </div>
             
@@ -638,9 +635,7 @@ const NomorSuratPage = () => {
                 {formatSegments
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, index) => (
-                  <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${
-                    seg.enabled ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-100 opacity-50'
-                  }`}>
+                  <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${seg.enabled ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-100 opacity-50'}`}>
                     <div className="flex flex-col">
                       <button onClick={() => moveSegment(index, 'up')} disabled={index === 0} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
                         <span className="material-symbols-outlined text-slate-400 text-sm">expand_less</span>
@@ -651,17 +646,14 @@ const NomorSuratPage = () => {
                     </div>
                     
                     <button onClick={() => toggleSegment(index)} className="p-1">
-                      <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-slate-300'}`}>
-                        {seg.enabled ? 'visibility' : 'visibility_off'}
-                      </span>
+                      <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-slate-300'}`}>{seg.enabled ? 'visibility' : 'visibility_off'}</span>
                     </button>
                     
                     <div className="flex-1">
                       <p className="font-medium text-slate-700 text-sm">{seg.label}</p>
                     </div>
                     
-                    <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)}
-                      className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none">
+                    <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)} className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono">
                       <option value="/">/</option>
                       <option value="-">-</option>
                       <option value=".">.</option>
@@ -672,16 +664,10 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* Footer - FIXED */}
-            <div className="px-6 py-4 border-t border-slate-100 flex gap-3 bg-white">
-              <button onClick={() => setShowFormatModal(false)}
-                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl transition-colors">
-                Batal
-              </button>
-              <button type="button" onClick={handleSaveFormat}
-                className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all cursor-pointer">
-                Simpan Format
-              </button>
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
+              <button onClick={() => setShowFormatModal(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl">Batal</button>
+              <button onClick={() => { handleSaveFormat(); }} className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg">Simpan Format</button>
             </div>
           </div>
         </div>
