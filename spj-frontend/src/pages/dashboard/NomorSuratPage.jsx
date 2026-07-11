@@ -17,22 +17,56 @@ const { get, set } = storageHelper;
 const STORAGE_KEY_FORMATS = 'spj_surat_custom_formats';
 const STORAGE_KEY_JENIS = 'spj_surat_custom_jenis';
 
-// Default jenis surat
-const DEFAULT_JENIS = [
-  { kode: 'STS', nama: 'Surat Tugas', warna: 'blue' },
-  { kode: 'SK', nama: 'Surat Keterangan', warna: 'emerald' },
-  { kode: 'SU', nama: 'Surat Undangan', warna: 'violet' },
-  { kode: 'SP', nama: 'Surat Pernyataan', warna: 'amber' },
-  { kode: 'SKU', nama: 'Surat Kuasa', warna: 'rose' }
+// KODE KLASIFIKASI RESMI DINAS PENDIDIKAN
+const KODE_KLASIFIKASI = [
+  // Surat Tugas
+  { kode: '421', nama: 'Surat Tugas', kategori: 'Surat Tugas' },
+  { kode: '421.1', nama: 'Surat Tugas Pelaksana Tugas', kategori: 'Surat Tugas' },
+  { kode: '421.2', nama: 'Surat Tugas Kepala Sekolah', kategori: 'Surat Tugas' },
+  { kode: '421.3', nama: 'Surat Tugas Guru', kategori: 'Surat Tugas' },
+  { kode: '421.4', nama: 'Surat Tugas Tenaga Kependidikan', kategori: 'Surat Tugas' },
+  { kode: '421.5', nama: 'Surat Tugas Bendahara', kategori: 'Surat Tugas' },
+  { kode: '421.6', nama: 'Surat Tugas Operator', kategori: 'Surat Tugas' },
+  { kode: '421.7', nama: 'Surat Tugas Panitia', kategori: 'Surat Tugas' },
+  
+  // Surat Keterangan
+  { kode: '422', nama: 'Surat Keterangan', kategori: 'Surat Keterangan' },
+  { kode: '422.1', nama: 'Surat Keterangan Pindah', kategori: 'Surat Keterangan' },
+  { kode: '422.2', nama: 'Surat Keterangan Lulus', kategori: 'Surat Keterangan' },
+  { kode: '422.3', nama: 'Surat Keterangan Aktif Mengajar', kategori: 'Surat Keterangan' },
+  { kode: '422.4', nama: 'Surat Keterangan Domisili', kategori: 'Surat Keterangan' },
+  { kode: '422.5', nama: 'Surat Keterangan Tidak Mampu', kategori: 'Surat Keterangan' },
+  { kode: '422.6', nama: 'Surat Keterangan Kelakuan Baik', kategori: 'Surat Keterangan' },
+  
+  // Surat Undangan
+  { kode: '423', nama: 'Surat Undangan', kategori: 'Surat Undangan' },
+  { kode: '423.1', nama: 'Surat Undangan Rapat', kategori: 'Surat Undangan' },
+  { kode: '423.2', nama: 'Surat Undangan Rapat Komite', kategori: 'Surat Undangan' },
+  
+  // Surat Pernyataan
+  { kode: '424', nama: 'Surat Pernyataan', kategori: 'Surat Pernyataan' },
+  { kode: '424.1', nama: 'Surat Pernyataan Pindah', kategori: 'Surat Pernyataan' },
+  { kode: '424.2', nama: 'Surat Pernyataan Tanggung Jawab', kategori: 'Surat Pernyataan' },
+  
+  // Surat Kuasa
+  { kode: '425', nama: 'Surat Kuasa', kategori: 'Surat Kuasa' },
+  { kode: '425.1', nama: 'Surat Kuasa Kepala Sekolah', kategori: 'Surat Kuasa' },
+  { kode: '425.2', nama: 'Surat Kuasa Bendahara', kategori: 'Surat Kuasa' },
+  
+  // Surat Edaran
+  { kode: '426', nama: 'Surat Edaran', kategori: 'Surat Edaran' },
+  { kode: '426.1', nama: 'Surat Edaran Kepala Dinas', kategori: 'Surat Edaran' },
+  
+  // Surat Perjalanan Dinas
+  { kode: '427', nama: 'Surat Tugas Perjalanan Dinas', kategori: 'Surat Perjalanan' }
 ];
 
-// Default segments - SESUAI RESEARCH: [Nomor] / [Kode] / [Sekolah] / [Bulan] / [Tahun]
+// Default segments - FORMAT RESMI: [Nomor] / [Kode Klasifikasi] / [Bulan] / [Tahun]
 const DEFAULT_SEGMENTS = [
   { id: 'nomor', type: 'dynamic', label: 'Nomor Urut', value: '3', enabled: true, order: 1 },
-  { id: 'kode', type: 'dynamic', label: 'Kode Surat', value: 'STS', enabled: true, order: 2 },
-  { id: 'sekolah', type: 'dynamic', label: 'Nama Sekolah', value: 'SDN', enabled: true, order: 3 },
-  { id: 'bulan', type: 'dynamic', label: 'Bulan', value: 'romawi', enabled: true, order: 4 },
-  { id: 'tahun', type: 'dynamic', label: 'Tahun', value: '4', enabled: true, order: 5 }
+  { id: 'kode', type: 'dynamic', label: 'Kode Klasifikasi', value: '421.3', enabled: true, order: 2 },
+  { id: 'bulan', type: 'dynamic', label: 'Bulan', value: 'romawi', enabled: true, order: 3 },
+  { id: 'tahun', type: 'dynamic', label: 'Tahun', value: '4', enabled: true, order: 4 }
 ];
 
 // Warna options
@@ -57,8 +91,7 @@ const NomorSuratPage = () => {
   const { isMobile } = useSidebar();
   
   // State
-  const [jenisSurat, setJenisSurat] = useState(DEFAULT_JENIS);
-  const [selectedKode, setSelectedKode] = useState('STS');
+  const [kodeKlasifikasi, setKodeKlasifikasi] = useState('421.3');
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
   
@@ -72,12 +105,14 @@ const NomorSuratPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showFormatModal, setShowFormatModal] = useState(false);
   const [showJenisModal, setShowJenisModal] = useState(false);
+  const [showKodeModal, setShowKodeModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [customFormats, setCustomFormats] = useState({});
   const [editingFormat, setEditingFormat] = useState(null);
   const [editingJenis, setEditingJenis] = useState(null);
   const [newJenis, setNewJenis] = useState({ kode: '', nama: '', warna: 'blue' });
+  const [searchKode, setSearchKode] = useState('');
   const itemsPerPage = 10;
   
   // Load data
@@ -100,56 +135,47 @@ const NomorSuratPage = () => {
   const loadJenis = () => {
     const saved = get(STORAGE_KEY_JENIS);
     if (saved && saved.length > 0) {
-      setJenisSurat(saved);
-      if (!saved.find(j => j.kode === selectedKode)) {
-        setSelectedKode(saved[0].kode);
-      }
+      // Merge with default if needed
     }
   };
   
   const saveJenis = (jenis) => {
     set(STORAGE_KEY_JENIS, jenis);
-    setJenisSurat(jenis);
     showToast('Jenis surat tersimpan', 'success');
   };
   
-  // Get current format - URUTAN SESUAI RESEARCH
-  const getCurrentFormat = (kode) => {
-    if (customFormats[kode]) return customFormats[kode];
+  // Get current format
+  const getCurrentFormat = () => {
     return {
       segments: DEFAULT_SEGMENTS.map(s => ({
         ...s,
-        value: s.id === 'kode' ? kode : s.value
+        value: s.id === 'kode' ? kodeKlasifikasi : s.value
       })),
       separator: '/'
     };
   };
   
-  const currentFormat = getCurrentFormat(selectedKode);
+  const currentFormat = getCurrentFormat();
   
-  // Get current jenis
-  const getCurrentJenis = () => jenisSurat.find(j => j.kode === selectedKode) || jenisSurat[0];
+  // Get current kode info
+  const getCurrentKodeInfo = () => {
+    return KODE_KLASIFIKASI.find(k => k.kode === kodeKlasifikasi) || KODE_KLASIFIKASI[0];
+  };
   
-  // Build nomor from segments - URUTAN SESUAI RESEARCH
+  // Build nomor from segments
   const buildNomorFromSegments = (segments, separator, values) => {
-    // Sort by order first, then filter enabled
     const sortedSegments = [...segments]
       .filter(s => s.enabled)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
     
     return sortedSegments.map(seg => {
-      // Custom segment - just return the value
-      if (seg.type === 'custom') {
-        return seg.value;
-      }
+      if (seg.type === 'custom') return seg.value;
       
-      // Dynamic segments
       switch (seg.id) {
         case 'nomor':
           const digits = parseInt(seg.value) || 3;
           return String(values.nomor || 1).padStart(digits, '0');
         case 'kode': return values.kode || seg.value;
-        case 'sekolah': return values.namaSekolah || seg.value;
         case 'bulan':
           if (seg.value === 'angka') return String(values.bulan).padStart(2, '0');
           if (seg.value === 'nama') return getIndonesianMonth(values.bulan);
@@ -162,10 +188,10 @@ const NomorSuratPage = () => {
   };
   
   // Generate nomor
-  const handleGenerate = (namaSekolah = 'SDN') => {
+  const handleGenerate = () => {
     const existingRecords = getAllNomorSurat();
     const sameTypeRecords = existingRecords.filter(r => 
-      r.kode === selectedKode && r.bulan === bulan && r.tahun === tahun
+      r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun
     );
     
     let lastNumber = 0;
@@ -173,7 +199,7 @@ const NomorSuratPage = () => {
     
     const nextNumber = lastNumber + 1;
     const nomor = buildNomorFromSegments(currentFormat.segments, currentFormat.separator, {
-      namaSekolah, kode: selectedKode, nomor: nextNumber, bulan, tahun
+      kode: kodeKlasifikasi, nomor: nextNumber, bulan, tahun
     });
     
     setGeneratedNomor({ nomor, nomorUrut: nextNumber });
@@ -184,11 +210,19 @@ const NomorSuratPage = () => {
     if (!generatedNomor) { showToast('Generate nomor terlebih dahulu', 'error'); return; }
     
     try {
+      const kodeInfo = getCurrentKodeInfo();
       const record = {
         id: `ns_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        nomor: generatedNomor.nomor, kode: selectedKode, jenis: getCurrentJenis().nama,
-        nomorUrut: generatedNomor.nomorUrut, bulan, bulanRomawi: getRomanMonth(bulan), tahun,
-        createdAt: new Date().toISOString(), usedAt: new Date().toISOString(), status: 'used'
+        nomor: generatedNomor.nomor,
+        kode: kodeKlasifikasi,
+        jenis: kodeInfo.nama,
+        nomorUrut: generatedNomor.nomorUrut,
+        bulan,
+        bulanRomawi: getRomanMonth(bulan),
+        tahun,
+        createdAt: new Date().toISOString(),
+        usedAt: new Date().toISOString(),
+        status: 'used'
       };
       
       saveNomorSurat(record);
@@ -218,53 +252,24 @@ const NomorSuratPage = () => {
     } catch (error) { showToast(error.message, 'error'); }
   };
   
-  // ═══════════════════════════════════════════════════════════════
-  // JENIS SURAT MANAGEMENT
-  // ═══════════════════════════════════════════════════════════════
-  
-  const handleAddJenis = () => {
-    if (!newJenis.kode || !newJenis.nama) { showToast('Kode dan Nama wajib diisi', 'error'); return; }
-    if (jenisSurat.find(j => j.kode === newJenis.kode.toUpperCase())) { showToast('Kode sudah ada', 'error'); return; }
-    
-    const updated = [...jenisSurat, { ...newJenis, kode: newJenis.kode.toUpperCase() }];
-    saveJenis(updated);
-    setNewJenis({ kode: '', nama: '', warna: 'blue' });
-    setShowJenisModal(false);
-  };
-  
-  const handleUpdateJenis = () => {
-    if (!editingJenis || !editingJenis.kode || !editingJenis.nama) { showToast('Kode dan Nama wajib diisi', 'error'); return; }
-    const updated = jenisSurat.map(j => j.kode === editingJenis.kode ? editingJenis : j);
-    saveJenis(updated);
-    setEditingJenis(null);
-    setShowJenisModal(false);
-  };
-  
-  const handleDeleteJenis = (kode) => {
-    if (jenisSurat.length <= 1) { showToast('Minimal harus ada 1 jenis surat', 'error'); return; }
-    if (!confirm(`Hapus jenis surat ${kode}?`)) return;
-    const updated = jenisSurat.filter(j => j.kode !== kode);
-    saveJenis(updated);
-    if (selectedKode === kode) setSelectedKode(updated[0].kode);
-  };
-  
-  // ═══════════════════════════════════════════════════════════════
-  // FORMAT MANAGEMENT
-  // ═══════════════════════════════════════════════════════════════
-  
+  // Get badge color
   const getBadgeColor = (kode) => {
-    const jenis = jenisSurat.find(j => j.kode === kode);
-    if (!jenis) return 'bg-slate-500';
-    const warna = WARNA_OPTIONS.find(w => w.value === jenis.warna);
-    return warna ? warna.class : 'bg-slate-500';
+    if (kode.startsWith('421')) return 'bg-blue-500';
+    if (kode.startsWith('422')) return 'bg-emerald-500';
+    if (kode.startsWith('423')) return 'bg-violet-500';
+    if (kode.startsWith('424')) return 'bg-amber-500';
+    if (kode.startsWith('425')) return 'bg-rose-500';
+    if (kode.startsWith('426')) return 'bg-teal-500';
+    if (kode.startsWith('427')) return 'bg-cyan-500';
+    return 'bg-slate-500';
   };
   
+  // Get segment display value
   const getSegmentDisplayValue = (seg) => {
     if (seg.type === 'custom') return `[${seg.value || 'custom'}]`;
     switch (seg.id) {
       case 'nomor': return `[${'0'.repeat(parseInt(seg.value) || 3)}]`;
       case 'kode': return `[${seg.value}]`;
-      case 'sekolah': return `[${seg.value}]`;
       case 'bulan':
         if (seg.value === 'angka') return '[07]';
         if (seg.value === 'nama') return '[Juli]';
@@ -274,6 +279,7 @@ const NomorSuratPage = () => {
     }
   };
   
+  // Get segment options
   const getSegmentOptions = (segId) => {
     switch (segId) {
       case 'bulan': return [{ value: 'romawi', label: 'Romawi (VII)' }, { value: 'angka', label: 'Angka (07)' }, { value: 'nama', label: 'Nama (Juli)' }];
@@ -283,32 +289,36 @@ const NomorSuratPage = () => {
     }
   };
   
+  // Move segment
   const moveSegment = (segments, index, direction) => {
     const newSegments = [...segments];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= newSegments.length) return newSegments;
     [newSegments[index], newSegments[newIndex]] = [newSegments[newIndex], newSegments[index]];
-    // Update order based on new positions
     return newSegments.map((seg, i) => ({ ...seg, order: i + 1 }));
   };
   
+  // Toggle segment
   const toggleSegment = (segments, index) => {
     const newSegments = [...segments];
     newSegments[index] = { ...newSegments[index], enabled: !newSegments[index].enabled };
     return newSegments;
   };
   
+  // Update segment value
   const updateSegmentValue = (segments, index, value) => {
     const newSegments = [...segments];
     newSegments[index] = { ...newSegments[index], value };
     return newSegments;
   };
   
+  // Add custom segment
   const addCustomSegment = (segments) => {
     const newSeg = { ...CUSTOM_SEGMENT, id: `custom_${Date.now()}`, value: 'custom', order: segments.length + 1 };
     return [...segments, newSeg];
   };
   
+  // Remove segment
   const removeSegment = (segments, index) => {
     return segments.filter((_, i) => i !== index).map((seg, i) => ({ ...seg, order: i + 1 }));
   };
@@ -335,13 +345,26 @@ const NomorSuratPage = () => {
   // Filtered records
   const filteredRecords = useMemo(() => {
     let filtered = searchNomorSurat(searchQuery);
-    if (filterKode) filtered = filtered.filter(r => r.kode === filterKode);
+    if (filterKode) filtered = filtered.filter(r => r.kode && r.kode.startsWith(filterKode));
     return filtered;
   }, [searchQuery, filterKode]);
   
   // Pagination
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  
+  // Filtered kode options for modal
+  const filteredKodeOptions = useMemo(() => {
+    if (!searchKode) return KODE_KLASIFIKASI;
+    const query = searchKode.toLowerCase();
+    return KODE_KLASIFIKASI.filter(k => 
+      k.kode.toLowerCase().includes(query) || 
+      k.nama.toLowerCase().includes(query)
+    );
+  }, [searchKode]);
+  
+  // Get unique kategori
+  const kategoriList = [...new Set(KODE_KLASIFIKASI.map(k => k.kategori))];
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -354,16 +377,11 @@ const NomorSuratPage = () => {
             </div>
             <div>
               <h1 className={`font-bold text-slate-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>Nomor Surat</h1>
-              <p className="text-sm text-slate-500">Penomoran otomatis & terstruktur</p>
+              <p className="text-sm text-slate-500">Penomoran resmi dinas pendidikan</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => { setEditingJenis(null); setShowJenisModal(true); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
-              <span className="material-symbols-outlined text-lg">add</span>
-              {!isMobile && 'Jenis'}
-            </button>
-            <button onClick={() => { setEditingFormat({ ...currentFormat, kode: selectedKode }); setShowFormatModal(true); }}
+            <button onClick={() => { setEditingFormat({ ...currentFormat, kode: 'custom' }); setShowFormatModal(true); }}
               className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
               <span className="material-symbols-outlined text-lg">tune</span>
               {!isMobile && 'Format'}
@@ -379,53 +397,50 @@ const NomorSuratPage = () => {
       <div className={`${isMobile ? 'px-4 py-6' : 'px-8 py-8'} max-w-6xl mx-auto`}>
         {/* GENERATOR CARD */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
-          <div className="p-6 pb-4 border-b border-slate-100">
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jenis Surat</label>
-              <button onClick={() => { setEditingJenis(null); setShowJenisModal(true); }} className="text-xs text-primary hover:underline flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">add_circle</span> Tambah Jenis
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {jenisSurat.map((jenis) => (
-                <div key={jenis.kode} className="relative group">
-                  <button onClick={() => { setSelectedKode(jenis.kode); setGeneratedNomor(''); }}
-                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-                      selectedKode === jenis.kode ? 'bg-primary text-white shadow-lg shadow-primary/25' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}>
-                    <span className={`w-2 h-2 rounded-full ${getBadgeColor(jenis.kode)}`}></span>
-                    {jenis.nama}
-                  </button>
-                  <div className="absolute top-full left-0 mt-1 hidden group-hover:block z-10">
-                    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-1 flex gap-1">
-                      <button onClick={(e) => { e.stopPropagation(); setEditingJenis(jenis); setShowJenisModal(true); }} className="p-2 hover:bg-slate-100 rounded-lg" title="Edit">
-                        <span className="material-symbols-outlined text-slate-500 text-sm">edit</span>
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); handleDeleteJenis(jenis.kode); }} className="p-2 hover:bg-red-50 rounded-lg" title="Hapus">
-                        <span className="material-symbols-outlined text-red-500 text-sm">delete</span>
-                      </button>
+          <div className="p-6">
+            {/* Kode Klasifikasi Selector */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kode Klasifikasi Surat</label>
+                <button onClick={() => setShowKodeModal(true)} className="text-xs text-primary hover:underline flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">info</span> Lihat Kode
+                </button>
+              </div>
+              
+              {/* Current Kode Display */}
+              <div 
+                onClick={() => setShowKodeModal(true)}
+                className="p-4 bg-primary/5 border border-primary/20 rounded-2xl cursor-pointer hover:bg-primary/10 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full bg-primary"></span>
+                    <div>
+                      <p className="font-mono font-bold text-primary text-lg">{kodeKlasifikasi}</p>
+                      <p className="text-sm text-slate-600">{getCurrentKodeInfo().nama}</p>
                     </div>
                   </div>
+                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
                 </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="p-6">
-            {/* Format Preview */}
-            <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Format {selectedKode}</span>
-                <button onClick={() => { setEditingFormat({ ...currentFormat, kode: selectedKode }); setShowFormatModal(true); }} className="text-xs text-primary hover:underline">Edit Format</button>
               </div>
-              <div className="flex flex-wrap items-center gap-1">
-                {[...currentFormat.segments]
+            </div>
+            
+            {/* Format Preview */}
+            <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Format Nomor</span>
+                <button onClick={() => { setEditingFormat({ ...currentFormat, kode: 'custom' }); setShowFormatModal(true); }} className="text-xs text-primary hover:underline">Edit Format</button>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {currentFormat.segments
                   .filter(s => s.enabled)
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, i, arr) => (
                     <span key={seg.id} className="flex items-center">
-                      <span className="px-3 py-1.5 bg-white rounded-lg border border-slate-200 text-sm font-mono font-medium text-slate-700">{getSegmentDisplayValue(seg)}</span>
-                      {i < arr.length - 1 && <span className="mx-1 text-slate-400 font-medium">{currentFormat.separator}</span>}
+                      <span className="px-3 py-2 bg-white rounded-xl border border-slate-200 text-sm font-mono font-semibold text-slate-700">
+                        {getSegmentDisplayValue(seg)}
+                      </span>
+                      {i < arr.length - 1 && <span className="mx-1 text-slate-400 font-bold">{currentFormat.separator}</span>}
                     </span>
                   ))
                 }
@@ -433,12 +448,7 @@ const NomorSuratPage = () => {
             </div>
             
             {/* Input Fields */}
-            <div className={`grid ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-4 gap-6'}`}>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nama Sekolah</label>
-                <input type="text" defaultValue="SDN" id="namaSekolahInput"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
-              </div>
+            <div className={`grid ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-3 gap-6'} mb-6`}>
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bulan</label>
                 <select value={bulan} onChange={(e) => setBulan(parseInt(e.target.value))}
@@ -456,15 +466,16 @@ const NomorSuratPage = () => {
                 </select>
               </div>
               <div className="flex items-end">
-                <button onClick={() => handleGenerate(document.getElementById('namaSekolahInput').value)}
+                <button onClick={handleGenerate}
                   className="w-full py-3 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-xl">autorenew</span> Generate
                 </button>
               </div>
             </div>
             
+            {/* Generated Preview */}
             {generatedNomor && (
-              <div className="mt-6 p-5 bg-gradient-to-r from-primary/5 to-blue-50 rounded-2xl border border-primary/10">
+              <div className="p-5 bg-gradient-to-r from-primary/5 to-blue-50 rounded-2xl border border-primary/10">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nomor Surat Generated</p>
@@ -494,15 +505,19 @@ const NomorSuratPage = () => {
               </div>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
-                <input type="text" placeholder="Cari..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                <input type="text" placeholder="Cari nomor..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all w-48" />
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-4">
-              <button onClick={() => setFilterKode('')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>Semua</button>
-              {jenisSurat.map((jenis) => (
-                <button key={jenis.kode} onClick={() => setFilterKode(jenis.kode)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterKode === jenis.kode ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{jenis.kode}</button>
-              ))}
+              <button onClick={() => setFilterKode('')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>Semua</button>
+              <button onClick={() => setFilterKode('421')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '421' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>421</button>
+              <button onClick={() => setFilterKode('422')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '422' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>422</button>
+              <button onClick={() => setFilterKode('423')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '423' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>423</button>
+              <button onClick={() => setFilterKode('424')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '424' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>424</button>
+              <button onClick={() => setFilterKode('425')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '425' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>425</button>
+              <button onClick={() => setFilterKode('426')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '426' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>426</button>
+              <button onClick={() => setFilterKode('427')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filterKode === '427' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>427</button>
             </div>
           </div>
           
@@ -520,6 +535,7 @@ const NomorSuratPage = () => {
                       <tr className="border-b border-slate-100">
                         <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">No</th>
                         <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Nomor</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Kode</th>
                         <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Jenis</th>
                         <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Tanggal</th>
                         <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Aksi</th>
@@ -531,6 +547,7 @@ const NomorSuratPage = () => {
                           <td className="py-4 px-4 text-sm text-slate-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                           <td className="py-4 px-4"><span className="font-mono font-semibold text-slate-900">{record.nomor}</span></td>
                           <td className="py-4 px-4"><span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span></td>
+                          <td className="py-4 px-4 text-sm text-slate-600">{record.jenis}</td>
                           <td className="py-4 px-4 text-sm text-slate-500">{new Date(record.createdAt).toLocaleDateString('id-ID')}</td>
                           <td className="py-4 px-4">
                             <div className="flex items-center justify-end gap-1">
@@ -552,7 +569,7 @@ const NomorSuratPage = () => {
                           <span className="font-mono font-semibold text-slate-900">{record.nomor}</span>
                           <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mb-3">{new Date(record.createdAt).toLocaleDateString('id-ID')}</p>
+                        <p className="text-xs text-slate-500 mb-3">{record.jenis} • {new Date(record.createdAt).toLocaleDateString('id-ID')}</p>
                         <div className="flex gap-2">
                           <button onClick={() => handleCopy(record.nomor)} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Salin</button>
                           <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Detail</button>
@@ -581,65 +598,78 @@ const NomorSuratPage = () => {
       </div>
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* JENIS SURAT MODAL                                                   */}
+      {/* KODE KLASIFIKASI MODAL                                              */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {showJenisModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
-            <div className="p-6 border-b border-slate-100">
+      {showKodeModal && (
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">{editingJenis ? 'Edit Jenis Surat' : 'Tambah Jenis Surat'}</h3>
-                <button onClick={() => { setShowJenisModal(false); setEditingJenis(null); setNewJenis({ kode: '', nama: '', warna: 'blue' }); }} className="p-2 hover:bg-slate-100 rounded-xl">
-                  <span className="material-symbols-outlined">close</span>
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-900">Kode Klasifikasi</h3>
+                  <p className="text-sm text-slate-500 mt-0.5">Pilih kode sesuai jenis surat</p>
+                </div>
+                <button onClick={() => { setShowKodeModal(false); setSearchKode(''); }} className="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                  <span className="material-symbols-outlined text-slate-400">close</span>
                 </button>
               </div>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Kode Surat</label>
-                <input type="text" value={editingJenis ? editingJenis.kode : newJenis.kode}
-                  onChange={(e) => { const val = e.target.value.toUpperCase(); editingJenis ? setEditingJenis(prev => ({ ...prev, kode: val })) : setNewJenis(prev => ({ ...prev, kode: val })); }}
-                  placeholder="Contoh: STS, SK, SU" maxLength={5}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-mono font-medium uppercase focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Nama Jenis Surat</label>
-                <input type="text" value={editingJenis ? editingJenis.nama : newJenis.nama}
-                  onChange={(e) => editingJenis ? setEditingJenis(prev => ({ ...prev, nama: e.target.value })) : setNewJenis(prev => ({ ...prev, nama: e.target.value }))}
-                  placeholder="Contoh: Surat Tugas"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Warna Label</label>
-                <div className="flex flex-wrap gap-2">
-                  {WARNA_OPTIONS.map(w => (
-                    <button key={w.value} onClick={() => editingJenis ? setEditingJenis(prev => ({ ...prev, warna: w.value })) : setNewJenis(prev => ({ ...prev, warna: w.value }))}
-                      className={`w-10 h-10 rounded-xl ${w.class} transition-all ${(editingJenis ? editingJenis.warna : newJenis.warna) === w.value ? 'ring-2 ring-offset-2 ring-slate-400 scale-110' : 'hover:scale-105'}`}
-                      title={w.label} />
-                  ))}
-                </div>
+              <div className="mt-4 relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
+                <input type="text" placeholder="Cari kode..." value={searchKode} onChange={(e) => setSearchKode(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
               </div>
             </div>
-            <div className="p-6 border-t border-slate-100 flex gap-3">
-              <button onClick={() => { setShowJenisModal(false); setEditingJenis(null); setNewJenis({ kode: '', nama: '', warna: 'blue' }); }}
-                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors">Batal</button>
-              <button onClick={editingJenis ? handleUpdateJenis : handleAddJenis}
-                className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-primary/25 transition-all">
-                {editingJenis ? 'Simpan' : 'Tambah'}
-              </button>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              {kategoriList.map(kategori => {
+                const items = filteredKodeOptions.filter(k => k.kategori === kategori);
+                if (items.length === 0) return null;
+                
+                return (
+                  <div key={kategori} className="mb-6 last:mb-0">
+                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{kategori}</h4>
+                    <div className="space-y-2">
+                      {items.map(item => (
+                        <button
+                          key={item.kode}
+                          onClick={() => {
+                            setKodeKlasifikasi(item.kode);
+                            setShowKodeModal(false);
+                            setSearchKode('');
+                          }}
+                          className={`w-full p-4 rounded-2xl border text-left transition-all ${
+                            kodeKlasifikasi === item.kode
+                              ? 'bg-primary/5 border-primary/20 ring-2 ring-primary/30'
+                              : 'bg-white border-slate-200 hover:border-primary/20 hover:bg-primary/5'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={`w-3 h-3 rounded-full ${getBadgeColor(item.kode)}`}></span>
+                            <div className="flex-1">
+                              <p className="font-mono font-bold text-slate-900">{item.kode}</p>
+                              <p className="text-sm text-slate-500">{item.nama}</p>
+                            </div>
+                            {kodeKlasifikasi === item.kode && (
+                              <span className="material-symbols-outlined text-primary">check_circle</span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       )}
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* FORMAT SETTINGS MODAL - PREMIUM MINIMALIST 2026                     */}
+      {/* FORMAT SETTINGS MODAL                                               */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {showFormatModal && editingFormat && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            
-            {/* Header - Clean & Minimal */}
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <div>
@@ -652,7 +682,6 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* Live Preview */}
             <div className="px-6 py-5 bg-primary/5 border-b border-primary/10">
               <p className="text-xs font-medium text-primary mb-3 uppercase tracking-wider">Preview Format</p>
               <div className="flex flex-wrap items-center gap-1.5 p-4 bg-white rounded-2xl border border-primary/20 shadow-sm">
@@ -674,9 +703,7 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* Content */}
             <div className="p-6 overflow-y-auto flex-1">
-              {/* Separator */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-slate-700 mb-3">Pemisah</label>
                 <div className="flex gap-2">
@@ -691,7 +718,6 @@ const NomorSuratPage = () => {
                 </div>
               </div>
               
-              {/* Segments List */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium text-slate-700">Komponen Format</label>
@@ -708,7 +734,6 @@ const NomorSuratPage = () => {
                     <div key={seg.id} className={`flex items-center gap-3 p-4 rounded-2xl border transition-all ${
                       seg.enabled ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-50'
                     }`}>
-                      {/* Move Buttons */}
                       <div className="flex flex-col">
                         <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: moveSegment(prev.segments, index, 'up') }))}
                           disabled={index === 0} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
@@ -720,14 +745,12 @@ const NomorSuratPage = () => {
                         </button>
                       </div>
                       
-                      {/* Toggle */}
                       <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: toggleSegment(prev.segments, index) }))} className="p-2">
                         <span className={`material-symbols-outlined text-xl ${seg.enabled ? 'text-primary' : 'text-slate-300'}`}>
                           {seg.enabled ? 'visibility' : 'visibility_off'}
                         </span>
                       </button>
                       
-                      {/* Label */}
                       <div className="flex-1 min-w-0">
                         {seg.type === 'custom' ? (
                           <input type="text" value={seg.label} placeholder="Nama komponen"
@@ -746,7 +769,6 @@ const NomorSuratPage = () => {
                         )}
                       </div>
                       
-                      {/* Value Input */}
                       {seg.type === 'custom' ? (
                         <input type="text" value={seg.value} placeholder="Nilai"
                           onChange={(e) => {
@@ -756,22 +778,14 @@ const NomorSuratPage = () => {
                             setEditingFormat(prev => ({ ...prev, segments: newSegments }));
                           }}
                           className="w-32 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium font-mono focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
-                      ) : seg.id === 'sekolah' ? (
+                      ) : seg.id === 'kode' ? (
                         <input type="text" value={seg.value} onChange={(e) => {
                           const newSegments = [...editingFormat.segments];
                           const segIndex = newSegments.findIndex(s => s.id === seg.id);
                           if (segIndex !== -1) newSegments[segIndex] = { ...newSegments[segIndex], value: e.target.value };
                           setEditingFormat(prev => ({ ...prev, segments: newSegments }));
                         }}
-                          className="w-28 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
-                      ) : seg.id === 'kode' ? (
-                        <input type="text" value={seg.value} onChange={(e) => {
-                          const newSegments = [...editingFormat.segments];
-                          const segIndex = newSegments.findIndex(s => s.id === seg.id);
-                          if (segIndex !== -1) newSegments[segIndex] = { ...newSegments[segIndex], value: e.target.value.toUpperCase() };
-                          setEditingFormat(prev => ({ ...prev, segments: newSegments }));
-                        }}
-                          className="w-20 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium font-mono uppercase focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
+                          className="w-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium font-mono focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
                       ) : getSegmentOptions(seg.id).length > 0 ? (
                         <select value={seg.value} onChange={(e) => {
                           const newSegments = [...editingFormat.segments];
@@ -784,7 +798,6 @@ const NomorSuratPage = () => {
                         </select>
                       ) : null}
                       
-                      {/* Delete (only for custom) */}
                       {seg.type === 'custom' && (
                         <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: removeSegment(prev.segments, index) }))}
                           className="p-2 hover:bg-red-50 rounded-xl transition-colors">
@@ -795,19 +808,8 @@ const NomorSuratPage = () => {
                   ))}
                 </div>
               </div>
-              
-              {/* Help */}
-              <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                <p className="text-sm text-primary flex items-start gap-2">
-                  <span className="material-symbols-outlined text-lg mt-0.5">info</span>
-                  <span>
-                    <strong>Cara menggunakan:</strong> Geser ⬆️⬇️ untuk ubah urutan, klik 👁️ untuk sembunyikan/tampilkan, atau tambah komponen custom baru.
-                  </span>
-                </p>
-              </div>
             </div>
             
-            {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
               <button onClick={() => { setShowFormatModal(false); setEditingFormat(null); }}
                 className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl transition-colors">
@@ -838,6 +840,7 @@ const NomorSuratPage = () => {
               </div>
               <div className="space-y-3">
                 {[
+                  { label: 'Kode', value: selectedRecord.kode },
                   { label: 'Jenis', value: selectedRecord.jenis },
                   { label: 'Nomor Urut', value: selectedRecord.nomorUrut },
                   { label: 'Bulan', value: getIndonesianMonth(selectedRecord.bulan) },
