@@ -44,12 +44,12 @@ const KODE_PENDEK = [
 ];
 
 // Default segments - FORMAT BENAR:
-// [Kode Klasifikasi] / [Nama SD] / [Kode Pendek] - [Nomor] / [Bulan] / [Tahun]
+// [Kode Klasifikasi] / [Kode Pendek] - [Nomor] / [Nama SD] / [Bulan] / [Tahun]
 const DEFAULT_SEGMENTS = [
   { id: 'klasifikasi', type: 'dynamic', label: 'Kode Klasifikasi', value: '421.3', enabled: true, order: 1, separator: '/' },
-  { id: 'nama_sd', type: 'dynamic', label: 'Nama Sekolah', value: 'SDN', enabled: true, order: 2, separator: '/' },
-  { id: 'kode_pendek', type: 'dynamic', label: 'Kode Surat', value: 'STS', enabled: true, order: 3, separator: '-' },
-  { id: 'nomor', type: 'dynamic', label: 'Nomor Urut', value: '3', enabled: true, order: 4, separator: '/' },
+  { id: 'kode_pendek', type: 'dynamic', label: 'Kode Surat', value: 'STS', enabled: true, order: 2, separator: '-' },
+  { id: 'nomor', type: 'dynamic', label: 'Nomor Urut', value: '3', enabled: true, order: 3, separator: '/' },
+  { id: 'nama_sd', type: 'dynamic', label: 'Nama Sekolah', value: 'SDN', enabled: true, order: 4, separator: '/' },
   { id: 'bulan', type: 'dynamic', label: 'Bulan', value: 'romawi', enabled: true, order: 5, separator: '/' },
   { id: 'tahun', type: 'dynamic', label: 'Tahun', value: '4', enabled: true, order: 6 }
 ];
@@ -352,8 +352,8 @@ const NomorSuratPage = () => {
           <div className="p-6">
             {/* Format Info */}
             <div className="mb-6 p-4 bg-primary/5 border border-primary/10 rounded-2xl">
-              <p className="text-sm font-medium text-primary">Format: [Kode Klasifikasi] / [Nama SD] / [Kode Surat] - [Nomor] / [Bulan] / [Tahun]</p>
-              <p className="text-xs text-slate-500 mt-1">Contoh: <span className="font-mono font-semibold text-primary">421.3 / SDN / STS - 001 / VII / 2026</span></p>
+              <p className="text-sm font-medium text-primary">Format: [Kode Klasifikasi] / [Kode Surat] - [Nomor] / [Nama SD] / [Bulan] / [Tahun]</p>
+              <p className="text-xs text-slate-500 mt-1">Contoh: <span className="font-mono font-semibold text-primary">421.3 / STS - 001 / SDN / VII / 2026</span></p>
             </div>
             
             {/* 1. Kode Klasifikasi - DI AWAL */}
