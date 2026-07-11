@@ -92,7 +92,7 @@ const NomorSuratPage = () => {
   const [formatSegments, setFormatSegments] = useState([
     { id: 'klasifikasi', label: 'Kode Klasifikasi', enabled: true, order: 1, separator: '/' },
     { id: 'kode_pendek', label: 'Kode Surat', enabled: true, order: 2, separator: '-' },
-    { id: 'nomor', label: 'Nomor Urut', value: '3', enabled: true, order: 3, separator: '/' },
+    { id: 'nomor', label: 'Nomor Urut', value: '3', startNumber: '001', enabled: true, order: 3, separator: '/' },
     { id: 'nama_sd', label: 'Nama Sekolah', enabled: true, order: 4, separator: '/' },
     { id: 'bulan', label: 'Bulan', value: 'romawi', enabled: true, order: 5, separator: '/' },
     { id: 'tahun', label: 'Tahun', value: '4', enabled: true, order: 6 }
@@ -132,9 +132,10 @@ const NomorSuratPage = () => {
         case 'kode_pendek': value = kodePendek; break;
         case 'nomor':
           const digits = parseInt(seg.value) || 3;
+          const startNum = parseInt(seg.startNumber) || 1;
           const existingRecords = getAllNomorSurat();
           const sameType = existingRecords.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
-          let lastNum = 0;
+          let lastNum = startNum - 1;
           sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
           value = String(lastNum + 1).padStart(digits, '0');
           break;
@@ -226,7 +227,7 @@ const NomorSuratPage = () => {
     switch (seg.id) {
       case 'klasifikasi': return kodeKlasifikasi;
       case 'kode_pendek': return kodePendek;
-      case 'nomor': return '0'.repeat(parseInt(seg.value) || 3);
+      case 'nomor': return seg.startNumber || '001';
       case 'nama_sd': return namaSekolah;
       case 'bulan': return 'VII';
       case 'tahun': return '2026';
@@ -650,6 +651,19 @@ const NomorSuratPage = () => {
 
                     <div className="flex-1">
                       <p className="font-medium text-slate-700 text-sm">{seg.label}</p>
+                      {seg.id === 'nomor' && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <input type="text" value={seg.startNumber || '001'} 
+                            onChange={(e) => {
+                              const newSegments = [...formatSegments];
+                              newSegments[index] = { ...newSegments[index], startNumber: e.target.value };
+                              setFormatSegments(newSegments);
+                            }}
+                            placeholder="Mulai dari"
+                            className="w-16 px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-xs font-mono text-center" />
+                          <span className="text-xs text-slate-400">= awal</span>
+                        </div>
+                      )}
                     </div>
 
                     <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)} className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono">
