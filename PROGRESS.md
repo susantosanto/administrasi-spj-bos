@@ -31,6 +31,9 @@
 | 21. Mobile Notes Cards Fix | ✅ DONE | 2026-07-10 |
 | 22. Generate Nomor Surat Otomatis | ✅ DONE | 2026-07-11 |
 | 23. Template Surat Cerdas (Auto-Fill) | ✅ DONE | 2026-07-11 |
+| 24. Nomor Surat Premium UI | ✅ DONE | 2026-07-11 |
+| 25. Klasifikasi ↔ Kode Surat Otomatis | ✅ DONE | 2026-07-11 |
+| 26. Custom Nomor Urut di Edit Format | ✅ DONE | 2026-07-11 |
 
 ---
 
@@ -239,6 +242,29 @@
 - [x] Warning jika data belum lengkap
 - [x] Responsive design
 
+### Nomor Surat Premium UI (Tahap 24)
+- [x] Topbar component (konsisten dengan halaman lain)
+- [x] Format button di bawah topbar
+- [x] Preview format: 422.1/SK-001/SDN-PSR/VII/2026
+- [x] Filter daftar nomor pakai Kode Surat (STS, SK, SU, SP, SKU, SE)
+- [x] Toast notifikasi saat simpan
+- [x] Modal edit format premium design
+
+### Klasifikasi ↔ Kode Surat Otomatis (Tahap 25)
+- [x] Auto-mapping: 421→STS, 422→SK, 423→SU, 424→SP, 425→SKU, 426→SE, 427→SPD
+- [x] Auto-mapping reverse: SK→422, STS→421.3, dll
+- [x] Modal picker Kode Klasifikasi (searchable)
+- [x] Modal picker Kode Surat (searchable)
+- [x] Badge color per kategori klasifikasi
+- [x] Pilih klasifikasi → kode surat otomatis berubah
+- [x] Pilih kode surat → klasifikasi otomatis berubah
+
+### Custom Nomor Urut di Edit Format (Tahap 26)
+- [x] Input custom nomor urut di modal edit format
+- [x] Default: 001
+- [x] Nomor berikutnya otomatis menyesuaikan
+- [x] Contoh: set 003 → berikutnya 004, 005, dst
+
 ### Design System
 - [x] Material Design 3 theme
 - [x] Primary color ONLY: #004ac6 (blue)
@@ -259,6 +285,11 @@
 - [x] RESEARCH_BKU_UPLOAD.md
 - [x] PRD_UPLOAD_GURU_TENDIK.md
 - [x] PRD_UPLOAD_DATA_SEKOLAH.md
+- [x] RESEARCH_FORMAT_NOMOR_SURAT.md
+- [x] RESEARCH_KODE_KLASIFIKASI.md
+- [x] RINGKASAN_FORMAT_NOMOR_SURAT.md
+- [x] docs/PRD_NOMOR_SURAT_OTOMATIS.md
+- [x] docs/PRD_TEMPLATE_SURAT_CERDAS.md
 
 ---
 
@@ -302,6 +333,12 @@
 28. ✅ Premium dashboard footer (12-column grid)
 29. ✅ Mobile notes cards overflow fix
 30. ✅ Login page blue section color harmony (dark blue orbs)
+31. ✅ Nomor surat format: 422.1/SK-001/SDN-PSR/VII/2026
+32. ✅ Kode Klasifikasi ↔ Kode Surat auto-mapping
+33. ✅ Custom nomor urut di edit format
+34. ✅ Filter daftar nomor pakai Kode Surat (STS, SK, SU)
+35. ✅ Toast notifikasi saat simpan format
+36. ✅ Header konsisten pakai Topbar component
 
 ---
 
@@ -313,4 +350,4 @@
 
 ---
 
-*Last updated: 2026-07-10 | Session: Premium UI/UX Improvements + Mobile Fixes*
+*Last updated: 2026-07-11 | Session: Nomor Surat Premium UI + Klasifikasi Auto-Mapping*
