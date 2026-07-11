@@ -8,6 +8,7 @@ import {
   getIndonesianMonth,
   getAllNomorSurat
 } from '../../utils/nomorSuratHelper';
+import Topbar from '../../components/layout/Topbar';
 import storageHelper from '../../utils/storageHelper';
 import { useToast } from '../../components/ui/Toast';
 import { useSidebar } from '../../contexts/SidebarContext';
@@ -299,26 +300,18 @@ const NomorSuratPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* HEADER */}
-      <div className={`bg-white border-b border-slate-200 ${isMobile ? 'px-4 py-5' : 'px-8 py-6'}`}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-white text-xl">pin</span>
-            </div>
-            <div>
-              <h1 className={`font-bold text-slate-900 ${isMobile ? 'text-xl' : 'text-2xl'}`}>Nomor Surat</h1>
-            </div>
-          </div>
-          <button onClick={() => setShowFormatModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
-            <span className="material-symbols-outlined text-lg">tune</span> Format
-          </button>
-        </div>
+    <div className="flex flex-col min-h-screen bg-slate-100/80">
+      <Topbar title="Nomor Surat" subtitle="Generate nomor surat dinas pendidikan" />
+      
+      {/* Format Button */}
+      <div className="px-4 sm:px-6 py-3">
+        <button onClick={() => setShowFormatModal(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
+          <span className="material-symbols-outlined text-lg">tune</span> Format Nomor
+        </button>
       </div>
 
-      <div className={`${isMobile ? 'px-4 py-6' : 'px-8 py-8'} max-w-6xl mx-auto`}>
+      <div className="flex-1 px-4 sm:px-6 pb-6 max-w-6xl mx-auto w-full">
         {/* GENERATOR */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
           <div className="p-6">
