@@ -244,7 +244,7 @@ const NomorSuratPage = () => {
   // Filtered records
   const filteredRecords = useMemo(() => {
     let filtered = searchNomorSurat(searchQuery);
-    if (filterKode) filtered = filtered.filter(r => r.kode && r.kode.startsWith(filterKode));
+    if (filterKode) filtered = filtered.filter(r => r.kodePendek === filterKode);
     return filtered;
   }, [searchQuery, filterKode]);
   
@@ -435,7 +435,7 @@ const NomorSuratPage = () => {
             </div>
             <div className="flex flex-wrap gap-2 mt-4">
               <button onClick={() => setFilterKode('')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>Semua</button>
-              {['421', '422', '423', '424', '425', '426'].map(kode => (
+              {['STS', 'SK', 'SU', 'SP', 'SKU', 'SE'].map(kode => (
                 <button key={kode} onClick={() => setFilterKode(kode)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === kode ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{kode}</button>
               ))}
             </div>
