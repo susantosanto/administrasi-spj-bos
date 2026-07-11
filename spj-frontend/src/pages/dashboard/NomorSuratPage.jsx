@@ -132,7 +132,6 @@ const NomorSuratPage = () => {
         case 'kode_pendek': value = kodePendek; break;
         case 'nomor':
           const digits = parseInt(seg.value) || 3;
-          // Get last number from records
           const existingRecords = getAllNomorSurat();
           const sameType = existingRecords.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
           let lastNum = 0;
@@ -151,7 +150,7 @@ const NomorSuratPage = () => {
         default: value = seg.value || '';
       }
       
-      if (i > 0) result += seg.separator || '/';
+      if (i > 0) result += sorted[i-1].separator || '/';
       result += value;
     });
     
@@ -360,18 +359,19 @@ const NomorSuratPage = () => {
             <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Preview</p>
               <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-slate-200">
-                {formatSegments
-                  .filter(s => s.enabled)
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((seg, i) => (
+                {(() => {
+                  const enabledSegs = formatSegments
+                    .filter(s => s.enabled)
+                    .sort((a, b) => (a.order || 0) - (b.order || 0));
+                  return enabledSegs.map((seg, i) => (
                     <span key={seg.id} className="flex items-center">
-                      {i > 0 && <span className="text-primary font-bold mx-1">{seg.separator || '/'}</span>}
+                      {i > 0 && <span className="text-primary font-bold mx-1">{enabledSegs[i-1].separator || '/'}</span>}
                       <span className="px-2 py-1.5 bg-primary/10 rounded-lg text-sm font-mono font-semibold text-primary">
                         {getDisplayValue(seg)}
                       </span>
                     </span>
-                  ))
-                }
+                  ));
+                })()}
               </div>
             </div>
             
@@ -616,18 +616,19 @@ const NomorSuratPage = () => {
             <div className="px-6 py-4 bg-primary/5 border-b border-primary/10">
               <p className="text-xs font-medium text-primary mb-2 uppercase tracking-wider">Preview</p>
               <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-primary/20">
-                {formatSegments
-                  .filter(s => s.enabled)
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((seg, i) => (
+                {(() => {
+                  const enabledSegs = formatSegments
+                    .filter(s => s.enabled)
+                    .sort((a, b) => (a.order || 0) - (b.order || 0));
+                  return enabledSegs.map((seg, i) => (
                     <span key={seg.id} className="flex items-center">
-                      {i > 0 && <span className="text-primary font-bold mx-1">{seg.separator || '/'}</span>}
+                      {i > 0 && <span className="text-primary font-bold mx-1">{enabledSegs[i-1].separator || '/'}</span>}
                       <span className="px-2 py-1.5 bg-primary/10 rounded-lg text-sm font-mono font-semibold text-primary">
                         {getDisplayValue(seg)}
                       </span>
                     </span>
-                  ))
-                }
+                  ));
+                })()}
               </div>
             </div>
             
