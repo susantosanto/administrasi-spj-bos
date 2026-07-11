@@ -234,11 +234,15 @@ const NomorSuratPage = () => {
     }
   };
   
-  // Save format - FIXED
+  // Save format
   const handleSaveFormat = () => {
-    set(STORAGE_KEY_FORMATS, { segments: formatSegments });
-    showToast('Format tersimpan!', 'success');
-    setShowFormatModal(false);
+    try {
+      localStorage.setItem('spj_surat_custom_formats', JSON.stringify({ segments: formatSegments }));
+      alert('Format tersimpan!');
+      setShowFormatModal(false);
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
   };
   
   // Filtered records
@@ -311,7 +315,7 @@ const NomorSuratPage = () => {
           <div className="p-6">
             {/* Format Info */}
             <div className="mb-6 p-4 bg-primary/5 border border-primary/10 rounded-2xl">
-              <p className="text-sm font-medium text-primary">Contoh: 422.1/SK-001/SDN-PSR/VII/2026</p>
+              <p className="text-sm font-medium text-primary">Format: [Kode Klasifikasi]/[Kode Surat]-[Nomor]/[Nama SD]/[Bulan]/[Tahun]</p>
             </div>
             
             {/* 1. Kode Klasifikasi */}
