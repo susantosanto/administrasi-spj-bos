@@ -15,19 +15,27 @@ import { useSidebar } from '../../contexts/SidebarContext';
 
 const { get, set } = storageHelper;
 
-// Storage key for custom formats
 const STORAGE_KEY_FORMATS = 'spj_surat_custom_formats';
+
+// Default format segments
+const DEFAULT_SEGMENTS = [
+  { id: 'sekolah', label: 'Nama Sekolah', value: 'SDN', enabled: true },
+  { id: 'kode', label: 'Kode Surat', value: 'STS', enabled: true },
+  { id: 'nomor', label: 'Nomor Urut', value: '001', enabled: true },
+  { id: 'bulan', label: 'Bulan', value: 'romawi', enabled: true },
+  { id: 'tahun', label: 'Tahun', value: '4', enabled: true }
+];
 
 // Default format for each jenis
 const DEFAULT_FORMATS = {
-  STS: { bulan: 'romawi', tahun: 4, prefix: 'STS' },
-  SK: { bulan: 'romawi', tahun: 4, prefix: 'SK' },
-  SU: { bulan: 'romawi', tahun: 4, prefix: 'SU' },
-  SP: { bulan: 'romawi', tahun: 4, prefix: 'SP' },
-  SKU: { bulan: 'romawi', tahun: 4, prefix: 'SKU' },
-  STL: { bulan: 'romawi', tahun: 4, prefix: 'STL' },
-  SL: { bulan: 'romawi', tahun: 4, prefix: 'SL' },
-  SN: { bulan: 'romawi', tahun: 4, prefix: 'SN' }
+  STS: { segments: [...DEFAULT_SEGMENTS], separator: '/' },
+  SK: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SK' : s.value }))], separator: '/' },
+  SU: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SU' : s.value }))], separator: '/' },
+  SP: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SP' : s.value }))], separator: '/' },
+  SKU: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SKU' : s.value }))], separator: '/' },
+  STL: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'STL' : s.value }))], separator: '/' },
+  SL: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SL' : s.value }))], separator: '/' },
+  SN: { segments: [...DEFAULT_SEGMENTS.map(s => ({ ...s, value: s.id === 'kode' ? 'SN' : s.value }))], separator: '/' }
 };
 
 const NomorSuratPage = () => {
@@ -39,7 +47,6 @@ const NomorSuratPage = () => {
   const [nomorUrut, setNomorUrut] = useState(1);
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
-  const [namaSekolah, setNamaSekolah] = useState('SDN');
   
   const [generatedNomor, setGeneratedNomor] = useState('');
   const [records, setRecords] = useState([]);
@@ -53,6 +60,7 @@ const NomorSuratPage = () => {
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [customFormats, setCustomFormats] = useState(DEFAULT_FORMATS);
+  const [editingFormat, setEditingFormat] = useState(null);
   const itemsPerPage = 10;
   
   // Load data
@@ -78,35 +86,38 @@ const NomorSuratPage = () => {
     setCustomFormats(formats);
     showToast('Format tersimpan', 'success');
     setShowFormatModal(false);
+    setEditingFormat(null);
   };
   
-  // Get current format for selected kode
+  // Get current format
   const currentFormat = customFormats[selectedKode] || DEFAULT_FORMATS[selectedKode];
   
-  // Format nomor based on custom format
-  const formatNomor = (kode, nomor, bulan, tahun, format) => {
-    const formattedNum = String(nomor).padStart(3, '0');
+  // Build nomor from segments
+  const buildNomorFromSegments = (segments, separator, values) => {
+    const enabledSegments = segments.filter(s => s.enabled);
     
-    let formattedBulan;
-    switch (format.bulan) {
-      case 'angka':
-        formattedBulan = String(bulan).padStart(2, '0');
-        break;
-      case 'nama':
-        formattedBulan = getIndonesianMonth(bulan);
-        break;
-      case 'romawi':
-      default:
-        formattedBulan = getRomanMonth(bulan);
-    }
-    
-    const formattedTahun = format.tahun === 2 ? String(tahun).slice(-2) : String(tahun);
-    
-    return `${format.prefix}/${formattedNum}/${formattedBulan}/${formattedTahun}`;
+    return enabledSegments.map(seg => {
+      switch (seg.id) {
+        case 'sekolah':
+          return values.namaSekolah || seg.value;
+        case 'kode':
+          return values.kode || seg.value;
+        case 'nomor':
+          return String(values.nomor || 1).padStart(3, '0');
+        case 'bulan':
+          if (seg.value === 'angka') return String(values.bulan).padStart(2, '0');
+          if (seg.value === 'nama') return getIndonesianMonth(values.bulan);
+          return getRomanMonth(values.bulan);
+        case 'tahun':
+          return seg.value === '2' ? String(values.tahun).slice(-2) : String(values.tahun);
+        default:
+          return seg.value;
+      }
+    }).join(separator);
   };
   
-  // Generate nomor - check database for last number
-  const handleGenerate = () => {
+  // Generate nomor
+  const handleGenerate = (namaSekolah = 'SDN') => {
     // Get all records for this kode, bulan, tahun
     const existingRecords = getAllNomorSurat();
     const sameTypeRecords = existingRecords.filter(r => 
@@ -115,7 +126,7 @@ const NomorSuratPage = () => {
       r.tahun === tahun
     );
     
-    // Find the highest number used
+    // Find the highest number
     let lastNumber = 0;
     sameTypeRecords.forEach(r => {
       if (r.nomorUrut > lastNumber) {
@@ -123,12 +134,22 @@ const NomorSuratPage = () => {
       }
     });
     
-    // Set next number
     const nextNumber = lastNumber + 1;
     setNomorUrut(nextNumber);
     
-    // Generate the nomor
-    const nomor = formatNomor(selectedKode, nextNumber, bulan, tahun, currentFormat);
+    // Build nomor
+    const nomor = buildNomorFromSegments(
+      currentFormat.segments,
+      currentFormat.separator,
+      {
+        namaSekolah,
+        kode: selectedKode,
+        nomor: nextNumber,
+        bulan,
+        tahun
+      }
+    );
+    
     setGeneratedNomor(nomor);
   };
   
@@ -149,8 +170,6 @@ const NomorSuratPage = () => {
         bulan: bulan,
         bulanRomawi: getRomanMonth(bulan),
         tahun: tahun,
-        namaSekolah: namaSekolah,
-        format: currentFormat,
         createdAt: new Date().toISOString(),
         usedAt: new Date().toISOString(),
         status: 'used'
@@ -158,8 +177,6 @@ const NomorSuratPage = () => {
       
       saveNomorSurat(record);
       showToast(`Nomor ${generatedNomor} berhasil digunakan!`, 'success');
-      
-      // Clear generated and reload
       setGeneratedNomor('');
       loadData();
     } catch (error) {
@@ -199,6 +216,31 @@ const NomorSuratPage = () => {
     }
   };
   
+  // Move segment up/down
+  const moveSegment = (segments, index, direction) => {
+    const newSegments = [...segments];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (newIndex < 0 || newIndex >= newSegments.length) return newSegments;
+    
+    [newSegments[index], newSegments[newIndex]] = [newSegments[newIndex], newSegments[index]];
+    return newSegments;
+  };
+  
+  // Toggle segment enabled
+  const toggleSegment = (segments, index) => {
+    const newSegments = [...segments];
+    newSegments[index] = { ...newSegments[index], enabled: !newSegments[index].enabled };
+    return newSegments;
+  };
+  
+  // Update segment value
+  const updateSegmentValue = (segments, index, value) => {
+    const newSegments = [...segments];
+    newSegments[index] = { ...newSegments[index], value };
+    return newSegments;
+  };
+  
   // Filtered records
   const filteredRecords = useMemo(() => {
     let filtered = searchNomorSurat(searchQuery);
@@ -230,11 +272,54 @@ const NomorSuratPage = () => {
     return colors[kode] || 'bg-slate-500';
   };
   
+  // Get segment display value
+  const getSegmentDisplayValue = (seg) => {
+    switch (seg.id) {
+      case 'sekolah':
+        return `[${seg.value}]`;
+      case 'kode':
+        return `[${seg.value}]`;
+      case 'nomor':
+        return `[001-${seg.value === '5' ? '99999' : '999'}]`;
+      case 'bulan':
+        if (seg.value === 'angka') return '[07]';
+        if (seg.value === 'nama') return '[Juli]';
+        return '[VII]';
+      case 'tahun':
+        return seg.value === '2' ? '[26]' : '[2026]';
+      default:
+        return `[${seg.value}]`;
+    }
+  };
+  
+  // Get segment options
+  const getSegmentOptions = (segId) => {
+    switch (segId) {
+      case 'bulan':
+        return [
+          { value: 'romawi', label: 'Romawi (VII)' },
+          { value: 'angka', label: 'Angka (07)' },
+          { value: 'nama', label: 'Nama (Juli)' }
+        ];
+      case 'tahun':
+        return [
+          { value: '4', label: '4 digit (2026)' },
+          { value: '2', label: '2 digit (26)' }
+        ];
+      case 'nomor':
+        return [
+          { value: '3', label: '3 digit (001-999)' },
+          { value: '4', label: '4 digit (0001-9999)' },
+          { value: '5', label: '5 digit (00001-99999)' }
+        ];
+      default:
+        return [];
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* HEADER                                                              */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* HEADER */}
       <div className={`bg-white border-b border-slate-200 ${isMobile ? 'px-4 py-5' : 'px-8 py-6'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -251,11 +336,14 @@ const NomorSuratPage = () => {
           
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setShowFormatModal(true)}
+              onClick={() => {
+                setEditingFormat({ ...currentFormat, kode: selectedKode });
+                setShowFormatModal(true);
+              }}
               className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors"
             >
-              <span className="material-symbols-outlined text-lg">settings</span>
-              {!isMobile && 'Format'}
+              <span className="material-symbols-outlined text-lg">tune</span>
+              {!isMobile && 'Atur Format'}
             </button>
             <div className="text-right">
               <p className="text-2xl font-bold text-slate-900">{statistics.bulanIni}</p>
@@ -267,9 +355,7 @@ const NomorSuratPage = () => {
       
       <div className={`${isMobile ? 'px-4 py-6' : 'px-8 py-8'} max-w-6xl mx-auto`}>
         
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* GENERATOR CARD                                                      */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* GENERATOR CARD */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
           
           {/* Jenis Surat Selector */}
@@ -295,24 +381,41 @@ const NomorSuratPage = () => {
                 </button>
               ))}
             </div>
-            
-            {/* Format Info */}
-            <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-              <span className="material-symbols-outlined text-lg">info</span>
-              <span>
-                Format: <span className="font-mono font-medium text-slate-700">{currentFormat.prefix}/___/{currentFormat.bulan === 'romawi' ? 'VII' : currentFormat.bulan === 'angka' ? '07' : 'Juli'}/{currentFormat.tahun === 4 ? '2026' : '26'}</span>
-              </span>
-              <button
-                onClick={() => setShowFormatModal(true)}
-                className="text-primary hover:underline text-xs"
-              >
-                Edit Format
-              </button>
-            </div>
           </div>
           
           {/* Form Fields */}
           <div className="p-6">
+            {/* Format Preview */}
+            <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Format {selectedKode}
+                </span>
+                <button
+                  onClick={() => {
+                    setEditingFormat({ ...currentFormat, kode: selectedKode });
+                    setShowFormatModal(true);
+                  }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Edit Format
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-1">
+                {currentFormat.segments.filter(s => s.enabled).map((seg, i, arr) => (
+                  <span key={seg.id} className="flex items-center">
+                    <span className="px-3 py-1.5 bg-white rounded-lg border border-slate-200 text-sm font-mono font-medium text-slate-700">
+                      {getSegmentDisplayValue(seg)}
+                    </span>
+                    {i < arr.length - 1 && (
+                      <span className="mx-1 text-slate-400 font-medium">{currentFormat.separator}</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            {/* Input Fields */}
             <div className={`grid ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-4 gap-6'}`}>
               
               {/* Nama Sekolah */}
@@ -322,8 +425,8 @@ const NomorSuratPage = () => {
                 </label>
                 <input
                   type="text"
-                  value={namaSekolah}
-                  onChange={(e) => setNamaSekolah(e.target.value)}
+                  defaultValue="SDN"
+                  id="namaSekolahInput"
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                 />
               </div>
@@ -363,7 +466,10 @@ const NomorSuratPage = () => {
               {/* Generate Button */}
               <div className="flex items-end">
                 <button
-                  onClick={handleGenerate}
+                  onClick={() => {
+                    const namaSekolah = document.getElementById('namaSekolahInput').value;
+                    handleGenerate(namaSekolah);
+                  }}
                   className="w-full py-3 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-slate-800 text-white font-semibold rounded-xl shadow-lg transition-all hover:shadow-xl flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-xl">autorenew</span>
@@ -408,11 +514,8 @@ const NomorSuratPage = () => {
           </div>
         </div>
         
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* DAFTAR NOMOR                                                        */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* DAFTAR NOMOR */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          
           <div className="p-6 pb-4 border-b border-slate-100">
             <div className="flex items-center justify-between">
               <div>
@@ -421,9 +524,7 @@ const NomorSuratPage = () => {
               </div>
               
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">
-                  search
-                </span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
                 <input
                   type="text"
                   placeholder="Cari..."
@@ -434,15 +535,10 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* Filter */}
             <div className="flex flex-wrap gap-2 mt-4">
               <button
                 onClick={() => setFilterKode('')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  filterKode === '' 
-                    ? 'bg-slate-900 text-white' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterKode === '' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
               >
                 Semua
               </button>
@@ -450,11 +546,7 @@ const NomorSuratPage = () => {
                 <button
                   key={kode}
                   onClick={() => setFilterKode(kode)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    filterKode === kode 
-                      ? 'bg-slate-900 text-white' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filterKode === kode ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 >
                   {kode}
                 </button>
@@ -465,15 +557,11 @@ const NomorSuratPage = () => {
           <div className="p-4">
             {filteredRecords.length === 0 ? (
               <div className="text-center py-16">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="material-symbols-outlined text-slate-400 text-3xl">folder_off</span>
-                </div>
+                <span className="material-symbols-outlined text-slate-300 text-5xl mb-4 block">folder_off</span>
                 <p className="text-slate-500 font-medium">Belum ada nomor surat</p>
-                <p className="text-sm text-slate-400 mt-1">Generate nomor baru untuk memulai</p>
               </div>
             ) : (
               <>
-                {/* Desktop Table */}
                 {!isMobile && (
                   <table className="w-full">
                     <thead>
@@ -487,32 +575,16 @@ const NomorSuratPage = () => {
                     </thead>
                     <tbody>
                       {paginatedRecords.map((record, index) => (
-                        <tr key={record.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                          <td className="py-4 px-4 text-sm text-slate-400">
-                            {(currentPage - 1) * itemsPerPage + index + 1}
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="font-mono font-semibold text-slate-900">{record.nomor}</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>
-                              {record.kode}
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 text-sm text-slate-500">
-                            {new Date(record.createdAt).toLocaleDateString('id-ID')}
-                          </td>
+                        <tr key={record.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                          <td className="py-4 px-4 text-sm text-slate-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td className="py-4 px-4"><span className="font-mono font-semibold text-slate-900">{record.nomor}</span></td>
+                          <td className="py-4 px-4"><span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span></td>
+                          <td className="py-4 px-4 text-sm text-slate-500">{new Date(record.createdAt).toLocaleDateString('id-ID')}</td>
                           <td className="py-4 px-4">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-slate-100 rounded-lg" title="Salin">
-                                <span className="material-symbols-outlined text-slate-400 text-lg">content_copy</span>
-                              </button>
-                              <button onClick={() => handleViewDetail(record)} className="p-2 hover:bg-slate-100 rounded-lg" title="Detail">
-                                <span className="material-symbols-outlined text-slate-400 text-lg">visibility</span>
-                              </button>
-                              <button onClick={() => handleDeleteClick(record)} className="p-2 hover:bg-red-50 rounded-lg" title="Hapus">
-                                <span className="material-symbols-outlined text-slate-400 text-red-500 text-lg">delete</span>
-                              </button>
+                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-slate-400 text-lg">content_copy</span></button>
+                              <button onClick={() => handleViewDetail(record)} className="p-2 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-slate-400 text-lg">visibility</span></button>
+                              <button onClick={() => handleDeleteClick(record)} className="p-2 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-slate-400 text-red-500 text-lg">delete</span></button>
                             </div>
                           </td>
                         </tr>
@@ -521,20 +593,15 @@ const NomorSuratPage = () => {
                   </table>
                 )}
                 
-                {/* Mobile Cards */}
                 {isMobile && (
                   <div className="space-y-3">
                     {paginatedRecords.map((record) => (
                       <div key={record.id} className="p-4 bg-slate-50 rounded-xl">
                         <div className="flex items-start justify-between mb-2">
                           <span className="font-mono font-semibold text-slate-900">{record.nomor}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>
-                            {record.kode}
-                          </span>
+                          <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mb-3">
-                          {new Date(record.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        </p>
+                        <p className="text-xs text-slate-400 mb-3">{new Date(record.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         <div className="flex gap-2">
                           <button onClick={() => handleCopy(record.nomor)} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Salin</button>
                           <button onClick={() => handleViewDetail(record)} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Detail</button>
@@ -544,25 +611,18 @@ const NomorSuratPage = () => {
                   </div>
                 )}
                 
-                {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
                     <p className="text-sm text-slate-400">{currentPage} dari {totalPages}</p>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30">
-                        <span className="material-symbols-outlined">chevron_left</span>
-                      </button>
+                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30"><span className="material-symbols-outlined">chevron_left</span></button>
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         let page = totalPages <= 5 ? i + 1 : currentPage <= 3 ? i + 1 : currentPage >= totalPages - 2 ? totalPages - 4 + i : currentPage - 2 + i;
                         return (
-                          <button key={page} onClick={() => setCurrentPage(page)} className={`w-10 h-10 rounded-lg text-sm font-medium ${currentPage === page ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>
-                            {page}
-                          </button>
+                          <button key={page} onClick={() => setCurrentPage(page)} className={`w-10 h-10 rounded-lg text-sm font-medium ${currentPage === page ? 'bg-slate-900 text-white' : 'hover:bg-slate-100'}`}>{page}</button>
                         );
                       })}
-                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30">
-                        <span className="material-symbols-outlined">chevron_right</span>
-                      </button>
+                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30"><span className="material-symbols-outlined">chevron_right</span></button>
                     </div>
                   </div>
                 )}
@@ -573,135 +633,221 @@ const NomorSuratPage = () => {
       </div>
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* FORMAT SETTINGS MODAL                                                */}
+      {/* FORMAT SETTINGS MODAL - FULL CUSTOM                                  */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {showFormatModal && (
+      {showFormatModal && editingFormat && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            
+            {/* Header */}
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Format Nomor Surat</h3>
-                  <p className="text-sm text-slate-500">Set format custom untuk setiap jenis surat</p>
+                  <h3 className="text-lg font-semibold text-slate-900">Atur Format Nomor</h3>
+                  <p className="text-sm text-slate-500">Kustom format untuk {editingFormat.kode}</p>
                 </div>
-                <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                <button onClick={() => { setShowFormatModal(false); setEditingFormat(null); }} className="p-2 hover:bg-slate-100 rounded-xl">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4">
-              {Object.entries(KODE_SURAT).map(([kode, info]) => {
-                const format = customFormats[kode] || DEFAULT_FORMATS[kode];
-                return (
-                  <div key={kode} className="p-4 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className={`w-10 h-10 ${getBadgeColor(kode)} text-white rounded-xl flex items-center justify-center text-sm font-bold`}>
-                        {kode}
+            {/* Content */}
+            <div className="p-6 overflow-y-auto flex-1">
+              
+              {/* Preview */}
+              <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Preview Format</p>
+                <div className="flex flex-wrap items-center gap-1">
+                  {editingFormat.segments.filter(s => s.enabled).map((seg, i, arr) => (
+                    <span key={seg.id} className="flex items-center">
+                      <span className="px-3 py-2 bg-white rounded-lg border border-slate-200 text-sm font-mono font-semibold text-primary">
+                        {getSegmentDisplayValue(seg)}
                       </span>
-                      <div>
-                        <p className="font-semibold text-slate-900">{info.nama}</p>
-                        <p className="text-xs text-slate-500">Format: {format.prefix}/___/.../...</p>
+                      {i < arr.length - 1 && (
+                        <span className="mx-1 text-slate-400 font-bold">{editingFormat.separator}</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Separator */}
+              <div className="mb-6">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Pemisah (Separator)
+                </label>
+                <div className="flex gap-2">
+                  {['/', '-', '.', '_'].map(sep => (
+                    <button
+                      key={sep}
+                      onClick={() => setEditingFormat(prev => ({ ...prev, separator: sep }))}
+                      className={`w-12 h-12 rounded-xl text-lg font-mono font-bold transition-all ${
+                        editingFormat.separator === sep
+                          ? 'bg-primary text-white shadow-lg'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {sep}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Segments List */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                  Urutan Komponen
+                </label>
+                <p className="text-xs text-slate-500 mb-3">
+                  Geser untuk mengubah urutan. Klik mata untuk sembunyikan/tampilkan.
+                </p>
+                
+                <div className="space-y-2">
+                  {editingFormat.segments.map((seg, index) => (
+                    <div 
+                      key={seg.id}
+                      className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                        seg.enabled 
+                          ? 'bg-white border-slate-200' 
+                          : 'bg-slate-50 border-slate-100 opacity-60'
+                      }`}
+                    >
+                      {/* Drag Handle */}
+                      <div className="flex flex-col gap-1">
+                        <button
+                          onClick={() => {
+                            const newSegments = moveSegment(editingFormat.segments, index, 'up');
+                            setEditingFormat(prev => ({ ...prev, segments: newSegments }));
+                          }}
+                          disabled={index === 0}
+                          className="p-1 hover:bg-slate-100 rounded disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-slate-400 text-lg">expand_less</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            const newSegments = moveSegment(editingFormat.segments, index, 'down');
+                            setEditingFormat(prev => ({ ...prev, segments: newSegments }));
+                          }}
+                          disabled={index === editingFormat.segments.length - 1}
+                          className="p-1 hover:bg-slate-100 rounded disabled:opacity-30"
+                        >
+                          <span className="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+                        </button>
                       </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Prefix</label>
+                      
+                      {/* Toggle */}
+                      <button
+                        onClick={() => {
+                          const newSegments = toggleSegment(editingFormat.segments, index);
+                          setEditingFormat(prev => ({ ...prev, segments: newSegments }));
+                        }}
+                        className="p-2"
+                      >
+                        <span className={`material-symbols-outlined text-xl ${seg.enabled ? 'text-slate-600' : 'text-slate-300'}`}>
+                          {seg.enabled ? 'visibility' : 'visibility_off'}
+                        </span>
+                      </button>
+                      
+                      {/* Label */}
+                      <div className="flex-1">
+                        <p className="font-medium text-slate-800">{seg.label}</p>
+                        <p className="text-xs text-slate-400 font-mono">{getSegmentDisplayValue(seg)}</p>
+                      </div>
+                      
+                      {/* Value Input */}
+                      {seg.id === 'sekolah' ? (
                         <input
                           type="text"
-                          value={format.prefix}
+                          value={seg.value}
                           onChange={(e) => {
-                            setCustomFormats(prev => ({
-                              ...prev,
-                              [kode]: { ...prev[kode], prefix: e.target.value }
-                            }));
+                            const newSegments = updateSegmentValue(editingFormat.segments, index, e.target.value);
+                            setEditingFormat(prev => ({ ...prev, segments: newSegments }));
                           }}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                          placeholder="Nama SD/SMA"
+                          className="w-32 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Bulan</label>
-                        <select
-                          value={format.bulan}
+                      ) : seg.id === 'kode' ? (
+                        <input
+                          type="text"
+                          value={seg.value}
                           onChange={(e) => {
-                            setCustomFormats(prev => ({
-                              ...prev,
-                              [kode]: { ...prev[kode], bulan: e.target.value }
-                            }));
+                            const newSegments = updateSegmentValue(editingFormat.segments, index, e.target.value.toUpperCase());
+                            setEditingFormat(prev => ({ ...prev, segments: newSegments }));
                           }}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                        >
-                          <option value="romawi">Romawi (VII)</option>
-                          <option value="angka">Angka (07)</option>
-                          <option value="nama">Nama (Juli)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1">Tahun</label>
+                          placeholder="STS"
+                          className="w-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium font-mono uppercase focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                        />
+                      ) : getSegmentOptions(seg.id).length > 0 ? (
                         <select
-                          value={format.tahun}
+                          value={seg.value}
                           onChange={(e) => {
-                            setCustomFormats(prev => ({
-                              ...prev,
-                              [kode]: { ...prev[kode], tahun: parseInt(e.target.value) }
-                            }));
+                            const newSegments = updateSegmentValue(editingFormat.segments, index, e.target.value);
+                            setEditingFormat(prev => ({ ...prev, segments: newSegments }));
                           }}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                          className="w-40 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                         >
-                          <option value={4}>4 digit (2026)</option>
-                          <option value={2}>2 digit (26)</option>
+                          {getSegmentOptions(seg.id).map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
                         </select>
-                      </div>
+                      ) : null}
                     </div>
-                    
-                    {/* Preview */}
-                    <div className="mt-3 p-3 bg-white rounded-lg border border-slate-200">
-                      <p className="text-xs text-slate-400 mb-1">Preview:</p>
-                      <p className="font-mono font-semibold text-slate-700">
-                        {format.prefix}/001/{format.bulan === 'romawi' ? 'VII' : format.bulan === 'angka' ? '07' : 'Juli'}/{format.tahun === 4 ? '2026' : '26'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              </div>
+              
+              {/* Add Custom Segment */}
+              <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <p className="text-sm text-blue-700 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-lg">info</span>
+                  Format akan mengikuti urutan komponen di atas. Aktifkan/nonaktifkan dengan ikon mata.
+                </p>
+              </div>
             </div>
             
+            {/* Footer */}
             <div className="p-6 border-t border-slate-100 flex gap-3">
               <button
-                onClick={() => setShowFormatModal(false)}
+                onClick={() => { setShowFormatModal(false); setEditingFormat(null); }}
                 className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
               >
                 Batal
               </button>
               <button
-                onClick={() => saveFormats(customFormats)}
+                onClick={() => {
+                  const newFormats = {
+                    ...customFormats,
+                    [editingFormat.kode]: {
+                      segments: editingFormat.segments,
+                      separator: editingFormat.separator
+                    }
+                  };
+                  saveFormats(newFormats);
+                }}
                 className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg shadow-primary/25 transition-all"
               >
-                Simpan Semua Format
+                💾 Simpan Format
               </button>
             </div>
           </div>
         </div>
       )}
       
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* DETAIL MODAL                                                        */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* DETAIL MODAL */}
       {showDetailModal && selectedRecord && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-slate-900">Detail Nomor</h3>
-                <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
-                  <span className="material-symbols-outlined">close</span>
-                </button>
+                <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-slate-100 rounded-xl"><span className="material-symbols-outlined">close</span></button>
               </div>
             </div>
             <div className="p-6">
               <div className="text-center mb-6">
-                <p className="text-3xl font-mono font-bold text-slate-900">{selectedRecord.nomor}</p>
+                <p className="text-2xl font-mono font-bold text-slate-900">{selectedRecord.nomor}</p>
               </div>
               <div className="space-y-3">
                 {[
@@ -718,37 +864,25 @@ const NomorSuratPage = () => {
                 ))}
               </div>
               <div className="flex gap-3 mt-6">
-                <button onClick={() => { handleCopy(selectedRecord.nomor); setShowDetailModal(false); }} className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
-                  Salin
-                </button>
-                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-colors">
-                  Tutup
-                </button>
+                <button onClick={() => { handleCopy(selectedRecord.nomor); setShowDetailModal(false); }} className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">Salin</button>
+                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-colors">Tutup</button>
               </div>
             </div>
           </div>
         </div>
       )}
       
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* DELETE CONFIRMATION                                                 */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* DELETE CONFIRMATION */}
       {showDeleteConfirm && recordToDelete && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">
             <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-red-500 text-3xl">delete</span>
-              </div>
+              <span className="material-symbols-outlined text-red-500 text-5xl mb-4 block">delete</span>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Hapus Nomor?</h3>
               <p className="font-mono font-semibold text-slate-700 mb-4">{recordToDelete.nomor}</p>
               <div className="flex gap-3">
-                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-colors">
-                  Batal
-                </button>
-                <button onClick={handleDeleteConfirm} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors">
-                  Hapus
-                </button>
+                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-colors">Batal</button>
+                <button onClick={handleDeleteConfirm} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors">Hapus</button>
               </div>
             </div>
           </div>
