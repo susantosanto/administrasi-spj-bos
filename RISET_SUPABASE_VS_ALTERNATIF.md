@@ -1,4 +1,3 @@
-# 📊 Riset Backend: Supabase vs Alternatif untuk LPJ BOS/BOSP
 
 > **Tanggal**: 2026-07-10
 > **Tujuan**: Memilih backend yang tepat untuk aplikasi multi-sekolah (skala 1.000 sekolah)
