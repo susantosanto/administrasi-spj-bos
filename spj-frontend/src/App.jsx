@@ -13,6 +13,7 @@ import DokumenKelengkapanPage from './pages/dashboard/DokumenKelengkapanPage'
 import RealisasiPage from './pages/dashboard/RealisasiPage'
 import NotesPage from './pages/dashboard/NotesPage'
 import PengaturanPage from './pages/dashboard/PengaturanPage'
+import NomorSuratPage from './pages/dashboard/NomorSuratPage'
 
 function ProtectedRoute({ children }) {
   const isLoggedIn = localStorage.getItem('spj_auth') === 'true'
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="dokumen-spj" element={<Navigate to="/dashboard/dokumen-lpj" replace />} />
             <Route path="dokumen-wajib" element={<Navigate to="/dashboard/dokumen-kelengkapan" replace />} />
             <Route path="realisasi" element={<RealisasiPage />} />
+            <Route path="nomor-surat" element={<NomorSuratPage />} />
             <Route path="catatan" element={<NotesPage />} />
             <Route path="pengaturan" element={<PengaturanPage />} />
           </Route>

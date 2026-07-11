@@ -25,6 +25,7 @@ const MENU_GROUPS = [
     items: [
       { label: 'Dokumen LPJ', icon: 'description', path: '/dashboard/dokumen-lpj' },
       { label: 'Dokumen Kelengkapan', icon: 'folder_open', path: '/dashboard/dokumen-kelengkapan' },
+      { label: 'Nomor Surat', icon: 'pin', path: '/dashboard/nomor-surat' },
     ],
   },
   {
