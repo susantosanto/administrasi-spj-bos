@@ -168,13 +168,14 @@ export function saveFormatSettings(settings) {
 /**
  * Generate nomor surat baru
  * @param {string} kode - Kode surat (STS, SK, SU, etc.)
+ * @param {object} customFormat - Custom format settings (optional)
  * @returns {object} - { nomor, record }
  */
-export function generateNomorSurat(kode) {
+export function generateNomorSurat(kode, customFormat = null) {
   const now = new Date();
   const bulan = now.getMonth() + 1;
   const tahun = now.getFullYear();
-  const format = getFormatSettings();
+  const format = customFormat || getFormatSettings();
   
   // Validate kode
   if (!KODE_SURAT[kode]) {
