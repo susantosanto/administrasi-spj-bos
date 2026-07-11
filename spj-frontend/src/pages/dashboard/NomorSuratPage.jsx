@@ -160,9 +160,11 @@ const NomorSuratPage = () => {
 
   // Generate
   const handleGenerate = () => {
+    const nomorSeg = formatSegments.find(s => s.id === 'nomor');
+    const startNum = parseInt(nomorSeg?.startNumber) || 1;
     const existingRecords = getAllNomorSurat();
     const sameType = existingRecords.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
-    let lastNum = 0;
+    let lastNum = startNum - 1;
     sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
     const nextNum = lastNum + 1;
 
@@ -248,10 +250,17 @@ const NomorSuratPage = () => {
 
   // Filtered records
   const filteredRecords = useMemo(() => {
-    let filtered = searchNomorSurat(searchQuery);
+    let filtered = records;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(r => 
+        r.nomor.toLowerCase().includes(q) || 
+        r.jenis.toLowerCase().includes(q)
+      );
+    }
     if (filterKode) filtered = filtered.filter(r => r.kodePendek === filterKode);
     return filtered;
-  }, [searchQuery, filterKode]);
+  }, [records, searchQuery, filterKode]);
 
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
