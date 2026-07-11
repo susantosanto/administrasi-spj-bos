@@ -291,34 +291,50 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* Generated Nomor Preview */}
-            <div className="mt-6 p-6 bg-gradient-to-r from-slate-50 to-blue-50/50 rounded-2xl border border-slate-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Nomor Surat
-                  </p>
-                  <p className="text-3xl font-mono font-bold text-slate-900 tracking-wide">
-                    {generatedNomor || '—'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
+            {/* Action Buttons */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={generatePreview}
+                className="px-8 py-4 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-slate-800 text-white font-semibold rounded-xl shadow-lg transition-all hover:shadow-xl"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-xl">autorenew</span>
+                  Generate
+                </span>
+              </button>
+              {generatedNomor && (
+                <>
                   <button
                     onClick={() => handleCopy(generatedNomor)}
-                    className="p-3 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-all"
+                    className="px-5 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all"
                     title="Salin"
                   >
-                    <span className="material-symbols-outlined text-slate-600">content_copy</span>
+                    <span className="material-symbols-outlined">content_copy</span>
                   </button>
                   <button
                     onClick={handleUseNomor}
-                    className="px-6 py-3 bg-primary hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+                    className="flex-1 px-6 py-4 bg-primary hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl"
                   >
-                    Gunakan
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-xl">check_circle</span>
+                      Gunakan
+                    </span>
                   </button>
-                </div>
-              </div>
+                </>
+              )}
             </div>
+            
+            {/* Generated Preview */}
+            {generatedNomor && (
+              <div className="mt-4 p-5 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Preview Nomor
+                </p>
+                <p className="text-2xl font-mono font-bold text-primary tracking-wide">
+                  {generatedNomor}
+                </p>
+              </div>
+            )}
           </div>
         </div>
         
