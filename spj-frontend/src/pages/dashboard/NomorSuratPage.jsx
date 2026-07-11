@@ -61,7 +61,7 @@ const KODE_TO_KLASIFIKASI = {
 // Contoh: 422.1/SK-001/SDN-PSR/VII/2026
 
 const NomorSuratPage = () => {
-  const { showToast } = useToast();
+  const toast = useToast();
   const { isMobile } = useSidebar();
 
   // State
@@ -171,7 +171,7 @@ const NomorSuratPage = () => {
 
   // Save
   const handleUseNomor = () => {
-    if (!generatedNomor) { showToast('Generate dulu!', 'error'); return; }
+    if (!generatedNomor) { toast.error('Generate dulu!'); return; }
     try {
       const record = {
         id: `ns_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -186,15 +186,15 @@ const NomorSuratPage = () => {
         status: 'used'
       };
       saveNomorSurat(record);
-      showToast('Nomor tersimpan!', 'success');
+      toast.success('Nomor tersimpan!');
       setGeneratedNomor('');
       loadData();
-    } catch (error) { showToast(error.message, 'error'); }
+    } catch (error) { toast.error(error.message); }
   };
 
   const handleCopy = (nomor) => {
     navigator.clipboard.writeText(nomor);
-    showToast('Tersalin!', 'success');
+    toast.success('Tersalin!');
   };
 
   const handleDeleteClick = (record) => { setRecordToDelete(record); setShowDeleteConfirm(true); };
@@ -203,11 +203,11 @@ const NomorSuratPage = () => {
     if (!recordToDelete) return;
     try {
       deleteNomorSurat(recordToDelete.id);
-      showToast('Dihapus', 'success');
+      toast.success('Dihapus');
       setShowDeleteConfirm(false);
       setRecordToDelete(null);
       loadData();
-    } catch (error) { showToast(error.message, 'error'); }
+    } catch (error) { toast.error(error.message); }
   };
 
   // Badge color
@@ -238,10 +238,10 @@ const NomorSuratPage = () => {
   const handleSaveFormat = () => {
     try {
       localStorage.setItem('spj_surat_custom_formats', JSON.stringify({ segments: formatSegments }));
-      showToast('Format tersimpan!', 'success');
+      toast.success('Format tersimpan!');
       setShowFormatModal(false);
     } catch (e) {
-      showToast('Gagal menyimpan format', 'error');
+      toast.error('Gagal menyimpan format');
     }
   };
 
