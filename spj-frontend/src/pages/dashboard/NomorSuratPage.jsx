@@ -58,6 +58,21 @@ const NomorSuratPage = () => {
   const { showToast } = useToast();
   const { isMobile } = useSidebar();
   
+  // Mapping Klasifikasi ↔ Kode Surat
+  const KLASIFIKASI_TO_KODE = {
+    '421': 'STS', '421.1': 'STS', '421.2': 'STS', '421.3': 'STS', '421.4': 'STS', '421.5': 'STS', '421.6': 'STS', '421.7': 'STS',
+    '422': 'SK', '422.1': 'SK', '422.2': 'SK', '422.3': 'SK', '422.4': 'SK', '422.5': 'SK', '422.6': 'SK',
+    '423': 'SU', '423.1': 'SU', '423.2': 'SU',
+    '424': 'SP', '424.1': 'SP', '424.2': 'SP',
+    '425': 'SKU', '425.1': 'SKU', '425.2': 'SKU',
+    '426': 'SE', '426.1': 'SE',
+    '427': 'SPD'
+  };
+  
+  const KODE_TO_KLASIFIKASI = {
+    'STS': '421.3', 'SK': '422', 'SU': '423', 'SP': '424', 'SKU': '425', 'SE': '426', 'SPD': '427'
+  };
+  
   // State
   const [kodeKlasifikasi, setKodeKlasifikasi] = useState('421.3');
   const [namaSekolah, setNamaSekolah] = useState('SDN');
@@ -581,7 +596,7 @@ const NomorSuratPage = () => {
             <div className="p-4 overflow-y-auto flex-1">
               <div className="space-y-2">
                 {filteredKlasifikasi.map(item => (
-                  <button key={item.kode} onClick={() => { setKodeKlasifikasi(item.kode); setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }}
+                  <button key={item.kode} onClick={() => { setKodeKlasifikasi(item.kode); setKodePendek(KLASIFIKASI_TO_KODE[item.kode] || 'STS'); setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
                       kodeKlasifikasi === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
                     }`}>
@@ -619,7 +634,7 @@ const NomorSuratPage = () => {
             <div className="p-4 overflow-y-auto flex-1">
               <div className="space-y-2">
                 {filteredKodePendek.map(item => (
-                  <button key={item.kode} onClick={() => { setKodePendek(item.kode); setShowKodePendekModal(false); setSearchKodePendek(''); }}
+                  <button key={item.kode} onClick={() => { setKodePendek(item.kode); setKodeKlasifikasi(KODE_TO_KLASIFIKASI[item.kode] || '421.3'); setShowKodePendekModal(false); setSearchKodePendek(''); }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
                       kodePendek === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
                     }`}>
