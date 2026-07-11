@@ -16,23 +16,25 @@ const { get, set } = storageHelper;
 
 const STORAGE_KEY_FORMATS = 'spj_surat_custom_formats';
 
-// KODE KLASIFIKASI RESMI - DI AWAL
+// KODE KLASIFIKASI RESMI
 const KODE_KLASIFIKASI = [
   { kode: '421', nama: 'Surat Tugas' },
-  { kode: '421.1', nama: 'Surat Tugas Pelaksana Tugas' },
-  { kode: '421.2', nama: 'Surat Tugas Kepala Sekolah' },
-  { kode: '421.3', nama: 'Surat Tugas Guru' },
-  { kode: '421.4', nama: 'Surat Tugas Tenaga Kependidikan' },
+  { kode: '421.1', nama: 'ST Pelaksana Tugas' },
+  { kode: '421.2', nama: 'ST Kepala Sekolah' },
+  { kode: '421.3', nama: 'ST Guru' },
+  { kode: '421.4', nama: 'ST Tenaga Kependidikan' },
   { kode: '422', nama: 'Surat Keterangan' },
-  { kode: '422.1', nama: 'Surat Keterangan Pindah' },
-  { kode: '422.2', nama: 'Surat Keterangan Lulus' },
+  { kode: '422.1', nama: 'SK Pindah' },
+  { kode: '422.2', nama: 'SK Lulus' },
   { kode: '423', nama: 'Surat Undangan' },
+  { kode: '423.1', nama: 'SU Rapat' },
   { kode: '424', nama: 'Surat Pernyataan' },
   { kode: '425', nama: 'Surat Kuasa' },
-  { kode: '426', nama: 'Surat Edaran' }
+  { kode: '426', nama: 'Surat Edaran' },
+  { kode: '427', nama: 'SPD' }
 ];
 
-// KODE PENDEK SURAT - STS, SK, SU, SP, SKU, SE
+// KODE PENDEK SURAT
 const KODE_PENDEK = [
   { kode: 'STS', nama: 'Surat Tugas' },
   { kode: 'SK', nama: 'Surat Keterangan' },
@@ -40,49 +42,38 @@ const KODE_PENDEK = [
   { kode: 'SP', nama: 'Surat Pernyataan' },
   { kode: 'SKU', nama: 'Surat Kuasa' },
   { kode: 'SE', nama: 'Surat Edaran' },
-  { kode: 'SPD', nama: 'Surat Perintah Dinas' }
+  { kode: 'SPD', nama: 'Perintah Dinas' }
 ];
 
-// Default segments - FORMAT BENAR:
-// [Kode Klasifikasi] / [Kode Pendek] - [Nomor] / [Nama SD] / [Bulan] / [Tahun]
-const DEFAULT_SEGMENTS = [
-  { id: 'klasifikasi', type: 'dynamic', label: 'Kode Klasifikasi', value: '421.3', enabled: true, order: 1, separator: '/' },
-  { id: 'kode_pendek', type: 'dynamic', label: 'Kode Surat', value: 'STS', enabled: true, order: 2, separator: '-' },
-  { id: 'nomor', type: 'dynamic', label: 'Nomor Urut', value: '3', enabled: true, order: 3, separator: '/' },
-  { id: 'nama_sd', type: 'dynamic', label: 'Nama Sekolah', value: 'SDN', enabled: true, order: 4, separator: '/' },
-  { id: 'bulan', type: 'dynamic', label: 'Bulan', value: 'romawi', enabled: true, order: 5, separator: '/' },
-  { id: 'tahun', type: 'dynamic', label: 'Tahun', value: '4', enabled: true, order: 6 }
-];
+// Mapping
+const KLASIFIKASI_TO_KODE = {
+  '421': 'STS', '421.1': 'STS', '421.2': 'STS', '421.3': 'STS', '421.4': 'STS',
+  '422': 'SK', '422.1': 'SK', '422.2': 'SK',
+  '423': 'SU', '423.1': 'SU',
+  '424': 'SP', '425': 'SKU', '426': 'SE', '427': 'SPD'
+};
+
+const KODE_TO_KLASIFIKASI = {
+  'STS': '421.3', 'SK': '422', 'SU': '423', 'SP': '424', 'SKU': '425', 'SE': '426', 'SPD': '427'
+};
+
+// FORMAT: [Kode Klasifikasi]/[Kode Surat]-[Nomor]/[Nama SD]/[Bulan]/[Tahun]
+// Contoh: 422.1/SK-001/SDN-PSR/VII/2026
 
 const NomorSuratPage = () => {
   const { showToast } = useToast();
   const { isMobile } = useSidebar();
   
-  // Mapping Klasifikasi ↔ Kode Surat
-  const KLASIFIKASI_TO_KODE = {
-    '421': 'STS', '421.1': 'STS', '421.2': 'STS', '421.3': 'STS', '421.4': 'STS', '421.5': 'STS', '421.6': 'STS', '421.7': 'STS',
-    '422': 'SK', '422.1': 'SK', '422.2': 'SK', '422.3': 'SK', '422.4': 'SK', '422.5': 'SK', '422.6': 'SK',
-    '423': 'SU', '423.1': 'SU', '423.2': 'SU',
-    '424': 'SP', '424.1': 'SP', '424.2': 'SP',
-    '425': 'SKU', '425.1': 'SKU', '425.2': 'SKU',
-    '426': 'SE', '426.1': 'SE',
-    '427': 'SPD'
-  };
-  
-  const KODE_TO_KLASIFIKASI = {
-    'STS': '421.3', 'SK': '422', 'SU': '423', 'SP': '424', 'SKU': '425', 'SE': '426', 'SPD': '427'
-  };
-  
   // State
-  const [kodeKlasifikasi, setKodeKlasifikasi] = useState('421.3');
-  const [namaSekolah, setNamaSekolah] = useState('SDN');
-  const [kodePendek, setKodePendek] = useState('STS');
+  const [kodeKlasifikasi, setKodeKlasifikasi] = useState('422.1');
+  const [namaSekolah, setNamaSekolah] = useState('SDN-PSR');
+  const [kodePendek, setKodePendek] = useState('SK');
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
   
   const [generatedNomor, setGeneratedNomor] = useState('');
   const [records, setRecords] = useState([]);
-  const [statistics, setStatistics] = useState({ bulanIni: 0, tahunIni: 0, hariIni: 0, terakhir: '-' });
+  const [statistics, setStatistics] = useState({ bulanIni: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [filterKode, setFilterKode] = useState('');
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -93,11 +84,19 @@ const NomorSuratPage = () => {
   const [showKodePendekModal, setShowKodePendekModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [customFormats, setCustomFormats] = useState({});
-  const [editingFormat, setEditingFormat] = useState(null);
   const [searchKlasifikasi, setSearchKlasifikasi] = useState('');
   const [searchKodePendek, setSearchKodePendek] = useState('');
   const itemsPerPage = 10;
+  
+  // Format state
+  const [formatSegments, setFormatSegments] = useState([
+    { id: 'klasifikasi', label: 'Kode Klasifikasi', enabled: true, order: 1, separator: '/' },
+    { id: 'kode_pendek', label: 'Kode Surat', enabled: true, order: 2, separator: '-' },
+    { id: 'nomor', label: 'Nomor Urut', value: '3', enabled: true, order: 3, separator: '/' },
+    { id: 'nama_sd', label: 'Nama Sekolah', enabled: true, order: 4, separator: '/' },
+    { id: 'bulan', label: 'Bulan', value: 'romawi', enabled: true, order: 5, separator: '/' },
+    { id: 'tahun', label: 'Tahun', value: '4', enabled: true, order: 6 }
+  ]);
   
   useEffect(() => {
     loadData();
@@ -111,27 +110,16 @@ const NomorSuratPage = () => {
   
   const loadFormats = () => {
     const saved = get(STORAGE_KEY_FORMATS);
-    if (saved) setCustomFormats(saved);
+    if (saved && saved.segments) setFormatSegments(saved.segments);
   };
-  
-  // Get current format
-  const getCurrentFormat = () => ({
-    segments: DEFAULT_SEGMENTS.map(s => {
-      if (s.id === 'klasifikasi') return { ...s, value: kodeKlasifikasi };
-      if (s.id === 'kode_pendek') return { ...s, value: kodePendek };
-      return s;
-    })
-  });
-  
-  const currentFormat = getCurrentFormat();
   
   // Get info
   const getKlasifikasiInfo = () => KODE_KLASIFIKASI.find(k => k.kode === kodeKlasifikasi) || KODE_KLASIFIKASI[0];
   const getKodePendekInfo = () => KODE_PENDEK.find(k => k.kode === kodePendek) || KODE_PENDEK[0];
   
-  // Build nomor
-  const buildNomor = (segments, values) => {
-    const sorted = [...segments]
+  // Build nomor: [Kode Klasifikasi]/[Kode Surat]-[Nomor]/[Nama SD]/[Bulan]/[Tahun]
+  const buildNomor = () => {
+    const sorted = [...formatSegments]
       .filter(s => s.enabled)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
     
@@ -139,24 +127,28 @@ const NomorSuratPage = () => {
     
     sorted.forEach((seg, i) => {
       let value = '';
-      
       switch (seg.id) {
-        case 'klasifikasi': value = values.klasifikasi || seg.value; break;
-        case 'nama_sd': value = values.nama_sd || seg.value; break;
-        case 'kode_pendek': value = values.kode_pendek || seg.value; break;
+        case 'klasifikasi': value = kodeKlasifikasi; break;
+        case 'kode_pendek': value = kodePendek; break;
         case 'nomor':
           const digits = parseInt(seg.value) || 3;
-          value = String(values.nomor || 1).padStart(digits, '0');
+          // Get last number from records
+          const existingRecords = getAllNomorSurat();
+          const sameType = existingRecords.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
+          let lastNum = 0;
+          sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
+          value = String(lastNum + 1).padStart(digits, '0');
           break;
+        case 'nama_sd': value = namaSekolah; break;
         case 'bulan':
-          if (seg.value === 'angka') value = String(values.bulan).padStart(2, '0');
-          else if (seg.value === 'nama') value = getIndonesianMonth(values.bulan);
-          else value = getRomanMonth(values.bulan);
+          if (seg.value === 'angka') value = String(bulan).padStart(2, '0');
+          else if (seg.value === 'nama') value = getIndonesianMonth(bulan);
+          else value = getRomanMonth(bulan);
           break;
         case 'tahun':
-          value = seg.value === '2' ? String(values.tahun).slice(-2) : String(values.tahun);
+          value = seg.value === '2' ? String(tahun).slice(-2) : String(tahun);
           break;
-        default: value = seg.value;
+        default: value = seg.value || '';
       }
       
       if (i > 0) result += seg.separator || '/';
@@ -169,48 +161,33 @@ const NomorSuratPage = () => {
   // Generate
   const handleGenerate = () => {
     const existingRecords = getAllNomorSurat();
-    const sameTypeRecords = existingRecords.filter(r => 
-      r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun
-    );
+    const sameType = existingRecords.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
+    let lastNum = 0;
+    sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
+    const nextNum = lastNum + 1;
     
-    let lastNumber = 0;
-    sameTypeRecords.forEach(r => { if (r.nomorUrut > lastNumber) lastNumber = r.nomorUrut; });
-    
-    const nextNumber = lastNumber + 1;
-    const nomor = buildNomor(currentFormat.segments, {
-      klasifikasi: kodeKlasifikasi,
-      nama_sd: namaSekolah,
-      kode_pendek: kodePendek,
-      nomor: nextNumber,
-      bulan,
-      tahun
-    });
-    
-    setGeneratedNomor({ nomor, nomorUrut: nextNumber });
+    const nomor = buildNomor();
+    setGeneratedNomor({ nomor, nomorUrut: nextNum });
   };
   
   // Save
   const handleUseNomor = () => {
-    if (!generatedNomor) { showToast('Generate nomor terlebih dahulu', 'error'); return; }
-    
+    if (!generatedNomor) { showToast('Generate dulu!', 'error'); return; }
     try {
-      const klasInfo = getKlasifikasiInfo();
       const record = {
         id: `ns_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         nomor: generatedNomor.nomor,
         kode: kodeKlasifikasi,
         kodePendek,
-        jenis: klasInfo.nama,
+        jenis: getKlasifikasiInfo().nama,
         namaSekolah,
         nomorUrut: generatedNomor.nomorUrut,
         bulan, bulanRomawi: getRomanMonth(bulan), tahun,
         createdAt: new Date().toISOString(),
-        usedAt: new Date().toISOString(),
         status: 'used'
       };
-      
       saveNomorSurat(record);
-      showToast(`Nomor tersimpan!`, 'success');
+      showToast('Nomor tersimpan!', 'success');
       setGeneratedNomor('');
       loadData();
     } catch (error) { showToast(error.message, 'error'); }
@@ -248,73 +225,21 @@ const NomorSuratPage = () => {
   // Get display value
   const getDisplayValue = (seg) => {
     switch (seg.id) {
-      case 'klasifikasi': return seg.value;
-      case 'nama_sd': return namaSekolah;
+      case 'klasifikasi': return kodeKlasifikasi;
       case 'kode_pendek': return kodePendek;
       case 'nomor': return '0'.repeat(parseInt(seg.value) || 3);
-      case 'bulan':
-        if (seg.value === 'angka') return '07';
-        if (seg.value === 'nama') return 'Juli';
-        return 'VII';
-      case 'tahun': return seg.value === '2' ? '26' : '2026';
-      default: return seg.value;
+      case 'nama_sd': return namaSekolah;
+      case 'bulan': return 'VII';
+      case 'tahun': return '2026';
+      default: return seg.value || '...';
     }
   };
   
-  // Options
-  const getSegmentOptions = (segId) => {
-    switch (segId) {
-      case 'bulan': return [{ value: 'romawi', label: 'Romawi' }, { value: 'angka', label: 'Angka' }, { value: 'nama', label: 'Nama' }];
-      case 'tahun': return [{ value: '4', label: '4 digit' }, { value: '2', label: '2 digit' }];
-      case 'nomor': return [{ value: '3', label: '3 digit' }, { value: '4', label: '4 digit' }, { value: '5', label: '5 digit' }];
-      default: return [];
-    }
-  };
-  
-  // Format modal functions
-  const moveSegment = (segments, index, direction) => {
-    const newSegments = [...segments];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= newSegments.length) return newSegments;
-    [newSegments[index], newSegments[newIndex]] = [newSegments[newIndex], newSegments[index]];
-    return newSegments.map((seg, i) => ({ ...seg, order: i + 1 }));
-  };
-  
-  const toggleSegment = (segments, index) => {
-    const newSegments = [...segments];
-    newSegments[index] = { ...newSegments[index], enabled: !newSegments[index].enabled };
-    return newSegments;
-  };
-  
-  const updateSegmentValue = (segments, index, value) => {
-    const newSegments = [...segments];
-    newSegments[index] = { ...newSegments[index], value };
-    return newSegments;
-  };
-  
-  const updateSegmentSeparator = (segments, index, separator) => {
-    const newSegments = [...segments];
-    newSegments[index] = { ...newSegments[index], separator };
-    return newSegments;
-  };
-  
-  const addCustomSegment = (segments) => {
-    const newSeg = { id: `custom_${Date.now()}`, type: 'custom', label: '', value: '', enabled: true, order: segments.length + 1, separator: '/' };
-    return [...segments, newSeg];
-  };
-  
-  const removeSegment = (segments, index) => {
-    return segments.filter((_, i) => i !== index).map((seg, i) => ({ ...seg, order: i + 1 }));
-  };
-  
+  // Save format - FIXED
   const handleSaveFormat = () => {
-    if (!editingFormat) return;
-    const newFormats = { ...customFormats, custom: { segments: editingFormat.segments } };
-    set(STORAGE_KEY_FORMATS, newFormats);
-    setCustomFormats(newFormats);
+    set(STORAGE_KEY_FORMATS, { segments: formatSegments });
     showToast('Format tersimpan!', 'success');
     setShowFormatModal(false);
-    setEditingFormat(null);
   };
   
   // Filtered records
@@ -327,7 +252,6 @@ const NomorSuratPage = () => {
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   
-  // Filtered options for modals
   const filteredKlasifikasi = useMemo(() => {
     if (!searchKlasifikasi) return KODE_KLASIFIKASI;
     const q = searchKlasifikasi.toLowerCase();
@@ -339,6 +263,27 @@ const NomorSuratPage = () => {
     const q = searchKodePendek.toLowerCase();
     return KODE_PENDEK.filter(k => k.kode.toLowerCase().includes(q) || k.nama.toLowerCase().includes(q));
   }, [searchKodePendek]);
+  
+  // Format modal helpers
+  const moveSegment = (index, direction) => {
+    const newSegments = [...formatSegments];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= newSegments.length) return;
+    [newSegments[index], newSegments[newIndex]] = [newSegments[newIndex], newSegments[index]];
+    setFormatSegments(newSegments.map((seg, i) => ({ ...seg, order: i + 1 })));
+  };
+  
+  const toggleSegment = (index) => {
+    const newSegments = [...formatSegments];
+    newSegments[index] = { ...newSegments[index], enabled: !newSegments[index].enabled };
+    setFormatSegments(newSegments);
+  };
+  
+  const updateSeparator = (index, separator) => {
+    const newSegments = [...formatSegments];
+    newSegments[index] = { ...newSegments[index], separator };
+    setFormatSegments(newSegments);
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -354,7 +299,7 @@ const NomorSuratPage = () => {
               <p className="text-sm text-slate-500">Format resmi dinas pendidikan</p>
             </div>
           </div>
-          <button onClick={() => { setEditingFormat({ ...currentFormat, kode: 'custom' }); setShowFormatModal(true); }}
+          <button onClick={() => setShowFormatModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
             <span className="material-symbols-outlined text-lg">tune</span> Format
           </button>
@@ -367,13 +312,12 @@ const NomorSuratPage = () => {
           <div className="p-6">
             {/* Format Info */}
             <div className="mb-6 p-4 bg-primary/5 border border-primary/10 rounded-2xl">
-              <p className="text-sm font-medium text-primary">Format: [Kode Klasifikasi] / [Kode Surat] - [Nomor] / [Nama SD] / [Bulan] / [Tahun]</p>
-              <p className="text-xs text-slate-500 mt-1">Contoh: <span className="font-mono font-semibold text-primary">421.3 / STS - 001 / SDN / VII / 2026</span></p>
+              <p className="text-sm font-medium text-primary">Contoh: 422.1/SK-001/SDN-PSR/VII/2026</p>
             </div>
             
-            {/* 1. Kode Klasifikasi - DI AWAL */}
+            {/* 1. Kode Klasifikasi */}
             <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">1. Kode Klasifikasi (Di Awal)</label>
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">1. Kode Klasifikasi</label>
               <div onClick={() => setShowKlasifikasiModal(true)}
                 className="p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
                 <div className="flex items-center justify-between">
@@ -389,17 +333,9 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            {/* 2. Nama Sekolah */}
+            {/* 2. Kode Surat */}
             <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">2. Nama / Kode Sekolah</label>
-              <input type="text" value={namaSekolah} onChange={(e) => setNamaSekolah(e.target.value)}
-                placeholder="SDN / SMPN / SMAN / SDN.001.02"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
-            </div>
-            
-            {/* 3. Kode Surat (Pendek) */}
-            <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">3. Kode Surat</label>
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">2. Kode Surat</label>
               <div onClick={() => setShowKodePendekModal(true)}
                 className="p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
                 <div className="flex items-center justify-between">
@@ -412,22 +348,25 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
+            {/* 3. Nama Sekolah */}
+            <div className="mb-4">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">3. Nama / Kode Sekolah</label>
+              <input type="text" value={namaSekolah} onChange={(e) => setNamaSekolah(e.target.value)}
+                placeholder="SDN / SMPN / SMAN / SDN-PSR"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
+            </div>
+            
             {/* Preview */}
             <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Preview</p>
               <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-slate-200">
-                {currentFormat.segments
+                {formatSegments
                   .filter(s => s.enabled)
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, i) => (
                     <span key={seg.id} className="flex items-center">
                       {i > 0 && <span className="text-primary font-bold mx-1">{seg.separator || '/'}</span>}
-                      <span className={`px-2 py-1.5 rounded-lg text-sm font-mono font-semibold ${
-                        seg.id === 'klasifikasi' ? 'bg-slate-100 text-slate-700' :
-                        seg.id === 'nama_sd' ? 'bg-primary/10 text-primary' :
-                        seg.id === 'kode_pendek' ? 'bg-primary/10 text-primary' :
-                        'bg-primary/10 text-primary'
-                      }`}>
+                      <span className="px-2 py-1.5 bg-primary/10 rounded-lg text-sm font-mono font-semibold text-primary">
                         {getDisplayValue(seg)}
                       </span>
                     </span>
@@ -437,7 +376,7 @@ const NomorSuratPage = () => {
             </div>
             
             {/* Bulan & Tahun */}
-            <div className={`grid ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 gap-6'} mb-6`}>
+            <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bulan</label>
                 <select value={bulan} onChange={(e) => setBulan(parseInt(e.target.value))}
@@ -596,7 +535,12 @@ const NomorSuratPage = () => {
             <div className="p-4 overflow-y-auto flex-1">
               <div className="space-y-2">
                 {filteredKlasifikasi.map(item => (
-                  <button key={item.kode} onClick={() => { setKodeKlasifikasi(item.kode); setKodePendek(KLASIFIKASI_TO_KODE[item.kode] || 'STS'); setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }}
+                  <button key={item.kode} onClick={() => {
+                    setKodeKlasifikasi(item.kode);
+                    setKodePendek(KLASIFIKASI_TO_KODE[item.kode] || 'STS');
+                    setShowKlasifikasiModal(false);
+                    setSearchKlasifikasi('');
+                  }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
                       kodeKlasifikasi === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
                     }`}>
@@ -634,7 +578,12 @@ const NomorSuratPage = () => {
             <div className="p-4 overflow-y-auto flex-1">
               <div className="space-y-2">
                 {filteredKodePendek.map(item => (
-                  <button key={item.kode} onClick={() => { setKodePendek(item.kode); setKodeKlasifikasi(KODE_TO_KLASIFIKASI[item.kode] || '421.3'); setShowKodePendekModal(false); setSearchKodePendek(''); }}
+                  <button key={item.kode} onClick={() => {
+                    setKodePendek(item.kode);
+                    setKodeKlasifikasi(KODE_TO_KLASIFIKASI[item.kode] || '421.3');
+                    setShowKodePendekModal(false);
+                    setSearchKodePendek('');
+                  }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
                       kodePendek === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
                     }`}>
@@ -649,23 +598,25 @@ const NomorSuratPage = () => {
         </div>
       )}
       
-      {/* FORMAT SETTINGS MODAL */}
-      {showFormatModal && editingFormat && (
+      {/* FORMAT SETTINGS MODAL - FIXED */}
+      {showFormatModal && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-[2rem] w-full max-w-lg shadow-2xl overflow-hidden">
+            {/* Header */}
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-slate-900">Edit Format</h3>
-                <button onClick={() => { setShowFormatModal(false); setEditingFormat(null); }} className="p-2 hover:bg-slate-100 rounded-xl">
+                <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
                   <span className="material-symbols-outlined text-slate-400">close</span>
                 </button>
               </div>
             </div>
             
+            {/* Preview */}
             <div className="px-6 py-4 bg-primary/5 border-b border-primary/10">
               <p className="text-xs font-medium text-primary mb-2 uppercase tracking-wider">Preview</p>
               <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-primary/20">
-                {editingFormat.segments
+                {formatSegments
                   .filter(s => s.enabled)
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, i) => (
@@ -680,99 +631,56 @@ const NomorSuratPage = () => {
               </div>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1">
+            {/* Segments */}
+            <div className="px-6 py-4 max-h-[40vh] overflow-y-auto">
               <div className="space-y-2">
-                {editingFormat.segments
+                {formatSegments
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, index) => (
                   <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${
                     seg.enabled ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-100 opacity-50'
                   }`}>
                     <div className="flex flex-col">
-                      <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: moveSegment(prev.segments, index, 'up') }))}
-                        disabled={index === 0} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
+                      <button onClick={() => moveSegment(index, 'up')} disabled={index === 0} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
                         <span className="material-symbols-outlined text-slate-400 text-sm">expand_less</span>
                       </button>
-                      <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: moveSegment(prev.segments, index, 'down') }))}
-                        disabled={index === editingFormat.segments.length - 1} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
+                      <button onClick={() => moveSegment(index, 'down')} disabled={index === formatSegments.length - 1} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
                         <span className="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
                       </button>
                     </div>
                     
-                    <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: toggleSegment(prev.segments, index) }))} className="p-1">
+                    <button onClick={() => toggleSegment(index)} className="p-1">
                       <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-slate-300'}`}>
                         {seg.enabled ? 'visibility' : 'visibility_off'}
                       </span>
                     </button>
                     
-                    <div className="flex-1 min-w-0">
-                      {seg.type === 'custom' ? (
-                        <input type="text" value={seg.label} placeholder="Nama" onChange={(e) => {
-                          const ns = [...editingFormat.segments];
-                          ns[index] = { ...ns[index], label: e.target.value };
-                          setEditingFormat(prev => ({ ...prev, segments: ns }));
-                        }} className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none" />
-                      ) : (
-                        <p className="font-medium text-slate-700 text-sm">{seg.label}</p>
-                      )}
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-700 text-sm">{seg.label}</p>
                     </div>
                     
-                    <div className="w-24">
-                      {seg.id === 'nomor' || seg.id === 'bulan' || seg.id === 'tahun' ? (
-                        <select value={seg.value} onChange={(e) => {
-                          const ns = [...editingFormat.segments];
-                          ns[index] = { ...ns[index], value: e.target.value };
-                          setEditingFormat(prev => ({ ...prev, segments: ns }));
-                        }} className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
-                          {getSegmentOptions(seg.id).map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                        </select>
-                      ) : seg.type === 'custom' ? (
-                        <input type="text" value={seg.value} placeholder="Nilai" onChange={(e) => {
-                          const ns = [...editingFormat.segments];
-                          ns[index] = { ...ns[index], value: e.target.value };
-                          setEditingFormat(prev => ({ ...prev, segments: ns }));
-                        }} className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
-                      ) : (
-                        <input type="text" value={seg.value} onChange={(e) => {
-                          const ns = [...editingFormat.segments];
-                          ns[index] = { ...ns[index], value: e.target.value };
-                          setEditingFormat(prev => ({ ...prev, segments: ns }));
-                        }} className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
-                      )}
-                    </div>
-                    
-                    <select value={seg.separator || '/'} onChange={(e) => {
-                      const ns = [...editingFormat.segments];
-                      ns[index] = { ...ns[index], separator: e.target.value };
-                      setEditingFormat(prev => ({ ...prev, segments: ns }));
-                    }} className="px-1 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none">
+                    <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)}
+                      className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none">
                       <option value="/">/</option>
                       <option value="-">-</option>
                       <option value=".">.</option>
                       <option value="_">_</option>
                     </select>
-                    
-                    {seg.type === 'custom' && (
-                      <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: removeSegment(prev.segments, index) }))}
-                        className="p-1 hover:bg-red-50 rounded-lg">
-                        <span className="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">close</span>
-                      </button>
-                    )}
                   </div>
                 ))}
               </div>
-              
-              <button onClick={() => setEditingFormat(prev => ({ ...prev, segments: addCustomSegment(prev.segments) }))}
-                className="mt-4 w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-sm font-medium text-slate-500 hover:border-primary/30 hover:text-primary transition-colors flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-lg">add</span> Tambah Komponen
-              </button>
             </div>
             
-            <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
-              <button onClick={() => { setShowFormatModal(false); setEditingFormat(null); }}
-                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl transition-colors">Batal</button>
-              <button onClick={handleSaveFormat}
-                className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all">Simpan</button>
+            {/* Footer - FIXED */}
+            <div className="px-6 py-4 border-t border-slate-100 flex gap-3 bg-white">
+              <button onClick={() => setShowFormatModal(false)}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl transition-colors">
+                Batal
+              </button>
+              <button type="button" onClick={handleSaveFormat}
+                className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all cursor-pointer">
+                Simpan Format
+              </button>
             </div>
           </div>
         </div>
