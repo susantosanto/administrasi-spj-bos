@@ -62,15 +62,15 @@ export default function TemplateEngine({
     <div
       className={`template-engine ${
         mode === 'print' ? 'print-container' : 'preview-container'
-      }`}
+      } ${templateConfig.orientation || 'portrait'}`}
     >
-      {/* Source file indicator (mode edit only) */}
-      {mode === 'edit' && templateConfig.sourceFile && (
+      {/* Source file indicator (mode edit only) - DISABLED */}
+      {/* mode === 'edit' && templateConfig.sourceFile && (
         <div className="text-[10px] text-text-low mb-2 flex items-center gap-1">
           <span className="material-symbols-outlined text-sm">info</span>
           Sumber: {templateConfig.sourceFile}
         </div>
-      )}
+      ) */}
 
       {/* Render blocks berurutan sesuai config */}
       {(templateConfig.blocks || []).map((block, i) => {

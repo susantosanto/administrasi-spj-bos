@@ -19,6 +19,13 @@ const STATUS_BADGE = {
   'Honorer': 'bg-amber-100 text-amber-700',
 }
 
+// Role Honor options untuk Tendik
+const ROLE_HONOR_OPTIONS = [
+  { value: 'tendik', label: 'Tendik Umum', color: 'bg-slate-100 text-slate-700', icon: 'badge' },
+  { value: 'perpus', label: 'Perpustakaan', color: 'bg-blue-100 text-blue-700', icon: 'menu_book' },
+  { value: 'penjaga', label: 'Penjaga', color: 'bg-emerald-100 text-emerald-700', icon: 'security' },
+]
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -97,6 +104,28 @@ export default function DataGuruPage() {
       storageHelper.set('data_guru', updated)
     }
     toast.success('Data berhasil dihapus')
+  }
+
+  // ─── Role Honor Handler ──────────────────────────────────────
+  const handleRoleHonorChange = (id, newRole) => {
+    const updated = tendik.map(t => {
+      if (t.id === id) {
+        return { ...t, roleHonor: newRole }
+      }
+      return t
+    })
+    setTendik(updated)
+    storageHelper.set('data_tendik', updated)
+    
+    const roleLabel = ROLE_HONOR_OPTIONS.find(r => r.value === newRole)?.label || newRole
+    toast.success(`Role honor diubah ke "${roleLabel}"`)
+  }
+
+  // Get role badge style
+  const getRoleBadge = (role) => {
+    const option = ROLE_HONOR_OPTIONS.find(r => r.value === role)
+    if (!option) return ROLE_HONOR_OPTIONS[0] // default: tendik
+    return option
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -297,35 +326,50 @@ export default function DataGuruPage() {
                       <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">NUPTK</th>
                       <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Jenis PTK</th>
                       <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Role Honor</th>
                       <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {tendik.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-12 text-slate-400">
+                        <td colSpan={7} className="text-center py-12 text-slate-400">
                           <span className="material-symbols-outlined text-4xl mb-2 block">badge</span>
                           Belum ada data tendik
                         </td>
                       </tr>
-                    ) : tendik.map(t => (
-                      <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3 text-sm font-semibold text-slate-800">{t.nama}</td>
-                        <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nip || '-'}</td>
-                        <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nuptk || '-'}</td>
-                        <td className="px-5 py-3 text-sm text-slate-600">{t.jenisPtk || t.jabatan || '-'}</td>
-                        <td className="px-5 py-3">
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_BADGE[t.status] || 'bg-slate-100 text-slate-600'}`}>
-                            {t.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3 text-center">
-                          <button onClick={() => handleDelete(t.id, 'tendik')} className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
-                            <span className="material-symbols-outlined text-sm">delete</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    ) : tendik.map(t => {
+                      const currentRole = getRoleBadge(t.roleHonor)
+                      return (
+                        <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-3 text-sm font-semibold text-slate-800">{t.nama}</td>
+                          <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nip || '-'}</td>
+                          <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nuptk || '-'}</td>
+                          <td className="px-5 py-3 text-sm text-slate-600">{t.jenisPtk || t.jabatan || '-'}</td>
+                          <td className="px-5 py-3">
+                            <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_BADGE[t.status] || 'bg-slate-100 text-slate-600'}`}>
+                              {t.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3">
+                            <select
+                              value={t.roleHonor || 'tendik'}
+                              onChange={(e) => handleRoleHonorChange(t.id, e.target.value)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-0 cursor-pointer focus:ring-2 focus:ring-blue-500 ${currentRole.color}`}
+                            >
+                              {ROLE_HONOR_OPTIONS.map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-5 py-3 text-center">
+                            <button onClick={() => handleDelete(t.id, 'tendik')} className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

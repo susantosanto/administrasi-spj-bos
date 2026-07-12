@@ -267,10 +267,20 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    width: 210mm;
     min-height: 297mm;
     padding: 20mm 25mm;
     background: white;
+  }
+
+  /* Portrait mode (default) */
+  .print-container.portrait {
+    width: 210mm;
+  }
+
+  /* Landscape mode */
+  .print-container.landscape {
+    width: 297mm;
+    padding: 15mm 20mm;
   }
 
   /* Hide edit-mode elements */
@@ -281,6 +291,11 @@ body {
   /* A4 page size */
   @page {
     size: A4;
+    margin: 0;
+  }
+
+  @page landscape {
+    size: A4 landscape;
     margin: 0;
   }
 }
@@ -294,6 +309,13 @@ body {
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   border-radius: 8px;
   margin: 0 auto;
+}
+
+/* Landscape preview */
+.preview-container.landscape {
+  width: 297mm;
+  min-height: 210mm;
+  padding: 15mm 20mm;
 }
 
 /* Template Engine styles */

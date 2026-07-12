@@ -47,13 +47,124 @@ export default function DataSekolahPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
   const [pejabatChanges, setPejabatChanges] = useState(false)
+  const [logoPreview, setLogoPreview] = useState(null)
+  const [logoDinasPreview, setLogoDinasPreview] = useState(null)
+  const [logoGugusPreview, setLogoGugusPreview] = useState(null)
   const toast = useToast()
   const fileInputRef = useRef(null)
+  const logoInputRef = useRef(null)
+  const logoDinasInputRef = useRef(null)
+  const logoGugusInputRef = useRef(null)
 
   useEffect(() => {
     const stored = storageHelper.get('data_sekolah', null)
     if (stored) setData(stored)
+    // Load logos from storage
+    const savedLogo = storageHelper.get('logo_sekolah', null)
+    if (savedLogo) setLogoPreview(savedLogo)
+    const savedLogoDinas = storageHelper.get('logo_dinas', null)
+    if (savedLogoDinas) setLogoDinasPreview(savedLogoDinas)
+    const savedLogoGugus = storageHelper.get('logo_gugus', null)
+    if (savedLogoGugus) setLogoGugusPreview(savedLogoGugus)
   }, [])
+
+  // ─── Logo Handlers ─────────────────────────────────────────────
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.match(/^image\/(png|jpeg|jpg|svg\+xml)$/)) {
+      toast.error('Format file tidak didukung. Gunakan PNG, JPG, atau SVG')
+      return
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Maksimal 2MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const base64 = event.target.result
+      setLogoPreview(base64)
+      storageHelper.set('logo_sekolah', base64)
+      toast.success('Logo sekolah berhasil disimpan')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveLogo = () => {
+    setLogoPreview(null)
+    storageHelper.remove('logo_sekolah')
+    toast.success('Logo sekolah berhasil dihapus')
+    if (logoInputRef.current) logoInputRef.current.value = ''
+  }
+
+  // ─── Logo Dinas Handlers ───────────────────────────────────────
+  const handleLogoDinasUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (!file.type.match(/^image\/(png|jpeg|jpg|svg\+xml)$/)) {
+      toast.error('Format file tidak didukung. Gunakan PNG, JPG, atau SVG')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Maksimal 2MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const base64 = event.target.result
+      setLogoDinasPreview(base64)
+      storageHelper.set('logo_dinas', base64)
+      toast.success('Logo dinas berhasil disimpan')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveLogoDinas = () => {
+    setLogoDinasPreview(null)
+    storageHelper.remove('logo_dinas')
+    toast.success('Logo dinas berhasil dihapus')
+    if (logoDinasInputRef.current) logoDinasInputRef.current.value = ''
+  }
+
+  // ─── Logo Gugus Handlers ───────────────────────────────────────
+  const handleLogoGugusUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (!file.type.match(/^image\/(png|jpeg|jpg|svg\+xml)$/)) {
+      toast.error('Format file tidak didukung. Gunakan PNG, JPG, atau SVG')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file terlalu besar. Maksimal 2MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const base64 = event.target.result
+      setLogoGugusPreview(base64)
+      storageHelper.set('logo_gugus', base64)
+      toast.success('Logo gugus berhasil disimpan')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveLogoGugus = () => {
+    setLogoGugusPreview(null)
+    storageHelper.remove('logo_gugus')
+    toast.success('Logo gugus berhasil dihapus')
+    if (logoGugusInputRef.current) logoGugusInputRef.current.value = ''
+  }
 
   // ─── Update Pejabat ──────────────────────────────────────────────
   const updatePejabat = (jabatan, field, value) => {
@@ -183,6 +294,25 @@ export default function DataSekolahPage() {
               </span>
               <span className="hidden sm:inline">Pejabat Sekolah</span>
               <span className="sm:hidden">Pejabat</span>
+            </button>
+
+            {/* Tab: Logo Sekolah */}
+            <button
+              onClick={() => setTab('logo')}
+              className={`relative flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
+                tab === 'logo'
+                  ? 'bg-white text-primary shadow-lg shadow-slate-200/50'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
+              }`}
+            >
+              {tab === 'logo' && (
+                <span className="absolute inset-0 rounded-2xl border-2 border-primary/20 pointer-events-none" />
+              )}
+              <span className="material-symbols-outlined text-lg sm:text-xl" style={{ fontVariationSettings: tab === 'logo' ? "'FILL' 1" : "'FILL' 0" }}>
+                add_a_photo
+              </span>
+              <span className="hidden sm:inline">Logo Sekolah</span>
+              <span className="sm:hidden">Logo</span>
             </button>
           </div>
 
@@ -459,6 +589,209 @@ export default function DataSekolahPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* TAB: LOGO SEKOLAH                                              */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {tab === 'logo' && (
+          <div className="space-y-4">
+            {/* Header Card */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center shadow-inner">
+                  <span className="material-symbols-outlined text-2xl text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Logo Sekolah</h3>
+                  <p className="text-sm text-slate-500">Upload logo untuk dokumen dan surat-menyurat</p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  {logoPreview && (
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                      Sekolah
+                    </span>
+                  )}
+                  {logoDinasPreview && (
+                    <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                      Dinas
+                    </span>
+                  )}
+                  {logoGugusPreview && (
+                    <span className="px-2.5 py-1 bg-violet-50 text-violet-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                      Gugus
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Logo Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              {/* LOGO SEKOLAH                                                 */}
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+                <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-amber-600">school</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Logo Sekolah</h4>
+                      <p className="text-[10px] text-slate-400">Identitas sekolah</p>
+                    </div>
+                    {logoPreview && (
+                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                    )}
+                  </div>
+                </div>
+                <div className="p-5">
+                  <input
+                    type="file"
+                    ref={logoInputRef}
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <label htmlFor="logo-upload" className="block cursor-pointer group">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-amber-400 hover:bg-amber-50/50 transition-all duration-300 overflow-hidden">
+                      {logoPreview ? (
+                        <img src={logoPreview} alt="Logo Sekolah" className="w-full h-full object-contain p-4" />
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-amber-500 transition-colors">add_a_photo</span>
+                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-amber-500 transition-colors">Upload Logo</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-[10px] text-slate-400">PNG/JPG, maks 2MB</p>
+                    {logoPreview && (
+                      <button onClick={handleRemoveLogo} className="text-[10px] text-red-500 hover:text-red-600 font-medium">Hapus</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              {/* LOGO DINAS                                                    */}
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+                <div className="px-5 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-blue-600">location_city</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Logo Dinas</h4>
+                      <p className="text-[10px] text-slate-400">Dinas Pendidikan</p>
+                    </div>
+                    {logoDinasPreview && (
+                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                    )}
+                  </div>
+                </div>
+                <div className="p-5">
+                  <input
+                    type="file"
+                    ref={logoDinasInputRef}
+                    accept="image/*"
+                    onChange={handleLogoDinasUpload}
+                    className="hidden"
+                    id="logo-dinas-upload"
+                  />
+                  <label htmlFor="logo-dinas-upload" className="block cursor-pointer group">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-300 overflow-hidden">
+                      {logoDinasPreview ? (
+                        <img src={logoDinasPreview} alt="Logo Dinas" className="w-full h-full object-contain p-4" />
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-blue-500 transition-colors">add_a_photo</span>
+                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-blue-500 transition-colors">Upload Logo</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-[10px] text-slate-400">PNG/JPG, maks 2MB</p>
+                    {logoDinasPreview && (
+                      <button onClick={handleRemoveLogoDinas} className="text-[10px] text-red-500 hover:text-red-600 font-medium">Hapus</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              {/* LOGO GUGUS                                                    */}
+              {/* ═══════════════════════════════════════════════════════════════ */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+                <div className="px-5 py-4 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-violet-600">groups</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Logo Gugus</h4>
+                      <p className="text-[10px] text-slate-400">Gugus sekolah</p>
+                    </div>
+                    {logoGugusPreview && (
+                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                    )}
+                  </div>
+                </div>
+                <div className="p-5">
+                  <input
+                    type="file"
+                    ref={logoGugusInputRef}
+                    accept="image/*"
+                    onChange={handleLogoGugusUpload}
+                    className="hidden"
+                    id="logo-gugus-upload"
+                  />
+                  <label htmlFor="logo-gugus-upload" className="block cursor-pointer group">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-violet-400 hover:bg-violet-50/50 transition-all duration-300 overflow-hidden">
+                      {logoGugusPreview ? (
+                        <img src={logoGugusPreview} alt="Logo Gugus" className="w-full h-full object-contain p-4" />
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-violet-500 transition-colors">add_a_photo</span>
+                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-violet-500 transition-colors">Upload Logo</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-[10px] text-slate-400">PNG/JPG, maks 2MB</p>
+                    {logoGugusPreview && (
+                      <button onClick={handleRemoveLogoGugus} className="text-[10px] text-red-500 hover:text-red-600 font-medium">Hapus</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Card */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-xl text-blue-500">info</span>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-bold text-slate-900">Informasi Upload Logo</h4>
+                  <ul className="text-xs text-slate-500 space-y-1">
+                    <li>• <span className="font-semibold">Logo Sekolah</span> — Ditampilkan di pojok kiri atas dokumen surat</li>
+                    <li>• <span className="font-semibold">Logo Dinas</span> — Ditampilkan di pojok kanan atas dokumen surat</li>
+                    <li>• <span className="font-semibold">Logo Gugus</span> — Digunakan untuk surat edaran gugus</li>
+                    <li>• Format: PNG, JPG, JPEG, SVG (maks 2MB)</li>
+                    <li>• Rekomendasi: 200x200px dengan background transparan</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

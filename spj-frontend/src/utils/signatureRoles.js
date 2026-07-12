@@ -1,23 +1,28 @@
 /**
  * Signature Roles — Konfigurasi Tanda Tangan
- * RESEARCH §2.3 SignatureFooter
+ * Reads from localStorage (Data Sekolah page)
  */
+import { getKepalaSekolah, getBendahara } from './sekolahData'
+
+// Get dynamic data
+const kepalaSekolah = getKepalaSekolah()
+const bendahara = getBendahara()
 
 export const SIGNATURE_ROLES = {
   'kepala-sekolah': {
     label: 'Kepala Sekolah,',
-    defaultName: 'BADRUDDIN, S.Ag.',
-    defaultNip: 'NIP. 197405082014121002',
+    defaultName: kepalaSekolah.nama,
+    defaultNip: `NIP. ${kepalaSekolah.nip}`,
   },
   'bendahara': {
     label: 'Bendahara BOS,',
-    defaultName: 'DEDE GUNAWAN, S.Pd.',
-    defaultNip: 'NIP. 198507172020121003',
+    defaultName: bendahara.nama,
+    defaultNip: `NIP. ${bendahara.nip}`,
   },
   'pimpinan': {
     label: 'Pimpinan Rapat/Kepala Sekolah,',
-    defaultName: 'WAHYUDIN, S.Pd.SD.',
-    defaultNip: 'NIP. 197912222014121003',
+    defaultName: kepalaSekolah.nama,
+    defaultNip: `NIP. ${kepalaSekolah.nip}`,
   },
   'notulen': {
     label: 'Notulen,',
@@ -26,8 +31,8 @@ export const SIGNATURE_ROLES = {
   },
   'ketua-gugus': {
     label: 'Ketua Gugus,',
-    defaultName: 'WAHYUDIN, S.Pd.SD.',
-    defaultNip: 'NIP. 197912222014121003',
+    defaultName: kepalaSekolah.nama,
+    defaultNip: `NIP. ${kepalaSekolah.nip}`,
   },
 }
 

@@ -34,6 +34,23 @@
 | 24. Nomor Surat Premium UI | ✅ DONE | 2026-07-11 |
 | 25. Klasifikasi ↔ Kode Surat Otomatis | ✅ DONE | 2026-07-11 |
 | 26. Custom Nomor Urut di Edit Format | ✅ DONE | 2026-07-11 |
+| 27. Research Mendalam Format Honor Excel | ✅ DONE | 2026-07-11 |
+| 28. Fix Template Honor — Multi-Role Cost Breakdown + Auto-Calculate | ✅ DONE | 2026-07-11 |
+| 29. Fix Template Transport — Gol/Ruang + Auto-Calculate (VOL×UNIT COST) | ✅ DONE | 2026-07-11 |
+| 30. Fix Template Upah & Pulsa — Kolom Lengkap + Auto-Calculate | ✅ DONE | 2026-07-11 |
+| 31. TabelDinamis — Auto-Calculation Engine (sum, mul, sub) | ✅ DONE | 2026-07-11 |
+| 32. SignatureFooter — Format 2-Kolom (Dibayar Lunas Tgl.) | ✅ DONE | 2026-07-11 |
+| 33. InfoKeuangan — Info Sekolah Lengkap (Kecamatan, Kabupaten, Kode Penggunaan) | ✅ DONE | 2026-07-11 |
+| 34. HeaderDokumen — Bulan/Tahun Selector (BULAN JANUARI 2026) | ✅ DONE | 2026-07-11 |
+| 35. Logo Sekolah — 3 Tabs (Sekolah, Pejabat, Logo) | ✅ DONE | 2026-07-12 |
+| 36. Honor Template — Landscape Orientation | ✅ DONE | 2026-07-12 |
+| 37. InfoKeuangan — 2-Kolom Layout (Nomor, Program, Kegiatan) | ✅ DONE | 2026-07-12 |
+| 38. Honor Template — Hapus Kolom Cost Breakdown | ✅ DONE | 2026-07-12 |
+| 39. Dynamic School Data (localStorage) | ✅ DONE | 2026-07-12 |
+| 40. Hapus Kop Surat dari Honor/Transport | ✅ DONE | 2026-07-12 |
+| 41. Nomor Surat Popup Integration | ✅ DONE | 2026-07-12 |
+| 42. Auto-Fill Data Honorer (Guru/Tendik/Perpus) | ✅ DONE | 2026-07-12 |
+| 43. Role Honor System untuk Tendik | ✅ DONE | 2026-07-12 |
 
 ---
 
@@ -157,12 +174,13 @@
 - [x] Format validation (header: No, Nama, NUPTK)
 
 ### Data Sekolah Page (Premium Redesign)
-- [x] 2 tabs: Data Sekolah, Pejabat
+- [x] 3 tabs: Data Sekolah, Pejabat, Logo Sekolah
 - [x] Premium hero header with primary blue gradient
 - [x] Grid 2-column field display
 - [x] All data shown in sections
 - [x] Hero card showing school name, NPSN, lokasi
 - [x] Pejabat cards with individual styling
+- [x] Logo upload (Logo Sekolah, Logo Dinas, Logo Gugus)
 - [x] Upload Excel → hide form after upload
 
 ### Data Guru Page (Redesigned)
@@ -171,13 +189,14 @@
 - [x] Display table: Nama, NIP, NUPTK, Golongan, Jabatan, Status
 - [x] Status badge colors (PNS/PPPK/Honorer)
 - [x] Storage: `data_guru` & `data_tendik` terpisah
+- [x] Role Honor dropdown untuk Tendik (Tendik/Perpustakaan/Penjaga)
 
 ### BKU Page (Fixed)
 - [x] Toggle upload form (hidden after upload)
 - [x] Always visible "Upload BKU" button
 - [x] Fixed horizontal overflow
 - [x] Premium table design
-- [x] Consistent upload toggle button
+- [x] Consistent upload toggle buttons
 
 ### BKU Detail Sidebar (Redesigned)
 - [x] Slide-in panel from right with spring animation
@@ -198,10 +217,17 @@
 - [x] Dynamic row detection from worksheet
 - [x] Multi-sheet support
 
-### Template Engine
+### Template Engine & Format Honor
 - [x] TemplateEngine.jsx (universal renderer)
 - [x] 8 atomic block components
 - [x] 13 template configs
+- [x] Auto-calculation engine (TabelDinamis: sum, mul, sub)
+- [x] Multi-role cost breakdown per honor type (Guru/TAS/Ekskul/Perpus/Penjaga)
+- [x] Format 2-kolom signature (Mengetahui/Menyetujui | Dibayar Lunas Tgl.)
+- [x] Info header lengkap (Nama Sekolah, Kecamatan, Kabupaten, Kode Penggunaan)
+- [x] Bulan/Tahun selector dropdown
+- [x] Gol./Ruang, VOLUME, SATUAN columns
+- [x] TTD checkbox column di tabel
 
 ### Notes (Catatan) — Premium Mobile Fixed
 - [x] Premium note-taking page
@@ -214,6 +240,18 @@
 - [x] Auto-save to localStorage
 - [x] Premium card design with animations
 - [x] **Mobile cards fixed (no overflow, proper spacing)**
+
+### Research & Fix Format Honor Excel (Tahap 27-34)
+- [x] Research mendalam 10 sheet Excel (Honor_guru, tendik, perpus, penjaga, transpor_*, upah, pulsa)
+- [x] Identifikasi 3 tipe format tabel (Honor A, Transport B, Upah/Pulsa C/D)
+- [x] Honor: cost breakdown 3-4 kolom per kategori (berbeda tiap sheet)
+- [x] Transport: auto-calculate JUMLAH = VOL × UNIT COST
+- [x] Upah: auto-calculate JUMLAH + YANG DITERIMA (dikurangi PPh 21)
+- [x] Pulsa: auto-calculate JUMLAH = VOL × UNIT COST
+- [x] Signature perbaikan: label "Dibayar Lunas Tgl."
+- [x] Info header: tambah Kecamatan, Kabupaten, Kode Penggunaan
+- [x] Header: tambah "BULAN JANUARI 2026" display
+- [x] Build berhasil — 76 modules, 797KB bundle
 
 ### Generate Nomor Surat Otomatis (Tahap 22)
 - [x] nomorSuratHelper.js — Core logic
@@ -264,6 +302,57 @@
 - [x] Default: 001
 - [x] Nomor berikutnya otomatis menyesuaikan
 - [x] Contoh: set 003 → berikutnya 004, 005, dst
+
+### Logo Sekolah & Data Dynamic (Tahap 35)
+- [x] DataSekolahPage — 3 tabs (Sekolah, Pejabat, Logo)
+- [x] Logo Sekolah upload card
+- [x] Logo Dinas upload card
+- [x] Logo Gugus upload card
+- [x] Logo disimpan di localStorage (logo_sekolah, logo_dinas, logo_gugus)
+- [x] Dynamic school data dari localStorage (bukan hardcoded)
+- [x] sekolahData.js → getSchoolData(), getKepalaSekolah(), getBendahara()
+- [x] signatureRoles.js → dynamic data
+
+### Honor Template — Landscape + Format Excel (Tahap 36-40)
+- [x] Landscape orientation untuk honor/transport/upah/pulsa
+- [x] CSS landscape support (@page, preview-container, print-container)
+- [x] InfoKeuangan — 2-kolom layout (Nomor, NamaSekolah, Kecamatan | Program, Kegiatan, KodeRekening)
+- [x] Nomor surat field dengan popup generate
+- [x] Hapus kolom cost breakdown (Guru, TAS/Operator, Pembina Ekskul)
+- [x] Kolom sesuai Excel: NO, NAMA PTK, NUPTK, JABATAN, JUMLAH, Gol/Ruang, VOL, SATUAN, PPh 21, YANG DITERIMA, TTD
+- [x] Hapus kop surat dari honor/transport/upah/pulsa
+- [x] Hapus source file indicator dari dokumen
+- [x] Print handler dengan orientation awareness
+
+### Nomor Surat Popup Integration (Tahap 41)
+- [x] NomorSuratPopup.jsx — Modal generate nomor surat
+- [x] 2 mode: Otomatis & Manual
+- [x] 8 kategori surat (STS, SK, SU, SP, SKU, STL, SL, SN)
+- [x] Preview nomor surat real-time
+- [x] Auto-increment counter
+- [x] Integrasi dengan InfoKeuangan (tombol 🔍)
+- [x] Klik outside untuk tutup
+
+### Auto-Fill Data Honorer (Tahap 42)
+- [x] honorHelper.js — Filter data guru/tendik
+- [x] getGuruHonorer() — Filter status Honorer
+- [x] getTendikHonorer() — Filter status Honorer
+- [x] getPerpustakaanStaff() — Filter berdasarkan roleHonor
+- [x] getPenjagaStaff() — Filter berdasarkan roleHonor
+- [x] AutoFillHonorButton.jsx — Tombol auto-fill
+- [x] Konfirmasi modal sebelum auto-fill
+- [x] Auto-compute nilai (JUMLAH - PPh 21)
+- [x] Integrasi dengan DokumenSPJPage
+
+### Role Honor System (Tahap 43)
+- [x] Dropdown Role Honor di Data Tendik
+- [x] 3 opsi: Tendik Umum, Perpustakaan, Penjaga
+- [x] Role badge styling
+- [x] Save roleHonor ke localStorage
+- [x] Filter honor berdasarkan roleHonor
+- [x] Honor Tendik → roleHonor = 'tendik'
+- [x] Honor Perpus → roleHonor = 'perpus'
+- [x] Honor Penjaga → roleHonor = 'penjaga'
 
 ### Design System
 - [x] Material Design 3 theme
@@ -339,6 +428,23 @@
 34. ✅ Filter daftar nomor pakai Kode Surat (STS, SK, SU)
 35. ✅ Toast notifikasi saat simpan format
 36. ✅ Header konsisten pakai Topbar component
+37. ✅ Template Honor persis format Excel (multi-role cost breakdown)
+38. ✅ Template Transport persis format Excel (Gol/Ruang + auto-calc)
+39. ✅ Template Upah & Pulsa persis format Excel
+40. ✅ Auto-calculate JUMLAH otomatis dari komponen biaya
+41. ✅ Signature 2-kolom dengan "Dibayar Lunas Tgl."
+42. ✅ Info header lengkap: Nama Sekolah, Kecamatan, Kabupaten, Kode Penggunaan
+43. ✅ Bulan/Tahun display di header dokumen
+44. ✅ Logo upload (Sekolah, Dinas, Gugus) di Data Sekolah
+45. ✅ Dynamic school data dari localStorage
+46. ✅ Honor template landscape orientation
+47. ✅ Hapus kolom cost breakdown dari honor template
+48. ✅ Kolom honor sesuai Excel (NO, NAMA, NUPTK, JABATAN, JUMLAH, dll)
+49. ✅ Hapus kop surat dari honor/transport/upah/pulsa
+50. ✅ Nomor surat popup generate (Otomatis + Manual)
+51. ✅ Auto-fill data honorer dari Data Guru
+52. ✅ Role Honor dropdown untuk Tendik
+53. ✅ Filter honor berdasarkan roleHonor
 
 ---
 
@@ -350,4 +456,4 @@
 
 ---
 
-*Last updated: 2026-07-11 | Session: Nomor Surat Premium UI + Klasifikasi Auto-Mapping*
+*Last updated: 2026-07-12 | Session: Role Honor System + Auto-Fill Honorer*

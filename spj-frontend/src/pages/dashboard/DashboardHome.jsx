@@ -230,7 +230,7 @@ export default function DashboardHome() {
               >
                 {/* Decorative blur */}
                 <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
-                
+
                 <div className={`relative w-11 h-11 rounded-xl ${doc.iconBg} flex items-center justify-center group-hover:scale-110 transition-all duration-300`}>
                   <span className={`material-symbols-outlined ${doc.iconColor} text-xl transition-colors`}>
                     {doc.icon}
@@ -312,11 +312,11 @@ export default function DashboardHome() {
         <footer className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
           {/* Top Accent Line */}
           <div className="h-1 bg-gradient-to-r from-[#004ac6] via-blue-400 to-[#004ac6]" />
-          
+
           <div className="p-6 sm:p-8 lg:p-10">
             {/* Main Footer Content */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-              
+
               {/* Brand Column */}
               <div className="lg:col-span-5">
                 <div className="flex items-center gap-3 mb-4">

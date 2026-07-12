@@ -39,13 +39,6 @@ export default function PengaturanPage() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div className="space-y-xs">
-                <label className="font-label-md text-text-high">Logo Sekolah</label>
-                <div className="border-2 border-dashed border-outline-variant rounded-lg p-4 text-center hover:border-primary transition-colors cursor-pointer">
-                  <span className="material-symbols-outlined text-3xl text-outline">add_a_photo</span>
-                  <p className="text-text-low text-xs mt-1">Klik untuk upload logo</p>
-                </div>
-              </div>
-              <div className="space-y-xs">
                 <label className="font-label-md text-text-high">Tahun Anggaran</label>
                 <select className="w-full px-md py-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                   <option>2025</option><option>2024</option><option>2023</option>

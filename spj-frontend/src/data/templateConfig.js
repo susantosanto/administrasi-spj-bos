@@ -26,6 +26,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'header',
         judul: 'NOTULA RAPAT',
         nomor: false,
+        showBulan: false,
       },
       {
         type: 'table-fields',
@@ -45,7 +46,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'poin-pembahasan',
         label: 'Rapat membahas dan menyimpulkan sebagai berikut:',
       },
-      { type: 'signature', roles: ['pimpinan', 'notulen'] },
+      { type: 'signature', roles: ['pimpinan', 'notulen'], showDibayarLunas: false },
     ],
     defaults: {
       tempat: 'SD NEGERI LEBAKLEUNGSIR',
@@ -65,6 +66,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'header',
         judul: 'BUKU TAMU KEDINASAN',
         nomor: false,
+        showBulan: false,
       },
       {
         type: 'table-fields',
@@ -110,6 +112,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'header',
         judul: 'SURAT PERINTAH TUGAS',
         nomor: true,
+        showBulan: false,
       },
       {
         type: 'table-fields',
@@ -132,32 +135,42 @@ export const TEMPLATE_CONFIGS = {
   },
 
   // ─── HONOR GURU (Excel) ───
+  // Kolom Excel: NO | NAMA PTK | NUPTK | JABATAN | GURU | TAS/Operator | Pembina Ekskul | JUMLAH | Gol/Ruang | VOLUME | SATUAN | PPh 21 | YANG DITERIMA | TTD
+  // Rumus: JUMLAH = GURU + TAS/Operator + Ekskul
+  // Rumus: DITERIMA = JUMLAH - PPh 21
   honor_guru: {
     id: 'honor_guru',
     label: 'Honorarium Guru',
     card: 'honor',
     sub_kategori: 'guru',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA HONORARIUM/GAJI GURU TIDAK TETAP',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'nuptk', label: 'NUPTK', width: 20 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'NO', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 16 },
+          { key: 'nuptk', label: 'NUPTK', width: 14 },
+          { key: 'jabatan', label: 'JABATAN', width: 12 },
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'volume', label: 'VOL', width: 5 },
+          { key: 'satuan', label: 'SATUAN', width: 7 },
           { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
-          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 15, format: 'currency' },
+          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 12, format: 'currency',
+            auto: { type: 'sub', fields: ['jumlah', 'pph'] } },
+          { key: 'ttd', label: 'TTD', width: 4 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -168,6 +181,7 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Pembayaran Honor Guru',
       kodeRekening: '5.1.02.02.01.0013',
+      kodePenggunaan: '12',
     },
   },
 
@@ -178,25 +192,32 @@ export const TEMPLATE_CONFIGS = {
     card: 'honor',
     sub_kategori: 'tendik',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA HONORARIUM/GAJI TENDIK',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'NO', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 16 },
+          { key: 'jabatan', label: 'JABATAN', width: 14 },
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'volume', label: 'VOL', width: 5 },
+          { key: 'satuan', label: 'SATUAN', width: 7 },
           { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
-          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 15, format: 'currency' },
+          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 12, format: 'currency',
+            auto: { type: 'sub', fields: ['jumlah', 'pph'] } },
+          { key: 'ttd', label: 'TTD', width: 4 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -207,37 +228,46 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Pembayaran Honor Tendik',
       kodeRekening: '5.1.02.02.01.0013',
+      kodePenggunaan: '12',
     },
   },
 
   // ─── HONOR PERPUSTAKAAN (Excel) ───
+  // Kolom: NO | NAMA PTK | JABATAN | TENAGA PERPUSTAKAAN | Pembina Ekskul | GURU | TAS/Operator | JUMLAH | Gol/Ruang | PPh 21 | YANG DITERIMA | TTD
   honor_perpus: {
     id: 'honor_perpus',
     label: 'Honorarium Perpustakaan',
     card: 'honor',
     sub_kategori: 'perpus',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA HONORARIUM/GAJI PERPUSTAKAAN',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
-        type: 'table-dinamis',
-        columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
-          { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
-          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 15, format: 'currency' },
-        ],
-      },
+          type: 'table-dinamis',
+          columns: [
+            { key: 'no', label: 'NO', width: 4 },
+            { key: 'nama', label: 'NAMA PTK', width: 16 },
+            { key: 'jabatan', label: 'JABATAN', width: 14 },
+            { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+            { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+            { key: 'volume', label: 'VOL', width: 5 },
+            { key: 'satuan', label: 'SATUAN', width: 7 },
+            { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
+            { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 12, format: 'currency',
+              auto: { type: 'sub', fields: ['jumlah', 'pph'] } },
+            { key: 'ttd', label: 'TTD', width: 4 },
+          ],
+        },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
     ],
     defaults: {
@@ -246,37 +276,46 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Pembayaran Honor Perpustakaan',
       kodeRekening: '5.1.02.02.01.0013',
+      kodePenggunaan: '12',
     },
   },
 
   // ─── HONOR PENJAGA (Excel) ───
+  // Kolom: NO | NAMA PTK | JABATAN | PENJAGA | GURU | Pembina Ekskul | TENAGA PERPUSTAKAAN | JUMLAH | Gol/Ruang | VOLUME | SATUAN | PPh 21 | YANG DITERIMA | TTD
   honor_penjaga: {
     id: 'honor_penjaga',
     label: 'Honorarium Penjaga',
     card: 'honor',
     sub_kategori: 'penjaga',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA HONORARIUM/GAJI PENJAGA',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
-        type: 'table-dinamis',
-        columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
-          { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
-          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 15, format: 'currency' },
-        ],
-      },
+          type: 'table-dinamis',
+          columns: [
+            { key: 'no', label: 'NO', width: 4 },
+            { key: 'nama', label: 'NAMA PTK', width: 16 },
+            { key: 'jabatan', label: 'JABATAN', width: 14 },
+            { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+            { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+            { key: 'volume', label: 'VOL', width: 5 },
+            { key: 'satuan', label: 'SATUAN', width: 7 },
+            { key: 'pph', label: 'PPh 21', width: 10, format: 'currency' },
+            { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 12, format: 'currency',
+              auto: { type: 'sub', fields: ['jumlah', 'pph'] } },
+            { key: 'ttd', label: 'TTD', width: 4 },
+          ],
+        },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
     ],
     defaults: {
@@ -285,36 +324,45 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Pembayaran Honor Penjaga',
       kodeRekening: '5.1.02.02.01.0013',
+      kodePenggunaan: '12',
     },
   },
 
   // ─── TRANSPORT RAPAT (Excel) ───
+  // Kolom: NO | NAMA PTK | JABATAN | Gol/Ruang | VOL | SATUAN | UNIT COST | JUMLAH | TTD
+  // Rumus: JUMLAH = VOL × UNIT COST
   transpor_rapat: {
     id: 'transpor_rapat',
     label: 'Transport Rapat',
     card: 'perjalanan_dinas',
     sub_kategori: 'rapat',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA TRANSPORT RAPAT',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 12 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 14 },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'vol', label: 'VOL', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 10 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 12, format: 'currency' },
+          // Auto: JUMLAH = VOL × UNIT COST
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency',
+            auto: { type: 'mul', fields: ['vol', 'unitCost'] } },
+          { key: 'ttd', label: 'TTD', width: 5 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -325,6 +373,7 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Transport Rapat',
       kodeRekening: '5.1.02.04.01.0003',
+      kodePenggunaan: '12',
     },
   },
 
@@ -335,26 +384,31 @@ export const TEMPLATE_CONFIGS = {
     card: 'perjalanan_dinas',
     sub_kategori: 'koordinasi',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA TRANSPORT KOORDINASI',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 12 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 14 },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'vol', label: 'VOL', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 10 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 12, format: 'currency' },
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency',
+            auto: { type: 'mul', fields: ['vol', 'unitCost'] } },
+          { key: 'ttd', label: 'TTD', width: 5 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -365,6 +419,7 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Transport Koordinasi',
       kodeRekening: '5.1.02.04.01.0003',
+      kodePenggunaan: '12',
     },
   },
 
@@ -375,26 +430,31 @@ export const TEMPLATE_CONFIGS = {
     card: 'perjalanan_dinas',
     sub_kategori: 'bank',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA TRANSPORT BANK',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 12 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 14 },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'vol', label: 'VOL', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 10 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 12, format: 'currency' },
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency',
+            auto: { type: 'mul', fields: ['vol', 'unitCost'] } },
+          { key: 'ttd', label: 'TTD', width: 5 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -405,6 +465,7 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Transport Bank',
       kodeRekening: '5.1.02.04.01.0003',
+      kodePenggunaan: '12',
     },
   },
 
@@ -415,26 +476,31 @@ export const TEMPLATE_CONFIGS = {
     card: 'perjalanan_dinas',
     sub_kategori: 'pendamping',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA TRANSPORT PENDAMPING',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 20 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 12 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 15, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 14 },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'vol', label: 'VOL', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 10 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 12, format: 'currency' },
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency',
+            auto: { type: 'mul', fields: ['vol', 'unitCost'] } },
+          { key: 'ttd', label: 'TTD', width: 5 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -445,38 +511,49 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Transport Pendamping',
       kodeRekening: '5.1.02.04.01.0003',
+      kodePenggunaan: '12',
     },
   },
 
   // ─── UPAH (Excel) ───
+  // Kolom: NO | NAMA PTK | JABATAN | Gol/Ruang | VOLUME | SATUAN | UNIT COST | JUMLAH | PPh 21 | YANG DITERIMA | TTD
+  // Rumus: JUMLAH = VOL × UNIT COST; DITERIMA = JUMLAH - PPh 21
   upah: {
     id: 'upah',
     label: 'Upah Kerja',
     card: 'pemeliharaan',
     sub_kategori: 'alat',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA UPAH KERJA',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 20 },
-          { key: 'jabatan', label: 'JABATAN', width: 15 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 10 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 16 },
+          { key: 'jabatan', label: 'JABATAN', width: 12 },
+          { key: 'golRuang', label: 'Gol./Ruang', width: 8 },
+          { key: 'volume', label: 'VOLUME', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 8 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 11, format: 'currency' },
+          // Auto: JUMLAH = VOL × UNIT COST
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 11, format: 'currency',
+            auto: { type: 'mul', fields: ['volume', 'unitCost'] } },
           { key: 'pph', label: 'PPh 21', width: 8, format: 'currency' },
-          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 12, format: 'currency' },
+          // Auto: DITERIMA = JUMLAH - PPh 21
+          { key: 'diterima', label: 'YANG DITERIMA (Rp)', width: 11, format: 'currency',
+            auto: { type: 'sub', fields: ['jumlah', 'pph'] } },
+          { key: 'ttd', label: 'TTD', width: 4 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -487,37 +564,45 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Upah Kerja',
       kodeRekening: '5.1.02.02.01.0016',
+      kodePenggunaan: '12',
     },
   },
 
   // ─── PULSA (Excel) ───
+  // Kolom: NO | NAMA PTK | JABATAN | NOMOR HP | VOL | SATUAN | UNIT COST | JUMLAH | TTD
+  // Rumus: JUMLAH = VOL × UNIT COST
   pulsa: {
     id: 'pulsa',
     label: 'Pulsa Internet',
     card: 'tagihan',
     sub_kategori: 'pulsa',
     sourceFile: '/templates/Form. Honor_2026_SDN lebakleungsir.xlsx',
+    orientation: 'landscape',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'DAFTAR PENERIMA PULSA INTERNET',
+        nomor: false, showBulan: true,
       },
       {
         type: 'info-keuangan',
-        fields: ['program', 'kegiatan', 'kodeRekening'],
+        leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
+        rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
       },
       {
         type: 'table-dinamis',
         columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA PTK', width: 25 },
-          { key: 'jabatan', label: 'JABATAN', width: 15 },
-          { key: 'noHp', label: 'NOMOR HP', width: 15 },
-          { key: 'vol', label: 'VOL', width: 8 },
-          { key: 'satuan', label: 'SATUAN', width: 10 },
-          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 15, format: 'currency' },
-          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency' },
+          { key: 'no', label: 'No', width: 4 },
+          { key: 'nama', label: 'NAMA PTK', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 12 },
+          { key: 'noHp', label: 'NOMOR HP', width: 14 },
+          { key: 'vol', label: 'VOL', width: 6 },
+          { key: 'satuan', label: 'SATUAN', width: 8 },
+          { key: 'unitCost', label: 'UNIT COST (Rp)', width: 12, format: 'currency' },
+          // Auto: JUMLAH = VOL × UNIT COST
+          { key: 'jumlah', label: 'JUMLAH (Rp)', width: 12, format: 'currency',
+            auto: { type: 'mul', fields: ['vol', 'unitCost'] } },
+          { key: 'ttd', label: 'TTD', width: 5 },
         ],
       },
       { type: 'signature', roles: ['kepala-sekolah', 'bendahara'] },
@@ -528,6 +613,7 @@ export const TEMPLATE_CONFIGS = {
       program: '07 Pengembangan Standar Pembiayaan',
       kegiatan: 'Pulsa Internet',
       kodeRekening: '5.1.02.02.01.0063',
+      kodePenggunaan: '12',
     },
   },
 
@@ -539,11 +625,11 @@ export const TEMPLATE_CONFIGS = {
     sub_kategori: 'bku',
     sourceFile: '/templates/BKU_SDN_Lebakleungsir.xlsx',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
         judul: 'BUKU KAS UMUM',
         nomor: false,
+        showBulan: false,
       },
       {
         type: 'info-keuangan',

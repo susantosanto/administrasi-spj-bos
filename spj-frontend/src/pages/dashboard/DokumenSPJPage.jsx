@@ -6,6 +6,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
+import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -257,6 +258,63 @@ export default function DokumenSPJPage() {
   const getTemplateConfig = () => {
     if (!selectedSubKategori?.templateId) return null
     return TEMPLATE_CONFIGS[selectedSubKategori.templateId]
+  }
+
+  // ─── Print Handler ───────────────────────────────────────────────────────
+  const handlePrint = () => {
+    const config = getTemplateConfig()
+    if (!config) {
+      toast.info(`Cetak ${selectedCard.nama}`)
+      return
+    }
+    
+    // Set print orientation
+    const printContainer = document.querySelector('.print-container')
+    if (printContainer) {
+      printContainer.classList.remove('portrait', 'landscape')
+      printContainer.classList.add(config.orientation || 'portrait')
+    }
+    
+    window.print()
+  }
+
+  // ─── Auto-Fill Handler ───────────────────────────────────────────────────
+  const handleAutoFill = (autoFillData) => {
+    // Compute auto values for each row
+    const config = getTemplateConfig()
+    const columns = config?.blocks?.find(b => b.type === 'table-dinamis')?.columns || []
+    
+    const computedData = autoFillData.map(row => {
+      const newRow = { ...row }
+      // Compute auto columns
+      columns.forEach(col => {
+        if (col.auto && col.auto.type) {
+          const fields = col.auto.fields || []
+          const values = fields.map(f => {
+            const v = parseFloat(String(newRow[f] || '0').replace(/[^\d.-]/g, ''))
+            return isNaN(v) ? 0 : v
+          })
+          
+          switch (col.auto.type) {
+            case 'sum':
+              newRow[col.key] = values.reduce((a, b) => a + b, 0)
+              break
+            case 'mul':
+              newRow[col.key] = values.reduce((a, b) => a * b, 1)
+              break
+            case 'sub':
+              newRow[col.key] = values.length >= 2 ? values[0] - values[1] : 0
+              break
+          }
+        }
+      })
+      return newRow
+    })
+    
+    // Merge with existing rows
+    const existingRows = formData.rows || []
+    const newRows = [...existingRows, ...computedData]
+    setFormData({ ...formData, rows: newRows })
   }
 
   // ─── Grouped Cards ───────────────────────────────────────────────────────
@@ -613,6 +671,17 @@ export default function DokumenSPJPage() {
               ) : selectedSubKategori?.templateId ? (
                 // ─── Template View ───────────────────────────────────────
                 <div className="p-6">
+                  {/* Auto-Fill Button for Honor Templates */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-amber-500">info</span>
+                      <span className="text-xs text-slate-500">Klik tombol di bawah untuk mengisi data dari profil guru/tendik</span>
+                    </div>
+                    <AutoFillHonorButton 
+                      templateId={selectedSubKategori?.templateId}
+                      onAutoFill={handleAutoFill}
+                    />
+                  </div>
                   <TemplateEngine
                     templateConfig={getTemplateConfig()}
                     data={formData}
@@ -642,15 +711,7 @@ export default function DokumenSPJPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-outline-variant bg-slate-50 flex items-center justify-between">
-              <div className="text-xs text-text-low">
-                {selectedSubKategori?.templateId && (
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">folder</span>
-                    {getTemplateConfig()?.sourceFile}
-                  </span>
-                )}
-              </div>
+            <div className="px-6 py-4 border-t border-outline-variant bg-slate-50 flex items-center justify-end">
               <div className="flex gap-2">
                 <button
                   onClick={() => {
@@ -663,7 +724,7 @@ export default function DokumenSPJPage() {
                   Selesai
                 </button>
                 <button
-                  onClick={() => toast.info(`Cetak ${selectedCard.nama}`)}
+                  onClick={handlePrint}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:brightness-110 shadow-sm transition-all"
                 >
                   <span className="material-symbols-outlined text-lg">print</span>
