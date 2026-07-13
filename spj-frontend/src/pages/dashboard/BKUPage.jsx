@@ -282,7 +282,7 @@ export default function BKUPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-100/80">
-      <Topbar title="Upload BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
+      <Topbar title="Data BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
         {/* ── Upload Toggle Button (always visible) ── */}

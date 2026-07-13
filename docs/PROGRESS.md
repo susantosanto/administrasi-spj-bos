@@ -503,6 +503,7 @@
 60. ✅ Nomor surat terpisah + popup generate di header dokumen
 61. ✅ Premium accordion animations (fade-in, slide-up, scale-in, glow)
 62. ✅ Fix format nomor surat di popup dokumen (Honor & Transport) — sekarang sama dengan menu Nomor Surat (422.1/SK-001/SDN-PSR/VII/2026)
+63. ✅ Rename menu "Upload BKU" → "Data BKU" (Sidebar, Dashboard, halaman BKU)
 
 ---
 
@@ -519,4 +520,4 @@
 
 ---
 
-*Last updated: 2026-07-13 | Session: Dokumen LPJ Accordion + SPPD + Fix Format Nomor Surat*
+*Last updated: 2026-07-13 | Session: Rename Menu Upload BKU → Data BKU*

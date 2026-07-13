@@ -35,7 +35,7 @@ const FEATURES = [
   },
   {
     id: 'bku',
-    title: 'Upload BKU',
+    title: 'Data BKU',
     subtitle: 'Import data dari ARKAS',
     description: 'Upload file BKU Excel untuk referensi pembuatan dokumen. Otomatis terdeteksi transaksi.',
     icon: 'upload_file',
@@ -342,7 +342,7 @@ export default function DashboardHome() {
                   {[
                     { label: 'Dokumen LPJ', path: '/dashboard/dokumen-lpj' },
                     { label: 'Dokumen Kelengkapan', path: '/dashboard/dokumen-kelengkapan' },
-                    { label: 'Upload BKU', path: '/dashboard/bku' },
+                    { label: 'Data BKU', path: '/dashboard/bku' },
                     { label: 'Data Sekolah', path: '/dashboard/data-sekolah' },
                   ].map((item) => (
                     <Link key={item.path} to={item.path} className="flex items-center gap-2 text-sm text-slate-600 hover:text-[#004ac6] transition-colors">
