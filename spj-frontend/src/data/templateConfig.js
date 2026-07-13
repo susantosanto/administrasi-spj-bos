@@ -99,13 +99,16 @@ export const TEMPLATE_CONFIGS = {
     defaults: {},
   },
 
-  // ─── SPPD (DOCX) ───
+  // ─── SPPD / SURAT TUGAS (DOCX) ───
+  // Format standar: 1 Surat Tugas berisi list nama penerima tugas
   sppd: {
     id: 'sppd',
-    label: 'Surat Perintah Tugas + SPD',
+    label: 'Surat Perintah Tugas',
     card: 'perjalanan_dinas',
-    sub_kategori: 'sppd',
+    sub_kategori: null, // Tidak ada tab sendiri, auto-include di transport
     sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    useAutoFillFromTransport: true, // Flag: auto-fill dari transport
     blocks: [
       { type: 'kop-surat' },
       {
@@ -113,25 +116,67 @@ export const TEMPLATE_CONFIGS = {
         judul: 'SURAT PERINTAH TUGAS',
         nomor: true,
         showBulan: false,
+        showNomorPopup: true, // Enable popup generate nomor
       },
       {
         type: 'table-fields',
         fields: [
-          { key: 'nama', label: 'Yang diberi tugas', type: 'text' },
-          { key: 'nip', label: 'NIP', type: 'text' },
-          { key: 'jabatan', label: 'Jabatan', type: 'text' },
           { key: 'tujuan', label: 'Untuk keperluan', type: 'textarea' },
           { key: 'tanggal', label: 'Tanggal', type: 'date' },
           { key: 'tempat', label: 'Tempat', type: 'text' },
           { key: 'lama', label: 'Lama perjalanan', type: 'text' },
         ],
       },
+      // List penerima tugas (auto dari transport)
+      {
+        type: 'table-dinamis',
+        label: 'Yang diberi tugas:',
+        showIndex: true,
+        columns: [
+          { key: 'no', label: 'No', width: 5 },
+          { key: 'nama', label: 'NAMA', width: 25 },
+          { key: 'nip', label: 'NIP', width: 20 },
+          { key: 'jabatan', label: 'JABATAN', width: 25 },
+          { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
+        ],
+      },
       { type: 'signature', roles: ['kepala-sekolah'] },
     ],
     defaults: {
-      nomorSurat: '400.3.7.6/___-SD/2026',
+      nomorSurat: '',
       tempat: 'Cikalongwetan',
+      tujuan: '',
     },
+  },
+
+  // ─── LAMPIRAN DAFTAR PENERIMA TUGAS ───
+  // Lampiran untuk Surat Tugas (opsional)
+  lampiran_daftar_tugas: {
+    id: 'lampiran_daftar_tugas',
+    label: 'Lampiran Daftar Penerima Tugas',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    orientation: 'portrait',
+    blocks: [
+      {
+        type: 'header',
+        judul: 'LAMPIRAN SURAT PERINTAH TUGAS',
+        nomor: false,
+        showBulan: false,
+      },
+      {
+        type: 'table-dinamis',
+        label: 'Daftar Penerima Tugas:',
+        showIndex: true,
+        columns: [
+          { key: 'no', label: 'No', width: 5 },
+          { key: 'nama', label: 'NAMA', width: 25 },
+          { key: 'nip', label: 'NIP', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 22 },
+          { key: 'keterangan', label: 'KETERANGAN', width: 20 },
+        ],
+      },
+    ],
   },
 
   // ─── HONOR GURU (Excel) ───
@@ -348,6 +393,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'info-keuangan',
         leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
         rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
+        showNomorPopup: true,
       },
       {
         type: 'table-dinamis',
@@ -395,6 +441,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'info-keuangan',
         leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
         rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
+        showNomorPopup: true,
       },
       {
         type: 'table-dinamis',
@@ -441,6 +488,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'info-keuangan',
         leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
         rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
+        showNomorPopup: true,
       },
       {
         type: 'table-dinamis',
@@ -487,6 +535,7 @@ export const TEMPLATE_CONFIGS = {
         type: 'info-keuangan',
         leftFields: ['nomor', 'namaSekolah', 'kecamatan', 'kabupaten'],
         rightFields: ['program', 'kegiatan', 'kodeRekening', 'kodePenggunaan'],
+        showNomorPopup: true,
       },
       {
         type: 'table-dinamis',

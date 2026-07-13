@@ -12,7 +12,7 @@ function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting && !isVisible) setIsVisible(true); },
@@ -21,7 +21,7 @@ function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, [isVisible]);
-  
+
   useEffect(() => {
     if (!isVisible) return;
     let startTime;
@@ -34,7 +34,7 @@ function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
     };
     requestAnimationFrame(animate);
   }, [isVisible, end, duration]);
-  
+
   return <span ref={ref} className="tabular-nums">{count}{suffix}</span>;
 }
 
@@ -50,22 +50,22 @@ function PremiumTypingCard() {
     { text: 'Generate 13 Template', icon: 'description' },
     { text: 'Import Data Guru', icon: 'groups' },
   ];
-  
+
   const [displayText, setDisplayText] = useState('');
   const [textIndex, setTextIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  
+
   useEffect(() => {
     if (isPaused) {
       const pauseTimeout = setTimeout(() => setIsPaused(false), 2500);
       return () => clearTimeout(pauseTimeout);
     }
-    
+
     const currentText = texts[textIndex].text;
     const speed = isDeleting ? 25 : 50;
-    
+
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayText(currentText.substring(0, charIndex + 1));
@@ -83,19 +83,19 @@ function PremiumTypingCard() {
         }
       }
     }, speed);
-    
+
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, textIndex, isPaused]);
-  
+
   return (
     <div className="relative perspective-1000">
       {/* Background stack of documents - visible shadows */}
       <div className="absolute -bottom-5 -right-5 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-3xl rotate-3 shadow-xl" />
       <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
-      
+
       {/* Main document card */}
       <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
-        
+
         {/* Document header - soft premium gradient */}
         <div className="bg-gradient-to-r from-primary via-blue-500 to-primary px-6 py-5">
           <div className="flex items-center justify-between">
@@ -116,25 +116,25 @@ function PremiumTypingCard() {
             </div>
           </div>
         </div>
-        
+
         {/* Document body */}
         <div className="p-6 md:p-8 relative">
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/[0.06] to-transparent rounded-bl-[120px] pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-400/[0.04] to-transparent rounded-tr-[100px] pointer-events-none" />
-          
+
           {/* Subtle dot pattern */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
             backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
             backgroundSize: '24px 24px'
           }} />
-          
+
           {/* Decorative accent */}
           <div className="relative flex items-center gap-3 mb-6">
             <div className="h-8 w-1 bg-gradient-to-b from-primary to-blue-300 rounded-full" />
             <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Fitur Utama</p>
           </div>
-          
+
           {/* Typing text */}
           <div className="min-h-[3rem] md:min-h-[4rem] mb-6">
             <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 flex items-center">
@@ -142,7 +142,7 @@ function PremiumTypingCard() {
               <span className="w-[3px] h-6 md:h-8 bg-primary ml-1 animate-pulse" />
             </h3>
           </div>
-          
+
           {/* Document metadata */}
           <div className="flex items-center gap-5 pt-5 border-t border-slate-100">
             <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ function PremiumTypingCard() {
               <span className="text-xs text-slate-500 font-medium">Update Real-time</span>
             </div>
           </div>
-          
+
           {/* Content lines */}
           <div className="mt-6 space-y-2">
             <div className="h-1.5 w-full bg-slate-100 rounded-full" />
@@ -167,17 +167,17 @@ function PremiumTypingCard() {
             <div className="h-1.5 w-5/6 bg-slate-100/60 rounded-full" />
           </div>
         </div>
-        
+
         {/* Document footer */}
         <div className="px-6 md:px-8 py-4 bg-slate-50/50 border-t border-slate-100">
           <div className="flex items-center justify-between">
             <div className="flex gap-1.5">
               {texts.map((_, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className={`h-1.5 rounded-full transition-all duration-500 ${
                     i === textIndex ? 'w-7 bg-primary' : 'w-1.5 bg-slate-200'
-                  }`} 
+                  }`}
                 />
               ))}
             </div>
@@ -201,11 +201,11 @@ function PremiumFeaturePills() {
     { icon: 'groups', label: 'Data Guru' },
     { icon: 'description', label: '13 Template' },
   ];
-  
+
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       {features.map((feature, i) => (
-        <div 
+        <div
           key={i}
           className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group"
         >
@@ -228,7 +228,7 @@ function PremiumFeaturePills() {
 function FeatureCard({ feature, index }) {
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef(null);
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -246,34 +246,34 @@ function FeatureCard({ feature, index }) {
   return (
     <div
       ref={cardRef}
-      className={`relative group cursor-pointer 
+      className={`relative group cursor-pointer
                   ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}
                   transition-all duration-700 ease-out
                   ${feature.isLarge ? 'md:col-span-2' : ''}`}
     >
-      <div className="relative h-full bg-white rounded-3xl border border-slate-200/80 p-7 
-                      shadow-[0_1px_3px_rgba(0,0,0,0.04)] 
-                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)] 
+      <div className="relative h-full bg-white rounded-3xl border border-slate-200/80 p-7
+                      shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)]
                       hover:border-primary/20
                       hover:-translate-y-2
                       transition-all duration-500 overflow-hidden">
-        
+
         {/* Looping glow animation - different delay per card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-blue-400/[0.02] 
-                        rounded-3xl animate-card-glow" 
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-blue-400/[0.02]
+                        rounded-3xl animate-card-glow"
              style={{ animationDelay: `${index * 1.5}s` }} />
-        
+
         {/* Top accent line - animated flow */}
-        <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient} 
-                        animate-accent-flow rounded-t-3xl`} 
+        <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient}
+                        animate-accent-flow rounded-t-3xl`}
              style={{ animationDelay: `${index * 1.5}s` }} />
-        
+
         {/* Content */}
         <div className="relative">
-          <div className={`w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center mb-5 
+          <div className={`w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center mb-5
                           group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}
                style={{ animation: `card-float 3s ease-in-out infinite ${index * 0.5}s` }}>
-            <span className={`material-symbols-outlined text-xl ${feature.iconColor}`} 
+            <span className={`material-symbols-outlined text-xl ${feature.iconColor}`}
                   style={{ fontVariationSettings: "'FILL' 1" }}>
               {feature.icon}
             </span>
@@ -368,7 +368,7 @@ const WHY_US = [
 export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 500);
@@ -380,7 +380,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden">
-      
+
       {/* TOP APP BAR */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrollY > 50 ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.05)]' : 'bg-transparent'
@@ -404,13 +404,13 @@ export default function LandingPage() {
       </header>
 
       <main className="pt-20">
-        
+
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* HERO SECTION                                                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <section className="relative min-h-[750px] flex items-center overflow-hidden px-6">
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at top right, rgba(0, 74, 198, 0.04), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.03), transparent)" }} />
-          
+
           <div className="container mx-auto relative z-10">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Left: Text Content */}
@@ -419,18 +419,18 @@ export default function LandingPage() {
                   <span className="material-symbols-outlined text-primary text-lg">verified</span>
                   <span className="text-primary text-sm font-semibold">Resmi & Terpercaya</span>
                 </div>
-                
+
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
                   Sampurasun!
                   <br />
                   <span className="text-primary">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
                 </h1>
-                
+
                 <p className="text-lg text-slate-600 max-w-xl mb-8">
                   Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan.
                   Kelola dana BOS/BOSP dengan standar profesionalisme tinggi.
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                   <Link to="/login" className="bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2">
                     Mulai Sekarang
@@ -442,7 +442,7 @@ export default function LandingPage() {
                   </a>
                 </div>
               </div>
-              
+
               {/* Right: PREMIUM TYPING CARD */}
               <div className="relative">
                 <PremiumTypingCard />
@@ -579,7 +579,7 @@ export default function LandingPage() {
                 <span className="text-xs text-slate-400 font-medium">Semua sistem berjalan normal</span>
               </div>
             </div>
-            
+
             {/* Links */}
             <div>
               <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Navigasi</p>
@@ -591,7 +591,7 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Legal */}
             <div>
               <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Legal</p>
@@ -605,7 +605,7 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom bar */}
         <div className="border-t border-slate-100">
           <div className="container mx-auto px-6 py-5">

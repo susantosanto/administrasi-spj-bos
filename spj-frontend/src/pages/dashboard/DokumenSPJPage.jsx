@@ -1,7 +1,13 @@
 /**
- * Dokumen LPJ Page — Super Premium Professional Design
+ * Dokumen LPJ Page — Super Premium Accordion Concept 2026
+ * 
+ * Fitur:
+ * - Klik card → smooth scroll ke detail dengan animasi premium
+ * - Satu card aktif pada satu waktu
+ * - Transport: Daftar Penerima + SPPD auto-fill (inline)
+ * - Animasi: fade-in, slide-up, scale, glow effects
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -19,7 +25,6 @@ const CARDS = [
     nama: 'Honorarium',
     deskripsi: 'Honor/Gaji Guru, Tendik, Perpustakaan, Penjaga, Pelaksana',
     kategori: 'BKU Utama',
-    color: 'blue',
     icon: 'payments',
     hasTemplate: true,
     subKategori: [
@@ -33,17 +38,16 @@ const CARDS = [
   {
     id: 'perjalanan_dinas',
     nama: 'Perjalanan Dinas',
-    deskripsi: 'Transport Rapat, Koordinasi, Bank, Pendamping, SPPD, Workshop',
+    deskripsi: 'Transport Rapat, Koordinasi, Bank, Pendamping + SPPD Otomatis',
     kategori: 'BKU Utama',
-    color: 'emerald',
     icon: 'flight_takeoff',
     hasTemplate: true,
+    isTransport: true,
     subKategori: [
       { id: 'rapat', label: 'Rapat', templateId: 'transpor_rapat' },
       { id: 'koordinasi', label: 'Koordinasi', templateId: 'transpor_koordinasi' },
       { id: 'bank', label: 'Bank', templateId: 'transpor_bank' },
       { id: 'pendamping', label: 'Pendamping', templateId: 'transpor_pendamping' },
-      { id: 'sppd', label: 'SPPD', templateId: 'sppd' },
       { id: 'workshop', label: 'Workshop', templateId: null, comingSoon: true },
     ],
   },
@@ -52,7 +56,6 @@ const CARDS = [
     nama: 'Makan & Minum',
     deskripsi: 'Notulen, Buku Tamu, Mamin Kegiatan, Tamu, Rapat',
     kategori: 'BKU Utama',
-    color: 'amber',
     icon: 'restaurant',
     hasTemplate: true,
     subKategori: [
@@ -68,7 +71,6 @@ const CARDS = [
     nama: 'Pemeliharaan',
     deskripsi: 'Upah Kerja, Mebeler, Bangunan',
     kategori: 'BKU Utama',
-    color: 'rose',
     icon: 'handyman',
     hasTemplate: true,
     subKategori: [
@@ -82,7 +84,6 @@ const CARDS = [
     nama: 'Penggandaan',
     deskripsi: 'Master, Jumlah Lembar, Bukti Pembayaran',
     kategori: 'Dokumen Pendukung',
-    color: 'violet',
     icon: 'content_copy',
     hasTemplate: false,
     infoOnly: true,
@@ -93,7 +94,6 @@ const CARDS = [
     nama: 'Cetak Foto',
     deskripsi: 'Daftar Foto, Bukti Cetak',
     kategori: 'Dokumen Pendukung',
-    color: 'violet',
     icon: 'photo_camera',
     hasTemplate: false,
     infoOnly: true,
@@ -104,7 +104,6 @@ const CARDS = [
     nama: 'Cetak Banner',
     deskripsi: 'Desain Banner, Bukti Pemasangan',
     kategori: 'Dokumen Pendukung',
-    color: 'violet',
     icon: 'panorama',
     hasTemplate: false,
     infoOnly: true,
@@ -115,7 +114,6 @@ const CARDS = [
     nama: 'Tagihan',
     deskripsi: 'Listrik, Air, Internet (Pulsa)',
     kategori: 'Dokumen Pendukung',
-    color: 'violet',
     icon: 'bolt',
     hasTemplate: false,
     infoOnly: true,
@@ -127,65 +125,6 @@ const CARDS = [
   },
 ]
 
-// Color Config
-const COLORS = {
-  blue: {
-    light: 'bg-blue-50',
-    medium: 'bg-blue-100',
-    dark: 'bg-blue-600',
-    text: 'text-blue-600',
-    textDark: 'text-blue-700',
-    border: 'border-blue-200',
-    ring: 'ring-blue-500/20',
-    iconBg: 'bg-blue-100',
-    progress: 'from-blue-500 to-blue-600',
-  },
-  emerald: {
-    light: 'bg-emerald-50',
-    medium: 'bg-emerald-100',
-    dark: 'bg-emerald-600',
-    text: 'text-emerald-600',
-    textDark: 'text-emerald-700',
-    border: 'border-emerald-200',
-    ring: 'ring-emerald-500/20',
-    iconBg: 'bg-emerald-100',
-    progress: 'from-emerald-500 to-emerald-600',
-  },
-  amber: {
-    light: 'bg-amber-50',
-    medium: 'bg-amber-100',
-    dark: 'bg-amber-600',
-    text: 'text-amber-600',
-    textDark: 'text-amber-700',
-    border: 'border-amber-200',
-    ring: 'ring-amber-500/20',
-    iconBg: 'bg-amber-100',
-    progress: 'from-amber-500 to-amber-600',
-  },
-  rose: {
-    light: 'bg-rose-50',
-    medium: 'bg-rose-100',
-    dark: 'bg-rose-600',
-    text: 'text-rose-600',
-    textDark: 'text-rose-700',
-    border: 'border-rose-200',
-    ring: 'ring-rose-500/20',
-    iconBg: 'bg-rose-100',
-    progress: 'from-rose-500 to-rose-600',
-  },
-  violet: {
-    light: 'bg-violet-50',
-    medium: 'bg-violet-100',
-    dark: 'bg-violet-600',
-    text: 'text-violet-600',
-    textDark: 'text-violet-700',
-    border: 'border-violet-200',
-    ring: 'ring-violet-500/20',
-    iconBg: 'bg-violet-100',
-    progress: 'from-violet-500 to-violet-600',
-  },
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
@@ -195,6 +134,9 @@ export default function DokumenSPJPage() {
   const [selectedCard, setSelectedCard] = useState(null)
   const [selectedSubKategori, setSelectedSubKategori] = useState(null)
   const [formData, setFormData] = useState({})
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [sppdData, setSppdData] = useState({})
+  const detailRef = useRef(null)
   const toast = useToast()
 
   useEffect(() => {
@@ -242,17 +184,66 @@ export default function DokumenSPJPage() {
   }, 0)
   const progress = totalSubKategori > 0 ? Math.round((completedCount / totalSubKategori) * 100) : 0
 
-  // ─── Handlers ────────────────────────────────────────────────────────────
+  // ─── Premium Scroll Handler ──────────────────────────────────────────────
+  const scrollToDetail = () => {
+    setTimeout(() => {
+      if (detailRef.current) {
+        const yOffset = -80 // Offset untuk sticky header
+        const y = detailRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+  }
 
-  const handleOpenCard = (card) => {
-    setSelectedCard(card)
-    setSelectedSubKategori(card.subKategori?.[0] || null)
-    setFormData({})
+  // ─── Card Click Handler dengan Animasi Premium ──────────────────────────
+  const handleCardClick = (card) => {
+    if (selectedCard?.id === card.id) {
+      // Klik card yang sama → tutup dengan animasi
+      setIsAnimating(true)
+      setTimeout(() => {
+        setSelectedCard(null)
+        setSelectedSubKategori(null)
+        setFormData({})
+        setIsAnimating(false)
+      }, 200)
+    } else {
+      // Klik card baru → buka dengan animasi
+      setIsAnimating(true)
+      setSelectedCard(card)
+      
+      // Auto-select first non-coming-soon sub-kategori
+      const firstValidSub = card.subKategori?.find(s => !s.comingSoon)
+      setSelectedSubKategori(firstValidSub || null)
+      setFormData({})
+      
+      // Trigger animation then scroll
+      setTimeout(() => {
+        setIsAnimating(false)
+        scrollToDetail()
+      }, 50)
+    }
+  }
+
+  const handleCloseDetail = () => {
+    setIsAnimating(true)
+    setTimeout(() => {
+      setSelectedCard(null)
+      setSelectedSubKategori(null)
+      setFormData({})
+      setIsAnimating(false)
+      // Scroll back to top
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 200)
   }
 
   const handleSubKategoriChange = (sub) => {
+    setIsAnimating(true)
     setSelectedSubKategori(sub)
     setFormData({})
+    setTimeout(() => setIsAnimating(false), 300)
   }
 
   const getTemplateConfig = () => {
@@ -268,7 +259,6 @@ export default function DokumenSPJPage() {
       return
     }
     
-    // Set print orientation
     const printContainer = document.querySelector('.print-container')
     if (printContainer) {
       printContainer.classList.remove('portrait', 'landscape')
@@ -280,13 +270,11 @@ export default function DokumenSPJPage() {
 
   // ─── Auto-Fill Handler ───────────────────────────────────────────────────
   const handleAutoFill = (autoFillData) => {
-    // Compute auto values for each row
     const config = getTemplateConfig()
     const columns = config?.blocks?.find(b => b.type === 'table-dinamis')?.columns || []
     
     const computedData = autoFillData.map(row => {
       const newRow = { ...row }
-      // Compute auto columns
       columns.forEach(col => {
         if (col.auto && col.auto.type) {
           const fields = col.auto.fields || []
@@ -296,34 +284,452 @@ export default function DokumenSPJPage() {
           })
           
           switch (col.auto.type) {
-            case 'sum':
-              newRow[col.key] = values.reduce((a, b) => a + b, 0)
-              break
-            case 'mul':
-              newRow[col.key] = values.reduce((a, b) => a * b, 1)
-              break
-            case 'sub':
-              newRow[col.key] = values.length >= 2 ? values[0] - values[1] : 0
-              break
+            case 'sum': newRow[col.key] = values.reduce((a, b) => a + b, 0); break
+            case 'mul': newRow[col.key] = values.reduce((a, b) => a * b, 1); break
+            case 'sub': newRow[col.key] = values.length >= 2 ? values[0] - values[1] : 0; break
           }
         }
       })
       return newRow
     })
     
-    // Merge with existing rows
     const existingRows = formData.rows || []
-    const newRows = [...existingRows, ...computedData]
-    setFormData({ ...formData, rows: newRows })
+    setFormData({ ...formData, rows: [...existingRows, ...computedData] })
   }
 
-  // ─── Grouped Cards ───────────────────────────────────────────────────────
+  // ─── SPPD Auto-Generate from Transport ──────────────────────────────────
+  // Initialize SPPD data when transport data changes
+  useEffect(() => {
+    const transportRows = formData.rows || []
+    if (transportRows.length === 0 || !selectedCard?.isTransport) {
+      setSppdData({})
+      return
+    }
+    
+    const config = getTemplateConfig()
+    const kegiatan = config?.defaults?.kegiatan || 'Perjalanan Dinas'
+    const tempat = config?.defaults?.tempat || 'Cikalongwetan'
+    const tanggal = transportRows[0]?.tanggal || new Date().toISOString().split('T')[0]
+    const lama = transportRows[0]?.lama || '1 hari'
+    
+    // Only update if SPPD data is empty or transport data changed
+    setSppdData(prev => ({
+      // Keep existing nomorSurat if any
+      nomorSurat: prev.nomorSurat || '',
+      // Auto-fill from transport
+      tujuan: kegiatan,
+      tanggal: tanggal,
+      tempat: tempat,
+      lama: lama,
+      // List penerima tugas
+      rows: transportRows.map((row, idx) => ({
+        no: idx + 1,
+        nama: row.nama || '',
+        nip: row.nip || '',
+        jabatan: row.jabatan || '',
+        ttd: '',
+      })),
+    }))
+  }, [formData.rows, selectedCard?.isTransport])
 
+  // ─── Grouped Cards ───────────────────────────────────────────────────────
   const bkuUtama = CARDS.filter((c) => c.kategori === 'BKU Utama')
   const dokumenPendukung = CARDS.filter((c) => c.kategori === 'Dokumen Pendukung')
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // RENDER
+  // RENDER: ACCORDION CARD
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const renderCard = (card, isCompact = false) => {
+    const isSelected = selectedCard?.id === card.id
+    const cardProgress = getCardProgress(card)
+
+    if (isCompact) {
+      return (
+        <button
+          key={card.id}
+          onClick={() => handleCardClick(card)}
+          className={`group relative bg-white rounded-xl border-2 p-4 text-left transition-all duration-500 ease-out ${
+            isSelected
+              ? 'border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10 scale-[1.02]'
+              : 'border-slate-200 hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
+          }`}
+        >
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ${
+            isSelected ? 'bg-primary text-white scale-110' : 'bg-slate-100 text-slate-600 group-hover:scale-105'
+          }`}>
+            <span className="material-symbols-outlined text-xl">{card.icon}</span>
+          </div>
+          <h4 className="text-sm font-bold text-slate-800 mb-1">{card.nama}</h4>
+          <p className="text-[10px] text-slate-500 line-clamp-2">{card.deskripsi}</p>
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-[10px] font-medium text-slate-400">Informasi</span>
+            <span className={`material-symbols-outlined text-sm transition-all duration-300 ${
+              isSelected ? 'text-primary rotate-90' : 'text-slate-300 group-hover:translate-x-1'
+            }`}>
+              chevron_right
+            </span>
+          </div>
+        </button>
+      )
+    }
+
+    // Full card untuk BKU Utama
+    return (
+      <button
+        key={card.id}
+        onClick={() => handleCardClick(card)}
+        className={`group relative bg-white rounded-2xl border-2 p-5 text-left transition-all duration-500 ease-out overflow-hidden ${
+          isSelected
+            ? 'border-primary ring-4 ring-primary/10 shadow-xl shadow-primary/15 scale-[1.02]'
+            : 'border-slate-200 hover:border-slate-300 hover:shadow-lg hover:scale-[1.01]'
+        }`}
+      >
+        {/* Premium Glow Effect */}
+        <div className={`absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent transition-opacity duration-500 ${
+          isSelected ? 'opacity-100' : 'opacity-0'
+        }`} />
+        
+        {/* Top Row */}
+        <div className="relative flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+              isSelected 
+                ? 'bg-gradient-to-br from-primary to-blue-600 text-white scale-110 shadow-lg shadow-primary/30' 
+                : 'bg-slate-100 text-slate-600 group-hover:scale-105'
+            }`}>
+              <span className="material-symbols-outlined text-2xl">{card.icon}</span>
+            </div>
+            <div>
+              <h4 className="text-base font-bold text-slate-800">{card.nama}</h4>
+              <p className="text-xs text-slate-500 mt-0.5">{card.deskripsi}</p>
+            </div>
+          </div>
+          <div className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-300 ${
+            cardProgress === 100 ? 'bg-emerald-100 text-emerald-700' :
+            cardProgress > 0 ? 'bg-amber-100 text-amber-700' :
+            'bg-slate-100 text-slate-600'
+          }`}>
+            {cardProgress === 100 ? '✓ Selesai' : cardProgress > 0 ? `${cardProgress}%` : 'Belum'}
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="relative mb-4">
+          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${cardProgress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Sub-Kategori Pills */}
+        <div className="relative flex flex-wrap gap-1.5">
+          {card.subKategori?.map((sub) => {
+            const subStatus = getStatus(card.id, sub.id)
+            const isComplete = subStatus === 'Lengkap'
+            const isDraft = subStatus === 'Draft'
+
+            return (
+              <span
+                key={sub.id}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all duration-300 ${
+                  sub.comingSoon
+                    ? 'bg-slate-100 text-slate-400'
+                    : isComplete
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : isDraft
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-slate-50 text-slate-600 border border-slate-200'
+                }`}
+              >
+                {isComplete && <span className="text-emerald-500">✓</span>}
+                {isDraft && <span className="text-amber-500">◐</span>}
+                {sub.label}
+                {sub.comingSoon && <span className="text-slate-400"> Soon</span>}
+              </span>
+            )
+          })}
+        </div>
+
+        {/* Arrow Indicator */}
+        <div className={`absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-500 ${
+          isSelected ? 'text-primary opacity-100' : 'text-slate-300 opacity-0 group-hover:opacity-100'
+        }`}>
+          <span className={`material-symbols-outlined transition-transform duration-500 ${
+            isSelected ? 'rotate-90' : 'group-hover:translate-x-1'
+          }`}>
+            chevron_right
+          </span>
+        </div>
+      </button>
+    )
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER: DETAIL PANEL (PREMIUM ACCORDION)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const renderDetailPanel = () => {
+    if (!selectedCard) return null
+
+    const isTransport = selectedCard?.isTransport
+    const isTransportSub = isTransport && selectedSubKategori?.templateId !== null && selectedSubKategori?.templateId !== 'sppd'
+    const hasSppdData = isTransportSub && sppdData && sppdData.rows && sppdData.rows.length > 0
+
+    return (
+      <div 
+        ref={detailRef}
+        className={`transition-all duration-700 ease-out ${
+          isAnimating 
+            ? 'opacity-0 translate-y-8 scale-[0.98]' 
+            : 'opacity-100 translate-y-0 scale-100'
+        }`}
+      >
+        <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-hidden">
+          {/* Premium Decorative Elements */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
+          
+          <div className="relative p-6 space-y-5">
+            {/* Header Panel */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                    <span className="material-symbols-outlined text-3xl text-white">{selectedCard.icon}</span>
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
+                    Detail Dokumen
+                  </span>
+                  <h3 className="text-lg font-bold text-slate-800 mt-2">{selectedCard.nama}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{selectedCard.deskripsi}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseDetail}
+                className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95"
+              >
+                <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
+              </button>
+            </div>
+
+            {/* Sub-Kategori Tabs */}
+            {selectedCard.subKategori && (
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {selectedCard.subKategori.map((sub, index) => {
+                  const subStatus = getStatus(selectedCard.id, sub.id)
+                  const isActive = selectedSubKategori?.id === sub.id
+
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => !sub.comingSoon && handleSubKategoriChange(sub)}
+                      disabled={sub.comingSoon}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-300 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105'
+                          : sub.comingSoon
+                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:scale-105'
+                      }`}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {subStatus === 'Lengkap' && <span className="text-emerald-400 text-[10px]">✓</span>}
+                      {subStatus === 'Draft' && <span className="text-amber-400 text-[10px]">◐</span>}
+                      {sub.label}
+                      {sub.comingSoon && <span className="text-slate-400 text-[10px]">(Soon)</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Content Area */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              {selectedCard.infoOnly && !selectedCard.subKategori ? (
+                // Info Only View
+                <div className="p-8 text-center">
+                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <span className="material-symbols-outlined text-slate-300 text-4xl">{selectedCard.icon}</span>
+                  </div>
+                  <p className="text-lg font-bold text-slate-800 mb-2">{selectedCard.nama}</p>
+                  <div className="flex flex-wrap justify-center gap-2 mt-4">
+                    {selectedCard.infoItems?.map((item, i) => (
+                      <span key={i} className="px-4 py-2 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 border border-slate-200">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : selectedCard.infoOnly && selectedCard.subKategori ? (
+                // Info Only with Sub-Kategori (Tagihan)
+                selectedSubKategori?.templateId ? (
+                  <div className="p-6">
+                    <TemplateEngine
+                      templateConfig={getTemplateConfig()}
+                      data={formData}
+                      onDataChange={setFormData}
+                      mode="edit"
+                    />
+                  </div>
+                ) : (
+                  <div className="p-8 text-center">
+                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">{selectedCard.icon}</span>
+                    <p className="text-base font-bold text-slate-800 mb-2">{selectedSubKategori?.label}</p>
+                    <p className="text-sm text-slate-500 mb-4">{selectedSubKategori?.info}</p>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
+                      <p className="text-xs text-amber-700">Template belum tersedia.</p>
+                    </div>
+                  </div>
+                )
+              ) : selectedSubKategori?.templateId ? (
+                // Template View
+                <div className="p-6 space-y-6">
+                  {/* Auto-Fill Button */}
+                  <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-amber-600">auto_awesome</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-800">Auto-Fill Data</p>
+                        <p className="text-xs text-slate-500">Isi dari profil guru/tendik otomatis</p>
+                      </div>
+                    </div>
+                    <AutoFillHonorButton 
+                      templateId={selectedSubKategori?.templateId}
+                      onAutoFill={handleAutoFill}
+                    />
+                  </div>
+
+                  {/* Transport: Show Transport Template */}
+                  {isTransportSub && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-primary">
+                        <span className="material-symbols-outlined text-xl">receipt_long</span>
+                        <h4 className="font-bold">Daftar Penerima Transport</h4>
+                      </div>
+                      <TemplateEngine
+                        templateConfig={getTemplateConfig()}
+                        data={formData}
+                        onDataChange={setFormData}
+                        mode="edit"
+                      />
+                    </div>
+                  )}
+
+                  {/* SPPD Template (Auto-fill dari transport) */}
+                  {isTransportSub && hasSppdData && (
+                    <div className="relative">
+                      {/* Divider */}
+                      <div className="flex items-center gap-4 my-6">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
+                          <span className="material-symbols-outlined text-lg">description</span>
+                          <span className="text-sm font-bold">Surat Perintah Tugas (SPPD)</span>
+                        </div>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                      </div>
+
+                      {/* Info Banner */}
+                      <div className="bg-gradient-to-r from-blue-50 to-primary/5 rounded-xl p-4 border border-blue-200 mb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                            <span className="material-symbols-outlined text-blue-600">auto_awesome</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-blue-800">Surat Perintah Tugas (SPPD)</p>
+                            <p className="text-xs text-blue-600 mt-1">
+                              Daftar nama penerima tugas terisi otomatis dari daftar penerima transport di atas. 
+                              Nomor surat di-generate terpisah melalui popup di header dokumen.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SPPD Content - TemplateEngine handles its own nomor surat via HeaderDokumen popup */}
+                      <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl border border-blue-200 p-6">
+                        <TemplateEngine
+                          templateConfig={TEMPLATE_CONFIGS.sppd}
+                          data={sppdData}
+                          onDataChange={setSppdData}
+                          mode="edit"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Non-transport: Show single template */}
+                  {!isTransportSub && (
+                    <TemplateEngine
+                      templateConfig={getTemplateConfig()}
+                      data={formData}
+                      onDataChange={setFormData}
+                      mode="edit"
+                    />
+                  )}
+                </div>
+              ) : (
+                // Coming Soon View
+                <div className="p-8 text-center">
+                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <span className="material-symbols-outlined text-slate-300 text-4xl">construction</span>
+                  </div>
+                  <p className="text-base font-bold text-slate-800 mb-2">
+                    {selectedSubKategori?.label || selectedCard.nama}
+                  </p>
+                  <p className="text-sm text-slate-500 mb-4">
+                    Template belum tersedia untuk sub-kategori ini.
+                  </p>
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
+                    <p className="text-xs text-amber-700">
+                      Upload file template ke folder <code className="bg-amber-100 px-1 rounded">/template</code>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={handleCloseDetail}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                Kembali ke Daftar
+              </button>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => toggleStatus(selectedCard.id, selectedSubKategori?.id)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  Tandai Selesai
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-lg">print</span>
+                  Cetak Dokumen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER: MAIN
   // ═══════════════════════════════════════════════════════════════════════════
 
   return (
@@ -334,25 +740,26 @@ export default function DokumenSPJPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* HERO STATS BANNER                                                  */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-blue-700 rounded-2xl p-6 text-white shadow-xl">
-          {/* Background Pattern */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-blue-700 rounded-3xl p-6 text-white shadow-2xl shadow-primary/30">
+          {/* Premium Background Effects */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
           </div>
+          <div className="absolute top-4 left-4 w-2 h-2 bg-white/30 rounded-full animate-pulse" />
+          <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse" />
+          <div className="absolute bottom-6 left-1/3 w-1 h-1 bg-white/20 rounded-full animate-pulse" />
 
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            {/* Left: Title & Progress */}
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined text-2xl">description</span>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="material-symbols-outlined text-3xl">description</span>
                 <h2 className="text-xl font-bold">Dokumen LPJ BOS/BOSP</h2>
               </div>
               <p className="text-white/80 text-sm mb-4">
                 Lengkapi semua dokumen pertanggungjawaban untuk periode anggaran 2026
               </p>
 
-              {/* Progress Bar */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 max-w-md">
                   <div className="flex justify-between text-xs mb-1.5">
@@ -373,17 +780,16 @@ export default function DokumenSPJPage() {
               </div>
             </div>
 
-            {/* Right: Quick Stats */}
             <div className="flex gap-3">
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[90px]">
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
                 <div className="text-2xl font-bold">{completedCount}</div>
                 <div className="text-[10px] text-white/80 uppercase tracking-wide">Selesai</div>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[90px]">
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
                 <div className="text-2xl font-bold">{draftCount}</div>
                 <div className="text-[10px] text-white/80 uppercase tracking-wide">Draft</div>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 text-center min-w-[90px]">
+              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
                 <div className="text-2xl font-bold">{totalSubKategori - completedCount - draftCount}</div>
                 <div className="text-[10px] text-white/80 uppercase tracking-wide">Belum</div>
               </div>
@@ -395,91 +801,14 @@ export default function DokumenSPJPage() {
         {/* BKU UTAMA SECTION                                                  */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-primary rounded-full" />
-            <h3 className="text-sm font-bold text-text-high uppercase tracking-wide">BKU Utama</h3>
-            <span className="text-xs text-text-low">— Dokumen utama pertanggungjawaban</span>
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-6 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">BKU Utama</h3>
+            <span className="text-xs text-slate-500">— Dokumen utama pertanggungjawaban</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {bkuUtama.map((card) => {
-              const colors = COLORS[card.color] || COLORS.blue
-              const cardProgress = getCardProgress(card)
-              const activeSubs = card.subKategori?.filter((s) => !s.comingSoon) || []
-              const completedSubs = activeSubs.filter((s) => getStatus(card.id, s.id) === 'Lengkap').length
-
-              return (
-                <button
-                  key={card.id}
-                  onClick={() => handleOpenCard(card)}
-                  className={`group relative bg-white rounded-2xl border ${colors.border} p-5 text-left transition-all duration-300 hover:shadow-lg hover:shadow-${card.color}-500/10 hover:border-${card.color}-300 hover:-translate-y-0.5`}
-                >
-                  {/* Top Row */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl ${colors.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                        <span className={`material-symbols-outlined text-2xl ${colors.text}`}>{card.icon}</span>
-                      </div>
-                      <div>
-                        <h4 className="text-base font-bold text-text-high">{card.nama}</h4>
-                        <p className="text-xs text-text-low mt-0.5">{card.deskripsi}</p>
-                      </div>
-                    </div>
-                    <div className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                      cardProgress === 100 ? 'bg-emerald-100 text-emerald-700' :
-                      cardProgress > 0 ? 'bg-amber-100 text-amber-700' :
-                      'bg-slate-100 text-slate-600'
-                    }`}>
-                      {cardProgress === 100 ? '✓ Selesai' : cardProgress > 0 ? `${cardProgress}%` : 'Belum'}
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${colors.progress} rounded-full transition-all duration-500`}
-                        style={{ width: `${cardProgress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Sub-Kategori Pills */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {card.subKategori?.map((sub) => {
-                      const subStatus = getStatus(card.id, sub.id)
-                      const isComplete = subStatus === 'Lengkap'
-                      const isDraft = subStatus === 'Draft'
-
-                      return (
-                        <span
-                          key={sub.id}
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-colors ${
-                            sub.comingSoon
-                              ? 'bg-slate-100 text-slate-400'
-                              : isComplete
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : isDraft
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                  : `${colors.light} ${colors.textDark} border ${colors.border}`
-                          }`}
-                        >
-                          {isComplete && <span className="text-emerald-500">✓</span>}
-                          {isDraft && <span className="text-amber-500">◐</span>}
-                          {sub.label}
-                          {sub.comingSoon && <span className="text-slate-400"> Soon</span>}
-                        </span>
-                      )
-                    })}
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="material-symbols-outlined text-slate-300">arrow_forward</span>
-                  </div>
-                </button>
-              )
-            })}
+            {bkuUtama.map((card) => renderCard(card))}
           </div>
         </div>
 
@@ -487,254 +816,43 @@ export default function DokumenSPJPage() {
         {/* DOKUMEN PENDUKUNG SECTION                                          */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-5 bg-violet-500 rounded-full" />
-            <h3 className="text-sm font-bold text-text-high uppercase tracking-wide">Dokumen Pendukung</h3>
-            <span className="text-xs text-text-low">— Informasi tambahan dan blanko</span>
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-6 bg-gradient-to-b from-slate-400 to-slate-500 rounded-full" />
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Dokumen Pendukung</h3>
+            <span className="text-xs text-slate-500">— Informasi tambahan dan blanko</span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {dokumenPendukung.map((card) => {
-              const colors = COLORS.violet
-              const cardProgress = getCardProgress(card)
-
-              return (
-                <button
-                  key={card.id}
-                  onClick={() => handleOpenCard(card)}
-                  className={`group relative bg-white rounded-xl border border-violet-200 p-4 text-left transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-300 hover:-translate-y-0.5`}
-                >
-                  {/* Icon */}
-                  <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-xl text-violet-600">{card.icon}</span>
-                  </div>
-
-                  {/* Content */}
-                  <h4 className="text-sm font-bold text-text-high mb-1">{card.nama}</h4>
-                  <p className="text-[10px] text-text-low line-clamp-2">{card.deskripsi}</p>
-
-                  {/* Status */}
-                  <div className="mt-3 pt-3 border-t border-slate-100">
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[10px] font-medium ${
-                        cardProgress === 100 ? 'text-emerald-600' : 'text-slate-400'
-                      }`}>
-                        {cardProgress === 100 ? '✓ Selesai' : 'Informasi'}
-                      </span>
-                      <span className="material-symbols-outlined text-slate-300 text-sm group-hover:text-violet-500 transition-colors">
-                        arrow_forward
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
+            {dokumenPendukung.map((card) => renderCard(card, true))}
           </div>
         </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* ACCORDION DETAIL PANEL                                             */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {renderDetailPanel()}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* QUICK ACTIONS                                                      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="flex flex-wrap gap-3 pt-2">
-          <button className="flex items-center gap-2 bg-primary text-on-primary px-5 py-2.5 rounded-xl hover:brightness-110 shadow-md shadow-primary/20 transition-all active:scale-95 text-sm font-medium">
-            <span className="material-symbols-outlined text-lg">print</span>
-            Cetak Semua Lengkap
-          </button>
-          <button className="flex items-center gap-2 bg-white border border-outline-variant text-text-high px-5 py-2.5 rounded-xl hover:bg-surface-container-low transition-all active:scale-95 text-sm font-medium">
-            <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
-            Export ke PDF
-          </button>
-          <button className="flex items-center gap-2 bg-white border border-outline-variant text-text-high px-5 py-2.5 rounded-xl hover:bg-surface-container-low transition-all active:scale-95 text-sm font-medium">
-            <span className="material-symbols-outlined text-lg">checklist</span>
-            Tandai Semua Selesai
-          </button>
-        </div>
+        {!selectedCard && (
+          <div className="flex flex-wrap gap-3 pt-2">
+            <button className="flex items-center gap-2 bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-3 rounded-2xl hover:brightness-110 shadow-lg shadow-primary/20 transition-all duration-300 active:scale-95 text-sm font-medium">
+              <span className="material-symbols-outlined text-lg">print</span>
+              Cetak Semua Lengkap
+            </button>
+            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-2xl hover:bg-slate-50 transition-all duration-300 active:scale-95 text-sm font-medium">
+              <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+              Export ke PDF
+            </button>
+            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-2xl hover:bg-slate-50 transition-all duration-300 active:scale-95 text-sm font-medium">
+              <span className="material-symbols-outlined text-lg">checklist</span>
+              Tandai Semua Selesai
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* DETAIL MODAL                                                       */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {selectedCard && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
-          onClick={() => setSelectedCard(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-outline-variant bg-gradient-to-r from-slate-50 to-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl ${COLORS[selectedCard.color]?.iconBg || 'bg-slate-100'} flex items-center justify-center`}>
-                    <span className={`material-symbols-outlined text-2xl ${COLORS[selectedCard.color]?.text || 'text-slate-600'}`}>
-                      {selectedCard.icon}
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-text-high">{selectedCard.nama}</h2>
-                    <p className="text-xs text-text-low">{selectedCard.deskripsi}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedCard(null)}
-                  className="p-2 rounded-lg hover:bg-surface-container-high transition-colors"
-                >
-                  <span className="material-symbols-outlined text-text-low">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Sub-Kategori Tabs */}
-            {selectedCard.subKategori && (
-              <div className="px-6 py-3 border-b border-outline-variant bg-slate-50">
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {selectedCard.subKategori.map((sub) => {
-                    const subStatus = getStatus(selectedCard.id, sub.id)
-                    const isActive = selectedSubKategori?.id === sub.id
-                    const colors = COLORS[selectedCard.color] || COLORS.blue
-
-                    return (
-                      <button
-                        key={sub.id}
-                        onClick={() => !sub.comingSoon && handleSubKategoriChange(sub)}
-                        disabled={sub.comingSoon}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                          isActive
-                            ? `${colors.dark} text-white shadow-sm`
-                            : sub.comingSoon
-                              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                              : 'bg-white text-text-high border border-outline-variant hover:bg-surface-container-low'
-                        }`}
-                      >
-                        {subStatus === 'Lengkap' && <span className="text-emerald-500 text-[10px]">✓</span>}
-                        {subStatus === 'Draft' && <span className="text-amber-500 text-[10px]">◐</span>}
-                        {sub.label}
-                        {sub.comingSoon && <span className="text-slate-400 text-[10px]">(Soon)</span>}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto">
-              {selectedCard.infoOnly && !selectedCard.subKategori ? (
-                // ─── Info Only View ──────────────────────────────────────
-                <div className="p-6">
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 mb-6">
-                    <span className="material-symbols-outlined text-amber-600">info</span>
-                    <div>
-                      <p className="text-sm font-medium text-amber-800">Informasi Saja</p>
-                      <p className="text-xs text-amber-700 mt-1">
-                        Dokumen ini bersifat informasi. Tidak ada form yang perlu diisi.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-8 text-center">
-                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">{selectedCard.icon}</span>
-                    <p className="text-base font-bold text-text-high mb-2">{selectedCard.nama}</p>
-                    <div className="flex flex-wrap justify-center gap-2 mt-4">
-                      {selectedCard.infoItems?.map((item, i) => (
-                        <span key={i} className="px-3 py-1.5 bg-white rounded-lg text-xs font-medium text-text-high border border-outline-variant">
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : selectedCard.infoOnly && selectedCard.subKategori ? (
-                // ─── Info Only with Sub-Kategori (Tagihan) ────────────────
-                <div className="p-6">
-                  {selectedSubKategori?.templateId ? (
-                    <TemplateEngine
-                      templateConfig={getTemplateConfig()}
-                      data={formData}
-                      onDataChange={setFormData}
-                      mode="edit"
-                    />
-                  ) : (
-                    <div className="bg-slate-50 rounded-xl p-8 text-center">
-                      <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">{selectedCard.icon}</span>
-                      <p className="text-base font-bold text-text-high mb-2">{selectedSubKategori?.label}</p>
-                      <p className="text-sm text-text-low mb-4">{selectedSubKategori?.info}</p>
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 max-w-sm mx-auto">
-                        <p className="text-xs text-amber-700">
-                          Template belum tersedia. Upload file template terlebih dahulu.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : selectedSubKategori?.templateId ? (
-                // ─── Template View ───────────────────────────────────────
-                <div className="p-6">
-                  {/* Auto-Fill Button for Honor Templates */}
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-amber-500">info</span>
-                      <span className="text-xs text-slate-500">Klik tombol di bawah untuk mengisi data dari profil guru/tendik</span>
-                    </div>
-                    <AutoFillHonorButton 
-                      templateId={selectedSubKategori?.templateId}
-                      onAutoFill={handleAutoFill}
-                    />
-                  </div>
-                  <TemplateEngine
-                    templateConfig={getTemplateConfig()}
-                    data={formData}
-                    onDataChange={setFormData}
-                    mode="edit"
-                  />
-                </div>
-              ) : (
-                // ─── Coming Soon View ────────────────────────────────────
-                <div className="p-6">
-                  <div className="bg-slate-50 rounded-xl p-8 text-center">
-                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">construction</span>
-                    <p className="text-base font-bold text-text-high mb-2">
-                      {selectedSubKategori?.label || selectedCard.nama}
-                    </p>
-                    <p className="text-sm text-text-low mb-4">
-                      Template belum tersedia untuk sub-kategori ini.
-                    </p>
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 max-w-sm mx-auto">
-                      <p className="text-xs text-amber-700">
-                        Upload file template (DOCX/Excel) ke folder <code>/template</code>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 border-t border-outline-variant bg-slate-50 flex items-center justify-end">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    toggleStatus(selectedCard.id, selectedSubKategori?.id)
-                    toast.success('Status diubah')
-                  }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-white border border-outline-variant text-text-high hover:bg-surface-container-low transition-all"
-                >
-                  <span className="material-symbols-outlined text-lg">check_circle</span>
-                  Selesai
-                </button>
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:brightness-110 shadow-sm transition-all"
-                >
-                  <span className="material-symbols-outlined text-lg">print</span>
-                  Cetak
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

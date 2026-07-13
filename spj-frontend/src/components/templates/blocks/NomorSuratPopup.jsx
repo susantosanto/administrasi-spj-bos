@@ -5,15 +5,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { 
   KODE_SURAT, 
-  generateNomorSurat, 
   saveNomorSurat, 
-  previewNomorSurat,
-  getNextNumber,
-  getFormatSettings
+  buildNomorSurat,
+  generateNomorSuratStandar,
+  getNextNumberStandar,
+  getFormatSegments,
+  KODE_PENDEK_TO_KLASIFIKASI
 } from '../../../utils/nomorSuratHelper'
 import { useToast } from '../../ui/Toast'
 
-export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
+// Default nama sekolah (sama dengan menu Nomor Surat)
+const NAMA_SEKOLAH_DEFAULT = 'SDN-PSR'
+
+export default function NomorSuratPopup({ onSelect, onClose, currentNomor, bulan, tahun }) {
   const [selectedKode, setSelectedKode] = useState('STS')
   const [preview, setPreview] = useState('')
   const [nextNum, setNextNum] = useState(1)
@@ -22,19 +26,31 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
   const toast = useToast()
   const popupRef = useRef(null)
 
+  // Dokumen bulan/tahun (dari HeaderDokumen) atau default bulan/tahun sekarang
+  const b = bulan || (new Date().getMonth() + 1)
+  const t = tahun || new Date().getFullYear()
+
   // Update preview when kode changes
   useEffect(() => {
     if (!useCustom) {
       try {
-        const previewNomor = previewNomorSurat(selectedKode)
-        setPreview(previewNomor)
-        const next = getNextNumber(selectedKode)
-        setNextNum(next)
+        const segs = getFormatSegments()
+        const klasifikasi = KODE_PENDEK_TO_KLASIFIKASI[selectedKode] || '421.3'
+        const nomor = buildNomorSurat({
+          kodeKlasifikasi: klasifikasi,
+          kodePendek: selectedKode,
+          namaSekolah: NAMA_SEKOLAH_DEFAULT,
+          bulan: b,
+          tahun: t,
+          formatSegments: segs
+        })
+        setPreview(nomor)
+        setNextNum(getNextNumberStandar(klasifikasi, b, t))
       } catch (err) {
         setPreview('Error: ' + err.message)
       }
     }
-  }, [selectedKode, useCustom])
+  }, [selectedKode, useCustom, b, t])
 
   // Handle click outside to close
   useEffect(() => {
@@ -56,7 +72,12 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
       onSelect(customNomor.trim())
     } else {
       try {
-        const { nomor, record } = generateNomorSurat(selectedKode)
+        const { nomor, record } = generateNomorSuratStandar({
+          kodePendek: selectedKode,
+          namaSekolah: NAMA_SEKOLAH_DEFAULT,
+          bulan: b,
+          tahun: t
+        })
         saveNomorSurat(record)
         onSelect(nomor)
         toast.success(`Nomor surat ${nomor} berhasil digenerate`)
@@ -69,7 +90,16 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
 
   const handlePreview = () => {
     if (!useCustom) {
-      setPreview(previewNomorSurat(selectedKode))
+      const segs = getFormatSegments()
+      const klasifikasi = KODE_PENDEK_TO_KLASIFIKASI[selectedKode] || '421.3'
+      setPreview(buildNomorSurat({
+        kodeKlasifikasi: klasifikasi,
+        kodePendek: selectedKode,
+        namaSekolah: NAMA_SEKOLAH_DEFAULT,
+        bulan: b,
+        tahun: t,
+        formatSegments: segs
+      }))
     }
   }
 
@@ -139,7 +169,7 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
                 type="text"
                 value={customNomor}
                 onChange={(e) => setCustomNomor(e.target.value)}
-                placeholder="400.1.7.6/001-SD/2026"
+                placeholder="422.1/SK-001/SDN-PSR/VII/2026"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
               />
             </div>
@@ -180,7 +210,7 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor }) {
                         {kode.nama}
                       </p>
                       <p className="text-[9px] text-slate-400">
-                        Next: {getNextNumber(kode.kode)}
+                        Next: {getNextNumberStandar(KODE_PENDEK_TO_KLASIFIKASI[kode.kode] || '421.3', b, t)}
                       </p>
                     </div>
                   </button>

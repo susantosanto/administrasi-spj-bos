@@ -51,6 +51,14 @@
 | 41. Nomor Surat Popup Integration | ✅ DONE | 2026-07-12 |
 | 42. Auto-Fill Data Honorer (Guru/Tendik/Perpus) | ✅ DONE | 2026-07-12 |
 | 43. Role Honor System untuk Tendik | ✅ DONE | 2026-07-12 |
+| 44. Dokumen LPJ Accordion/Toggle Card (No Modal) | ✅ DONE | 2026-07-13 |
+| 45. Enforce Blue-Only Design System (Remove Colors) | ✅ DONE | 2026-07-13 |
+| 46. SPPD Auto-Fill in Transport (Inline) | ✅ DONE | 2026-07-13 |
+| 47. SPPD Include in Transport (Remove Tab) | ✅ DONE | 2026-07-13 |
+| 48. SPPD Format Surat Tugas (1 List Nama) | ✅ DONE | 2026-07-13 |
+| 49. Lampiran Daftar Penerima Tugas | ✅ DONE | 2026-07-13 |
+| 50. Nomor Surat Terpisah + Popup di Header | ✅ DONE | 2026-07-13 |
+| 51. Fix Format Nomor Surat di Popup Dokumen (Honor & Transport) | ✅ DONE | 2026-07-13 |
 
 ---
 
@@ -64,6 +72,8 @@
 - [x] Data Guru page — 2 tabs (Guru, Tendik) with upload toggle per tab
 - [x] BKU upload page — toggle upload form + horizontal overflow fix
 - [x] Dokumen LPJ page (main)
+- [x] Dokumen LPJ — Accordion/Toggle concept (no modal)
+- [x] SPPD inline di Transport (auto-fill + surat tugas)
 - [x] Dokumen Kelengkapan page
 - [x] Realisasi page
 - [x] Pengaturan page
@@ -354,6 +364,45 @@
 - [x] Honor Perpus → roleHonor = 'perpus'
 - [x] Honor Penjaga → roleHonor = 'penjaga'
 
+### Dokumen LPJ — Accordion/Toggle Concept (Tahap 44)
+- [x] Replace modal concept with inline accordion detail panel
+- [x] One active card at a time (selectedCard state)
+- [x] Highlight visual pada card terpilih
+- [x] Detail panel muncul di bawah section cards (fade-in + slide-up)
+- [x] Smooth scroll + premium animation ke detail
+- [x] Tombol "Tutup Detail" untuk reset
+- [x] Klik card sama → toggle tutup
+
+### Enforce Blue-Only Design System (Tahap 45)
+- [x] Hapus `color` property dari semua CARDS
+- [x] Hapus COLORS config object (blue/emerald/amber/rose/violet)
+- [x] Semua card pakai primary blue (#004ac6) ONLY
+- [x] Konsisten dengan design system MD3
+
+### SPPD Integration di Transport (Tahap 46-49)
+- [x] SPPD auto-fill inline dari daftar penerima transport
+- [x] Hapus tab SPPD terpisah dari Perjalanan Dinas (subKategori sppd removed)
+- [x] SPPD auto-include di setiap dokumen transport
+- [x] Format Surat Tugas standar: 1 surat + list nama penerima
+- [x] Table-dinamis daftar penerima (NO, NAMA, NIP, JABATAN, TTD)
+- [x] Template `lampiran_daftar_tugas` (Lampiran Surat Perintah Tugas)
+- [x] Flag `useAutoFillFromTransport` di sppd config
+- [x] sourceFile: /templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx
+
+### Nomor Surat Terpisah + Popup (Tahap 50)
+- [x] Transport & SPPD punya nomor surat masing-masing
+- [x] `showNomorPopup` flag di HeaderDokumen block
+- [x] `showNomorPopup` flag di InfoKeuangan (transport templates)
+- [x] Tombol 🔍 auto_awesome di header → open NomorSuratPopup
+- [x] Popup select → isi nomorSurat langsung ke data
+- [x] defaults nomorSurat kosong (generate manual)
+
+### Premium Accordion Animations (index.css)
+- [x] fade-in (panel detail muncul)
+- [x] slide-up-premium (blur → sharp)
+- [x] scale-in (card selection)
+- [x] glow-pulse (selected card glow)
+
 ### Design System
 - [x] Material Design 3 theme
 - [x] Primary color ONLY: #004ac6 (blue)
@@ -384,9 +433,9 @@
 
 ## 🐛 KNOWN ISSUES
 
-- [ ] Cetak 13 template belum di-test (perlu running app)
-- [ ] Beberapa sub-kategori masih "Coming Soon" (Pelaksana, Workshop, dll)
 - [ ] Sidebar state belum persist ke localStorage
+- [ ] Test cetak SPPD / Surat Tugas (perlu running app)
+- [ ] Auto-fill SPPD dari transport belum di-test end-to-end
 
 ---
 
@@ -445,15 +494,29 @@
 51. ✅ Auto-fill data honorer dari Data Guru
 52. ✅ Role Honor dropdown untuk Tendik
 53. ✅ Filter honor berdasarkan roleHonor
+54. ✅ Dokumen LPJ accordion (no modal) — detail inline di bawah cards
+55. ✅ Blue-only design system enforced di Dokumen LPJ (hapus colors)
+56. ✅ SPPD auto-fill inline di transport (nama dari daftar penerima)
+57. ✅ SPPD include di transport (tab SPPD dihapus)
+58. ✅ SPPD format Surat Tugas (1 surat + list nama)
+59. ✅ Lampiran Daftar Penerima Tugas template
+60. ✅ Nomor surat terpisah + popup generate di header dokumen
+61. ✅ Premium accordion animations (fade-in, slide-up, scale-in, glow)
+62. ✅ Fix format nomor surat di popup dokumen (Honor & Transport) — sekarang sama dengan menu Nomor Surat (422.1/SK-001/SDN-PSR/VII/2026)
 
 ---
 
 ## 🔮 NEXT STEPS (jika ada)
 
-- Test cetak semua template
-- Implementasi "Coming Soon" sub-kategori
-- Deploy ke Vercel
+- [x] **Accordion/Toggle Card** — Ubah konsep card dokumen dari modal ke accordion (detail muncul di bawah) ✅ 2026-07-13
+- [x] **SPPD Auto-Fill** — Transport + SPPD inline (nama auto-fill dari daftar penerima) ✅ 2026-07-13
+- [x] **SPPD Include di Transport** — SPPD sudah include di setiap dokumen transport (tabs SPPD dihapus) ✅ 2026-07-13
+- [x] **SPPD Format Surat Tugas** — Format standar: 1 Surat Tugas dengan list nama penerima ✅ 2026-07-13
+- [x] **Nomor Surat Terpisah** — Transport & SPPD punya nomor surat masing-masing dengan popup generate ✅ 2026-07-13
+- [ ] Test cetak semua template
+- [ ] Implementasi "Coming Soon" sub-kategori
+- [ ] Deploy ke Vercel
 
 ---
 
-*Last updated: 2026-07-12 | Session: Role Honor System + Auto-Fill Honorer*
+*Last updated: 2026-07-13 | Session: Dokumen LPJ Accordion + SPPD + Fix Format Nomor Surat*

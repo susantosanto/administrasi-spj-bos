@@ -247,6 +247,122 @@ body {
   100% { transform: translate(0, 0); opacity: 0.7; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   PREMIUM ACCORDION ANIMATIONS 2026
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Fade In - Panel detail muncul */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Slide Up Premium */
+@keyframes slide-up-premium {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(4px);
+  }
+  60% {
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Scale In - Card selection */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Glow Pulse - Selected card glow */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 74, 198, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 74, 198, 0.4);
+  }
+}
+
+/* Smooth Reveal */
+@keyframes smooth-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger Children Animation */
+@keyframes stagger-child {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Apply Animations */
+.animate-fade-in {
+  animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up-premium {
+  animation: slide-up-premium 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-smooth-reveal {
+  animation: smooth-reveal 0.4s ease-out forwards;
+}
+
+.animate-stagger-child {
+  animation: stagger-child 0.3s ease-out forwards;
+}
+
+/* Scrollbar Hide Utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ============================================
    Print Styles — A4 Format
    ============================================ */

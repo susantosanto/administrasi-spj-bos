@@ -110,8 +110,13 @@ const NomorSuratPage = () => {
   };
 
   const loadFormats = () => {
-    const saved = get(STORAGE_KEY_FORMATS);
-    if (saved && saved.segments) setFormatSegments(saved.segments);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_FORMATS);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.segments) setFormatSegments(parsed.segments);
+      }
+    } catch (_) { /* ignore */ }
   };
 
   // Get info

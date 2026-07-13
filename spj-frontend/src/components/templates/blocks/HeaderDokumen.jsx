@@ -6,11 +6,15 @@
  *   DAFTAR PENERIMA HONORARIUM/GAJI GURU TIDAK TETAP
  *   BULAN JANUARI 2026
  */
+import { useState } from 'react'
 import { PlaceholderText } from '../../../utils/templateHelpers'
+import NomorSuratPopup from './NomorSuratPopup'
 
 export default function HeaderDokumen({ blockConfig, data = {}, onChange, mode }) {
   const showNomor = blockConfig.nomor !== false
   const showBulan = blockConfig.showBulan !== false
+  const showNomorPopup = blockConfig.showNomorPopup === true
+  const [showPopup, setShowPopup] = useState(false)
 
   // Format bulan/tahun dari data
   const bulanList = [
@@ -67,19 +71,45 @@ export default function HeaderDokumen({ blockConfig, data = {}, onChange, mode }
         <div className="text-center text-xs">
           <span className="text-gray-600">Nomor: </span>
           {mode === 'edit' ? (
-            <input
-              type="text"
-              className="border-b border-dashed border-blue-300 outline-none text-center w-64 bg-transparent"
-              value={data.nomorSurat || ''}
-              onChange={(e) => onChange('nomorSurat', e.target.value)}
-              placeholder="___/___/___/___/2026"
-            />
+            <div className="inline-flex items-center gap-1">
+              <input
+                type="text"
+                className="border-b border-dashed border-blue-300 outline-none text-center w-64 bg-transparent"
+                value={data.nomorSurat || ''}
+                onChange={(e) => onChange('nomorSurat', e.target.value)}
+                placeholder="422.1/SK-001/SDN-PSR/VII/2026"
+              />
+              {showNomorPopup && (
+                <button
+                  type="button"
+                  onClick={() => setShowPopup(true)}
+                  className="p-1 rounded-lg hover:bg-blue-50 text-blue-500 hover:text-blue-600 transition-colors"
+                  title="Generate nomor surat"
+                >
+                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                </button>
+              )}
+            </div>
           ) : (
             <span className="font-medium">
               {data.nomorSurat || <PlaceholderText label="nomor surat" />}
             </span>
           )}
         </div>
+      )}
+
+      {/* Nomor Surat Popup */}
+      {showNomorPopup && showPopup && (
+        <NomorSuratPopup
+          onSelect={(nomor) => {
+            onChange('nomorSurat', nomor)
+            setShowPopup(false)
+          }}
+          onClose={() => setShowPopup(false)}
+          currentNomor={data.nomorSurat}
+          bulan={bulan ? bulanList.indexOf(bulan) + 1 : undefined}
+          tahun={tahun ? parseInt(tahun) : undefined}
+        />
       )}
     </div>
   )

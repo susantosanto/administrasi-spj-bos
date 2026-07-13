@@ -51,6 +51,129 @@ const DEFAULT_FORMAT = {
 };
 
 // ============================================
+// STANDARD FORMAT (sesuai menu Nomor Surat)
+// Format: [Klasifikasi]/[Kode Surat]-[Nomor]/[Nama SD]/[Bulan]/[Tahun]
+// Contoh: 422.1/SK-001/SDN-PSR/VII/2026
+// ============================================
+
+// Storage key untuk custom format (SAMA dengan yg dipakai NomorSuratPage)
+const STORAGE_KEY_FORMATS = 'spj_surat_custom_formats';
+
+// Default format segments (sama dengan menu Nomor Surat)
+export const DEFAULT_FORMAT_SEGMENTS = [
+  { id: 'klasifikasi', label: 'Kode Klasifikasi', enabled: true, order: 1, separator: '/' },
+  { id: 'kode_pendek', label: 'Kode Surat', enabled: true, order: 2, separator: '-' },
+  { id: 'nomor', label: 'Nomor Urut', value: '3', startNumber: '001', enabled: true, order: 3, separator: '/' },
+  { id: 'nama_sd', label: 'Nama Sekolah', enabled: true, order: 4, separator: '/' },
+  { id: 'bulan', label: 'Bulan', value: 'romawi', enabled: true, order: 5, separator: '/' },
+  { id: 'tahun', label: 'Tahun', value: '4', enabled: true, order: 6 }
+];
+
+// Mapping kode pendek → kode klasifikasi (sama dengan NomorSuratPage)
+export const KODE_PENDEK_TO_KLASIFIKASI = {
+  'STS': '421.3', 'SK': '422', 'SU': '423', 'SP': '424',
+  'SKU': '425', 'SE': '426', 'SPD': '427'
+};
+
+// Ambil format segments (custom jika user sudah simpan di menu)
+export function getFormatSegments() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_FORMATS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.segments && Array.isArray(parsed.segments) && parsed.segments.length) {
+        return parsed.segments;
+      }
+    }
+  } catch (_) { /* ignore */ }
+  return DEFAULT_FORMAT_SEGMENTS;
+}
+
+// Build nomor dari segments (logika identik dengan menu Nomor Surat)
+export function buildNomorSurat({ kodeKlasifikasi, kodePendek, namaSekolah, bulan, tahun, formatSegments }) {
+  const segs = (formatSegments && formatSegments.length) ? formatSegments : DEFAULT_FORMAT_SEGMENTS;
+  const sorted = [...segs]
+    .filter(s => s.enabled)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  let result = '';
+  sorted.forEach((seg, i) => {
+    let value = '';
+    switch (seg.id) {
+      case 'klasifikasi': value = kodeKlasifikasi; break;
+      case 'kode_pendek': value = kodePendek; break;
+      case 'nomor': {
+        const digits = parseInt(seg.value) || 3;
+        const startNum = parseInt(seg.startNumber) || 1;
+        const existing = getAllNomorSurat();
+        const sameType = existing.filter(r => r.kode === kodeKlasifikasi && r.bulan === bulan && r.tahun === tahun);
+        let lastNum = startNum - 1;
+        sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
+        value = String(lastNum + 1).padStart(digits, '0');
+        break;
+      }
+      case 'nama_sd': value = namaSekolah; break;
+      case 'bulan':
+        if (seg.value === 'angka') value = String(bulan).padStart(2, '0');
+        else if (seg.value === 'nama') value = getIndonesianMonth(bulan);
+        else value = getRomanMonth(bulan);
+        break;
+      case 'tahun':
+        value = seg.value === '2' ? String(tahun).slice(-2) : String(tahun);
+        break;
+      default: value = seg.value || '';
+    }
+    if (i > 0) result += (sorted[i - 1].separator || '/');
+    result += value;
+  });
+  return result;
+}
+
+// Next number untuk klasifikasi + bulan + tahun tertentu
+export function getNextNumberStandar(klasifikasi, bulan = getCurrentMonth(), tahun = getCurrentYear()) {
+  const segs = getFormatSegments();
+  const nomorSeg = segs.find(s => s.id === 'nomor');
+  const startNum = parseInt(nomorSeg?.startNumber) || 1;
+  const existing = getAllNomorSurat();
+  const sameType = existing.filter(r => r.kode === klasifikasi && r.bulan === bulan && r.tahun === tahun);
+  let lastNum = startNum - 1;
+  sameType.forEach(r => { if (r.nomorUrut > lastNum) lastNum = r.nomorUrut; });
+  return lastNum + 1;
+}
+
+// Generate nomor surat standar (format menu) — mengembalikan nomor + record (BELUM save)
+export function generateNomorSuratStandar({ kodePendek, namaSekolah = 'SDN-PSR', bulan, tahun, kodeKlasifikasi }) {
+  const b = bulan || getCurrentMonth();
+  const t = tahun || getCurrentYear();
+  const klasifikasi = kodeKlasifikasi || KODE_PENDEK_TO_KLASIFIKASI[kodePendek] || '421.3';
+  const segs = getFormatSegments();
+  const nomor = buildNomorSurat({
+    kodeKlasifikasi: klasifikasi,
+    kodePendek,
+    namaSekolah,
+    bulan: b,
+    tahun: t,
+    formatSegments: segs
+  });
+  const nextNum = getNextNumberStandar(klasifikasi, b, t);
+  const record = {
+    id: `ns_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    nomor,
+    kode: klasifikasi,
+    kodePendek,
+    jenis: KODE_SURAT[kodePendek] ? KODE_SURAT[kodePendek].nama : kodePendek,
+    namaSekolah,
+    nomorUrut: nextNum,
+    bulan: b,
+    bulanRomawi: getRomanMonth(b),
+    tahun: t,
+    createdAt: new Date().toISOString(),
+    status: 'used'
+  };
+  return { nomor, record, kodeKlasifikasi: klasifikasi, nomorUrut: nextNum };
+}
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -420,6 +543,12 @@ export function getAvailableMonths(year) {
 
 export default {
   KODE_SURAT,
+  DEFAULT_FORMAT_SEGMENTS,
+  KODE_PENDEK_TO_KLASIFIKASI,
+  getFormatSegments,
+  buildNomorSurat,
+  getNextNumberStandar,
+  generateNomorSuratStandar,
   generateNomorSurat,
   saveNomorSurat,
   previewNomorSurat,

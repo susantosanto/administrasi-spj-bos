@@ -222,13 +222,133 @@ Gunakan shade slate untuk variasi, BUKAN warna lain!
 
 ## 🔄 FLOW KERJA TEMPLATE
 
+### ❌ KONSEP LAMA (Modal)
 ```
-User klik card → Pilih sub-kategori (pill) → Modal buka
+User klik card → Modal buka → Form di dalam modal
+```
+
+### ✅ KONSEP BARU (Accordion/Toggle)
+```
+User klik card → Card terpilih (highlight) → Detail muncul di bawah cards
   → TemplateEngine baca config dari templateConfig.js
   → Render blocks berurutan (kop → header → table → signature)
   → User isi form → Data tersimpan ke localStorage
   → User klik "Cetak" → Print CSS A4
+  → Klik card lain / "Tutup" → Ganti atau tutup detail
 ```
+
+---
+
+## 🎯 KONSEP ACCORDION/TGGLE (Updated 2026-07-13)
+
+### Prinsip Utama
+- **TIDAK ADA MODAL** untuk card dokumen
+- **Detail muncul di bawah** section cards (inline accordion)
+- **Satu card aktif** pada satu waktu
+- **Highlight visual** pada card yang dipilih
+
+### Visual Structure
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Header: Dokumen LPJ BOS/BOSP                           │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  │
+│  │ Card 1  │  │ Card 2  │  │ Card 3  │  │ Card 4  │  │
+│  │ (Honor) │  │ (Perj.) │  │ (Mamin) │  │ (Pemel.)│  │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘  │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  │
+│  │ Card 5  │  │ Card 6  │  │ Card 7  │  │ Card 8  │  │
+│  │ (Tagih.)│  │ (SPPD)  │  │ (Notul.)│  │ (B.Tamu)│  │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘  │
+│                                                         │
+│  ═══════════════════════════════════════════════════════ │
+│                                                         │
+│  ▼ Detail Panel (muncul saat card diklik)               │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  [Badge] Detail: Honor Guru                       │  │
+│  │  Sub-kategori: [Guru] [Tendik] [Perpus] [Penjaga]│  │
+│  │                                                    │  │
+│  │  ┌──────────────────────────────────────────────┐  │  │
+│  │  │ TemplateEngine Render                        │  │  │
+│  │  │ (Form + Preview + Cetak)                     │  │  │
+│  │  └──────────────────────────────────────────────┘  │  │
+│  │                                                    │  │
+│  │  [Tutup Detail] ← Tombol tutup                     │  │
+│  └───────────────────────────────────────────────────┘  │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### State Management
+
+```javascript
+// State untuk accordion
+const [selectedCard, setSelectedCard] = useState(null)  // ID card aktif
+const [selectedSubKategori, setSelectedSubKategori] = useState(null)  // Sub-kategori aktif
+
+// Handler
+const handleCardClick = (cardId) => {
+  if (selectedCard === cardId) {
+    // Klik card yang sama → tutup
+    setSelectedCard(null)
+    setSelectedSubKategori(null)
+  } else {
+    // Klik card berbeda → buka baru
+    setSelectedCard(cardId)
+    setSelectedSubKategori(null)  // Reset sub-kategori
+  }
+}
+
+const handleCloseDetail = () => {
+  setSelectedCard(null)
+  setSelectedSubKategori(null)
+}
+```
+
+### CSS Classes
+
+```jsx
+// Card styles
+const cardBaseClass = "bg-white border-2 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all cursor-pointer"
+
+// Card normal
+const cardNormalClass = "border-slate-200"
+
+// Card selected/active
+const cardSelectedClass = "border-primary ring-4 ring-primary/10"
+
+// Detail panel
+const detailPanelClass = "bg-primary/5 rounded-2xl border border-primary/20 p-6 space-y-4 animate-fade-in"
+```
+
+### Referensi: Website PEKPPP
+
+Konsep ini terinspirasi dari website `pekppp.disdikkbb.org`:
+- Section "Ringkasan Capaian 6 Aspek Indikator Penilaian"
+- Klik card aspek → detail indikator muncul di bawah
+- Animasi fade-in saat panel detail muncul
+- Tombol "Tutup Detail" untuk menutup
+
+---
+
+### Komponen yang Perlu Diubah
+
+| File | Perubahan |
+|------|-----------|
+| `DokumenSPJPage.jsx` | ✅ Hapus modal → Accordion + SPPD Auto-Fill |
+| `DokumenKelengkapanPage.jsx` | Hapus modal, tambah accordion state & detail panel |
+| `index.css` | ✅ Tambah premium animations (fade-in, slide-up, scale, glow) |
+
+### ✅ Status Implementasi
+
+| Fitur | Status |
+|-------|--------|
+| Accordion/Toggle Card | ✅ DONE |
+| Smooth Scroll to Detail | ✅ DONE |
+| Premium Animations 2026 | ✅ DONE |
+| SPPD Auto-Fill from Transport | ✅ DONE |
 
 ---
 
@@ -246,6 +366,107 @@ Email: sdn.lebakleungsir@gmail.com
 Kepsek: BADRUDDIN, S.Ag. (NIP. 197405082014121002)
 Bendahara: DEDE GUNAWAN, S.Pd. (NIP. 198507172020121003)
 ```
+
+---
+
+## 📄 UKURAN KERTAS: A4 (WAJIB)
+
+**Semua dokumen di aplikasi ini menggunakan ukuran kertas A4!**
+
+| Mode | Orientasi | Ukuran | Padding |
+|------|-----------|--------|--------|
+| **Portrait** | Vertikal | 210mm × 297mm | 20mm × 25mm |
+| **Landscape** | Horizontal | 297mm × 210mm | 15mm × 20mm |
+
+### CSS Print Settings
+
+```css
+/* Portrait */
+.print-container.portrait {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 25mm;
+}
+
+/* Landscape */
+.print-container.landscape {
+  width: 297mm;
+  min-height: 210mm;
+  padding: 15mm 20mm;
+}
+
+/* @page rule */
+@page {
+  size: A4;
+  margin: 0;
+}
+```
+
+### Template Orientations
+
+| Template | Orientasi | Keterangan |
+|----------|-----------|------------|
+| Honor (Guru/Tendik/Perpus/Penjaga) | **Landscape** | Tabel lebar |
+| Transport (Rapat/Koordinasi/Bank/Pendamping) | **Landscape** | Tabel lebar |
+| Upah Kerja | **Landscape** | Tabel lebar |
+| Pulsa | **Landscape** | Tabel lebar |
+| **SPPD / Surat Tugas** | **Portrait** | Surat formal, auto-include di transport |
+| Notulen | **Portrait** | Dokumen rapat |
+| Buku Tamu | **Portrait** | Form kunjungan |
+| BKU | **Portrait** | Laporan keuangan |
+
+### 📋 Format SPPD / Surat Tugas
+
+**Standar**: 1 Surat Tugas berisi list nama penerima tugas
+
+```
+┌─────────────────────────────────────────────────────┐
+│  SURAT PERINTAH TUGAS                               │
+│  Nomor: [Generate via Popup]                        │
+│                                                      │
+│  Untuk keperluan: [Kegiatan]                        │
+│  Tanggal: [Tanggal]                                 │
+│  Tempat: [Lokasi]                                   │
+│  Lama: [Durasi]                                     │
+│                                                      │
+│  Yang diberi tugas:                                 │
+│  ┌────┬───────────┬─────────────┬─────────────┐     │
+│  │ No │ NAMA      │ NIP         │ JABATAN     │     │
+│  ├────┼───────────┼─────────────┼─────────────┤     │
+│  │ 1  │ Nama 1    │ NIP 1       │ Jabatan 1   │     │
+│  │ 2  │ Nama 2    │ NIP 2       │ Jabatan 2   │     │
+│  │ 3  │ Nama 3    │ NIP 3       │ Jabatan 3   │     │
+│  └────┴───────────┴─────────────┴─────────────┘     │
+│                                                      │
+│  Mengetahui,              Diberi Tugas,             │
+│  Kepala Sekolah           [List TTD]                │
+└─────────────────────────────────────────────────────┘
+```
+
+**Fitur**:
+- ✅ Auto-fill dari daftar penerima transport
+- ✅ Generate nomor surat via popup (terpisah dari transport)
+- ✅ Format sesuai standar Kemenpan
+
+### ⚠️ Penting: Nomor Surat Terpisah
+
+| Dokumen | Nomor Surat | Generate Popup |
+|---------|-------------|----------------|
+| Daftar Penerima Transport | Nomor sendiri | ✅ Popup per transport |
+| SPPD / Surat Tugas | Nomor sendiri | ✅ Popup terpisah |
+
+**Contoh**:
+- Transport Rapat: `400.3.7.6/001-SD/VII/2026`
+- SPPD Transport Rapat: `400.3.7.7/001-SD/VII/2026`
+
+Nomor berbeda karena dokumen berbeda!
+
+### ⚠️ ATURAN PENTING
+
+1. **JANGAN** mengubah ukuran kertas dari A4
+2. **Gunakan** `mm` sebagai satuan (bukan `px` atau `em`)
+3. **Preview** harus menampilkan ukuran yang sama dengan print
+4. **Orientasi** ditentukan di `templateConfig.js` → `orientation: 'landscape'`
 
 ---
 
