@@ -59,6 +59,19 @@
 | 49. Lampiran Daftar Penerima Tugas | ✅ DONE | 2026-07-13 |
 | 50. Nomor Surat Terpisah + Popup di Header | ✅ DONE | 2026-07-13 |
 | 51. Fix Format Nomor Surat di Popup Dokumen (Honor & Transport) | ✅ DONE | 2026-07-13 |
+| 52. LPJ Checklist Column + Progress Bar di BKU Page | ✅ DONE | 2026-07-13 |
+| 53. BKU Sidebar — Tab Dokumentasi + Auto-Detect Template | ✅ DONE | 2026-07-13 |
+| 54. Hapus Progress Bar & Tandai Selesai dari Dokumen LPJ Page | ✅ DONE | 2026-07-13 |
+| 55. Dashboard — Global Progress Bar LPJ dari Checklist BKU | ✅ DONE | 2026-07-13 |
+| 56. templateDetector.js — Shared Utility untuk Auto-Detect Template | ✅ DONE | 2026-07-13 |
+| 57. Hapus Kolom Aksi + LPJ Column Pindah ke Akhir + Row Colors | ✅ DONE | 2026-07-13 |
+| 58. Table-Fixed Layout — Semua Kolom Muat Tanpa Scroll | ✅ DONE | 2026-07-13 |
+| 59. Baris Merah hanya untuk PEMBAYARAN (BNU/BPU via noBukti) | ✅ DONE | 2026-07-13 |
+| 60. Premium LPJ Column Header (icon + gradient) | ✅ DONE | 2026-07-13 |
+| 61. Fix Type Detection — BNU & BPU → PEMBAYARAN (bukan SETOR_PAJAK) | ✅ DONE | 2026-07-13 |
+| 62. redetectTypes() — Migrasi Data Lama di localStorage | ✅ DONE | 2026-07-13 |
+| 63. Fix Balance — TARIK_TUNAI Tidak Masuk Total Pengeluaran Riil | ✅ DONE | 2026-07-13 |
+| 64. Ceklis hanya untuk Tipe PEMBAYARAN + Warna Merah Lebih Jelas | ✅ DONE | 2026-07-13 |
 
 ---
 
@@ -436,6 +449,7 @@
 - [ ] Sidebar state belum persist ke localStorage
 - [ ] Test cetak SPPD / Surat Tugas (perlu running app)
 - [ ] Auto-fill SPPD dari transport belum di-test end-to-end
+- [ ] Sidebar BKU (tab Dokumentasi) upload masih placeholder
 
 ---
 
@@ -504,6 +518,19 @@
 61. ✅ Premium accordion animations (fade-in, slide-up, scale-in, glow)
 62. ✅ Fix format nomor surat di popup dokumen (Honor & Transport) — sekarang sama dengan menu Nomor Surat (422.1/SK-001/SDN-PSR/VII/2026)
 63. ✅ Rename menu "Upload BKU" → "Data BKU" (Sidebar, Dashboard, halaman BKU)
+64. ✅ LPJ Checklist Column + Progress Bar di BKU Page
+65. ✅ BKU Sidebar — Tab Dokumentasi dengan auto-detect template
+66. ✅ Hapus progress bar & Tandai Selesai dari Dokumen LPJ Page
+67. ✅ Dashboard — Global Progress Bar LPJ dari checklist BKU
+68. ✅ Hapus Pulsa Internet dari auto-detect (info-only)
+69. ✅ Hapus Kolom Aksi + LPJ Column pindah ke akhir + row colors (merah/hijau)
+70. ✅ Table-Fixed layout — semua kolom muat tanpa horizontal scroll
+71. ✅ Type detection dari noBukti (BNU=Non Tunai, BPU=Tunai → PEMBAYARAN)
+72. ✅ Fix type detection: BNU & BPU jadi PEMBAYARAN (bukan SETOR_PAJAK)
+73. ✅ redetectTypes() untuk migrasi data lama di localStorage
+74. ✅ Balance fix: TARIK_TUNAI tidak dihitung sebagai pengeluaran riil
+75. ✅ Ceklis hanya untuk tipe PEMBAYARAN (non-PEMBAYARAN tidak bisa hijau)
+76. ✅ Warna merah lebih jelas: bg-red-100/80 + border-red-400
 
 ---
 
@@ -520,4 +547,4 @@
 
 ---
 
-*Last updated: 2026-07-13 | Session: Rename Menu Upload BKU → Data BKU*
+*Last updated: 2026-07-13 | Session: LPJ Checklist + Type Detection Fix + Push ke GitHub*

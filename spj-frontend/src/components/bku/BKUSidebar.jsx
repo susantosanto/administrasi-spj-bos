@@ -1,10 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 /**
  * BKU Premium Sidebar
  * Sliding detail panel untuk transaksi BKU
  * Animasi smooth, navigasi prev/next, informasi transaksi lengkap
+ * Tab: Detail + Dokumentasi (auto-detect template)
  */
+import { detectTemplate } from '../../utils/templateDetector'
+
 // ─── Constants ─────────────────────────────────────────────────
 
 const TYPE_BADGES = {
@@ -41,11 +44,13 @@ function getSaldoAwal(items) {
 
 // ─── Component ─────────────────────────────────────────────────
 
-export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin }) {
+export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin, isLpjChecked, onToggleLpj }) {
   const sidebarRef = useRef(null)
+  const [activeTab, setActiveTab] = useState('detail')
 
   useEffect(() => {
     sidebarRef.current?.focus()
+    setActiveTab('detail')
   }, [transaction])
 
   if (!transaction) return null
@@ -56,6 +61,11 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const hasPrev = currentIdx > 0
   const hasNext = currentIdx < allTransactions.length - 1
   const saldoAwal = getSaldoAwal(allTransactions)
+
+  // Auto-detect template
+  const detectedTemplate = detectTemplate(transaction.kodeRekening)
+  const rowKey = transaction.row
+  const isChecked = isLpjChecked ? isLpjChecked[rowKey] : false
 
   const handlePrev = () => {
     if (hasPrev && onNavigate) onNavigate(allTransactions[currentIdx - 1])
@@ -141,11 +151,42 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             <span>{transaction.tanggalStr}</span>
             {transaction.noBukti && <span className="font-mono">#{transaction.noBukti}</span>}
           </div>
+          {/* ── Tabs: Detail | Dokumentasi ── */}
+          <div className="px-lg pb-0 flex gap-1">
+            <button
+              onClick={() => setActiveTab('detail')}
+              className={`px-4 py-2.5 rounded-t-xl text-xs font-semibold transition-all ${
+                activeTab === 'detail'
+                  ? 'bg-white text-primary shadow-sm border border-b-white border-slate-200'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-lg">info</span>
+                Detail
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('dokumentasi')}
+              className={`px-4 py-2.5 rounded-t-xl text-xs font-semibold transition-all ${
+                activeTab === 'dokumentasi'
+                  ? 'bg-white text-primary shadow-sm border border-b-white border-slate-200'
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-lg">description</span>
+                Dokumentasi LPJ
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* ── Premium Content ── */}
         <div className="p-lg space-y-lg">
 
+        {activeTab === 'detail' ? (
+          <>
           {/* ── Uraian Card — Glass Premium ── */}
           <div className="bg-gradient-to-br from-primary-fixed/60 to-white backdrop-blur-sm rounded-2xl p-lg border border-primary-fixed/60 shadow-lg">
             <div className="flex items-start gap-md">
@@ -292,6 +333,120 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
             </button>
           </div>
+          </>
+        ) : (
+          <>
+          {/* ════════════════════════════════════════════════════════════ */}
+          {/* TAB: DOKUMENTASI LPJ                                        */}
+          {/* ════════════════════════════════════════════════════════════ */}
+          <div className="space-y-4">
+            {/* ── Header Info ── */}
+            <div className="bg-gradient-to-br from-primary-fixed/60 to-white backdrop-blur-sm rounded-2xl p-lg border border-primary-fixed/60 shadow-lg">
+              <div className="flex items-start gap-md">
+                <div className="w-12 h-12 rounded-xl bg-primary shadow-lg shadow-primary/30 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>checklist</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-primary/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-1">Status Kelengkapan</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`material-symbols-outlined text-lg ${isChecked ? 'text-emerald-500' : 'text-slate-300'}`}>
+                      {isChecked ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span className={`font-bold text-sm ${isChecked ? 'text-emerald-700' : 'text-slate-500'}`}>
+                      {isChecked ? 'Dokumen LPJ Sudah Lengkap' : 'Dokumen LPJ Belum Lengkap'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => onToggleLpj?.(rowKey)}
+                    className={`mt-2 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                      isChecked
+                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                        : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">
+                      {isChecked ? 'undo' : 'check'}
+                    </span>
+                    {isChecked ? 'Tandai Belum Lengkap' : 'Tandai Sudah Lengkap'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Auto-Detect Template ── */}
+            <div>
+              <h4 className="font-label-md text-label-md font-bold text-gray-800 mb-md flex items-center gap-2">
+                <span className="material-symbols-outlined text-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                Template Dokumen Terdeteksi
+              </h4>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-lg border border-white shadow-sm">
+                {detectedTemplate ? (
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center shadow-sm`}>
+                      <span className={`material-symbols-outlined ${detectedTemplate.color} text-xl`}>
+                        {detectedTemplate.icon}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-slate-800">{detectedTemplate.label}</p>
+                      <p className="text-[10px] text-slate-400">Template: {detectedTemplate.templateId}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-slate-400 text-xl">help_outline</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-600">Tidak ada template spesifik</p>
+                      <p className="text-xs text-slate-400">Transaksi ini tidak memerlukan template LPJ</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Catatan / Upload Bukti ── */}
+            <div>
+              <h4 className="font-label-md text-label-md font-bold text-gray-800 mb-md flex items-center gap-2">
+                <span className="material-symbols-outlined text-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>upload_file</span>
+                Upload Dokumen Pendukung
+              </h4>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-dashed border-slate-300 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+                </div>
+                <p className="text-sm font-medium text-slate-600 mb-1">Upload Bukti Dokumen</p>
+                <p className="text-[10px] text-slate-400 mb-4">PDF, JPG, PNG (maks 5MB)</p>
+                <button
+                  onClick={() => showToast?.('Fitur upload dokumen akan segera tersedia')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                >
+                  <span className="material-symbols-outlined text-sm">add</span>
+                  Pilih File
+                </button>
+              </div>
+            </div>
+
+            {/* ── Quick Actions ── */}
+            <div className="space-y-2">
+              <button
+                onClick={() => showToast?.('Buka halaman Dokumen LPJ untuk cetak template ini')}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
+                  <span className="material-symbols-outlined text-primary group-hover:text-white text-lg transition-colors">print</span>
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-semibold text-slate-800">Cetak Dokumen LPJ</p>
+                  <p className="text-[10px] text-slate-400">Buka halaman Cetak Dokumen</p>
+                </div>
+                <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+          </>
+        )}
 
           <div className="h-16" />
         </div>

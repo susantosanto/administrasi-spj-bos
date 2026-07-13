@@ -2,37 +2,18 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
-import bkuParser, { filterByMonth } from '../../utils/bkuParser'
+import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import BKUSidebar from '../../components/bku/BKUSidebar'
 
-// ─── MAMIN Docs Config ─────────────────────────────────────────
+// ─── CHECKLIST LPJ ─────────────────────────────────────────────
+const CHECKLIST_KEY = 'bku_lpj_checklist'
 
-const MAMIN_DOCS = {
-  'Makan dan Minum Rapat': [
-    { nama: 'Surat Undangan', icon: 'mail', status: 'Belum' },
-    { nama: 'Daftar Hadir', icon: 'group', status: 'Belum' },
-    { nama: 'Resume Rapat', icon: 'description', status: 'Belum' },
-    { nama: 'Foto Kegiatan', icon: 'photo_camera', status: 'Belum' },
-  ],
-  'Makan dan Minum Kegiatan': [
-    { nama: 'Surat Perintah / Undangan', icon: 'mail', status: 'Belum' },
-    { nama: 'Daftar Hadir', icon: 'group', status: 'Belum' },
-    { nama: 'Resume Kegiatan', icon: 'description', status: 'Belum' },
-    { nama: 'Foto Kegiatan', icon: 'photo_camera', status: 'Belum' },
-  ],
-  'Makan dan Minum Tamu': [
-    { nama: 'Surat Undangan', icon: 'mail', status: 'Belum' },
-    { nama: 'Daftar Hadir', icon: 'group', status: 'Belum' },
-    { nama: 'Foto Kegiatan', icon: 'photo_camera', status: 'Belum' },
-  ],
+function loadChecklist() {
+  return storageHelper.get(CHECKLIST_KEY, {})
 }
 
-function getMaminType(uraian) {
-  const lower = (uraian || '').toLowerCase()
-  if (lower.includes('rapat')) return 'Makan dan Minum Rapat'
-  if (lower.includes('kegiatan') || lower.includes('sosialisasi')) return 'Makan dan Minum Kegiatan'
-  if (lower.includes('tamu')) return 'Makan dan Minum Tamu'
-  return 'Makan dan Minum Rapat'
+function saveChecklist(checklist) {
+  storageHelper.set(CHECKLIST_KEY, checklist)
 }
 
 // ─── Helpers ───────────────────────────────────────────────────
@@ -60,14 +41,13 @@ const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','A
 export default function BKUPage() {
   const [items, setItems] = useState([])
   const [filterBulan, setFilterBulan] = useState('Semua')
-  const [openMenuId, setOpenMenuId] = useState(null)
-  const [selectedMamin, setSelectedMamin] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [showUploadForm, setShowUploadForm] = useState(true)
   const [uploadedInfo, setUploadedInfo] = useState(null) // { header, summary }
   const [availableMonths, setAvailableMonths] = useState([])
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
   const [selectedRowKey, setSelectedRowKey] = useState(null)
+  const [lpjChecklist, setLpjChecklist] = useState({})
   const toast = useToast()
   const fileInputRef = useRef(null)
 
@@ -113,18 +93,18 @@ export default function BKUPage() {
     }
 
     // ── NEW DATA (dengan field tipe) — filter langsung oleh tipe ──
+    // PENERIMAAN RIIL = hanya Dana BOSP (PENERIMAAN_BOSP)
+    // PENGELUARAN RIIL = BNU + BPU (PEMBAYARAN) — Tarik Tunai adalah pemindahan dana, bukan pengeluaran riil
     const bosp = transactions.filter(t => t.tipe === 'PENERIMAAN_BOSP')
       .reduce((s, t) => s + (t.penerimaan || 0), 0)
     const pembayaran = transactions.filter(t => t.tipe === 'PEMBAYARAN')
       .reduce((s, t) => s + (t.pengeluaran || 0), 0)
-    const tarikTunai = transactions.filter(t => t.tipe === 'TARIK_TUNAI')
-      .reduce((s, t) => s + (t.pengeluaran || 0), 0)
     
     return {
       totalPenerimaan: bosp,
-      totalPengeluaran: pembayaran + tarikTunai,
+      totalPengeluaran: pembayaran,
       totalTransactions: transactions.length,
-      isBalanced: bosp === (pembayaran + tarikTunai),
+      isBalanced: bosp === pembayaran,
       months: [...new Set(transactions.map(t => t.bulan))].sort((a, b) => a - b),
     }
   }
@@ -134,8 +114,13 @@ export default function BKUPage() {
   const loadFromStorage = (showToast = false) => {
     const stored = storageHelper.get('bku_data', null)
     if (stored && stored.transactions && stored.transactions.length > 0) {
-      setItems(stored.transactions)
-      const realSummary = recalcSummary(stored.transactions)
+      // Re-detect tipe untuk migrasi data lama (misal: BPU yg dulu dikenali SETOR_PAJAK)
+      const migrated = redetectTypes(stored.transactions)
+      // Simpan hasil migrasi ke localStorage
+      storageHelper.set('bku_data', { ...stored, transactions: migrated })
+
+      setItems(migrated)
+      const realSummary = recalcSummary(migrated)
       setUploadedInfo({ header: stored.header, summary: realSummary })
       setAvailableMonths(realSummary.months)
       setFilterBulan('Semua')
@@ -156,16 +141,9 @@ export default function BKUPage() {
     if (result) {
       setShowUploadForm(false)
     }
+    // Load LPJ checklist
+    setLpjChecklist(loadChecklist())
   }, [])
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClick = () => setOpenMenuId(null)
-    if (openMenuId !== null) {
-      document.addEventListener('click', handleClick)
-      return () => document.removeEventListener('click', handleClick)
-    }
-  }, [openMenuId])
 
   // ─── Keyboard shortcut: Escape closes sidebar ────────────
   useEffect(() => {
@@ -242,6 +220,28 @@ export default function BKUPage() {
     }
   }
 
+  // ─── LPJ Checklist Handler ──────────────────────────────────────
+
+  const toggleLpjCheck = (rowKey) => {
+    const key = String(rowKey)
+    // Cari transaksi dari state untuk cek tipe — hanya PEMBAYARAN yang boleh di-ceklis
+    const tx = items.find(i => String(i.row) === key)
+    if (!tx || tx.tipe !== 'PEMBAYARAN') return
+    const updated = { ...lpjChecklist, [key]: !lpjChecklist[key] }
+    setLpjChecklist(updated)
+    saveChecklist(updated)
+    const status = updated[key] ? '✅ Dokumen LPJ lengkap' : '⬜ Dokumen LPJ belum'
+    toast.info(`${status} (Row ${rowKey})`)
+  }
+
+  // ─── LPJ Progress ─────────────────────────────────────────────
+
+  // Hanya hitung baris PEMBAYARAN untuk LPJ
+  const lpjRelevantRows = items.filter(i => i.tipe === 'PEMBAYARAN')
+  const lpjTotalCount = lpjRelevantRows.length
+  const lpjCheckedCount = lpjRelevantRows.filter(i => lpjChecklist[i.row]).length
+  const lpjProgress = lpjTotalCount > 0 ? Math.round((lpjCheckedCount / lpjTotalCount) * 100) : 0
+
   // ─── Refresh Handler ──────────────────────────────────────────
 
   const handleRefresh = () => {
@@ -258,7 +258,7 @@ export default function BKUPage() {
     ? uploadedInfo.summary.totalPenerimaan  // Real: hanya Dana BOSP
     : filteredItems.reduce((s, i) => s + i.debet, 0)
   const totalKredit = isOverall && uploadedInfo
-    ? uploadedInfo.summary.totalPengeluaran  // Real: BNU + TarikTunai
+    ? uploadedInfo.summary.totalPengeluaran  // Real: BNU + BPU (PEMBAYARAN)
     : filteredItems.reduce((s, i) => s + i.kredit, 0)
   const lastSaldo = filteredItems.length > 0 ? filteredItems[filteredItems.length - 1].saldo : 0
 
@@ -359,6 +359,26 @@ export default function BKUPage() {
                   {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
                 </p>
               </div>
+            </div>
+
+            {/* ═══ PROGRESS KELENGKAPAN LPJ ═══ */}
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-lg">checklist</span>
+                  <span className="text-sm font-bold text-slate-800">Progress Kelengkapan LPJ</span>
+                </div>
+                <span className="text-xs font-bold text-primary">{lpjCheckedCount}/{lpjTotalCount} ({lpjProgress}%)</span>
+              </div>
+              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${lpjProgress}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1.5">
+                Centang ✓ pada kolom LPJ di tabel untuk menandai dokumen sudah lengkap
+              </p>
             </div>
           </div>
         )}
@@ -475,115 +495,95 @@ export default function BKUPage() {
               <p className="text-text-low">Belum ada data BKU. Upload file Excel untuk memulai.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="min-w-0">
+              <table className="w-full text-left table-fixed">
                 <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
                   <tr>
-                    <th className="px-lg py-md font-label-md text-xs w-12">No</th>
-                    <th className="px-lg py-md font-label-md text-xs whitespace-nowrap">Tanggal</th>
-                    <th className="px-lg py-md font-label-md text-xs">Uraian</th>
-                    <th className="px-lg py-md font-label-md text-xs">No. Bukti</th>
-                    <th className="px-lg py-md font-label-md text-xs">Kode</th>
-                    <th className="px-lg py-md font-label-md text-xs">Tipe</th>
-                    <th className="px-lg py-md font-label-md text-xs text-right">Debet (Rp)</th>
-                    <th className="px-lg py-md font-label-md text-xs text-right">Kredit (Rp)</th>
-                    <th className="px-lg py-md font-label-md text-xs text-right">Saldo (Rp)</th>
-                    <th className="px-lg py-md font-label-md text-xs text-center">Aksi</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[3%]">No</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[11%]">Tanggal</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[21%]">Uraian</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">No. Bukti</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Kode</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Tipe</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Debet</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Kredit</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Saldo</th>
+                    <th className="px-2 py-2 text-center w-[6%] bg-gradient-to-b from-primary/10 to-primary/5">
+                      <div className="inline-flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-primary text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>assignment_turned_in</span>
+                        <span className="font-bold text-[9px] text-primary uppercase tracking-[0.08em]">LPJ</span>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="text-body-sm divide-y divide-outline-variant">
+                <tbody className="divide-y divide-outline-variant">
                   {filteredItems.map((item, idx) => {
                     const badge = TYPE_BADGES[item.tipe] || TYPE_BADGES.LAINNYA
-                    const isMamin = (item.uraian && (item.uraian.toLowerCase().includes('makan') || item.uraian.toLowerCase().includes('minum'))) || item.kodeRekening === '5.1.02.01.01.0052'
 
                     const rowKey = item.row || idx
                     const isSelected = selectedRowKey === rowKey
+                    const isChecked = lpjChecklist[rowKey]
+                    const isLpjRelevant = item.tipe === 'PEMBAYARAN'
 
                     return (
                       <tr
                         key={`${item.row}-${idx}`}
                         onClick={() => openSidebar(item)}
-                        className={`cursor-pointer transition-all duration-150 group ${
+                        className={`cursor-pointer transition-all duration-150 group border-l-2 ${
                           isSelected
-                            ? 'bg-primary-fixed/30 border-l-2 border-primary shadow-sm'
-                            : 'hover:bg-surface-container-low/50 border-l-2 border-transparent'
+                            ? 'bg-primary-fixed/30 border-primary shadow-sm'
+                            : isChecked && isLpjRelevant
+                              ? 'bg-emerald-50/60 border-emerald-400 hover:bg-emerald-100/60'
+                              : isLpjRelevant
+                                ? 'bg-red-100/80 border-red-400 hover:bg-red-100 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.08)]'
+                                : 'border-transparent hover:bg-slate-50'
                         }`}
                       >
-                        <td className="px-lg py-md text-text-low">{String(idx + 1).padStart(2, '0')}</td>
-                        <td className="px-lg py-md whitespace-nowrap font-medium">{item.tanggalStr}</td>
-                        <td className="px-lg py-md max-w-xs truncate" title={item.uraian}>
+                        <td className="px-2 py-2 text-text-low text-[11px]">{String(idx + 1).padStart(2, '0')}</td>
+                        <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
+                        <td className="px-2 py-2 text-[11px] truncate" title={item.uraian}>
                           <span className="text-text-high">{item.uraian}</span>
-                          {item.kodeKegiatan && (
-                            <span className="ml-1 text-xs text-text-low">({item.kodeKegiatan})</span>
-                          )}
                         </td>
-                        <td className="px-lg py-md font-mono text-xs text-text-low">
+                        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.noBukti || '-'}>
                           {item.noBukti || '-'}
                         </td>
-                        <td className="px-lg py-md font-mono text-xs text-text-low">
+                        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.kodeRekening || '-'}>
                           {item.kodeRekening || '-'}
                         </td>
-                        <td className="px-lg py-md">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${badge.bg}`}>
+                        <td className="px-2 py-2 truncate">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
                             {badge.label}
                           </span>
                         </td>
-                        <td className="px-lg py-md text-right text-green-700 font-medium">
+                        <td className="px-2 py-2 text-right text-green-700 font-medium text-[11px] truncate" title={fmt(item.debet)}>
                           {item.debet > 0 ? fmt(item.debet) : '-'}
                         </td>
-                        <td className="px-lg py-md text-right text-red-700 font-medium">
+                        <td className="px-2 py-2 text-right text-red-700 font-medium text-[11px] truncate" title={fmt(item.kredit)}>
                           {item.kredit > 0 ? fmt(item.kredit) : '-'}
                         </td>
-                        <td className="px-lg py-md text-right font-bold">
+                        <td className="px-2 py-2 text-right font-bold text-[11px] truncate" title={fmt(item.saldo)}>
                           {fmt(item.saldo)}
                         </td>
-                        <td className="px-lg py-md text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {isMamin ? (
-                              <div className="relative inline-block">
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === idx ? null : idx); }}
-                                  className="p-2 hover:bg-surface-container-high rounded-lg transition-colors"
-                                >
-                                  <span className="material-symbols-outlined text-lg text-primary">more_vert</span>
-                                </button>
-                                {openMenuId === idx && (
-                                  <div className="absolute right-0 top-full mt-1 w-72 bg-surface-container-lowest rounded-xl shadow-2xl border border-outline-variant z-50 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                                    <div className="p-md bg-surface-container-low border-b border-outline-variant">
-                                      <p className="font-label-md text-text-high">Dokumen LPJ Diperlukan</p>
-                                      <p className="text-text-low text-xs">{item.uraian}</p>
-                                    </div>
-                                    <div className="p-sm">
-                                      {(MAMIN_DOCS[getMaminType(item.uraian)] || []).map((doc, i) => (
-                                        <button
-                                          key={i}
-                                          onClick={() => { setSelectedMamin({ ...doc, bkuUraian: item.uraian }); setOpenMenuId(null); }}
-                                          className="w-full flex items-center gap-md p-md hover:bg-surface-container-high rounded-lg transition-colors text-left"
-                                        >
-                                          <span className="material-symbols-outlined text-primary text-xl">{doc.icon}</span>
-                                          <div className="flex-1">
-                                            <p className="font-label-md text-text-high">{doc.nama}</p>
-                                          </div>
-                                          <span className="material-symbols-outlined text-outline text-lg">chevron_right</span>
-                                        </button>
-                                      ))}
-                                    </div>
-                                    <div className="p-sm border-t border-outline-variant">
-                                      <button
-                                        onClick={() => { toast.info('Buka halaman Dokumen LPJ untuk Makan & Minum'); setOpenMenuId(null); }}
-                                        className="w-full flex items-center justify-center gap-sm p-md text-primary hover:bg-primary/5 rounded-lg transition-colors font-label-md"
-                                      >
-                                        <span className="material-symbols-outlined text-lg">open_in_new</span>
-                                        Buka Dokumen LPJ
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-text-low text-xs">-</span>
-                            )}
-                          </div>
+                        <td className="px-2 py-2 text-center bg-gradient-to-b from-primary/[0.04] to-primary/[0.01]">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleLpjCheck(rowKey); }}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 mx-auto ${
+                              isChecked && isLpjRelevant
+                                ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-300/50'
+                                : isLpjRelevant
+                                  ? 'bg-white text-slate-300 border border-slate-200 hover:border-emerald-300 hover:text-emerald-500 hover:shadow-sm hover:shadow-emerald-200/30'
+                                  : 'bg-slate-50 text-slate-200 border border-slate-100 cursor-not-allowed opacity-50'
+                            }`}
+                            title={isChecked && isLpjRelevant ? 'Tandai belum lengkap' : isLpjRelevant ? 'Tandai dokumen LPJ sudah lengkap' : 'Tidak memerlukan LPJ'}
+                          >
+                            <span className="material-symbols-outlined text-lg">
+                              {isChecked && isLpjRelevant
+                                ? 'check_circle'
+                                : isLpjRelevant
+                                  ? 'radio_button_unchecked'
+                                  : 'remove_circle_outline'}
+                            </span>
+                          </button>
                         </td>
                       </tr>
                     )
@@ -591,16 +591,27 @@ export default function BKUPage() {
                 </tbody>
                 <tfoot className="bg-surface-container-low font-bold">
                   <tr>
-                    <td className="px-lg py-lg" colSpan="6">
-                      <span className="text-text-high">TOTAL</span>
-                      <span className="text-text-low text-xs ml-2">
-                        ({filteredItems.length} dari {items.length} transaksi)
+                    <td className="px-2 py-2" colSpan="6">
+                      <span className="text-text-high text-[11px]">TOTAL</span>
+                      <span className="text-text-low text-[9px] ml-1">
+                        ({filteredItems.length})
                       </span>
                     </td>
-                    <td className="px-lg py-lg text-right text-green-700">{fmt(totalDebet)}</td>
-                    <td className="px-lg py-lg text-right text-red-700">{fmt(totalKredit)}</td>
-                    <td className="px-lg py-lg text-right text-primary text-lg">{fmt(lastSaldo)}</td>
-                    <td className="px-lg py-lg"></td>
+                    <td className="px-2 py-2 text-right text-green-700 text-[11px]">{fmt(totalDebet)}</td>
+                    <td className="px-2 py-2 text-right text-red-700 text-[11px]">{fmt(totalKredit)}</td>
+                    <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(lastSaldo)}</td>
+                    <td className="px-2 py-2 text-center bg-gradient-to-b from-primary/[0.06] to-primary/[0.02]">
+                      <div className="inline-flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[11px] text-primary">assignment_turned_in</span>
+                        <span className={`text-[10px] font-bold ${
+                          lpjCheckedCount === lpjTotalCount && lpjTotalCount > 0
+                            ? 'text-emerald-600'
+                            : 'text-primary'
+                        }`}>
+                          {lpjCheckedCount}/{lpjTotalCount}
+                        </span>
+                      </div>
+                    </td>
                   </tr>
                 </tfoot>
               </table>
@@ -618,55 +629,13 @@ export default function BKUPage() {
           onNavigate={(tx) => setSidebarTransaction(tx)}
           showToast={sidebarToast}
           onOpenMamin={(tx) => {
-            const docs = tx.uraian ? getMaminType(tx.uraian) : null
-            if (docs && MAMIN_DOCS[docs]) {
-              setSelectedMamin({ ...MAMIN_DOCS[docs][0], bkuUraian: tx.uraian })
-            } else {
-              toast.info('Dokumen khusus Mamin belum tersedia untuk transaksi ini')
-            }
+            toast.info('Dokumen khusus Mamin: ' + (tx.uraian || ''))
           }}
+          isLpjChecked={lpjChecklist}
+          onToggleLpj={toggleLpjCheck}
         />
       )}
 
-      {/* ── Mamin Document Preview Modal ── */}
-      {selectedMamin && (
-        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-lg" onClick={() => setSelectedMamin(null)}>
-          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
-            <div className="p-lg border-b border-outline-variant flex items-center justify-between">
-              <div className="flex items-center gap-md">
-                <span className="material-symbols-outlined text-primary text-3xl">{selectedMamin.icon}</span>
-                <div>
-                  <h3 className="font-headline-sm text-headline-sm font-bold text-text-high">{selectedMamin.nama}</h3>
-                  <p className="text-text-low text-xs">Untuk: {selectedMamin.bkuUraian}</p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedMamin(null)} className="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-lg space-y-md">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-md flex items-start gap-sm">
-                <span className="material-symbols-outlined text-amber-600 text-lg">construction</span>
-                <div>
-                  <p className="font-label-md text-amber-800">Prototype / Blueprint</p>
-                  <p className="text-amber-700 text-xs">Format template dokumen ini masih dalam tahap pengembangan.</p>
-                </div>
-              </div>
-              <div className="bg-surface-container-low rounded-xl p-lg text-center border-2 border-dashed border-outline-variant">
-                <span className="material-symbols-outlined text-outline text-5xl mb-2 block">{selectedMamin.icon}</span>
-                <p className="font-label-md text-text-high">{selectedMamin.nama}</p>
-                <p className="text-text-low text-xs mt-1">Template dokumen akan ditampilkan di sini</p>
-              </div>
-              <button
-                onClick={() => { toast.info(`Membuka form ${selectedMamin.nama}...`); setSelectedMamin(null); }}
-                className="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md hover:brightness-110 transition-all"
-              >
-                Isi Form Dokumen
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -43,3 +43,8 @@ Thumbs.db
 
 # MCP config
 .mcp.json
+
+# Windows reserved names
+nul
+NUL
+Nul.*

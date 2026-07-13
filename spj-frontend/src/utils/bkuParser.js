@@ -176,32 +176,37 @@ function detectTransactionType(tx) {
     return TRANSACTION_TYPES.PENERIMAAN_BOSP;
   }
 
-  // 5. PUNGUT PPH — penerimaan dari pungutan pajak
+  // 5. PEMBAYARAN — no bukti BNU atau BPU (sesuai aturan user: BNU/BPU = pembayaran)
+  if (pengeluaran > 0 && (nb.startsWith('BNU') || nb.startsWith('BPU'))) {
+    return TRANSACTION_TYPES.PEMBAYARAN;
+  }
+
+  // 6. PUNGUT PPH — penerimaan dari pungutan pajak
   if (penerimaan > 0 && (u.includes('terima pph') || u.includes('pungut pph'))) {
     return TRANSACTION_TYPES.PUNGUT_PPH;
   }
 
-  // 6. PERGESERAN BANK — penerimaan dari pergeseran
+  // 7. PERGESERAN BANK — penerimaan dari pergeseran
   if (penerimaan > 0 && (u.includes('pergeseran') || u.includes('pindah'))) {
     return TRANSACTION_TYPES.PERGESERAN_BANK;
   }
 
-  // 7. SETOR PAJAK — no bukti berawalan BPU
-  if (nb.startsWith('BPU') || u.includes('setor pph') || u.includes('setor pajak')) {
+  // 8. SETOR PAJAK — hanya dari uraian (BPU sudah ditangkap sebagai PEMBAYARAN di #5)
+  if (u.includes('setor pph') || u.includes('setor pajak')) {
     return TRANSACTION_TYPES.SETOR_PAJAK;
   }
 
-  // 8. TARIK TUNAI — pengeluaran tanpa kode kegiatan/rekening
+  // 9. TARIK TUNAI — pengeluaran tanpa kode kegiatan/rekening
   if (pengeluaran > 0 && !kodeKegiatan && !kodeRekening && (u.includes('tarik') || u.includes('tunai') || u.includes('ambil') || u.includes('penarikan'))) {
     return TRANSACTION_TYPES.TARIK_TUNAI;
   }
 
-  // 9. PEMBAYARAN — pengeluaran dengan kode kegiatan/rekening
+  // 10. PEMBAYARAN — fallback: pengeluaran dengan kode kegiatan/rekening
   if (pengeluaran > 0 && kodeKegiatan) {
     return TRANSACTION_TYPES.PEMBAYARAN;
   }
 
-  // 10. Juga TARIK TUNAI jika pengeluaran tanpa identitas
+  // 11. Juga TARIK TUNAI jika pengeluaran tanpa identitas
   if (pengeluaran > 0 && !kodeKegiatan && !kodeRekening && !nb) {
     return TRANSACTION_TYPES.TARIK_TUNAI;
   }
@@ -644,6 +649,17 @@ export function getTransactionsByType(transactions, type) {
 }
 
 /**
+ * Re-detect tipe untuk semua transaksi (berguna untuk migrasi data lama)
+ */
+export function redetectTypes(transactions) {
+  return transactions.map(tx => ({
+    ...tx,
+    tipe: detectTransactionType(tx),
+    kategori: detectKategoriBelanja(tx.kodeRekening),
+  }))
+}
+
+/**
  * Get transaction type label in Indonesian
  */
 export function getTypeLabel(type) {
@@ -670,5 +686,6 @@ export default {
   getMaminTransactions,
   getTransactionsByType,
   getTypeLabel,
+  redetectTypes,
   TRANSACTION_TYPES,
 };

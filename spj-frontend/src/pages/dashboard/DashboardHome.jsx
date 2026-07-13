@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
+import storageHelper from '../../utils/storageHelper'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -90,10 +91,37 @@ const DOCUMENTS_REF = [
 
 export default function DashboardHome() {
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [lpjProgress, setLpjProgress] = useState({ checked: 0, total: 0 })
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  // ─── LPJ Progress dari BKU Checklist ──────────────────────────
+  useEffect(() => {
+    const checklist = storageHelper.get('bku_lpj_checklist', {})
+    const bkuData = storageHelper.get('bku_data', null)
+    if (bkuData && bkuData.transactions) {
+      const total = bkuData.transactions.length
+      const checked = Object.values(checklist).filter(Boolean).length
+      setLpjProgress({ checked, total })
+    }
+  }, [])
+
+  // Refresh LPJ progress when window gets focus (user returns from another tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      const checklist = storageHelper.get('bku_lpj_checklist', {})
+      const bkuData = storageHelper.get('bku_data', null)
+      if (bkuData && bkuData.transactions) {
+        const total = bkuData.transactions.length
+        const checked = Object.values(checklist).filter(Boolean).length
+        setLpjProgress({ checked, total })
+      }
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -207,6 +235,51 @@ export default function DashboardHome() {
             </div>
           </div>
         </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {lpjProgress.total > 0 && (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">checklist</span>
+                <h3 className="text-base font-bold text-slate-900">Progress Kelengkapan LPJ</h3>
+              </div>
+              <Link
+                to="/dashboard/bku"
+                className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+              >
+                Kelola di Data BKU
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Dokumen LPJ sudah lengkap</span>
+                </div>
+                <span className="text-lg font-bold text-primary">
+                  {lpjProgress.checked}/{lpjProgress.total}
+                </span>
+              </div>
+              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-[11px] text-slate-400">
+                  Centang checklist di halaman Data BKU untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
+                </p>
+                <span className="text-xs font-bold text-primary">
+                  {lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}

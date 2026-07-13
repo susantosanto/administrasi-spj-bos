@@ -130,7 +130,6 @@ const CARDS = [
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function DokumenSPJPage() {
-  const [items, setItems] = useState({})
   const [selectedCard, setSelectedCard] = useState(null)
   const [selectedSubKategori, setSelectedSubKategori] = useState(null)
   const [formData, setFormData] = useState({})
@@ -139,50 +138,13 @@ export default function DokumenSPJPage() {
   const detailRef = useRef(null)
   const toast = useToast()
 
-  useEffect(() => {
-    const stored = storageHelper.get('dokumen_lpj', {})
-    setItems(stored)
-  }, [])
-
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
   const getStatus = (cardId, subId) => {
+    const stored = storageHelper.get('dokumen_lpj', {})
     const key = subId ? `${cardId}_${subId}` : cardId
-    return items[key]?.status || 'Belum'
+    return stored[key]?.status || 'Belum'
   }
-
-  const toggleStatus = (cardId, subId) => {
-    const key = subId ? `${cardId}_${subId}` : cardId
-    const current = getStatus(cardId, subId)
-    const next = current === 'Belum' ? 'Draft' : current === 'Draft' ? 'Lengkap' : 'Belum'
-    const updated = { ...items, [key]: { ...(items[key] || {}), status: next } }
-    setItems(updated)
-    storageHelper.set('dokumen_lpj', updated)
-    toast.success(`Status: ${next}`)
-  }
-
-  const getCardProgress = (card) => {
-    if (!card.subKategori) {
-      const status = getStatus(card.id)
-      return status === 'Lengkap' ? 100 : status === 'Draft' ? 50 : 0
-    }
-    const total = card.subKategori.length
-    const completed = card.subKategori.filter((sub) => getStatus(card.id, sub.id) === 'Lengkap').length
-    return Math.round((completed / total) * 100)
-  }
-
-  // ─── Stats ───────────────────────────────────────────────────────────────
-
-  const totalSubKategori = CARDS.reduce((acc, card) => acc + (card.subKategori?.length || 1), 0)
-  const completedCount = CARDS.reduce((acc, card) => {
-    if (!card.subKategori) return acc + (getStatus(card.id) === 'Lengkap' ? 1 : 0)
-    return acc + card.subKategori.filter((sub) => getStatus(card.id, sub.id) === 'Lengkap').length
-  }, 0)
-  const draftCount = CARDS.reduce((acc, card) => {
-    if (!card.subKategori) return acc + (getStatus(card.id) === 'Draft' ? 1 : 0)
-    return acc + card.subKategori.filter((sub) => getStatus(card.id, sub.id) === 'Draft').length
-  }, 0)
-  const progress = totalSubKategori > 0 ? Math.round((completedCount / totalSubKategori) * 100) : 0
 
   // ─── Premium Scroll Handler ──────────────────────────────────────────────
   const scrollToDetail = () => {
@@ -342,7 +304,6 @@ export default function DokumenSPJPage() {
 
   const renderCard = (card, isCompact = false) => {
     const isSelected = selectedCard?.id === card.id
-    const cardProgress = getCardProgress(card)
 
     if (isCompact) {
       return (
@@ -404,23 +365,6 @@ export default function DokumenSPJPage() {
               <h4 className="text-base font-bold text-slate-800">{card.nama}</h4>
               <p className="text-xs text-slate-500 mt-0.5">{card.deskripsi}</p>
             </div>
-          </div>
-          <div className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-300 ${
-            cardProgress === 100 ? 'bg-emerald-100 text-emerald-700' :
-            cardProgress > 0 ? 'bg-amber-100 text-amber-700' :
-            'bg-slate-100 text-slate-600'
-          }`}>
-            {cardProgress === 100 ? '✓ Selesai' : cardProgress > 0 ? `${cardProgress}%` : 'Belum'}
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="relative mb-4">
-          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${cardProgress}%` }}
-            />
           </div>
         </div>
 
@@ -707,13 +651,6 @@ export default function DokumenSPJPage() {
               
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => toggleStatus(selectedCard.id, selectedSubKategori?.id)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-lg">check_circle</span>
-                  Tandai Selesai
-                </button>
-                <button
                   onClick={handlePrint}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
                 >
@@ -737,66 +674,6 @@ export default function DokumenSPJPage() {
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
       <div className="p-lg space-y-6 flex-1 max-w-7xl mx-auto w-full">
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO STATS BANNER                                                  */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-blue-700 rounded-3xl p-6 text-white shadow-2xl shadow-primary/30">
-          {/* Premium Background Effects */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
-          </div>
-          <div className="absolute top-4 left-4 w-2 h-2 bg-white/30 rounded-full animate-pulse" />
-          <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-white/20 rounded-full animate-pulse" />
-          <div className="absolute bottom-6 left-1/3 w-1 h-1 bg-white/20 rounded-full animate-pulse" />
-
-          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="material-symbols-outlined text-3xl">description</span>
-                <h2 className="text-xl font-bold">Dokumen LPJ BOS/BOSP</h2>
-              </div>
-              <p className="text-white/80 text-sm mb-4">
-                Lengkapi semua dokumen pertanggungjawaban untuk periode anggaran 2026
-              </p>
-
-              <div className="flex items-center gap-4">
-                <div className="flex-1 max-w-md">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-white/80">Progress Keseluruhan</span>
-                    <span className="font-bold">{progress}%</span>
-                  </div>
-                  <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full transition-all duration-700 ease-out"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold">{completedCount}</div>
-                  <div className="text-xs text-white/70">dari {totalSubKategori} dokumen</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
-                <div className="text-2xl font-bold">{completedCount}</div>
-                <div className="text-[10px] text-white/80 uppercase tracking-wide">Selesai</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
-                <div className="text-2xl font-bold">{draftCount}</div>
-                <div className="text-[10px] text-white/80 uppercase tracking-wide">Draft</div>
-              </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3 text-center min-w-[90px]">
-                <div className="text-2xl font-bold">{totalSubKategori - completedCount - draftCount}</div>
-                <div className="text-[10px] text-white/80 uppercase tracking-wide">Belum</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* BKU UTAMA SECTION                                                  */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
@@ -830,28 +707,7 @@ export default function DokumenSPJPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* ACCORDION DETAIL PANEL                                             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {renderDetailPanel()}
-
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* QUICK ACTIONS                                                      */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {!selectedCard && (
-          <div className="flex flex-wrap gap-3 pt-2">
-            <button className="flex items-center gap-2 bg-gradient-to-r from-primary to-blue-600 text-white px-6 py-3 rounded-2xl hover:brightness-110 shadow-lg shadow-primary/20 transition-all duration-300 active:scale-95 text-sm font-medium">
-              <span className="material-symbols-outlined text-lg">print</span>
-              Cetak Semua Lengkap
-            </button>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-2xl hover:bg-slate-50 transition-all duration-300 active:scale-95 text-sm font-medium">
-              <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
-              Export ke PDF
-            </button>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-2xl hover:bg-slate-50 transition-all duration-300 active:scale-95 text-sm font-medium">
-              <span className="material-symbols-outlined text-lg">checklist</span>
-              Tandai Semua Selesai
-            </button>
-          </div>
-        )}
-      </div>
+        {renderDetailPanel()}      </div>
 
     </div>
   )
