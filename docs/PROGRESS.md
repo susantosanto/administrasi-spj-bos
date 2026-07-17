@@ -59,6 +59,7 @@
 | 49. Lampiran Daftar Penerima Tugas | ✅ DONE | 2026-07-13 |
 | 50. Nomor Surat Terpisah + Popup di Header | ✅ DONE | 2026-07-13 |
 | 51. Fix Format Nomor Surat di Popup Dokumen (Honor & Transport) | ✅ DONE | 2026-07-13 |
+| 52. Redesain Dokumen LPJ → Form Input + Preview (Honor & Transport) | ✅ DONE | 2026-07-13 |
 | 52. LPJ Checklist Column + Progress Bar di BKU Page | ✅ DONE | 2026-07-13 |
 | 53. BKU Sidebar — Tab Dokumentasi + Auto-Detect Template | ✅ DONE | 2026-07-13 |
 | 54. Hapus Progress Bar & Tandai Selesai dari Dokumen LPJ Page | ✅ DONE | 2026-07-13 |
@@ -447,8 +448,8 @@
 ## 🐛 KNOWN ISSUES
 
 - [ ] Sidebar state belum persist ke localStorage
-- [ ] Test cetak SPPD / Surat Tugas (perlu running app)
-- [ ] Auto-fill SPPD dari transport belum di-test end-to-end
+- [ ] Test preview/cetak alur Form→Preview (Honor & Transport) end-to-end di running app
+- [ ] Implementasi Form+Preview untuk card lain (Mamin, Pemeliharaan, dll)
 - [ ] Sidebar BKU (tab Dokumentasi) upload masih placeholder
 
 ---
@@ -518,6 +519,14 @@
 61. ✅ Premium accordion animations (fade-in, slide-up, scale-in, glow)
 62. ✅ Fix format nomor surat di popup dokumen (Honor & Transport) — sekarang sama dengan menu Nomor Surat (422.1/SK-001/SDN-PSR/VII/2026)
 63. ✅ Rename menu "Upload BKU" → "Data BKU" (Sidebar, Dashboard, halaman BKU)
+64. ✅ Redesain Dokumen LPJ: klik card → FORM (dropdown penerima dari Data Guru/Tendik, periode, nomor surat) → Preview dokumen siap cetak → Kembali ke Form untuk revisi
+65. ✅ Honor: KS/Bendahara/Logo otomatis dari data sekolah (tidak diisi manual)
+66. ✅ Transport: Preview tampil Daftar Penerima Transport + SPPD (Surat Perintah Tugas) sekaligus
+67. ✅ Generate nomor surat tetap ada di FORM (Honor 1 nomor, Transport 2 nomor: transport + SPPD)
+68. ✅ Nominal dokumen LPJ (Honor JUMLAH & Transport UNIT COST) diambil otomatis dari data BKU (match nama + bulan + kode rekening)
+69. ✅ Tombol "Pilih Penerima" diredesain lebih menonjol (premium minimalis, gradient + ikon group_add)
+70. ✅ Redesain modal Generate Nomor Surat (minimalis elegan, ukuran 340px, pill selector)
+71. ✅ SPPD (Surat Perintah Tugas) berorientasi Potrait
 64. ✅ LPJ Checklist Column + Progress Bar di BKU Page
 65. ✅ BKU Sidebar — Tab Dokumentasi dengan auto-detect template
 66. ✅ Hapus progress bar & Tandai Selesai dari Dokumen LPJ Page
@@ -547,4 +556,4 @@
 
 ---
 
-*Last updated: 2026-07-13 | Session: LPJ Checklist + Type Detection Fix + Push ke GitHub*
+*Last updated: 2026-07-17 | Session: AI Ask to AI + Kode Referensi ARKAS + Keterangan Kegiatan BKU*

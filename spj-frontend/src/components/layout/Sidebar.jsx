@@ -34,6 +34,12 @@ const MENU_GROUPS = [
       { label: 'Catatan', icon: 'edit_note', path: '/dashboard/catatan' },
     ],
   },
+  {
+    label: 'REFERENSI',
+    items: [
+      { label: 'Kode Referensi', icon: 'book_2', path: '/dashboard/kode-referensi' },
+    ],
+  },
 ]
 
 const BOTTOM_ITEMS = [

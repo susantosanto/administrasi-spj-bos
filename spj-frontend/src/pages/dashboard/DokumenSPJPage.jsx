@@ -12,6 +12,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
+import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
 import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 
@@ -54,16 +55,14 @@ const CARDS = [
   {
     id: 'mamin',
     nama: 'Makan & Minum',
-    deskripsi: 'Notulen, Buku Tamu, Mamin Kegiatan, Tamu, Rapat',
+    deskripsi: 'Rapat, Kegiatan, Tamu — Undangan, Daftar Hadir, Resume, Foto',
     kategori: 'BKU Utama',
     icon: 'restaurant',
     hasTemplate: true,
     subKategori: [
-      { id: 'notulen', label: 'Notulen', templateId: 'notulen' },
-      { id: 'buku_tamu', label: 'Buku Tamu', templateId: 'buku_tamu' },
-      { id: 'mamin_kegiatan', label: 'Mamin Kegiatan', templateId: null, comingSoon: true },
-      { id: 'mamin_tamu', label: 'Mamin Tamu', templateId: null, comingSoon: true },
-      { id: 'mamin_rapat', label: 'Mamin Rapat', templateId: null, comingSoon: true },
+      { id: 'rapat', label: 'Rapat', templateId: null },
+      { id: 'kegiatan', label: 'Kegiatan', templateId: null },
+      { id: 'tamu', label: 'Tamu', templateId: null },
     ],
   },
   {
@@ -133,6 +132,7 @@ export default function DokumenSPJPage() {
   const [selectedCard, setSelectedCard] = useState(null)
   const [selectedSubKategori, setSelectedSubKategori] = useState(null)
   const [formData, setFormData] = useState({})
+  const [viewMode, setViewMode] = useState('form')
   const [isAnimating, setIsAnimating] = useState(false)
   const [sppdData, setSppdData] = useState({})
   const detailRef = useRef(null)
@@ -180,6 +180,7 @@ export default function DokumenSPJPage() {
       const firstValidSub = card.subKategori?.find(s => !s.comingSoon)
       setSelectedSubKategori(firstValidSub || null)
       setFormData({})
+      setViewMode('form')
       
       // Trigger animation then scroll
       setTimeout(() => {
@@ -195,6 +196,7 @@ export default function DokumenSPJPage() {
       setSelectedCard(null)
       setSelectedSubKategori(null)
       setFormData({})
+      setViewMode('form')
       setIsAnimating(false)
       // Scroll back to top
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -258,41 +260,6 @@ export default function DokumenSPJPage() {
     const existingRows = formData.rows || []
     setFormData({ ...formData, rows: [...existingRows, ...computedData] })
   }
-
-  // ─── SPPD Auto-Generate from Transport ──────────────────────────────────
-  // Initialize SPPD data when transport data changes
-  useEffect(() => {
-    const transportRows = formData.rows || []
-    if (transportRows.length === 0 || !selectedCard?.isTransport) {
-      setSppdData({})
-      return
-    }
-    
-    const config = getTemplateConfig()
-    const kegiatan = config?.defaults?.kegiatan || 'Perjalanan Dinas'
-    const tempat = config?.defaults?.tempat || 'Cikalongwetan'
-    const tanggal = transportRows[0]?.tanggal || new Date().toISOString().split('T')[0]
-    const lama = transportRows[0]?.lama || '1 hari'
-    
-    // Only update if SPPD data is empty or transport data changed
-    setSppdData(prev => ({
-      // Keep existing nomorSurat if any
-      nomorSurat: prev.nomorSurat || '',
-      // Auto-fill from transport
-      tujuan: kegiatan,
-      tanggal: tanggal,
-      tempat: tempat,
-      lama: lama,
-      // List penerima tugas
-      rows: transportRows.map((row, idx) => ({
-        no: idx + 1,
-        nama: row.nama || '',
-        nip: row.nip || '',
-        jabatan: row.jabatan || '',
-        ttd: '',
-      })),
-    }))
-  }, [formData.rows, selectedCard?.isTransport])
 
   // ─── Grouped Cards ───────────────────────────────────────────────────────
   const bkuUtama = CARDS.filter((c) => c.kategori === 'BKU Utama')
@@ -419,6 +386,7 @@ export default function DokumenSPJPage() {
     if (!selectedCard) return null
 
     const isTransport = selectedCard?.isTransport
+    const isSpecial = ['honor', 'perjalanan_dinas', 'mamin', 'pemeliharaan'].includes(selectedCard?.id)
     const isTransportSub = isTransport && selectedSubKategori?.templateId !== null && selectedSubKategori?.templateId !== 'sppd'
     const hasSppdData = isTransportSub && sppdData && sppdData.rows && sppdData.rows.length > 0
 
@@ -462,8 +430,8 @@ export default function DokumenSPJPage() {
               </button>
             </div>
 
-            {/* Sub-Kategori Tabs */}
-            {selectedCard.subKategori && (
+            {/* Sub-Kategori Tabs (non-special cards) */}
+            {!isSpecial && selectedCard.subKategori && (
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {selectedCard.subKategori.map((sub, index) => {
                   const subStatus = getStatus(selectedCard.id, sub.id)
@@ -494,6 +462,20 @@ export default function DokumenSPJPage() {
             )}
 
             {/* Content Area */}
+            {isSpecial ? (
+              <DokumenFormPreview
+                card={selectedCard}
+                selectedSub={selectedSubKategori}
+                onSubChange={handleSubKategoriChange}
+                formData={formData}
+                setFormData={setFormData}
+                sppdData={sppdData}
+                setSppdData={setSppdData}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                onClose={handleCloseDetail}
+              />
+            ) : (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               {selectedCard.infoOnly && !selectedCard.subKategori ? (
                 // Info Only View
@@ -638,6 +620,7 @@ export default function DokumenSPJPage() {
                 </div>
               )}
             </div>
+          )}
 
             {/* Footer Actions */}
             <div className="flex items-center justify-between pt-2">
@@ -649,6 +632,7 @@ export default function DokumenSPJPage() {
                 Kembali ke Daftar
               </button>
               
+              {!isSpecial && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={handlePrint}
@@ -658,6 +642,7 @@ export default function DokumenSPJPage() {
                   Cetak Dokumen
                 </button>
               </div>
+              )}
             </div>
           </div>
         </div>

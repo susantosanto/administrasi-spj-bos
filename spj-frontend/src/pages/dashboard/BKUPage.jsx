@@ -3,6 +3,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
+import { getNamaKegiatan } from '../../data/kodeReferensi'
 import BKUSidebar from '../../components/bku/BKUSidebar'
 
 // ─── CHECKLIST LPJ ─────────────────────────────────────────────
@@ -541,14 +542,31 @@ export default function BKUPage() {
                       >
                         <td className="px-2 py-2 text-text-low text-[11px]">{String(idx + 1).padStart(2, '0')}</td>
                         <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
-                        <td className="px-2 py-2 text-[11px] truncate" title={item.uraian}>
+                        <td className="px-2 py-2 text-[11px]" title={item.uraian}>
                           <span className="text-text-high">{item.uraian}</span>
+                          {item.kodeKegiatan && (() => {
+                            const namaKeg = getNamaKegiatan(item.kodeKegiatan)
+                            return namaKeg !== (item.kodeKegiatan?.replace(/\.$/, '')) ? (
+                              <div className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[200px]" title={namaKeg}>
+                                📋 {namaKeg}
+                              </div>
+                            ) : null
+                          })()}
                         </td>
                         <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.noBukti || '-'}>
                           {item.noBukti || '-'}
                         </td>
-                        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.kodeRekening || '-'}>
-                          {item.kodeRekening || '-'}
+                        <td className="px-2 py-2 text-[10px] text-text-low">
+                          <span className="font-mono">{item.kodeRekening || '-'}</span>
+                          {item.kodeKegiatan && (() => {
+                            const namaKeg = getNamaKegiatan(item.kodeKegiatan) || item.kodeKegiatan
+                            return (
+                              <>
+                                <br />
+                                <span className="font-mono text-[8px] opacity-70 truncate block max-w-[120px]" title={namaKeg}>{namaKeg}</span>
+                              </>
+                            )
+                          })()}
                         </td>
                         <td className="px-2 py-2 truncate">
                           <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>

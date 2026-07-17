@@ -485,18 +485,6 @@ export default function DashboardHome() {
         </footer>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* FAB                                                                */}
-      {/* ═══════════════════════════════════════════════════════════════════ */}
-      <Link
-        to="/dashboard/dokumen-lpj"
-        className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-2xl shadow-2xl shadow-primary/30 flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 group z-50"
-      >
-        <span className="material-symbols-outlined text-2xl">print</span>
-        <span className="absolute right-16 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg">
-          Mulai Cetak Dokumen LPJ
-        </span>
-      </Link>
     </div>
   )
 }
