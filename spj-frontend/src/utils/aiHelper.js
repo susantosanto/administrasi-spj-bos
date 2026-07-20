@@ -210,18 +210,31 @@ async function callPuterProvider(messages, options = {}) {
       .filter(Boolean)
       .join('\n\n')
 
-    const answer = await puter.ai.chat(prompt, {
+    // ── PANGGIL PUTER AI ──
+    // Response format: { message: { content: "jawaban..." }, ... }
+    // BUKAN string langsung!
+    const response = await puter.ai.chat(prompt, {
       model: 'gpt-4o-mini',
       maxTokens,
       temperature,
     })
 
-    // Puter.js return string langsung — bungkus ke format OpenAI
+    // ── EKSTRAK CONTENT ──
+    // Puter.js SDK return ChatResponse: { message: { content } }
+    // Tapi kadang juga return plain string (tergantung versi SDK).
+    const content =
+      response?.message?.content ||               // { message: { content: "..." } }
+      (typeof response === 'string' ? response : '')  // string langsung
+
+    if (!content) {
+      console.warn('Puter.js response tidak dikenali:', response)
+      throw new Error('Puter.js: Response kosong atau format tidak dikenal')
+    }
+
+    // Bungkus ke format OpenAI-compatible supaya callAI() bisa extract
     return {
       choices: [{
-        message: {
-          content: typeof answer === 'string' ? answer : (answer?.text || ''),
-        },
+        message: { content },
       }],
     }
   } catch (err) {
