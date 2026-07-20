@@ -91,8 +91,16 @@ export function detectContext(pathname) {
  * @param {array} messages — Array of { role, content }
  * @param {object} options — { stream, maxTokens, temperature }
  * @returns {Promise<string|Response>}
- */
-async function callProvider(provider, messages, options = {}) {
+ */async function callProvider(provider, messages, options = {}) {
+  // ═══════════════════════════════════════════════════════════
+  // 🏆 PUTER.JS PATH — Prioritas tertinggi!
+  //    Gratis, tanpa API key, tanpa proxy, tanpa CORS.
+  //    Sempurna untuk prototype Vercel.
+  // ═══════════════════════════════════════════════════════════
+  if (provider.name === 'Puter') {
+    return callPuterProvider(messages, options)
+  }
+
   const {
     stream = false,
     maxTokens = aiConfig.settings.maxOutputTokens,
@@ -126,7 +134,8 @@ async function callProvider(provider, messages, options = {}) {
   }
 
   // Gemini API punya format request berbeda (contents bukan messages)
-  const body = provider.useApiKeyParam      ? JSON.stringify({
+  const body = provider.useApiKeyParam
+    ? JSON.stringify({
         contents: messages.map(m => ({
           // Gemini hanya support 'user' dan 'model' — system di-convert ke user
           role: m.role === 'assistant' ? 'model' : 'user',
@@ -161,6 +170,62 @@ async function callProvider(provider, messages, options = {}) {
   } catch (err) {
     clearTimeout(timeoutId)
     throw err
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PUTER.JS — Provider khusus yang pake SDK, bukan HTTP fetch
+// ═══════════════════════════════════════════════════════════
+
+let _puterModule = null
+
+async function _getPuter() {
+  if (!_puterModule) {
+    _puterModule = await import('@heyputer/puter.js')
+  }
+  return _puterModule.default
+}
+
+/**
+ * Panggil AI via Puter.js SDK.
+ * Keuntungan: gratis, tanpa API key, tanpa proxy, tanpa CORS.
+ * 
+ * @param {array} messages — Array of { role, content }
+ * @param {object} options — { maxTokens, temperature }
+ * @returns {Promise<object>} — OpenAI-compatible response { choices: [{ message: { content } }] }
+ */
+async function callPuterProvider(messages, options = {}) {
+  const {
+    maxTokens = aiConfig.settings.maxOutputTokens,
+    temperature = aiConfig.settings.temperature,
+  } = options
+
+  try {
+    const puter = await _getPuter()
+
+    // Gabung semua messages jadi satu prompt
+    // System prompt + user question digabung
+    const prompt = messages
+      .map(m => m.content)
+      .filter(Boolean)
+      .join('\n\n')
+
+    const answer = await puter.ai.chat(prompt, {
+      model: 'gpt-4o-mini',
+      maxTokens,
+      temperature,
+    })
+
+    // Puter.js return string langsung — bungkus ke format OpenAI
+    return {
+      choices: [{
+        message: {
+          content: typeof answer === 'string' ? answer : (answer?.text || ''),
+        },
+      }],
+    }
+  } catch (err) {
+    throw new Error(`Puter.js: ${err.message || 'Gagal memanggil AI'}`)
   }
 }
 

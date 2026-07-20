@@ -29,6 +29,19 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PROVIDERS = {
+  puter: {
+    name: 'Puter',
+    model: 'gpt-4o',
+    apiKey: 'puter-free', // truthy agar masuk getActiveProviders()
+    endpoint: '', // tidak dipakai — Puter.js pakai SDK sendiri
+    baseUrl: '',
+    directApiPath: '',
+    useApiKeyParam: false,
+    priority: 0, // PRIORITAS TERTINGGI — gratis, tanpa API key, tanpa proxy!
+    supportsStreaming: false, // non-streaming dulu untuk prototype
+    maxTokens: 4096,
+    description: 'Puter.js — GRATIS, tanpa API key, tanpa proxy',
+  },
   cerebras: {
     name: 'Cerebras',
     model: import.meta.env.VITE_CEREBRAS_MODEL || 'gpt-oss-120b',

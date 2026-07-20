@@ -9,6 +9,7 @@
     "preview": "node scripts/copy-docs.js && vite preview"
   },
   "dependencies": {
+    "@heyputer/puter.js": "^2.5.4",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
