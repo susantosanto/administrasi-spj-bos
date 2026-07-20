@@ -146,14 +146,24 @@ async function _classifyWithAI(question) {
   if (!provider) return null
 
   const intentPrompt = aiConfig.getPrompt('intentClassifier')
-  
-  const res = await fetch(provider.endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${provider.apiKey}`,
-    },
-    body: JSON.stringify({
+
+  // Tentukan URL: proxy (dev) atau direct API (production/Vercel)
+  const url = aiConfig.getProviderUrl(provider)
+  const headers = aiConfig.getProviderHeaders(provider)
+
+  // Body: OpenAI format vs Gemini format
+  let body
+  if (provider.useApiKeyParam) {
+    // Gemini format
+    body = JSON.stringify({
+      contents: [
+        { role: 'user', parts: [{ text: `${intentPrompt}\n\nUser: ${question}` }] },
+      ],
+      generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
+    })
+  } else {
+    // OpenAI format (Groq/Cerebras)
+    body = JSON.stringify({
       model: provider.model,
       messages: [
         { role: 'system', content: intentPrompt },
@@ -161,13 +171,22 @@ async function _classifyWithAI(question) {
       ],
       max_tokens: 300,
       temperature: 0.1,
-    }),
+    })
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
   })
 
   if (!res.ok) return null
 
   const data = await res.json()
-  const text = data?.choices?.[0]?.message?.content || ''
+  // Support OpenAI format (Groq/Cerebras) dan Gemini format
+  const text = data?.choices?.[0]?.message?.content ||
+               data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+               data?.contents?.[0]?.parts?.[0]?.text || ''
   
   // Parse JSON dari response AI
   try {

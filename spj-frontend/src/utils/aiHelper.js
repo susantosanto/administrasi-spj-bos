@@ -113,6 +113,10 @@ async function callProvider(provider, messages, options = {}) {
     }, { once: true })
   }
 
+  // Tentukan URL: proxy (dev) atau direct API (production/Vercel)
+  const url = aiConfig.getProviderUrl(provider)
+  const headers = aiConfig.getProviderHeaders(provider)
+
   const payload = {
     model: provider.model,
     messages,
@@ -121,14 +125,25 @@ async function callProvider(provider, messages, options = {}) {
     stream,
   }
 
+  // Gemini API punya format request berbeda (contents bukan messages)
+  const body = provider.useApiKeyParam      ? JSON.stringify({
+        contents: messages.map(m => ({
+          // Gemini hanya support 'user' dan 'model' — system di-convert ke user
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        })),
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature,
+        },
+      })
+    : JSON.stringify(payload)
+
   try {
-    const res = await fetch(provider.endpoint, {
+    const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${provider.apiKey}`,
-      },
-      body: JSON.stringify(payload),
+      headers,
+      body,
       signal: controller.signal,
     })
 
@@ -173,7 +188,10 @@ async function callAI(messages, options = {}) {
           return data // Return response untuk streaming
         }
 
-        const content = data?.choices?.[0]?.message?.content
+        // Support OpenAI format (Groq/Cerebras) dan Gemini format
+        const content = data?.choices?.[0]?.message?.content ||
+                       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+                       data?.contents?.[0]?.parts?.[0]?.text || ''
         if (content) return content
         
         throw new Error('Response kosong dari provider')
@@ -557,7 +575,8 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
           { role: 'user', content: question },
         ]
         const data = await callProvider(provider, msgs, { signal: controller.signal })
-        const answer = data?.choices?.[0]?.message?.content || ''
+        const answer = data?.choices?.[0]?.message?.content ||
+                       data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
         
         const chars = answer.split('')
         for (let i = 0; i < chars.length; i++) {

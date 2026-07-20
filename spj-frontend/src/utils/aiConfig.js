@@ -35,7 +35,9 @@ const PROVIDERS = {
     apiKey: import.meta.env.VITE_CEREBRAS_API_KEY || '',
     endpoint: '/api/cerebras/chat/completions',
     baseUrl: 'https://api.cerebras.ai/v1',
-    priority: 1, // lower = higher priority
+    directApiPath: '/chat/completions', // ← untuk direct API call (tanpa proxy)
+    useApiKeyParam: false, // ← pakai Authorization: Bearer header
+    priority: 1,
     supportsStreaming: true,
     maxTokens: 4096,
     description: 'Primary — gratis, sangat cepat',
@@ -46,6 +48,8 @@ const PROVIDERS = {
     apiKey: import.meta.env.VITE_GROQ_API_KEY || '',
     endpoint: '/api/groq/chat/completions',
     baseUrl: 'https://api.groq.com/openai/v1',
+    directApiPath: '/chat/completions',
+    useApiKeyParam: false,
     priority: 2,
     supportsStreaming: true,
     maxTokens: 8192,
@@ -57,8 +61,10 @@ const PROVIDERS = {
     apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
     endpoint: '/api/gemini/models/gemini-2.0-flash:streamGenerateContent',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    directApiPath: '/models/gemini-2.0-flash:generateContent', // non-streaming dulu
+    useApiKeyParam: true, // ← Gemini: ?key= di query param, bukan Bearer header
     priority: 3,
-    supportsStreaming: true,
+    supportsStreaming: false, // streaming disabled — beda format SSE
     maxTokens: 8192,
     description: 'Cadangan — kualitas Bahasa Indonesia terbaik',
   },
@@ -314,6 +320,56 @@ class AIConfig {
 
   updatePrompt(key, content) {
     this._prompts[key] = content
+  }
+
+  // ── URL Resolution ──
+
+  /**
+   * Dapatkan URL endpoint yang tepat untuk provider.
+   * - Dev (localhost): pakai proxy endpoint (/api/groq/...) — Vite proxy
+   * - Production (Vercel): pakai direct URL (baseUrl + directApiPath) — langsung ke API
+   * 
+   * @param {object|string} provider — Provider object atau key string
+   * @returns {string} URL lengkap
+   */
+  getProviderUrl(provider) {
+    const p = typeof provider === 'string' ? this._providers[provider] : provider
+    if (!p) return null
+
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1'
+
+    if (isLocalhost) {
+      // Dev: proxy endpoint (Vite rewrite)
+      return p.endpoint
+    }
+
+    // Production: direct API URL
+    const path = p.directApiPath || '/chat/completions'
+    const baseUrl = p.baseUrl.replace(/\/+$/, '') // hapus trailing slash
+    const url = `${baseUrl}${path}`
+
+    if (p.useApiKeyParam) {
+      // Gemini: API key di query param
+      return `${url}?key=${encodeURIComponent(p.apiKey)}`
+    }
+    return url
+  }
+
+  /**
+   * Dapatkan headers untuk request ke provider.
+   * - Gemini: Authorization tidak perlu (key di URL)
+   * - Lainnya: Bearer token
+   */
+  getProviderHeaders(provider) {
+    const p = typeof provider === 'string' ? this._providers[provider] : provider
+    if (!p) return { 'Content-Type': 'application/json' }
+
+    const headers = { 'Content-Type': 'application/json' }
+    if (!p.useApiKeyParam && p.apiKey) {
+      headers['Authorization'] = `Bearer ${p.apiKey}`
+    }
+    return headers
   }
 
   // ── Utility ──
