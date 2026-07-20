@@ -26,9 +26,21 @@ const TARGETS = {
 }
 
 export default async function handler(req, res) {
+  // Log untuk debugging
+  console.log(`[AI Proxy] ${req.method} ${req.url} — path:`, req.query.path)
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    res.status(200).end()
+    return
+  }
+
   // Hanya terima POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+    console.warn(`[AI Proxy] Ditolak: method=${req.method}, url=${req.url}`)
+    return res.status(405).json({ error: `Method ${req.method} not allowed. Use POST.` })
   }
 
   // Parse path: /api/groq/chat/completions → ['groq', 'chat', 'completions']
