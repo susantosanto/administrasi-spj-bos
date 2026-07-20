@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
 import storageHelper from '../../utils/storageHelper'
+import { DOCUMENTS_REF, isDocAvailable } from '../../utils/docHelper'
+import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -76,15 +78,6 @@ const FEATURES = [
   },
 ]
 
-const DOCUMENTS_REF = [
-  { judul: 'PERMENDAGRI', sub: 'Peraturan Menteri Dalam Negeri', file: 'permendagri.pdf', icon: 'policy', gradient: 'from-blue-500/10 to-indigo-500/10', iconBg: 'bg-blue-500/15', iconColor: 'text-blue-600' },
-  { judul: 'Juknis BOSP', sub: 'PERMENDIKDASMEN', file: 'juknis-bosp.pdf', icon: 'menu_book', gradient: 'from-violet-500/10 to-purple-500/10', iconBg: 'bg-violet-500/15', iconColor: 'text-violet-600' },
-  { judul: 'TKA', sub: 'PERMENDIKDASMEN', file: 'tka.pdf', icon: 'calculate', gradient: 'from-cyan-500/10 to-teal-500/10', iconBg: 'bg-cyan-500/15', iconColor: 'text-cyan-600' },
-  { judul: 'PERBUP Kab. Bandung Barat', sub: 'Transaksi Tunai & Non Tunai', file: 'perbup.pdf', icon: 'gavel', gradient: 'from-amber-500/10 to-orange-500/10', iconBg: 'bg-amber-500/15', iconColor: 'text-amber-600' },
-  { judul: 'Standar Satuan Harga (SSH)', sub: 'Tahun Berlaku', file: 'ssh.pdf', icon: 'receipt', gradient: 'from-emerald-500/10 to-green-500/10', iconBg: 'bg-emerald-500/15', iconColor: 'text-emerald-600' },
-  { judul: 'Permendikbudristek No. 18', sub: 'Th. 2022', file: 'permendikbudristek-18.pdf', icon: 'newspaper', gradient: 'from-rose-500/10 to-pink-500/10', iconBg: 'bg-rose-500/15', iconColor: 'text-rose-600' },
-]
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -92,6 +85,8 @@ const DOCUMENTS_REF = [
 export default function DashboardHome() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [lpjProgress, setLpjProgress] = useState({ checked: 0, total: 0 })
+  const [selectedDoc, setSelectedDoc] = useState(null) // Dokumen yang dipilih untuk modal
+  const [showDocModal, setShowDocModal] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -294,32 +289,38 @@ export default function DashboardHome() {
           </div>
 
           <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            {DOCUMENTS_REF.map((doc) => (
-              <a
-                key={doc.file}
-                href={`/docs/${doc.file}`}
-                download
-                className={`relative overflow-hidden flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border border-white/60 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 group`}
-              >
-                {/* Decorative blur */}
-                <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
+            {DOCUMENTS_REF.map((doc) => {
+              const available = isDocAvailable(doc)
+              return (
+                <button
+                  key={doc.id}
+                  onClick={() => {
+                    if (!available) return // skip modal untuk file yang belum tersedia
+                    setSelectedDoc(doc)
+                    setShowDocModal(true)
+                  }}
+                  className={`relative overflow-hidden flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-lg hover:scale-[1.02] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-300 group text-left w-full`}
+                >
+                  {/* Decorative blur */}
+                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
 
-                <div className={`relative w-11 h-11 rounded-xl ${doc.iconBg} flex items-center justify-center group-hover:scale-110 transition-all duration-300`}>
-                  <span className={`material-symbols-outlined ${doc.iconColor} text-xl transition-colors`}>
-                    {doc.icon}
+                  <div className={`relative w-11 h-11 rounded-xl ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-110' : ''} transition-all duration-300`}>
+                    <span className={`material-symbols-outlined ${doc.iconColor} text-xl transition-colors`}>
+                      {doc.icon}
+                    </span>
+                  </div>
+                  <div className="relative flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-800 truncate">
+                      {doc.judul}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
+                  </div>
+                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1' : 'text-slate-300'} transition-all text-lg`}>
+                    {available ? 'download' : 'block'}
                   </span>
-                </div>
-                <div className="relative flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-800 truncate">
-                    {doc.judul}
-                  </p>
-                  <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
-                </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all text-lg">
-                  download
-                </span>
-              </a>
-            ))}
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -484,6 +485,16 @@ export default function DashboardHome() {
           </div>
         </footer>
       </div>
+
+      {/* ─── MODAL KONFIRMASI DOWNLOAD ─── */}
+      <DownloadConfirmModal
+        doc={selectedDoc}
+        isOpen={showDocModal}
+        onClose={() => {
+          setShowDocModal(false)
+          setSelectedDoc(null)
+        }}
+      />
 
     </div>
   )

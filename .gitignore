@@ -44,6 +44,10 @@ Thumbs.db
 # MCP config
 .mcp.json
 
+# Dokumen Referensi (PDF) — source files
+build-resources/docs/
+spj-frontend/public/docs/
+
 # Windows reserved names
 nul
 NUL

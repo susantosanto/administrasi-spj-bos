@@ -25,6 +25,7 @@ import storageHelper from '../../utils/storageHelper'
 function ChatBubble({ message }) {
   const isUser = message.role === 'user'
   const isError = message.isError
+  const isStreaming = message.isStreaming // ← flag untuk animasi streaming
 
   return (
     <div className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
@@ -35,36 +36,55 @@ function ChatBubble({ message }) {
             ? 'bg-gradient-to-br from-primary to-blue-600'
             : isError
               ? 'bg-red-100'
-              : 'bg-slate-100'
+              : isStreaming
+                ? 'bg-primary/10 ring-2 ring-primary/30 animate-pulse'
+                : 'bg-slate-100'
         }`}
       >
         <span
           className={`material-symbols-outlined text-sm ${
-            isUser ? 'text-white' : isError ? 'text-red-600' : 'text-primary'
+            isUser ? 'text-white' : isError ? 'text-red-600' : isStreaming ? 'text-primary' : 'text-primary'
           }`}
           style={isUser ? { fontVariationSettings: "'FILL' 1" } : {}}
         >
-          {isUser ? 'person' : isError ? 'error' : 'auto_awesome'}
+          {isUser ? 'person' : isError ? 'error' : isStreaming ? 'more_horiz' : 'auto_awesome'}
         </span>
       </div>
 
       {/* Bubble */}
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed transition-all ${
           isUser
             ? 'bg-primary text-white rounded-tr-md'
             : isError
               ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-md'
-              : 'bg-slate-50 text-slate-700 border border-slate-100 rounded-tl-md'
+              : isStreaming
+                ? 'bg-white text-slate-700 border border-primary/20 rounded-tl-md shadow-sm'
+                : 'bg-slate-50 text-slate-700 border border-slate-100 rounded-tl-md'
         }`}
       >
+        {/* Streaming indicator: blinking cursor */}
+        {isStreaming && !message.content && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        )}
+
         {/* Format konten: bold, list, dan Rupiah */}
-        <div className="whitespace-pre-wrap">
-          {formatMessageContent(message.content)}
-        </div>
+        {message.content && (
+          <div className="whitespace-pre-wrap">
+            {formatMessageContent(message.content)}
+            {/* Blinking cursor saat streaming */}
+            {isStreaming && (
+              <span className="inline-block w-[2px] h-[1em] bg-primary ml-0.5 animate-pulse" />
+            )}
+          </div>
+        )}
 
         {/* Timestamp */}
-        {message.timestamp && (
+        {message.timestamp && !isStreaming && (
           <p className={`text-[10px] mt-2 ${isUser ? 'text-blue-200' : 'text-slate-400'}`}>
             {formatTime(message.timestamp)}
           </p>
@@ -182,7 +202,7 @@ function QuickChips({ chips, onSelect, hasSentMessage }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export default function AskAIPanel({ onClose }) {
-  const { messages, sendMessage, isLoading, resetChat } = useAI()
+  const { messages, sendMessage, isLoading, isStreaming, cancelStreaming, resetChat } = useAI()
   const [inputText, setInputText] = useState('')
   const [context, setContext] = useState(null)
   const messagesEndRef = useRef(null)
@@ -304,7 +324,7 @@ export default function AskAIPanel({ onClose }) {
           ))}
 
           {/* Loading indicator */}
-          {isLoading && (
+          {isLoading && !isStreaming && (
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center">
                 <span className="material-symbols-outlined text-sm text-primary">auto_awesome</span>
@@ -347,21 +367,31 @@ export default function AskAIPanel({ onClose }) {
                          placeholder:text-slate-400 disabled:opacity-50 transition-all"
             />
 
-            {/* Send Button */}
-            <button
-              onClick={handleSend}
-              disabled={!inputText.trim() || isLoading}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all
-                ${
-                  inputText.trim() && !isLoading
-                    ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
-                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                }`}
-            >
-              <span className="material-symbols-outlined text-lg">
-                {isLoading ? 'more_horiz' : 'arrow_upward'}
-              </span>
-            </button>
+            {/* Cancel atau Send Button */}
+            {isStreaming ? (
+              <button
+                onClick={cancelStreaming}
+                className="w-11 h-11 rounded-xl flex items-center justify-center bg-red-500 text-white shadow-lg shadow-red-500/30 hover:brightness-110 active:scale-95 transition-all animate-pulse"
+                title="Hentikan"
+              >
+                <span className="material-symbols-outlined text-lg">stop</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleSend}
+                disabled={!inputText.trim() || isLoading}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all
+                  ${
+                    inputText.trim() && !isLoading
+                      ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
+                      : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                  }`}
+              >
+                <span className="material-symbols-outlined text-lg">
+                  {isLoading ? 'more_horiz' : 'arrow_upward'}
+                </span>
+              </button>
+            )}
           </div>
 
           {/* Disclaimer */}
