@@ -116,11 +116,7 @@ const CARDS = [
     icon: 'bolt',
     hasTemplate: false,
     infoOnly: true,
-    subKategori: [
-      { id: 'listrik', label: 'Listrik', info: 'Invoice + Bukti Pembayaran' },
-      { id: 'air', label: 'Air', info: 'Invoice + Bukti Pembayaran' },
-      { id: 'pulsa', label: 'Pulsa Internet', templateId: 'pulsa' },
-    ],
+    infoItems: ['Invoice Listrik', 'Invoice Air', 'Invoice Pulsa Internet'],
   },
 ]
 
