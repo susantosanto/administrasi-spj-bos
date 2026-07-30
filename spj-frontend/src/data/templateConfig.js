@@ -53,6 +53,115 @@ export const TEMPLATE_CONFIGS = {
     },
   },
 
+  // ─── SURAT UNDANGAN MAMIN (DOCX) ───
+  undangan_mamin: {
+    id: 'undangan_mamin',
+    label: 'Surat Undangan Makan & Minum',
+    card: 'mamin',
+    sub_kategori: 'rapat',
+    sourceFile: '/templates/Surat Undangan Mamin.docx',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'header',
+        judul: 'SURAT UNDANGAN',
+        nomor: false,
+        showBulan: false,
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'nomorUndangan', label: 'Nomor', type: 'text' },
+          { key: 'sifatUndangan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },
+          { key: 'lampiranUndangan', label: 'Lampiran', type: 'text' },
+          { key: 'perihalUndangan', label: 'Perihal', type: 'text' },
+          { key: 'kepadaUndangan', label: 'Kepada Yth', type: 'text' },
+          { key: 'diUndangan', label: 'Di', type: 'text', defaultValue: 'Tempat' },
+        ],
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'hariUndangan', label: 'Hari', type: 'text' },
+          { key: 'tanggalUndangan', label: 'Tanggal', type: 'text' },
+          { key: 'tempatUndangan', label: 'Tempat', type: 'text' },
+          { key: 'waktuUndangan', label: 'Waktu', type: 'text' },
+        ],
+      },
+      {
+        type: 'uraian-kegiatan',
+        label: 'Isi Undangan',
+      },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: {
+      sifatUndangan: 'Biasa',
+      lampiranUndangan: '-',
+      diUndangan: 'Tempat',
+    },
+  },
+
+  // ─── SURAT PESANAN MAMIN (DOCX) ───
+  pesanan_mamin: {
+    id: 'pesanan_mamin',
+    label: 'Surat Pesanan Makan & Minum',
+    card: 'mamin',
+    sub_kategori: 'kegiatan',
+    sourceFile: '/templates/Surat Pesanan Mamin.docx',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'header',
+        judul: 'SURAT PESANAN',
+        nomor: false,
+        showBulan: false,
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'nomorPesanan', label: 'Nomor', type: 'text' },
+          { key: 'sifatPesanan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },
+          { key: 'lampiranPesanan', label: 'Lampiran', type: 'text' },
+          { key: 'perihalPesanan', label: 'Perihal', type: 'text', defaultValue: 'Surat Pesanan' },
+          { key: 'kepadaPesanan', label: 'Kepada Yth (Nama Toko/RM)', type: 'text' },
+          { key: 'diPesanan', label: 'Di', type: 'text', defaultValue: 'Di tempat' },
+        ],
+      },
+      {
+        type: 'uraian-kegiatan',
+        label: 'Isi Surat Pesanan',
+      },
+      {
+        type: 'table-dinamis',
+        label: 'Rincian Pesanan:',
+        showIndex: true,
+        columns: [
+          { key: 'no', label: 'NO', width: 8 },
+          { key: 'uraian', label: 'URAIAN', width: 45 },
+          { key: 'satuan', label: 'SATUAN', width: 20 },
+          { key: 'jumlah', label: 'JUMLAH', width: 20 },
+        ],
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'hariPesanan', label: 'Hari/Tanggal', type: 'text' },
+          { key: 'jenisPesanan', label: 'Jenis Pesanan', type: 'text' },
+          { key: 'jumlahPesanan', label: 'Jumlah', type: 'text' },
+        ],
+      },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: {
+      sifatPesanan: 'Biasa',
+      lampiranPesanan: '-',
+      perihalPesanan: 'Surat Pesanan',
+      diPesanan: 'Di tempat',
+    },
+  },
+
   // ─── BUKU TAMU (DOCX) ───
   buku_tamu: {
     id: 'buku_tamu',

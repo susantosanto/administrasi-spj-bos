@@ -486,6 +486,13 @@
 - [x] Environment Config — VITE_DOCS_MODE, VITE_DOCS_{FILE_ID}
 - [x] DashboardHome — 5 card download dengan gradient/icon per dokumen
 
+### 📚 Mamin — Surat Undangan & Pesanan (2026-07-30)
+- [x] templateConfig.js — tambah `undangan_mamin` & `pesanan_mamin` configs
+- [x] DokumenFormPreview — form input Surat Undangan (nomor, sifat, lampiran, perihal, kepada, isi)
+- [x] DokumenFormPreview — form input Surat Pesanan (nomor, sifat, kepada toko, rincian pesanan, jenis/jumlah)
+- [x] renderMaminPreview — tampilkan 4 dokumen: Buku Tamu + Notulen + Surat Undangan + Surat Pesanan
+- [x] Preview otomatis tampil jika field terisi
+
 ---
 
 ## 🐛 KNOWN ISSUES

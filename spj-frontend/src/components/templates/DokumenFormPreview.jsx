@@ -665,6 +665,124 @@ export default function DokumenFormPreview({
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all"
                   />
                 </div>
+
+                {/* ═══ SURAT UNDANGAN ═══ */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-primary mb-2">
+                    <span className="material-symbols-outlined text-lg">mail</span>
+                    <span className="text-sm font-bold">Surat Undangan</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Nomor</label>
+                      <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="007/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Sifat</label>
+                      <select value={formData.sifatUndangan || 'Biasa'} onChange={(e) => setFormData({ ...formData, sifatUndangan: e.target.value })} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
+                        <option value="Biasa">Biasa</option>
+                        <option value="Penting">Penting</option>
+                        <option value="Segera">Segera</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Lampiran</label>
+                      <input type="text" value={formData.lampiranUndangan || '-'} onChange={(e) => setFormData({ ...formData, lampiranUndangan: e.target.value })} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Perihal</label>
+                      <input type="text" value={formData.perihalUndangan || 'Undangan'} onChange={(e) => setFormData({ ...formData, perihalUndangan: e.target.value })} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth</label>
+                    <input type="text" value={formData.kepadaUndangan || ''} onChange={(e) => setFormData({ ...formData, kepadaUndangan: e.target.value })} placeholder="Bapak/Ibu Guru SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Undangan</label>
+                    <textarea value={formData.isiUndangan || ''} onChange={(e) => setFormData({ ...formData, isiUndangan: e.target.value })} rows={3} placeholder="Bersamaan ini kami sampaikan bahwa pelaksanaan kegiatan..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
+                  </div>
+                </div>
+
+                {/* ═══ SURAT PESANAN ═══ */}
+                <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-primary mb-2">
+                    <span className="material-symbols-outlined text-lg">shopping_cart</span>
+                    <span className="text-sm font-bold">Surat Pesanan</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Nomor</label>
+                      <input type="text" value={formData.nomorPesanan || ''} onChange={(e) => setFormData({ ...formData, nomorPesanan: e.target.value })} placeholder="008/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Sifat</label>
+                      <select value={formData.sifatPesanan || 'Biasa'} onChange={(e) => setFormData({ ...formData, sifatPesanan: e.target.value })} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
+                        <option value="Biasa">Biasa</option>
+                        <option value="Penting">Penting</option>
+                        <option value="Segera">Segera</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth (Nama Toko/RM)</label>
+                    <input type="text" value={formData.kepadaPesanan || ''} onChange={(e) => setFormData({ ...formData, kepadaPesanan: e.target.value })} placeholder="Toko/RM. Family" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
+                    <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder="Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
+                  </div>
+                  {/* Rincian Pesanan */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Rincian Pesanan</label>
+                      <button type="button" onClick={() => {
+                        const rows = formData.pesananRows || []
+                        setFormData({ ...formData, pesananRows: [...rows, { id: Date.now(), no: rows.length + 1, uraian: '', satuan: '', jumlah: '' }] })
+                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-xs">add</span> Tambah Item
+                      </button>
+                    </div>
+                    {(formData.pesananRows || []).length === 0 && (
+                      <p className="text-[10px] text-slate-400 italic">Belum ada item pesanan.</p>
+                    )}
+                    {(formData.pesananRows || []).map((row, idx) => (
+                      <div key={row.id} className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-slate-400 w-4">{idx + 1}</span>
+                        <input type="text" value={row.uraian} onChange={(e) => {
+                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
+                          setFormData({ ...formData, pesananRows: rows })
+                        }} placeholder="Uraian" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                        <input type="text" value={row.satuan} onChange={(e) => {
+                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, satuan: e.target.value } : r)
+                          setFormData({ ...formData, pesananRows: rows })
+                        }} placeholder="Satuan" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                        <input type="text" value={row.jumlah} onChange={(e) => {
+                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, jumlah: e.target.value } : r)
+                          setFormData({ ...formData, pesananRows: rows })
+                        }} placeholder="Jumlah" className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                        <button type="button" onClick={() => {
+                          const rows = formData.pesananRows.filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
+                          setFormData({ ...formData, pesananRows: rows })
+                        }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Hari/Tanggal</label>
+                      <input type="text" value={formData.hariPesanan || ''} onChange={(e) => setFormData({ ...formData, hariPesanan: e.target.value })} placeholder="Senin 20 Februari 2025" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Jenis Pesanan</label>
+                      <input type="text" value={formData.jenisPesanan || ''} onChange={(e) => setFormData({ ...formData, jenisPesanan: e.target.value })} placeholder="Nasi Box / Snack" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Jumlah</label>
+                      <input type="text" value={formData.jumlahPesanan || ''} onChange={(e) => setFormData({ ...formData, jumlahPesanan: e.target.value })} placeholder="105 Box" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                  </div>
+                </div>
               </>
             )}
 
@@ -875,6 +993,52 @@ export default function DokumenFormPreview({
           </div>
           <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
         </div>
+
+        {/* Dokumen 3: Surat Undangan */}
+        {(formData.nomorUndangan || formData.kepadaUndangan || formData.isiUndangan) && (
+          <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 overflow-auto">
+            <div className="flex items-center gap-2 text-emerald-700 mb-3">
+              <span className="material-symbols-outlined">mail</span>
+              <span className="text-sm font-bold">Surat Undangan</span>
+            </div>
+            <TemplateEngine
+              templateConfig={TEMPLATE_CONFIGS.undangan_mamin}
+              data={{
+                ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
+                ...formData,
+                tempat: formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+                hari: formData.hari,
+                tanggalAcara: formData.tanggal,
+                tempatAcara: formData.tempat,
+                waktu: formData.waktu,
+                acara: formData.acara,
+                kegiatan: formData.isiUndangan || formData.acara || '',
+              }}
+              mode="print"
+            />
+          </div>
+        )}
+
+        {/* Dokumen 4: Surat Pesanan */}
+        {(formData.nomorPesanan || formData.kepadaPesanan || (formData.pesananRows || []).length > 0) && (
+          <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-4 overflow-auto">
+            <div className="flex items-center gap-2 text-violet-700 mb-3">
+              <span className="material-symbols-outlined">shopping_cart</span>
+              <span className="text-sm font-bold">Surat Pesanan</span>
+            </div>
+            <TemplateEngine
+              templateConfig={TEMPLATE_CONFIGS.pesanan_mamin}
+              data={{
+                ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
+                ...formData,
+                tempat: formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+                kegiatan: formData.isiPesanan || formData.acara || '',
+                rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
+              }}
+              mode="print"
+            />
+          </div>
+        )}
       </div>
     )
   }
