@@ -504,8 +504,12 @@
 - [x] BKUSidebar tab "Dokumentasi LPJ" — upload manual + AI generate
 - [x] PersonelFotoTab v2 — 3 tab: Personel, Ruangan, Barang
 - [x] DokumentasiAIGenerate v2 — Pilih Pakaian + Suasana + Orang Hadir
-- [x] Preview A4 — kop surat + foto + keterangan + TTD
+- [x] Preview A4 — kop surat + title + foto
 - [x] Download JPG + Cetak/PDF
+- [x] Multi-foto — Tambah Foto, Edit/Hapus per slot, A4 2 foto per halaman
+- [x] A4 Portrait — 2 foto per halaman, foto di atas, space kosong di bawah
+- [x] Ukuran foto proporsional — 75% area konten A4
+- [x] Title "DOKUMENTASI KEGIATAN" di A4 preview
 
 ---
 
@@ -620,4 +624,4 @@
 
 ---
 
-*Last updated: 2026-07-20 | Session: Dokumen Referensi + Google Drive + Modal Download + PRD Electron*
+*Last updated: 2026-07-31 | Session: Multi-foto Generate Dokumentasi AI*
