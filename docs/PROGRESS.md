@@ -492,6 +492,9 @@
 - [x] DokumenFormPreview — form input Surat Pesanan (nomor, sifat, kepada toko, rincian pesanan, jenis/jumlah)
 - [x] renderMaminPreview — tampilkan 4 dokumen: Buku Tamu + Notulen + Surat Undangan + Surat Pesanan
 - [x] Preview otomatis tampil jika field terisi
+- [x] Block baru `table-letter-header` — layout 5 kolom surat dinas Indonesia
+- [x] Form + Preview Daftar Hadir (dari data Guru/Tendik, format DOCX Daftar Hadir.docx)
+- [x] Form Daftar Hadir: input judul/keterangan acara + picker peserta dari Data Guru/Tendik
 
 ---
 

@@ -825,6 +825,18 @@ export default function DokumenFormPreview({
               </>
             )}
 
+            {/* ═══ DAFTAR HADIR ═══ */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-primary mb-2">
+                <span className="material-symbols-outlined text-lg">badge</span>
+                <span className="text-sm font-bold">Daftar Hadir</span>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Keterangan / Judul Acara</label>
+                <input type="text" value={formData.judulDaftarHadir || formData.acara || ''} onChange={(e) => setFormData({ ...formData, judulDaftarHadir: e.target.value })} placeholder="Rapat Pemberdayaan Perpustakaan Sekolah" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+              </div>
+            </div>
+
             {/* Daftar Hadir / Daftar Penerima (participant picker) */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -1032,6 +1044,25 @@ export default function DokumenFormPreview({
           </div>
           <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
         </div>
+
+        {/* Dokumen 2b: Daftar Hadir (dari data Guru/Tendik) */}
+        {rows.length > 0 && (
+          <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-4 overflow-auto">
+            <div className="flex items-center gap-2 text-amber-700 mb-3">
+              <span className="material-symbols-outlined">badge</span>
+              <span className="text-sm font-bold">Daftar Hadir</span>
+            </div>
+            <TemplateEngine
+              templateConfig={TEMPLATE_CONFIGS.daftar_hadir}
+              data={{
+                ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
+                judulAcara: formData.judulDaftarHadir || formData.acara || '',
+                rows,
+              }}
+              mode="print"
+            />
+          </div>
+        )}
 
         {/* Dokumen 3: Surat Undangan */}
         {(formData.nomorUndangan || formData.kepadaUndangan || formData.isiUndangan) && (

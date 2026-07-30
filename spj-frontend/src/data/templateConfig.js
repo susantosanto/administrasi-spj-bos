@@ -219,6 +219,43 @@ export const TEMPLATE_CONFIGS = {
     defaults: {},
   },
 
+  // ─── DAFTAR HADIR (DOCX) ───
+  // Format: tabel NO/NAMA/JABATAN/TANDA TANGAN dari data Guru/Tendik
+  daftar_hadir: {
+    id: 'daftar_hadir',
+    label: 'Daftar Hadir',
+    card: 'mamin',
+    sub_kategori: 'rapat',
+    sourceFile: '/templates/Daftar Hadir.docx',
+    orientation: 'portrait',
+    blocks: [
+      {
+        type: 'header',
+        judul: 'DAFTAR HADIR',
+        nomor: false,
+        showBulan: false,
+      },
+      {
+        type: 'uraian-kegiatan',
+        label: 'Keterangan Acara',
+      },
+      {
+        type: 'table-dinamis',
+        label: '',
+        showIndex: true,
+        columns: [
+          { key: 'no', label: 'NO', width: 6 },
+          { key: 'nama', label: 'NAMA', width: 30 },
+          { key: 'jabatan', label: 'JABATAN', width: 25 },
+          { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
+          { key: 'ttd2', label: '', width: 15 },
+        ],
+      },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: {},
+  },
+
   // ─── SPPD / SURAT TUGAS (DOCX) ───
   // Format standar: 1 Surat Tugas berisi list nama penerima tugas
   sppd: {
