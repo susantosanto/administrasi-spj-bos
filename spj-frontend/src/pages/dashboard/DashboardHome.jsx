@@ -17,6 +17,16 @@ import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
 
 const FEATURES = [
   {
+    id: 'dokumentasi-ai',
+    title: 'Generate Foto Dokumentasi',
+    subtitle: 'AI-powered foto kegiatan',
+    description: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali dari BKU.',
+    icon: 'auto_awesome',
+    path: '/dashboard/bku',
+    count: null,
+    kategori: ['AI', 'Foto', 'Dokumentasi'],
+  },
+  {
     id: 'dokumen-lpj',
     title: 'Dokumen LPJ',
     subtitle: '26+ jenis dokumen pertanggungjawaban',
@@ -75,16 +85,6 @@ const FEATURES = [
     path: '/dashboard/realisasi',
     count: null,
     kategori: ['Anggaran', 'Realisasi'],
-  },
-  {
-    id: 'dokumentasi-ai',
-    title: 'Generate Foto Dokumentasi',
-    subtitle: 'AI-powered foto kegiatan',
-    description: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali dari BKU.',
-    icon: 'auto_awesome',
-    path: '/dashboard/bku',
-    count: null,
-    kategori: ['AI', 'Foto', 'Dokumentasi'],
   },
 ]
 
