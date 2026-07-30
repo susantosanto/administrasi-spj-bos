@@ -502,6 +502,10 @@
 - [x] PersonelFotoTab — upload foto Kepsek/Guru/Tendik/Pengawas di Data Sekolah
 - [x] DokumentasiAIGenerate — generate foto di BKU Sidebar tab Dokumentasi LPJ
 - [x] BKUSidebar tab "Dokumentasi LPJ" — upload manual + AI generate
+- [x] PersonelFotoTab v2 — 3 tab: Personel, Ruangan, Barang
+- [x] DokumentasiAIGenerate v2 — Pilih Pakaian + Suasana + Orang Hadir
+- [x] Preview A4 — kop surat + foto + keterangan + TTD
+- [x] Download JPG + Cetak/PDF
 
 ---
 
