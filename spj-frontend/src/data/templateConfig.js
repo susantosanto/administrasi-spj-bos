@@ -70,23 +70,29 @@ export const TEMPLATE_CONFIGS = {
         showBulan: false,
       },
       {
-        type: 'table-fields',
-        fields: [
+        type: 'table-letter-header',
+        dateField: 'tanggalSurat',
+        leftFields: [
           { key: 'nomorUndangan', label: 'Nomor', type: 'text' },
           { key: 'sifatUndangan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },
           { key: 'lampiranUndangan', label: 'Lampiran', type: 'text' },
           { key: 'perihalUndangan', label: 'Perihal', type: 'text' },
-          { key: 'kepadaUndangan', label: 'Kepada Yth', type: 'text' },
-          { key: 'diUndangan', label: 'Di', type: 'text', defaultValue: 'Tempat' },
+        ],
+        rightFields: [
+          { key: 'kepadaUndangan', label: 'Kepada Yth,', type: 'text' },
+          { key: 'alamatUndangan', label: '', type: 'text' },
+          { key: 'instansiUndangan', label: '', type: 'text' },
+          { key: 'diUndangan', label: 'Di', type: 'text' },
+          { key: 'tempatUndangan', label: '', type: 'text' },
         ],
       },
       {
         type: 'table-fields',
         fields: [
           { key: 'hariUndangan', label: 'Hari', type: 'text' },
-          { key: 'tanggalUndangan', label: 'Tanggal', type: 'text' },
-          { key: 'tempatUndangan', label: 'Tempat', type: 'text' },
-          { key: 'waktuUndangan', label: 'Waktu', type: 'text' },
+          { key: 'tanggalAcara', label: 'Tanggal', type: 'text' },
+          { key: 'tempatAcara', label: 'Tempat', type: 'text' },
+          { key: 'waktuAcara', label: 'Waktu', type: 'text' },
         ],
       },
       {
@@ -98,7 +104,8 @@ export const TEMPLATE_CONFIGS = {
     defaults: {
       sifatUndangan: 'Biasa',
       lampiranUndangan: '-',
-      diUndangan: 'Tempat',
+      diUndangan: 'Di',
+      tempatUndangan: 'Tempat',
     },
   },
 
@@ -119,14 +126,18 @@ export const TEMPLATE_CONFIGS = {
         showBulan: false,
       },
       {
-        type: 'table-fields',
-        fields: [
+        type: 'table-letter-header',
+        dateField: 'tanggalSurat',
+        leftFields: [
           { key: 'nomorPesanan', label: 'Nomor', type: 'text' },
           { key: 'sifatPesanan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },
           { key: 'lampiranPesanan', label: 'Lampiran', type: 'text' },
-          { key: 'perihalPesanan', label: 'Perihal', type: 'text', defaultValue: 'Surat Pesanan' },
-          { key: 'kepadaPesanan', label: 'Kepada Yth (Nama Toko/RM)', type: 'text' },
-          { key: 'diPesanan', label: 'Di', type: 'text', defaultValue: 'Di tempat' },
+          { key: 'perihalPesanan', label: 'Perihal', type: 'text' },
+        ],
+        rightFields: [
+          { key: 'kepadaPesanan', label: 'Kepada Yth,', type: 'text' },
+          { key: 'alamatToko', label: '', type: 'text' },
+          { key: 'diPesanan', label: 'Di', type: 'text' },
         ],
       },
       {

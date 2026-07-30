@@ -672,6 +672,10 @@ export default function DokumenFormPreview({
                     <span className="material-symbols-outlined text-lg">mail</span>
                     <span className="text-sm font-bold">Surat Undangan</span>
                   </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tanggal Surat</label>
+                    <input type="text" value={formData.tanggalSurat || ''} onChange={(e) => setFormData({ ...formData, tanggalSurat: e.target.value })} placeholder="Cikalongwetan, 20 Februari 2025" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Nomor</label>
@@ -694,9 +698,34 @@ export default function DokumenFormPreview({
                       <input type="text" value={formData.perihalUndangan || 'Undangan'} onChange={(e) => setFormData({ ...formData, perihalUndangan: e.target.value })} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth</label>
-                    <input type="text" value={formData.kepadaUndangan || ''} onChange={(e) => setFormData({ ...formData, kepadaUndangan: e.target.value })} placeholder="Bapak/Ibu Guru SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth</label>
+                      <input type="text" value={formData.kepadaUndangan || ''} onChange={(e) => setFormData({ ...formData, kepadaUndangan: e.target.value })} placeholder="Bapak/Ibu Guru" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Alamat / Instansi</label>
+                      <input type="text" value={formData.alamatUndangan || ''} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                  </div>
+                  {/* Detail Acara */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Hari</label>
+                      <input type="text" value={formData.hariUndangan || ''} onChange={(e) => setFormData({ ...formData, hariUndangan: e.target.value })} placeholder="Kamis" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tanggal Acara</label>
+                      <input type="text" value={formData.tanggalAcara || ''} onChange={(e) => setFormData({ ...formData, tanggalAcara: e.target.value })} placeholder="20 Februari 2025" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tempat</label>
+                      <input type="text" value={formData.tempatAcara || ''} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Waktu</label>
+                      <input type="text" value={formData.waktuAcara || ''} onChange={(e) => setFormData({ ...formData, waktuAcara: e.target.value })} placeholder="08.00 sd Selesai" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Undangan</label>
@@ -709,6 +738,10 @@ export default function DokumenFormPreview({
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-lg">shopping_cart</span>
                     <span className="text-sm font-bold">Surat Pesanan</span>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tanggal Surat</label>
+                    <input type="text" value={formData.tanggalSurat || ''} onChange={(e) => setFormData({ ...formData, tanggalSurat: e.target.value })} placeholder="Cikalongwetan, 18 Februari 2025" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -724,9 +757,15 @@ export default function DokumenFormPreview({
                       </select>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth (Nama Toko/RM)</label>
-                    <input type="text" value={formData.kepadaPesanan || ''} onChange={(e) => setFormData({ ...formData, kepadaPesanan: e.target.value })} placeholder="Toko/RM. Family" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Kepada Yth (Nama Toko/RM)</label>
+                      <input type="text" value={formData.kepadaPesanan || ''} onChange={(e) => setFormData({ ...formData, kepadaPesanan: e.target.value })} placeholder="Toko/RM. Family" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Alamat Toko</label>
+                      <input type="text" value={formData.alamatToko || ''} onChange={(e) => setFormData({ ...formData, alamatToko: e.target.value })} placeholder="Di tempat" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
@@ -1006,12 +1045,11 @@ export default function DokumenFormPreview({
               data={{
                 ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
                 ...formData,
-                tempat: formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
-                hari: formData.hari,
-                tanggalAcara: formData.tanggal,
-                tempatAcara: formData.tempat,
-                waktu: formData.waktu,
-                acara: formData.acara,
+                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
+                hariUndangan: formData.hariUndangan || formData.hari || '',
+                tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
+                tempatAcara: formData.tempatAcara || formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+                waktuAcara: formData.waktuAcara || formData.waktu || '',
                 kegiatan: formData.isiUndangan || formData.acara || '',
               }}
               mode="print"
@@ -1031,7 +1069,7 @@ export default function DokumenFormPreview({
               data={{
                 ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
                 ...formData,
-                tempat: formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
                 kegiatan: formData.isiPesanan || formData.acara || '',
                 rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
               }}
