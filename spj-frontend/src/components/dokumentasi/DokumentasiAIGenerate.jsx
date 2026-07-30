@@ -68,29 +68,28 @@ function PreviewA4({ imageUrl, transaction, pakaian, suasana, orangList, onDownl
       <!DOCTYPE html>
       <html><head><title>Dokumentasi LPJ</title>
       <style>
-        @page { size: A4; margin: 20mm; }
-        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #000; }
-        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .header h2 { margin: 0; font-size: 14pt; text-transform: uppercase; }
-        .header p { margin: 2px 0; font-size: 11pt; }
-        .content { margin: 20px 0; }
-        .photo { text-align: center; margin: 20px 0; }
-        .photo img { max-width: 80%; max-height: 400px; border: 1px solid #ccc; }
-        .caption { text-align: center; font-style: italic; margin-top: 10px; }
-        .info { margin: 15px 0; }
-        .info table { width: 100%; border-collapse: collapse; }
-        .info td { padding: 4px 8px; vertical-align: top; }
-        .info td:first-child { font-weight: bold; width: 150px; }
-        .signature { margin-top: 40px; text-align: right; }
-        .signature p { margin: 2px 0; }
+        @page { size: A4 portrait; margin: 15mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; color: #000; }
+        .a4-page { width: 210mm; height: 297mm; padding: 15mm; page-break-after: always; position: relative; }
+        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 10px; }
+        .header h2 { font-size: 13pt; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { font-size: 10pt; margin: 1px 0; }
+        .photo-grid { display: flex; flex-direction: column; gap: 8mm; margin-top: 8mm; }
+        .photo-slot { flex: 1; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; min-height: 100mm; }
+        .photo-slot img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .photo-slot.empty { border: 1px dashed #ccc; }
       </style></head><body>
-      <div class="header">
-        <h2>${sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
-        <p>${sekolah?.alamat || 'Alamat Sekolah'}</p>
-        <p>Telp: ${sekolah?.telepon || '-'} | Email: ${sekolah?.email || '-'}</p>
-      </div>
-      <div class="content">
-        <div class="photo"><img src="${imageUrl}" /></div>
+      <div class="a4-page">
+        <div class="header">
+          <h2>${sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
+          <p>${sekolah?.alamat || 'Alamat Sekolah'}</p>
+          <p>Telp: ${sekolah?.telepon || '-'} | Email: ${sekolah?.email || '-'}</p>
+        </div>
+        <div class="photo-grid">
+          <div class="photo-slot"><img src="${imageUrl}" /></div>
+          <div class="photo-slot empty"></div>
+        </div>
       </div>
       </body></html>
     `)
@@ -100,19 +99,26 @@ function PreviewA4({ imageUrl, transaction, pakaian, suasana, orangList, onDownl
 
   return (
     <div className="space-y-4">
-      {/* A4 Preview */}
-      <div ref={previewRef} className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
-        {/* Kop Surat */}
-        <div className="border-b-4 border-double border-slate-800 px-6 py-4 text-center">
-          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">{sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
-          <p className="text-[10px] text-slate-600">{sekolah?.alamat || 'Alamat Sekolah'}</p>
-          <p className="text-[10px] text-slate-600">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
-        </div>
+      {/* A4 Portrait Preview */}
+      <div ref={previewRef} className="mx-auto bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden" style={{ aspectRatio: '210 / 297', maxHeight: '70vh' }}>
+        <div className="h-full flex flex-col">
+          {/* Kop Surat */}
+          <div className="border-b-4 border-double border-slate-800 px-4 py-3 text-center flex-shrink-0">
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">{sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
+            <p className="text-[8px] text-slate-600">{sekolah?.alamat || 'Alamat Sekolah'}</p>
+            <p className="text-[8px] text-slate-600">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
+          </div>
 
-        {/* Foto */}
-        <div className="px-6 py-4">
-          <div className="flex justify-center">
-            <img src={imageUrl} alt="Dokumentasi" className="max-w-full max-h-64 object-contain rounded-lg border border-slate-200 shadow" />
+          {/* Photo Grid — 2 slots */}
+          <div className="flex-1 flex flex-col gap-2 p-3">
+            {/* Slot 1: Foto utama */}
+            <div className="flex-1 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden bg-slate-50">
+              <img src={imageUrl} alt="Dokumentasi 1" className="w-full h-full object-contain p-1" />
+            </div>
+            {/* Slot 2: Kosong */}
+            <div className="flex-1 border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center bg-slate-50/50">
+              <span className="text-[8px] text-slate-300 font-medium">Foto ke-2</span>
+            </div>
           </div>
         </div>
       </div>
