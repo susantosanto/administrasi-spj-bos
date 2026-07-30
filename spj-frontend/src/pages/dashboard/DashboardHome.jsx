@@ -76,6 +76,16 @@ const FEATURES = [
     count: null,
     kategori: ['Anggaran', 'Realisasi'],
   },
+  {
+    id: 'dokumentasi-ai',
+    title: 'Generate Foto Dokumentasi',
+    subtitle: 'AI-powered foto kegiatan',
+    description: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali dari BKU.',
+    icon: 'auto_awesome',
+    path: '/dashboard/bku',
+    count: null,
+    kategori: ['AI', 'Foto', 'Dokumentasi'],
+  },
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -184,6 +194,7 @@ export default function DashboardHome() {
                     { icon: 'description', label: '26+ Dokumen LPJ' },
                     { icon: 'folder_open', label: '15+ Kelengkapan' },
                     { icon: 'print', label: '13 Template Cetak' },
+                    { icon: 'auto_awesome', label: 'Foto AI' },
                   ].map((stat) => (
                     <div
                       key={stat.label}

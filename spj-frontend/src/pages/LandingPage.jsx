@@ -48,6 +48,7 @@ function PremiumTypingCard() {
     { text: 'Cetak LPJ Satu Klik', icon: 'print' },
     { text: 'Kelola Data Sekolah', icon: 'school' },
     { text: 'Generate 13 Template', icon: 'description' },
+    { text: 'Generate Foto Dokumentasi', icon: 'auto_awesome' },
     { text: 'Import Data Guru', icon: 'groups' },
   ];
 
@@ -199,6 +200,7 @@ function PremiumFeaturePills() {
     { icon: 'print', label: 'Cetak LPJ' },
     { icon: 'school', label: 'Data Sekolah' },
     { icon: 'groups', label: 'Data Guru' },
+    { icon: 'auto_awesome', label: 'Foto AI' },
     { icon: 'description', label: '13 Template' },
   ];
 
@@ -311,6 +313,22 @@ const FEATURES = [
         {['BOSP', 'Honor', 'Mamin', 'Pajak'].map(tag => (
           <span key={tag} className="px-3 py-1 bg-slate-100/80 text-slate-600 text-xs font-medium rounded-lg">{tag}</span>
         ))}
+      </div>
+    ),
+  },
+  {
+    icon: 'auto_awesome', title: 'Generate Foto Dokumentasi', desc: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali. Pilih pakaian, suasana, dan peserta.',
+    iconBg: 'bg-violet-50', iconColor: 'text-violet-600', gradient: 'from-violet-500 to-purple-400', isLarge: true,
+    extra: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-1.5">
+          {['bg-violet-400', 'bg-blue-400', 'bg-emerald-400'].map((color, i) => (
+            <div key={i} className={`w-7 h-7 rounded-full ${color} border-2 border-white flex items-center justify-center`}>
+              <span className="material-symbols-outlined text-white text-xs">{['checkroom', 'meeting_room', 'groups'][i]}</span>
+            </div>
+          ))}
+        </div>
+        <span className="text-slate-500 text-xs">Formal • Batik • Seragam • Ruang Rapat • Outdoor</span>
       </div>
     ),
   },
