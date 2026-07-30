@@ -179,8 +179,8 @@ export default function AskAIPanel({ onClose }) {
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-[200] transition-opacity" onClick={onClose} />
 
-      {/* Panel — ultra-premium minimalis */}
-      <div className="fixed top-0 right-0 h-full w-[420px] max-w-[calc(100vw-40px)] z-[201]
+      {/* Panel — wider, premium minimalis */}
+      <div className="fixed top-0 right-0 h-full w-[480px] max-w-[calc(100vw-24px)] z-[201]
                        bg-[#f8f9fb]/95 backdrop-blur-2xl
                        border-l border-slate-200/60
                        shadow-[-8px_0_40px_rgba(0,0,0,0.08)]
