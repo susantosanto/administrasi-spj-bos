@@ -77,7 +77,7 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
           </div>
 
           {/* Photo Grid — 2 slots at top, space at bottom */}
-          <div className="flex flex-col gap-2" style={{ height: '50%' }}>
+          <div className="flex flex-col gap-2" style={{ height: '75%' }}>
             {images.map((img, i) => {
               const globalIndex = imageStartIndex + i
               return (
