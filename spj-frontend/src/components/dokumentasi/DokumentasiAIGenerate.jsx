@@ -76,12 +76,12 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
             <p className="text-[7px] text-slate-600 leading-tight">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
           </div>
 
-          {/* Photo Grid — 2 slots, fixed height each ~35% of remaining space */}
-          <div className="flex-1 flex flex-col gap-3 justify-between">
+          {/* Photo Grid — 2 slots at top, space at bottom */}
+          <div className="flex flex-col gap-2" style={{ height: '50%' }}>
             {images.map((img, i) => {
               const globalIndex = imageStartIndex + i
               return (
-                <div key={globalIndex} className="border border-slate-200 rounded flex items-center justify-center overflow-hidden bg-slate-50 relative group" style={{ height: '45%' }}>
+                <div key={globalIndex} className="border border-slate-200 rounded flex items-center justify-center overflow-hidden bg-slate-50 relative group" style={{ height: '48%' }}>
                   <img src={img.dataUrl} alt={`Dokumentasi ${globalIndex + 1}`} className="max-w-full max-h-full object-contain p-1" />
                   {/* Overlay actions on hover */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
@@ -101,11 +101,13 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
             })}
             {/* Empty slots */}
             {Array.from({ length: emptySlots }).map((_, i) => (
-              <div key={`empty-${i}`} className="border border-dashed border-slate-200 rounded flex items-center justify-center bg-slate-50/50" style={{ height: '45%' }}>
+              <div key={`empty-${i}`} className="border border-dashed border-slate-200 rounded flex items-center justify-center bg-slate-50/50" style={{ height: '48%' }}>
                 <span className="text-[7px] text-slate-300 font-medium">Foto ke-{images.length + i + 1}</span>
               </div>
             ))}
           </div>
+          {/* Space kosong di bawah — sisa ruang A4 */}
+          <div className="flex-1" />
         </div>
       </div>
     </div>
