@@ -90,25 +90,7 @@ function PreviewA4({ imageUrl, transaction, pakaian, suasana, orangList, onDownl
         <p>Telp: ${sekolah?.telepon || '-'} | Email: ${sekolah?.email || '-'}</p>
       </div>
       <div class="content">
-        <h3 style="text-align:center; text-decoration:underline;">DOKUMENTASI KEGIATAN</h3>
         <div class="photo"><img src="${imageUrl}" /></div>
-        <div class="caption">Foto: ${transaction?.uraian || 'Kegiatan Sekolah'}</div>
-        <div class="info">
-          <table>
-            <tr><td>Kegiatan</td><td>: ${transaction?.uraian || '-'}</td></tr>
-            <tr><td>Tanggal</td><td>: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
-            <tr><td>Pakaian</td><td>: ${pakaian || '-'}</td></tr>
-            <tr><td>Suasana</td><td>: ${suasana || '-'}</td></tr>
-            <tr><td>Peserta</td><td>: ${orangList?.join(', ') || '-'}</td></tr>
-          </table>
-        </div>
-        <div class="signature">
-          <p>${sekolah?.kota || 'Kota'}, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p>Kepala Sekolah,</p>
-          <br /><br />
-          <p><strong>${sekolah?.kepala_sekolah || '................'}</strong></p>
-          <p>NIP. ${sekolah?.nip_kepala || '................'}</p>
-        </div>
       </div>
       </body></html>
     `)
@@ -129,33 +111,9 @@ function PreviewA4({ imageUrl, transaction, pakaian, suasana, orangList, onDownl
 
         {/* Foto */}
         <div className="px-6 py-4">
-          <h3 className="text-xs font-bold text-center underline mb-3">DOKUMENTASI KEGIATAN</h3>
           <div className="flex justify-center">
             <img src={imageUrl} alt="Dokumentasi" className="max-w-full max-h-64 object-contain rounded-lg border border-slate-200 shadow" />
           </div>
-          <p className="text-[10px] text-center text-slate-500 italic mt-2">Foto: {transaction?.uraian || 'Kegiatan Sekolah'}</p>
-        </div>
-
-        {/* Info Table */}
-        <div className="px-6 py-3 bg-slate-50 border-t border-slate-200">
-          <table className="w-full text-[10px]">
-            <tbody>
-              <tr><td className="font-bold w-24 py-0.5">Kegiatan</td><td className="py-0.5">: {transaction?.uraian || '-'}</td></tr>
-              <tr><td className="font-bold py-0.5">Tanggal</td><td className="py-0.5">: {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
-              <tr><td className="font-bold py-0.5">Pakaian</td><td className="py-0.5">: {pakaian || '-'}</td></tr>
-              <tr><td className="font-bold py-0.5">Suasana</td><td className="py-0.5">: {suasana || '-'}</td></tr>
-              <tr><td className="font-bold py-0.5">Peserta</td><td className="py-0.5">: {orangList?.join(', ') || '-'}</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        {/* Tanda Tangan */}
-        <div className="px-6 py-4 text-right">
-          <p className="text-[10px] text-slate-600">{sekolah?.kota || 'Kota'}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p className="text-[10px] text-slate-600">Kepala Sekolah,</p>
-          <div className="h-12" />
-          <p className="text-[10px] font-bold text-slate-900">{sekolah?.kepala_sekolah || '................'}</p>
-          <p className="text-[10px] text-slate-600">NIP. {sekolah?.nip_kepala || '................'}</p>
         </div>
       </div>
 
