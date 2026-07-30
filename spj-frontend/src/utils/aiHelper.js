@@ -621,6 +621,61 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
     }
   }
 
+  // ── 2.5 FILE ANALYSIS — langsung ke AI dengan fileAnalysis prompt ──
+  if (question.startsWith('[FILE_ANALYSIS]')) {
+    const cleanQuestion = question.replace('[FILE_ANALYSIS]\n', '')
+    
+    if (signal?.aborted) return
+    try {
+      const provider = aiConfig.getActiveProvider()
+      const msgs = [
+        { role: 'system', content: aiConfig.getPrompt('fileAnalysis') || aiConfig.getPrompt('general') },
+        { role: 'user', content: cleanQuestion },
+      ]
+      
+      if (!provider?.supportsStreaming || signal) {
+        const controller = new AbortController()
+        signal?.addEventListener('abort', () => controller.abort())
+        const data = await callProvider(provider, msgs, { signal: controller.signal })
+        const answer = data?.choices?.[0]?.message?.content ||
+                       data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        const chars = answer.split('')
+        for (let i = 0; i < chars.length; i++) {
+          if (signal?.aborted) return
+          onToken?.(chars[i])
+        }
+        fullAnswer = answer
+        semanticCache.set(question, answer, 'ai')
+        onDone?.(answer)
+        return
+      }
+      
+      // Streaming
+      const response = await callProvider(provider, msgs, {
+        stream: true,
+        maxTokens: aiConfig.settings.maxOutputTokens,
+        timeout: aiConfig.settings.timeout.streamingMs,
+        signal,
+      })
+      if (signal?.aborted) return
+      
+      await readStream(
+        response,
+        (token) => { fullAnswer += token; onToken?.(token) },
+        () => {
+          const formatted = formatAnswer(fullAnswer)
+          semanticCache.set(question, formatted, 'ai')
+          onDone?.(formatted)
+        },
+        (err) => { onDone?.(fullAnswer || 'Terjadi kesalahan saat membaca file.') }
+      )
+    } catch (err) {
+      onToken?.(`Error: ${err.message}`)
+      onDone?.(`Error: ${err.message}`)
+    }
+    return
+  }
+
   // ── 3. INTENT CLASSIFIER ──
   if (signal?.aborted) return
   const intent = await classifyIntent(question)

@@ -134,28 +134,32 @@ async function processFile(file) {
     return { type: 'image', dataUrl, name: file.name, size: file.size }
   }
 
-  // PDF — extract text via pdf.js if available, else fallback
+  // PDF — extract text via pdf.js
   if (ext === 'pdf' || mime === 'application/pdf') {
     try {
-      // Try dynamic import pdf.js
-      const pdfjsLib = await import('pdfjs-dist')
+      const pdfjsLib = await import('pdfjs-dist/build/pdf')
       pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
       
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      let allText = `📄 **PDF: ${file.name}** (${pdf.numPages} halaman)\n\n`
+      let allText = `📄 PDF: ${file.name} (${pdf.numPages} halaman)\n\n`
       
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i)
         const content = await page.getTextContent()
-        const text = content.items.map(item => item.str).join(' ')
-        allText += `--- Halaman ${i} ---\n${text}\n\n`
+        // Gabungkan text items, pisahkan dengan spasi
+        const text = content.items
+          .map(item => item.str)
+          .filter(s => s.trim())
+          .join(' ')
+        if (text.trim()) {
+          allText += `--- HALAMAN ${i} ---\n${text.trim()}\n\n`
+        }
       }
       
       return { type: 'pdf', text: allText, name: file.name, size: file.size, pages: pdf.numPages }
     } catch (err) {
-      // Fallback: read as text (might not work for binary PDF)
-      return { type: 'pdf', text: `📄 PDF: ${file.name}\n\n(Tidak bisa mengekstrak teks secara otomatis. Error: ${err.message})`, name: file.name, size: file.size, extractionFailed: true }
+      return { type: 'pdf', text: `📄 PDF: ${file.name}\n\n(Gagal mengekstrak teks: ${err.message}. Coba upload file Excel atau CSV sebagai gantinya.)`, name: file.name, size: file.size, extractionFailed: true }
     }
   }
 
@@ -360,18 +364,26 @@ export default function AskAIPanel({ onClose }) {
 
     let finalMessage = input.trim()
     
-    // If files attached, include file content in message
+    // If files attached, build structured prompt
     if (attachedFiles.length > 0) {
-      const fileContents = attachedFiles.map(f => {
-        if (f.type === 'image') return `[Gambar: ${f.name}]`
-        return f.text || `[File: ${f.name}]`
-      }).join('\n\n---\n\n')
+      const fileParts = []
       
-      if (finalMessage) {
-        finalMessage = `${finalMessage}\n\n--- FILE YANG DIUPLOAD ---\n${fileContents}`
-      } else {
-        finalMessage = `Tolong analisis file berikut:\n\n${fileContents}`
+      for (const f of attachedFiles) {
+        if (f.type === 'image') {
+          fileParts.push(`[GAMBAR: ${f.name} — file gambar, tidak bisa dibaca teksnya]`)
+        } else {
+          // Limit content: max 4000 chars per file
+          const rawText = f.text || ''
+          const limitedText = rawText.length > 4000 ? rawText.slice(0, 4000) + '\n... (dipotong, terlalu panjang)' : rawText
+          fileParts.push(`=== FILE: ${f.name} (${f.type.toUpperCase()}, ${formatFileSize(f.size)}) ===\n${limitedText}\n=== AKHIR FILE ===`)
+        }
       }
+      
+      const fileContent = fileParts.join('\n\n')
+      const userQuestion = finalMessage || 'Tolong analisis file-file yang saya upload. Jelaskan isi, data penting, dan berikan rekomendasi.'
+      
+      // Gunakan format khusus yang akan dideteksi oleh aiHelper
+      finalMessage = `[FILE_ANALYSIS]\n${userQuestion}\n\n${fileContent}`
     }
 
     if (!finalMessage) return
