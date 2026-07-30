@@ -499,6 +499,9 @@
 - [x] imageGenerator.js — provider Puter (gratis) + Flux Pro (commented, future upgrade)
 - [x] DokumentasiAIPage — upload selfie + pilih aktivitas + generate + download
 - [x] Route /dashboard/dokumentasi-ai + sidebar menu "Generate Foto"
+- [x] PersonelFotoTab — upload foto Kepsek/Guru/Tendik/Pengawas di Data Sekolah
+- [x] DokumentasiAIGenerate — generate foto di BKU Sidebar tab Dokumentasi LPJ
+- [x] BKUSidebar tab "Dokumentasi LPJ" — upload manual + AI generate
 
 ---
 

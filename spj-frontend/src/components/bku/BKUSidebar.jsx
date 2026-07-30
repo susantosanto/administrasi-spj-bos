@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react'
 import { detectTemplate } from '../../utils/templateDetector'
 import { buildSpjChecklist, isBpuBnu } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
+import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
 
 // ─── Constants ─────────────────────────────────────────────────
 
@@ -57,6 +58,18 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const [spjChecked, setSpjChecked] = useState({})
   const [uploadedPhotos, setUploadedPhotos] = useState([])
   const [showPhotoPreview, setShowPhotoPreview] = useState(false)
+
+  // Listen for AI-generated photos
+  useEffect(() => {
+    const handler = (e) => {
+      const photo = e.detail
+      if (photo) {
+        setUploadedPhotos((prev) => [...prev, photo])
+      }
+    }
+    window.addEventListener('addGeneratedPhoto', handler)
+    return () => window.removeEventListener('addGeneratedPhoto', handler)
+  }, [])
 
   useEffect(() => {
     sidebarRef.current?.focus()
@@ -566,6 +579,11 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                 </div>
               )}
             </div>
+
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            {/* GENERATE FOTO DOKUMENTASI AI                                   */}
+            {/* ═══════════════════════════════════════════════════════════════ */}
+            <DokumentasiAIGenerate transaction={transaction} uploadedPhotos={uploadedPhotos} />
 
             {/* Quick Actions */}
             <button
