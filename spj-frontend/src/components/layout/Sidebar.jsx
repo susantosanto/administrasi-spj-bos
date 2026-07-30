@@ -32,6 +32,7 @@ const MENU_GROUPS = [
     label: 'CATATAN',
     items: [
       { label: 'Catatan', icon: 'edit_note', path: '/dashboard/catatan' },
+      { label: 'Generate Foto', icon: 'auto_awesome', path: '/dashboard/dokumentasi-ai' },
     ],
   },
   {

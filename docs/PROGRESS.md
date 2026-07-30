@@ -495,6 +495,10 @@
 - [x] Block baru `table-letter-header` — layout 5 kolom surat dinas Indonesia
 - [x] Form + Preview Daftar Hadir (dari data Guru/Tendik, format DOCX Daftar Hadir.docx)
 - [x] Form Daftar Hadir: input judul/keterangan acara + picker peserta dari Data Guru/Tendik
+- [x] Generate Foto Dokumentasi (Puter.js MVP, Canvas placeholder)
+- [x] imageGenerator.js — provider Puter (gratis) + Flux Pro (commented, future upgrade)
+- [x] DokumentasiAIPage — upload selfie + pilih aktivitas + generate + download
+- [x] Route /dashboard/dokumentasi-ai + sidebar menu "Generate Foto"
 
 ---
 

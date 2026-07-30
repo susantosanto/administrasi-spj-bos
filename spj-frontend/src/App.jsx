@@ -18,6 +18,7 @@ import PengaturanPage from './pages/dashboard/PengaturanPage'
 import NomorSuratPage from './pages/dashboard/NomorSuratPage'
 import TemplateSuratPage from './pages/dashboard/TemplateSuratPage'
 import ReferensiKodePage from './pages/dashboard/ReferensiKodePage'
+import DokumentasiAIPage from './pages/DokumentasiAIPage'
 
 function ProtectedRoute({ children }) {
   const isLoggedIn = localStorage.getItem('spj_auth') === 'true'
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="template-surat" element={<TemplateSuratPage />} />
               <Route path="catatan" element={<NotesPage />} />
               <Route path="kode-referensi" element={<ReferensiKodePage />} />
+              <Route path="dokumentasi-ai" element={<DokumentasiAIPage />} />
               <Route path="pengaturan" element={<PengaturanPage />} />
             </Route>
 
