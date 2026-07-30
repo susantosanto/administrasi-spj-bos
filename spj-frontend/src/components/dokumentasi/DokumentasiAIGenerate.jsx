@@ -68,32 +68,32 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
 
       {/* A4 Portrait Preview */}
       <div className="mx-auto bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden" style={{ aspectRatio: '210 / 297', maxHeight: '70vh' }}>
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col p-[6%]">
           {/* Kop Surat */}
-          <div className="border-b-4 border-double border-slate-800 px-4 py-3 text-center flex-shrink-0">
-            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wide">{sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
-            <p className="text-[8px] text-slate-600">{sekolah?.alamat || 'Alamat Sekolah'}</p>
-            <p className="text-[8px] text-slate-600">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
+          <div className="border-b-2 border-double border-slate-800 pb-2 mb-3 text-center flex-shrink-0">
+            <h2 className="text-[10px] font-bold text-slate-900 uppercase tracking-wide">{sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
+            <p className="text-[7px] text-slate-600 leading-tight">{sekolah?.alamat || 'Alamat Sekolah'}</p>
+            <p className="text-[7px] text-slate-600 leading-tight">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
           </div>
 
-          {/* Photo Grid — 2 slots */}
-          <div className="flex-1 flex flex-col gap-2 p-3">
+          {/* Photo Grid — 2 slots, fixed height each ~35% of remaining space */}
+          <div className="flex-1 flex flex-col gap-3 justify-between">
             {images.map((img, i) => {
               const globalIndex = imageStartIndex + i
               return (
-                <div key={globalIndex} className="flex-1 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden bg-slate-50 relative group">
-                  <img src={img.dataUrl} alt={`Dokumentasi ${globalIndex + 1}`} className="w-full h-full object-contain p-1" />
+                <div key={globalIndex} className="border border-slate-200 rounded flex items-center justify-center overflow-hidden bg-slate-50 relative group" style={{ height: '45%' }}>
+                  <img src={img.dataUrl} alt={`Dokumentasi ${globalIndex + 1}`} className="max-w-full max-h-full object-contain p-1" />
                   {/* Overlay actions on hover */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                    <button onClick={() => onEdit(globalIndex)} className="px-3 py-1.5 bg-white/90 rounded-lg text-[10px] font-bold text-slate-700 hover:bg-white shadow" title="Edit">
-                      <span className="material-symbols-outlined text-sm">edit</span>
+                    <button onClick={() => onEdit(globalIndex)} className="px-2 py-1 bg-white/90 rounded text-[9px] font-bold text-slate-700 hover:bg-white shadow" title="Edit">
+                      <span className="material-symbols-outlined text-xs">edit</span>
                     </button>
-                    <button onClick={() => onRemove(globalIndex)} className="px-3 py-1.5 bg-red-500/90 rounded-lg text-[10px] font-bold text-white hover:bg-red-600 shadow" title="Hapus">
-                      <span className="material-symbols-outlined text-sm">delete</span>
+                    <button onClick={() => onRemove(globalIndex)} className="px-2 py-1 bg-red-500/90 rounded text-[9px] font-bold text-white hover:bg-red-600 shadow" title="Hapus">
+                      <span className="material-symbols-outlined text-xs">delete</span>
                     </button>
                   </div>
                   {/* Number badge */}
-                  <span className="absolute top-1 left-1 w-5 h-5 bg-black/60 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-0.5 left-0.5 w-4 h-4 bg-black/60 text-white text-[7px] font-bold rounded-full flex items-center justify-center">
                     {globalIndex + 1}
                   </span>
                 </div>
@@ -101,8 +101,8 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
             })}
             {/* Empty slots */}
             {Array.from({ length: emptySlots }).map((_, i) => (
-              <div key={`empty-${i}`} className="flex-1 border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center bg-slate-50/50">
-                <span className="text-[8px] text-slate-300 font-medium">Foto ke-{images.length + i + 1}</span>
+              <div key={`empty-${i}`} className="border border-dashed border-slate-200 rounded flex items-center justify-center bg-slate-50/50" style={{ height: '45%' }}>
+                <span className="text-[7px] text-slate-300 font-medium">Foto ke-{images.length + i + 1}</span>
               </div>
             ))}
           </div>
