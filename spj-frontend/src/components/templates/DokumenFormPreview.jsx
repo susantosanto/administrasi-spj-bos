@@ -166,6 +166,8 @@ export default function DokumenFormPreview({
   const [showRecipients, setShowRecipients] = useState(false)
   const [showNomorPopup, setShowNomorPopup] = useState(false)
   const [showSppdNomorPopup, setShowSppdNomorPopup] = useState(false)
+  const [showUndanganNomorPopup, setShowUndanganNomorPopup] = useState(false)
+  const [showPesananNomorPopup, setShowPesananNomorPopup] = useState(false)
   const [generatingRingkasan, setGeneratingRingkasan] = useState(false)
   const toast = useToast()
 
@@ -678,7 +680,12 @@ export default function DokumenFormPreview({
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Nomor</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor</label>
+                        <button type="button" onClick={() => setShowUndanganNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                          <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
+                        </button>
+                      </div>
                       <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="007/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                     <div>
@@ -745,7 +752,12 @@ export default function DokumenFormPreview({
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Nomor</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor</label>
+                        <button type="button" onClick={() => setShowPesananNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                          <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
+                        </button>
+                      </div>
                       <input type="text" value={formData.nomorPesanan || ''} onChange={(e) => setFormData({ ...formData, nomorPesanan: e.target.value })} placeholder="008/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                     <div>
@@ -950,6 +962,26 @@ export default function DokumenFormPreview({
             }}
             onClose={() => setShowSppdNomorPopup(false)}
             currentNomor={sppdData.nomorSurat}
+          />
+        )}
+        {showUndanganNomorPopup && (
+          <NomorSuratPopup
+            onSelect={(nomor) => {
+              setFormData({ ...formData, nomorUndangan: nomor })
+              setShowUndanganNomorPopup(false)
+            }}
+            onClose={() => setShowUndanganNomorPopup(false)}
+            currentNomor={formData.nomorUndangan}
+          />
+        )}
+        {showPesananNomorPopup && (
+          <NomorSuratPopup
+            onSelect={(nomor) => {
+              setFormData({ ...formData, nomorPesanan: nomor })
+              setShowPesananNomorPopup(false)
+            }}
+            onClose={() => setShowPesananNomorPopup(false)}
+            currentNomor={formData.nomorPesanan}
           />
         )}
       </div>
