@@ -636,4 +636,69 @@ Sebelum commit, pastikan:
 
 ---
 
-*Last updated: 2026-07-09 | Commit: d32e84f*
+## 📋 RULE: UPDATE PROGRESS.md SETIAP SELESAI FITUR
+
+> **WAJIB**: Setiap kali selesai mengerjakan fitur (baru, fix, refactor, dll), **harus update `docs/PROGRESS.md`** agar progress tracking tetap akurat.
+
+### Cara Update PROGRESS.md:
+1. Tambahkan entry di section **TASK CHECKLIST** (centang ✅ yang selesai)
+2. Tambahkan baris di **REVISI YANG DITERIMA** (dengan nomor urut & tanggal)
+3. Update **STATUS** di atas (persentase complete)
+4. Tambahkan ke **NEXT STEPS** jika ada follow-up
+5. Update **Last updated** date di footer
+
+### Format Entry:
+```markdown
+- [x] **Nama Fitur** — Deskripsi singkat (file yang diubah)
+```
+
+### Contoh:
+```markdown
+### 🔄 IN PROGRESS / NEEDS TESTING
+- [x] **SPPD Auto-Fill** — Inline di Transport, auto-fill nama (DokumenSPJPage.jsx, templateConfig.js)
+```
+
+### Kenapa Penting:
+- User pakai **caveman mode** untuk kontrol progress (kompres token, singkat)
+- PROGRESS.md jadi *single source of truth* status project
+- Hindari duplicate work / lupa yang sudah dikerjakan
+
+---
+
+## 🦴 RULE: CAVEMAN MODE WAJIB
+
+> **SETIAP implementasi fitur, perubahan kode, research, brainstorming → PAKAI CAVEMAN MODE**
+
+### Kapan Wajib Caveman Mode:
+| Situasi | Contoh |
+|--------|--------|
+| ✅ Implementasi fitur baru | Tambah card, template, page, API |
+| ✅ Perubahan/refactor kode | Fix bug, update UI, ganti logic |
+| ✅ Research / investigasi | Cari tahu format Excel, baca PRD |
+| ✅ Brainstorming fitur baru | Desain UI, arsitektur, flow user |
+| ✅ Planning multi-step task | Rencana implementasi, breakdown |
+
+### Cara Pakai:
+```bash
+# Di awal sesi atau sebelum mulai task:
+/caveman full
+
+# Atau panggil skill:
+> gunakan caveman mode
+
+# Level tersedia: lite, full (default), ultra, wenyan-lite, wenyan-full, wenyan-ultra
+```
+
+### Kenapa Wajib:
+- **Token efficiency** ~75% hemat → context lebih lama tahan
+- **Fokus ke inti** — tidak bertele-tele, straight to the point
+- **Consistent style** — semua output format sama, gampang dibaca
+- **User preference** — ini workflow standar project ini
+
+### Auto-trigger:
+- User bilang "caveman mode", "talk like caveman", "less tokens", "be brief"
+- Skill `caveman` auto-load saat keywords terdeteksi
+
+---
+
+*Last updated: 2026-07-30 | Commit: d075226*

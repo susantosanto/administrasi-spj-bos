@@ -94,6 +94,27 @@
 - [x] Catatan (Notes) page
 - [x] Nomor Surat Otomatis page
 - [x] Template Surat Cerdas page
+- [x] Pejabat Sekolah page
+- [x] Referensi Kode page
+
+### AI Assistant (Ask to AI)
+- [x] Floating Action Button (FAB) — bottom-right, pulse, tooltip
+- [x] Slide-in Chat Panel — right side, chat bubbles, streaming
+- [x] Puter.js Integration — free AI, no API key needed
+- [x] Vercel AI SDK — serverless function for production
+- [x] Dual-Path: QueryEngine (data) + AI Chat (general)
+- [x] Semantic Cache — similarity-based, 5 min TTL
+- [x] Intent Classifier — auto-route query/chat/general
+- [x] Modular aiConfig.js — Puter/Cerebras/Groq/Gemini
+- [x] AbortController — cancel streaming
+- [x] Context-Aware — page-specific context injection
+
+### Dokumen Referensi
+- [x] 5 Regulatory Documents (PDF)
+- [x] Triple-Path: Local / Drive / Electron
+- [x] DownloadConfirmModal — Ya/Tidak confirmation
+- [x] docHelper.js — URL resolution, download, availability
+- [x] DashboardHome — 5 download cards with gradients
 
 ### Landing Page (Premium 2026)
 - [x] Ultra premium header with navigation
@@ -442,6 +463,28 @@
 - [x] RINGKASAN_FORMAT_NOMOR_SURAT.md
 - [x] docs/PRD_NOMOR_SURAT_OTOMATIS.md
 - [x] docs/PRD_TEMPLATE_SURAT_CERDAS.md
+
+---
+
+### 🤖 AI Assistant (Ask to AI) — Tahap 77-85 (2026-07-20)
+- [x] FAB "Tanya AI" — bottom-right, pulse indicator, tooltip
+- [x] Slide-in Panel — chat bubbles, streaming tokens, quick chips
+- [x] Puter.js Integration — gratis, tanpa API key, prototype Vercel
+- [x] Vercel AI SDK — serverless function `/api/[...path].js`
+- [x] Dual-Path Architecture — QueryEngine (data) + AI Chat (umum)
+- [x] Semantic Cache — similarity-based, 5 min TTL
+- [x] Intent Classifier — AI classify → query / chat / general
+- [x] Modular aiConfig.js — Puter (prio 0), Cerebras, Groq, Gemini
+- [x] AbortController — cancel streaming mid-response
+- [x] Context-Aware — inject page-specific context (LPJ, BKU, Nomor Surat)
+
+### 📚 Dokumen Referensi — Tahap 86-90 (2026-07-20)
+- [x] 5 Dokumen Regulasi (Permendagri 3/2023, Juknis BOSP 8/2026, Perbup 34/2022, Perbup 7/2023, Permendikbudristek 18/2022)
+- [x] Triple-Path Architecture — Local (dev), Google Drive (Vercel), Electron (desktop)
+- [x] DownloadConfirmModal — konfirmasi Ya/Tidak sebelum unduh
+- [x] docHelper.js — getDocUrl(), downloadDoc(), isDocAvailable()
+- [x] Environment Config — VITE_DOCS_MODE, VITE_DOCS_{FILE_ID}
+- [x] DashboardHome — 5 card download dengan gradient/icon per dokumen
 
 ---
 

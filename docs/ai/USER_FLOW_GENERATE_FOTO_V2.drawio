@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="User Flow V2 - Smart Documentation" id="page1">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================ -->
+        <!-- TITLE -->
+        <!-- ============================================ -->
+        <mxCell id="title" value="&lt;font style=&quot;font-size: 28px;&quot;&gt;&lt;b&gt; USER FLOW V2 &lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;Generate Foto Dokumentasi LPJ — Smart Photo Manager&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="660" y="20" width="600" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- PHASE 1: SETUP DATA SEKOLAH (LEFT SIDE) -->
+        <!-- ============================================ -->
+        
+        <!-- Phase 1 Header -->
+        <mxCell id="phase1_header" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;📋 FASE 1: SETUP DATA SEKOLAH&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;(Upload 1x, Gunakan Berkali-kali)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#1e40af;" vertex="1" parent="1">
+          <mxGeometry x="80" y="110" width="350" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Background Box Fase 1 -->
+        <mxCell id="phase1_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eff6ff;strokeColor=#3b82f6;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="440" height="580" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.1: Menu Data Sekolah -->
+        <mxCell id="s1_1" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Buka Menu&lt;/font&gt;&lt;br&gt;&lt;b&gt;📋 Data Sekolah&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="200" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.2: Upload Foto Guru & Tendik -->
+        <mxCell id="s1_2" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Upload Foto Personel&lt;/font&gt;&lt;br&gt;&lt;b&gt;👨‍🏫 Guru &amp;amp; Tendik&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Foto formal, selfie, &lt;br&gt;atau foto resmi)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="290" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s1_1_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;" edge="1" parent="1" source="s1_1" target="s1_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.3: Upload Foto Kepala Sekolah -->
+        <mxCell id="s1_3" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Upload Foto Personel&lt;/font&gt;&lt;br&gt;&lt;b&gt;👨‍💼 Kepala Sekolah&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Foto resmi berjas)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="290" width="160" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.4: Upload Foto Pengawas -->
+        <mxCell id="s1_4" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Upload Foto Personel&lt;/font&gt;&lt;br&gt;&lt;b&gt;🔍 Pengawas&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Opsional)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="400" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.5: Upload Foto Ruangan -->
+        <mxCell id="s1_5" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Upload Foto Referensi&lt;/font&gt;&lt;br&gt;&lt;b&gt;🏫 Ruangan Rapat / Guru&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Foto asli ruangan sekolah)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="400" width="190" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1.6: Upload Foto Dokumentasi -->
+        <mxCell id="s1_6" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Upload Foto Referensi&lt;/font&gt;&lt;br&gt;&lt;b&gt;🍱 ATK / Nasi Box / Snack Box&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Foto asli barang)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="500" width="210" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Info Box: Tersimpan di Database -->
+        <mxCell id="info_db" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;b&gt;✅ Tersimpan di Database&lt;/b&gt;&lt;br&gt;Foto-foto ini hanya di-upload 1x&lt;br&gt;dan bisa digunakan berulang kali&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="600" width="230" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- PHASE 2: GENERATE FOTO (CENTER) -->
+        <!-- ============================================ -->
+        
+        <!-- Phase 2 Header -->
+        <mxCell id="phase2_header" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;✨ FASE 2: GENERATE FOTO&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;(Dari Sidebar Detail Transaksi BKU → Tab Dokumentasi)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#7c3aed;" vertex="1" parent="1">
+          <mxGeometry x="580" y="110" width="420" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Background Box Fase 2 -->
+        <mxCell id="phase2_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f3ff;strokeColor=#8b5cf6;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="170" width="420" height="750" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.1: Buka Halaman BKU -->
+        <mxCell id="s2_1" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Buka Halaman&lt;/font&gt;&lt;br&gt;&lt;b&gt;📊 Data BKU&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Sidebar navigasi → Data BKU)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#a855f7;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="200" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.2: Klik Baris Transaksi -->
+        <mxCell id="s2_2" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Klik Baris Transaksi&lt;/font&gt;&lt;br&gt;&lt;b&gt;🖱️ Pilih kegiatan yg wajib foto&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Rapat, MAMIN, ATK, Pemeliharaan, dll)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="290" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_1_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8b5cf6;strokeWidth=2;" edge="1" parent="1" source="s2_1" target="s2_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.3: Sidebar Detail Terbuka -->
+        <mxCell id="s2_3" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Sidebar Detail Terbuka&lt;/font&gt;&lt;br&gt;&lt;b&gt;📄 Sidebar dari Kanan&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Informasi transaksi, debet/kredit/saldo)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="380" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_2_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0ea5e9;strokeWidth=2;" edge="1" parent="1" source="s2_2" target="s2_3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.4: Tab Dokumentasi LPJ -->
+        <mxCell id="s2_4" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Buka Tab&lt;/font&gt;&lt;br&gt;&lt;b&gt;📸 Dokumentasi LPJ&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Tab kedua di sidebar detail)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="470" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_3_4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0ea5e9;strokeWidth=2;" edge="1" parent="1" source="s2_3" target="s2_4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.5: Pilih Pakaian -->
+        <mxCell id="s2_5" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Langkah 1: Pilih Pakaian&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 22px;&quot;&gt;👔 👘 👕 🏫&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Formal | Batik | Casual | Seragam&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="560" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_4_5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#f59e0b;strokeWidth=2;" edge="1" parent="1" source="s2_4" target="s2_5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.6: Pilih Suasana -->
+        <mxCell id="s2_6" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Langkah 2: Pilih Suasana&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 22px;&quot;&gt;🏫 🌳 🏛️ 💼&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Ruang Rapat | Outdoor | Aula | Kantor&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="680" width="320" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_5_6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0ea5e9;strokeWidth=2;" edge="1" parent="1" source="s2_5" target="s2_6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2.7: Pilih Orang (Dari Database) -->
+        <mxCell id="s2_7" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Langkah 3: Pilih Orang yang Hadir&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;👩‍🏫 Pak Budi | Ibu Siti | Pak Ahmad&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;(Centang dari daftar guru yg sudah di-upload)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="800" width="360" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_6_7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0ea5e9;strokeWidth=2;" edge="1" parent="1" source="s2_6" target="s2_7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from Phase 1 to Step 2.7 -->
+        <mxCell id="e_phase1_to_2_7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#22c55e;strokeWidth=2;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="info_db" target="s2_7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="510" y="630" />
+              <mxPoint x="510" y="845" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Step 2.8: Generate -->
+        <mxCell id="s2_8" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Langkah 4: Klik Generate&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 24px;&quot;&gt;✨&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Tunggu 5-15 detik&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#a855f7;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="920" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_7_8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#a855f7;strokeWidth=2;" edge="1" parent="1" source="s2_7" target="s2_8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- PHASE 3: OUTPUT (RIGHT SIDE) -->
+        <!-- ============================================ -->
+        
+        <!-- Phase 3 Header -->
+        <mxCell id="phase3_header" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;📄 FASE 3: OUTPUT&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;(Preview, Download, Cetak)&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#166534;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="110" width="300" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Background Box Fase 3 -->
+        <mxCell id="phase3_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="170" width="420" height="580" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Hasil OK? -->
+        <mxCell id="dec1" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;Hasil sesuai?&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="200" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2_8_dec1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#a855f7;strokeWidth=2;" edge="1" parent="1" source="s2_8" target="dec1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1000" y="955" />
+              <mxPoint x="1000" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- TIDAK: Kembali Pilih -->
+        <mxCell id="ulang" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;🔄 Kembali Pilih&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Ganti pakaian/suasana&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#ef4444;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="380" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dec1_ulang" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;TIDAK&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ef4444;strokeWidth=2;" edge="1" parent="1" source="dec1" target="ulang">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow ulang ke Phase 2 -->
+        <mxCell id="e_ulang_back" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ef4444;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ulang" target="s2_5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="405" />
+              <mxPoint x="500" y="605" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Preview A4 -->
+        <mxCell id="preview" value="&lt;font style=&quot;font-size: 13px;&quot;&gt;📄 Preview A4 Siap Cetak&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 12px;&quot;&gt;┌─────────────────────┐&lt;br&gt;│   KOP SURAT        │&lt;br&gt;│   ─────────────     │&lt;br&gt;│   📷 FOTO          │&lt;br&gt;│   Keterangan       │&lt;br&gt;│   Tanda Tangan     │&lt;br&gt;└─────────────────────┘&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;shadow=1;fontFamily=Courier New;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="460" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dec1_preview" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;YA&lt;/font&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#22c55e;strokeWidth=2;" edge="1" parent="1" source="dec1" target="preview">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Download Button -->
+        <mxCell id="download" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;⬇️ DOWNLOAD&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Simpan sebagai JPG/PNG&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10b981;strokeColor=#059669;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="680" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_preview_download" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#22c55e;strokeWidth=2;" edge="1" parent="1" source="preview" target="download">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Print Button -->
+        <mxCell id="print" value="&lt;font style=&quot;font-size: 14px;&quot;&gt;&lt;b&gt;🖨️ CETAK / SAVE PDF&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;Langsung cetak atau save PDF&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3b82f6;strokeColor=#2563eb;fontColor=#ffffff;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="760" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_preview_print" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#3b82f6;strokeWidth=2;" edge="1" parent="1" source="preview" target="print">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Note: Tidak Disimpan di DB -->
+        <mxCell id="note_no_db" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;b&gt;⚠️ TIDAK disimpan di database&lt;/b&gt;&lt;br&gt;Foto hanya di-download/cetak&lt;br&gt;Agar database tidak membengkak&lt;/font&gt;" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#fef2f2;strokeColor=#ef4444;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="680" width="180" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e_note_download" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ef4444;strokeWidth=1;dashed=1;" edge="1" parent="1" source="note_no_db" target="download">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================ -->
+        <!-- LEGEND -->
+        <!-- ============================================ -->
+        <mxCell id="legend_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#e2e8f0;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="170" width="220" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;KETERANGAN&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#1a1a2e;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="180" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2fe;strokeColor=#0ea5e9;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="220" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="Upload / Pilihan" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="220" width="120" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="250" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="Tab Dokumentasi" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="250" width="120" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#a855f7;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" value="Generate AI" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="280" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="310" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" value="Preview &amp; Cetak" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="310" width="120" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="leg5" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fef2f2;strokeColor=#ef4444;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="340" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" value="Keputusan" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="340" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="leg6" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="370" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6t" value="Pilih dari Database" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="370" width="130" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- KEY INSIGHT BOX -->
+        <mxCell id="insight" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;💡 KEUNGGULAN SISTEM INI:&lt;/b&gt;&lt;br&gt;&lt;br&gt;✅ Upload foto 1x, gunakan selamanya&lt;br&gt;✅ Tidak perlu upload ulang setiap generate&lt;br&gt;✅ Foto wajah guru asli di gambar AI&lt;br&gt;✅ Database tetap ringan (foto tidak disimpan)&lt;br&gt;✅ Tinggal pilih-pilih, lalu generate!&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="480" width="280" height="150" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
