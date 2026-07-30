@@ -75,6 +75,8 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
             <p className="text-[7px] text-slate-600 leading-tight">{sekolah?.alamat || 'Alamat Sekolah'}</p>
             <p className="text-[7px] text-slate-600 leading-tight">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
           </div>
+          {/* Title */}
+          <p className="text-[9px] font-bold text-slate-800 text-center uppercase tracking-wider mb-1">Dokumentasi Kegiatan</p>
 
           {/* Photo Grid — 2 slots at top, space at bottom */}
           <div className="flex flex-col gap-2" style={{ height: '75%' }}>
