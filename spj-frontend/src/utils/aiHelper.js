@@ -60,6 +60,7 @@
 import aiConfig from './aiConfig'
 import semanticCache from './semanticCache'
 import { classifyIntent, executeQueryFromIntent } from './intentClassifier'
+import { buildFullContext, getQuickSummary } from './dataContextBuilder'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. EXPORT DARI INTENT CLASSIFIER — Backward compatibility
@@ -78,6 +79,21 @@ export function detectContext(pathname) {
     if (cleanPath === key || cleanPath.startsWith(key)) return { key, ...ctx }
   }
   return { key: 'default', ..._DEFAULT_CONTEXT }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS — Gemini message builder
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Build messages untuk Gemini API.
+ * Convert { role, content } → { role, parts: [{ text }] }
+ */
+function buildGeminiMessages(msgs) {
+  return msgs.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content || '' }],
+  }))
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -136,11 +152,7 @@ export function detectContext(pathname) {
   // Gemini API punya format request berbeda (contents bukan messages)
   const body = provider.useApiKeyParam
     ? JSON.stringify({
-        contents: messages.map(m => ({
-          // Gemini hanya support 'user' dan 'model' — system di-convert ke user
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }],
-        })),
+        contents: buildGeminiMessages(messages),
         generationConfig: {
           maxOutputTokens: maxTokens,
           temperature,
@@ -174,7 +186,20 @@ export function detectContext(pathname) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PUTER.JS — Provider khusus yang pake SDK, bukan HTTP fetch
+// PUTER.JS — Provider AI GRATIS via SDK (tanpa API key!)
+// ═══════════════════════════════════════════════════════════
+//
+// 🏆 KEUNGGULAN:
+//   - GRATIS 100% — tanpa API key, tanpa biaya
+//   - Model GPT-4o — kualitas setara OpenAI
+//   - Tanpa proxy — langsung dari browser
+//   - Tanpa CORS — SDK handle semuanya
+//
+// 🎯 OPTIMASI:
+//   - Smart prompt builder: system → context → user → instruksi
+//   - Batch contengan file: konten file digabung efisien
+//   - Token besar: 4096 untuk analisis file
+//   - Error handling: retry + fallback messaging
 // ═══════════════════════════════════════════════════════════
 
 let _puterModule = null
@@ -187,59 +212,160 @@ async function _getPuter() {
 }
 
 /**
- * Panggil AI via Puter.js SDK.
+ * SMART PROMPT BUILDER — untuk Puter.js
+ * 
+ * Puter.js SDK pake `puter.ai.chat(prompt)` — bukan JSON messages.
+ * Fungsi ini ngebangun SATU prompt string yang optimal:
+ * 
+ *   [INSTRUKSI SISTEM]
+ *   [KONTEKS / DATA]
+ *   ---
+ *   [PERTANYAAN USER]
+ *   ---
+ *   [INSTRUKSI OUTPUT]
+ * 
+ * @param {array} messages — Array of { role, content }
+ * @returns {string} — Prompt string yang siap dikirim
+ */
+function buildPuterPrompt(messages) {
+  const systemParts = []
+  const userParts = []
+  const fileParts = []
+
+  for (const m of messages) {
+    const content = m.content || ''
+    if (!content.trim()) continue
+
+    if (m.role === 'system') {
+      systemParts.push(content.trim())
+    } else if (m.role === 'user') {
+      // Support parts format (Gemini Vision) — extract text from parts
+      let userContent = content
+      if (!content && m.parts && Array.isArray(m.parts)) {
+        userContent = m.parts
+          .filter(p => p.text)
+          .map(p => p.text)
+          .join('\n')
+      }
+      if (!userContent?.trim()) continue
+      // Deteksi apakah ini file analysis (mengandung === FILE: ===)
+      if (userContent.includes('=== FILE:')) {
+        fileParts.push(userContent.trim())
+      } else {
+        userParts.push(userContent.trim())
+      }
+    }
+  }
+
+  // Build structured prompt
+  const sections = []
+
+  // 1. System instructions (jika ada)
+  if (systemParts.length > 0) {
+    sections.push(systemParts.join('\n\n'))
+  }
+
+  // 2. File content (jika ada — untuk analisis file)
+  if (fileParts.length > 0) {
+    sections.push('--- KONTEN FILE ---')
+    sections.push(fileParts.join('\n\n'))
+  }
+
+  // 3. User question
+  if (userParts.length > 0) {
+    sections.push('--- PERTANYAAN ---')
+    sections.push(userParts.join('\n\n'))
+  }
+
+  // 4. Output instruction
+  sections.push('--- FORMAT JAWABAN ---\nJawab dalam Bahasa Indonesia. '
+    + 'Jika ada data angka/keuangan gunakan format Rp. '
+    + 'Jika ada tabel, tampilkan data pentingnya. '
+    + 'Jangan ulangi konten file, cukup analisis poin penting. '
+    + 'Jawab langsung tanpa menyebut "Asisten" atau "AI".')
+
+  return sections.join('\n\n')
+}
+
+/**
+ * Panggil AI via Puter.js SDK — OPTIMIZED!
+ * 
  * Keuntungan: gratis, tanpa API key, tanpa proxy, tanpa CORS.
+ * Menggunakan GPT-4o via Puter — kualitas terbaik.
+ * 
+ * Optimasi:
+ * - Smart prompt builder: system → file → question → format
+ * - Token lebih besar: 4096 (sebelumnya 800)
+ * - Retry internal: 1x jika gagal
+ * - Response robust: handle berbagai format response
  * 
  * @param {array} messages — Array of { role, content }
  * @param {object} options — { maxTokens, temperature }
  * @returns {Promise<object>} — OpenAI-compatible response { choices: [{ message: { content } }] }
  */
 async function callPuterProvider(messages, options = {}) {
-  const {
-    maxTokens = aiConfig.settings.maxOutputTokens,
-    temperature = aiConfig.settings.temperature,
-  } = options
+  // Token lebih besar untuk Puter (gratis!)
+  const provider = aiConfig.getProvider('puter')
+  const maxTokens = options.maxTokens || provider?.maxTokens || 4096
+  const temperature = options.temperature ?? aiConfig.settings.temperature
 
-  try {
-    const puter = await _getPuter()
+  // Retry 1x jika gagal
+  const maxAttempts = 2
+  let lastError = null
 
-    // Gabung semua messages jadi satu prompt
-    // System prompt + user question digabung
-    const prompt = messages
-      .map(m => m.content)
-      .filter(Boolean)
-      .join('\n\n')
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const puter = await _getPuter()
 
-    // ── PANGGIL PUTER AI ──
-    // Response format: { message: { content: "jawaban..." }, ... }
-    // BUKAN string langsung!
-    const response = await puter.ai.chat(prompt, {
-      model: 'gpt-4o-mini',
-      maxTokens,
-      temperature,
-    })
+      // ── BUILD SMART PROMPT ──
+      const prompt = buildPuterPrompt(messages)
 
-    // ── EKSTRAK CONTENT ──
-    // Puter.js SDK return ChatResponse: { message: { content } }
-    // Tapi kadang juga return plain string (tergantung versi SDK).
-    const content =
-      response?.message?.content ||               // { message: { content: "..." } }
-      (typeof response === 'string' ? response : '')  // string langsung
+      if (!prompt.trim()) {
+        throw new Error('Prompt kosong')
+      }
 
-    if (!content) {
-      console.warn('Puter.js response tidak dikenali:', response)
-      throw new Error('Puter.js: Response kosong atau format tidak dikenal')
+      // ── PANGGIL PUTER AI ──
+      // Response format: { message: { content: "jawaban..." } }
+      const response = await puter.ai.chat(prompt, {
+        model: 'gpt-4o',
+        maxTokens,
+        temperature,
+      })
+
+      // ── EKSTRAK CONTENT ──
+      // Puter.js SDK return:
+      //   1. { message: { content } }  ← ChatResponse object
+      //   2. string langsung            ← raw response
+      //   3. { choices: [{ message: { content } }] }  ← OpenAI format
+      const content =
+        response?.message?.content ||                    // ChatResponse
+        response?.choices?.[0]?.message?.content ||      // OpenAI format
+        (typeof response === 'string' ? response : '')   // raw string
+
+      if (!content) {
+        console.warn('Puter.js response tidak dikenali:', 
+          typeof response === 'object' ? Object.keys(response).join(', ') : typeof response)
+        throw new Error('Response kosong atau format tidak dikenal')
+      }
+
+      // ── SUCCESS: Bungkus ke OpenAI format ──
+      return {
+        choices: [{
+          message: { content: content.trim() },
+        }],
+      }
+    } catch (err) {
+      lastError = err
+      console.warn(`⚠️ Puter attempt ${attempt}/${maxAttempts} gagal:`, err.message)
+      
+      if (attempt < maxAttempts) {
+        // Brief pause before retry
+        await new Promise(r => setTimeout(r, 300))
+      }
     }
-
-    // Bungkus ke format OpenAI-compatible supaya callAI() bisa extract
-    return {
-      choices: [{
-        message: { content },
-      }],
-    }
-  } catch (err) {
-    throw new Error(`Puter.js: ${err.message || 'Gagal memanggil AI'}`)
   }
+
+  throw new Error(`Puter.js: ${lastError?.message || 'Gagal setelah 2 percobaan'}`)
 }
 
 /**
@@ -525,10 +651,19 @@ export async function askAI(question) {
   if (intent.type === 'chat' || intent.type === 'general') {
     console.log('💬 Path B: AI Chat')
 
-    // Kirim ke AI
+    // Kirim ke AI — dengan data context!
     try {
+      // Bangun konteks data aplikasi untuk AI
+      const dataContext = buildFullContext({ compact: true })
+      let systemContent = aiConfig.getPrompt('general')
+      
+      if (dataContext) {
+        // Inject data context ke system prompt
+        systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataContext}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
+      }
+      
       const msgs = [
-        { role: 'system', content: aiConfig.getPrompt('general') },
+        { role: 'system', content: systemContent },
         { role: 'user', content: question },
       ]
       const answer = await callAI(msgs)
@@ -601,44 +736,41 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
   // ── 2. INTENT + EKSEKUSI ──
   if (signal?.aborted) return
   
-  // OPTIMASI: Untuk query sederhana (keyword match), langsung pakai QueryEngine
-  // tanpa AI intent classification — lebih cepat!
-  const q = question.toLowerCase()
-  const isSimpleQuery = ['pengeluaran', 'penerimaan', 'pajak', 'total '].some(k => q.includes(k))
-  
-  if (isSimpleQuery) {
-    // Path A langsung: fallback lokal (0 AI call, 0 token, instant!)
-    const localAnswer = fallbackLocalAnswer(question)
-    if (localAnswer) {
-      const chars = localAnswer.split('')
-      for (let i = 0; i < chars.length; i++) {
-        if (signal?.aborted) return
-        onToken?.(chars[i])
-      }
-      semanticCache.set(question, localAnswer, 'fallback')
-      onDone?.(localAnswer)
-      return
-    }
-  }
-
-  // ── 2.5 FILE ANALYSIS — langsung ke AI dengan fileAnalysis prompt ──
+  // ═══════════════════════════════════════════════════════════════
+  // 🥇 PRIORITAS #1: FILE ANALYSIS
+  //   Harus CEK DULU sebelum isSimpleQuery! Karena konten file bisa
+  //   mengandung keyword seperti "pajak" atau "total" yang memicu
+  //   false positive di fallbackLocalAnswer().
+  // ═══════════════════════════════════════════════════════════════
   if (question.startsWith('[FILE_ANALYSIS]')) {
     const cleanQuestion = question.replace('[FILE_ANALYSIS]\n', '')
     
     if (signal?.aborted) return
+    
     try {
       const provider = aiConfig.getActiveProvider()
+      const systemPrompt = aiConfig.getPrompt('fileAnalysis') || aiConfig.getPrompt('general')
+      
+      // ── BUILD MESSAGES (TEXT ONLY) ──
       const msgs = [
-        { role: 'system', content: aiConfig.getPrompt('fileAnalysis') || aiConfig.getPrompt('general') },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: cleanQuestion },
       ]
       
+      // MAX TOKENS lebih besar untuk file analysis (banyak data)
+      const maxTokens = 2048
+      
       if (!provider?.supportsStreaming || signal) {
         const controller = new AbortController()
-        signal?.addEventListener('abort', () => controller.abort())
-        const data = await callProvider(provider, msgs, { signal: controller.signal })
+        signal?.addEventListener('abort', () => controller.abort(), { once: true })
+        const data = await callProvider(provider, msgs, { signal: controller.signal, maxTokens })
         const answer = data?.choices?.[0]?.message?.content ||
                        data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        if (!answer) {
+          onToken?.('❌ AI tidak memberikan jawaban. Coba upload ulang file atau gunakan format lain.')
+          onDone?.('❌ AI tidak memberikan jawaban.')
+          return
+        }
         const chars = answer.split('')
         for (let i = 0; i < chars.length; i++) {
           if (signal?.aborted) return
@@ -653,7 +785,7 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
       // Streaming
       const response = await callProvider(provider, msgs, {
         stream: true,
-        maxTokens: aiConfig.settings.maxOutputTokens,
+        maxTokens,
         timeout: aiConfig.settings.timeout.streamingMs,
         signal,
       })
@@ -663,17 +795,38 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
         response,
         (token) => { fullAnswer += token; onToken?.(token) },
         () => {
-          const formatted = formatAnswer(fullAnswer)
+          const formatted = fullAnswer ? formatAnswer(fullAnswer) : '❌ Tidak ada respons dari AI.'
           semanticCache.set(question, formatted, 'ai')
           onDone?.(formatted)
-        },
-        (err) => { onDone?.(fullAnswer || 'Terjadi kesalahan saat membaca file.') }
+        }
       )
     } catch (err) {
-      onToken?.(`Error: ${err.message}`)
-      onDone?.(`Error: ${err.message}`)
+      console.error('File analysis error:', err.message)
+      onToken?.(`❌ Error analisis file: ${err.message || 'Terjadi kesalahan. Coba upload ulang.'}`)
+      onDone?.(`❌ Error: ${err.message || 'Gagal menganalisis file.'}`)
     }
     return
+  }
+
+  // ── 2.5 OPTIMASI: Query BKU sederhana (0 AI call) ──
+  // Hanya untuk pertanyaan biasa (bukan file analysis yang sudah return di atas).
+  // Guard !startsWith('[') mencegah false positive dari konten file.
+  if (!question.startsWith('[') && !signal?.aborted) {
+    const q = question.toLowerCase()
+    const isSimpleQuery = ['pengeluaran', 'penerimaan', 'pajak', 'total '].some(k => q.includes(k))
+    if (isSimpleQuery) {
+      const localAnswer = fallbackLocalAnswer(question)
+      if (localAnswer) {
+        const chars = localAnswer.split('')
+        for (let i = 0; i < chars.length; i++) {
+          if (signal?.aborted) return
+          onToken?.(chars[i])
+        }
+        semanticCache.set(question, localAnswer, 'fallback')
+        onDone?.(localAnswer)
+        return
+      }
+    }
   }
 
   // ── 3. INTENT CLASSIFIER ──
@@ -681,32 +834,44 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
   const intent = await classifyIntent(question)
 
   if (intent.type === 'query' && intent.query) {
-    // Path A: QueryEngine
+    // ═══ PATH A: QueryEngine — 100% AKURAT (JavaScript menghitung, bukan AI!) ═══
     if (signal?.aborted) return
     const queryResult = executeQueryFromIntent(intent.query)
     
     if (queryResult.formatted && queryResult.formatted !== 'Query tidak lengkap.') {
+      // Stream HASIL KALKULASI ASLI dari QueryEngine — dijamin 100% akurat
+      // AI tidak dilibatkan dalam perhitungan, hanya computer yang menghitung!
       const chars = queryResult.formatted.split('')
       for (let i = 0; i < chars.length; i++) {
         if (signal?.aborted) return
         onToken?.(chars[i])
       }
       fullAnswer = queryResult.formatted
+      semanticCache.set(question, queryResult.formatted, 'query-engine')
     }
   } else {
-    // Path B: AI Chat dengan streaming
-    if (signal?.aborted) return
-    try {
-      const provider = aiConfig.getActiveProvider()
-      if (!provider?.supportsStreaming || signal) {
-        // Fallback ke non-streaming dengan AbortSignal
-        const controller = new AbortController()
-        signal?.addEventListener('abort', () => controller.abort())
-        
-        const msgs = [
-          { role: 'system', content: aiConfig.getPrompt('general') },
-          { role: 'user', content: question },
-        ]
+        // Path B: AI Chat dengan streaming — dengan data context!
+        if (signal?.aborted) return
+        try {
+          const provider = aiConfig.getActiveProvider()
+          
+          // Bangun konteks data aplikasi untuk AI
+          const dataContext = buildFullContext({ compact: true })
+          let systemContent = aiConfig.getPrompt('general')
+          
+          if (dataContext) {
+            systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataContext}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
+          }
+          
+          if (!provider?.supportsStreaming || signal) {
+            // Fallback ke non-streaming dengan AbortSignal
+            const controller = new AbortController()
+            signal?.addEventListener('abort', () => controller.abort())
+            
+            const msgs = [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: question },
+            ]
         const data = await callProvider(provider, msgs, { signal: controller.signal })
         const answer = data?.choices?.[0]?.message?.content ||
                        data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
@@ -722,9 +887,9 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
         return
       }
 
-      // Streaming beneran dengan AbortSignal
+      // Streaming beneran dengan AbortSignal — dengan data context!
       const msgs = [
-        { role: 'system', content: aiConfig.getPrompt('general') },
+        { role: 'system', content: systemContent },
         { role: 'user', content: question },
       ]
 

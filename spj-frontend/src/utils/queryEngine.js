@@ -235,11 +235,18 @@ export function formatQueryResult(query, rawResult, allTransactions) {
     : 'semua data'
 
   if (query.aggregate && !query.groupBy) {
-    // Hasil aggregate sederhana
-    lines.push(`Hasil perhitungan: ${filterDesc}`)
-    if (rawResult.sum !== undefined) {
-      lines.push(`Total: Rp ${rawResult.sum.toLocaleString('id-ID')}`)
-      lines.push(`Jumlah item: ${rawResult.count}`)
+    // Hasil aggregate — format natural, bukan "Hasil perhitungan:"
+    if (query.aggregate.sum) {
+      const fieldLabel = query.aggregate.sum === 'pengeluaran' ? 'Pengeluaran' : 
+                         query.aggregate.sum === 'penerimaan' ? 'Penerimaan' : query.aggregate.sum
+      lines.push(`📊 ${fieldLabel} ${filterDesc}:`)
+      if (rawResult.sum !== undefined) {
+        lines.push(`   Total: Rp ${rawResult.sum.toLocaleString('id-ID')}`)
+        lines.push(`   Jumlah: ${rawResult.count} transaksi`)
+      }
+    } else if (query.aggregate.count) {
+      lines.push(`📊 Data ${filterDesc}:`)
+      lines.push(`   Jumlah: ${rawResult.count} item`)
     }
   } else if (query.groupBy) {
     // Hasil group

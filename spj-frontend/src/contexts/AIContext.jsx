@@ -49,12 +49,17 @@ export function AIProvider({ children }) {
   const togglePanel = useCallback(() => setIsOpen((prev) => !prev), [])
 
   // ── SEND MESSAGE (streaming) ──
+  // @param {string} text — Teks yang dikirim ke AI (bisa mengandung konten file)
+  // @param {string} displayText — Teks yang ditampilkan di chat (opsional, default = text)
   const sendMessage = useCallback(
-    async (text) => {
+    async (text, displayText) => {
       if (!text.trim() || isLoading) return
 
-      // 1. Tambah pesan user
-      const userMessage = { role: 'user', content: text.trim(), timestamp: new Date().toISOString() }
+      // Gunakan displayText untuk chat UI, text untuk AI
+      const chatContent = (displayText || text).trim()
+      
+      // 1. Tambah pesan user — hanya tampilkan displayText (pertanyaan bersih)
+      const userMessage = { role: 'user', content: chatContent, timestamp: new Date().toISOString() }
       const newMessages = [...messages, userMessage]
       saveMessages(newMessages)
 

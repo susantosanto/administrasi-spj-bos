@@ -32,15 +32,15 @@ const PROVIDERS = {
   puter: {
     name: 'Puter',
     model: 'gpt-4o',
-    apiKey: 'puter-free', // truthy agar masuk getActiveProviders()
-    endpoint: '', // tidak dipakai — Puter.js pakai SDK sendiri
+    apiKey: 'puter-free',
+    endpoint: '',
     baseUrl: '',
     directApiPath: '',
     useApiKeyParam: false,
-    priority: 0, // PRIORITAS TERTINGGI — gratis, tanpa API key, tanpa proxy!
-    supportsStreaming: false, // non-streaming dulu untuk prototype
-    maxTokens: 4096,
-    description: 'Puter.js — GRATIS, tanpa API key, tanpa proxy',
+    priority: 0,
+    supportsStreaming: false,
+    maxTokens: 8192, // ↑ gratis, bisa lebih besar
+    description: '🏆 Puter.js — GRATIS, GPT-4o, tanpa API key',
   },
   cerebras: {
     name: 'Cerebras',
@@ -48,8 +48,8 @@ const PROVIDERS = {
     apiKey: import.meta.env.VITE_CEREBRAS_API_KEY || '',
     endpoint: '/api/cerebras/chat/completions',
     baseUrl: 'https://api.cerebras.ai/v1',
-    directApiPath: '/chat/completions', // ← untuk direct API call (tanpa proxy)
-    useApiKeyParam: false, // ← pakai Authorization: Bearer header
+    directApiPath: '/chat/completions',
+    useApiKeyParam: false,
     priority: 1,
     supportsStreaming: true,
     maxTokens: 4096,
@@ -264,26 +264,46 @@ ATURAN:
 
   /**
    * Prompt untuk analisis file yang di-upload
+   * 
+   * IMPORTANT: Dalam analisis file, AI akan menerima KONTEN FILE LENGKAP
+   * sebagai bagian dari input. AI harus menganalisis file tersebut
+   * secara SISTEMATIS, bukan memberikan jawaban umum.
    */
-  fileAnalysis: `Kamu adalah analis data untuk operator sekolah di Indonesia.
+  fileAnalysis: `Kamu adalah analis data ahli untuk operator sekolah Indonesia.
 
-User telah meng-upload sebuah file. Analisis isi file tersebut secara sistematis.
+TUGAS: Analisis file yang DI-UPLOAD USER. File sudah dilampirkan di bawah.
+Analisis berdasarkan DATA NYATA dari file, jangan membuat data palsu!
 
-FORMAT JAWABAN WAJIB:
-1. RINGKASAN — Jelaskan isi file dalam 1-2 kalimat
-2. DATA UTAMA — Tampilkan data penting dalam format rapi (tabel/list)
-3. ANALISIS — Berikan insight/pengamatan dari data
-4. REKOMENDASI — Saran tindak lanjut jika relevan
+=== FORMAT JAWABAN WAJIB ===
+Gunakan format berikut PERSIS:
 
-ATURAN:
-- Bahasa Indonesia, jelas dan terstruktur
-- Gunakan format rapi: bullet point, numbered list
-- Fokus pada data yang RELEVAN untuk operator sekolah
-- Jika ada angka/keuangan, gunakan format Rp (rupiah)
-- Jika ada tabel data, tampilkan dalam format yang mudah dibaca
-- JANGAN mengulang seluruh isi file — cukup poin pentingnya
-- Maksimal 15 baris jawaban
-- JANGAN menyebut "Asisten" atau "AI" — jawab langsung`
+📌 **RINGKASAN**
+[Jelaskan isi file dalam 2-3 kalimat — apa jenis file, apa isinya, untuk apa]
+
+📊 **DATA UTAMA**
+• [Data poin 1 — spesifik, dengan angka jika ada]
+• [Data poin 2 — spesifik]
+• [Data poin 3 — spesifik]
+... (maks 7 poin)
+
+🔍 **ANALISIS**
+• [Temuan/pengamatan dari data]
+• [Pola atau anomali yang terdeteksi]
+• [Perbandingan atau insight relevan]
+
+💡 **REKOMENDASI**
+• [Saran konkret untuk tindak lanjut]
+• [Hal yang perlu diperhatikan]
+
+=== ATURAN PENTING ===
+1. Bahasa Indonesia yang baik dan JELAS
+2. SERTAKAN ANGKA SPESIFIK dari file (jangan general)
+3. Jika ada tabel → sebutkan jumlah baris, kolom, dan header tabelnya
+4. Jika ada data keuangan → gunakan format Rp (contoh: Rp 82.560.000)
+5. Jika ada data gambar → deskripsikan apa yang terlihat di gambar
+6. JANGAN mengulang isi file mentah-mentah — cukup poin penting
+7. JANGAN menyebut "Asisten" atau "AI" — jawab langsung sebagai analis
+8. MAKSIMAL 15 baris total agar mudah dibaca`
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

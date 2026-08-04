@@ -73,10 +73,57 @@ const MONTH_NAMES = [
 ]
 
 /**
+ * Pola pertanyaan umum/kapabilitas — DETECTED FIRST, sebelum keyword BKU.
+ * Jika cocok → classified sebagai 'chat', bukan 'query'.
+ */
+const GENERAL_QUESTION_PATTERNS = [
+  /^apakah\s+(kamu|anda|kak|bang)/i,           // "apakah kamu bisa..."
+  /^(bisakah|dapatkah|bisa\s+tidak)\s+(kamu|anda)/i,  // "bisakah kamu..."
+  /^bagaimana\s+(cara|proses|langkah)/i,        // "bagaimana cara..."
+  /^apa\s+(itu|yang\s+dimaksud|yang\s+di)/i,    // "apa itu bku?"
+  /^(halo|hai|helo|hey|pagi|siang|sore|malam)/i, // sapaan
+  /^(terima\s+kasih|makasih|thanks|thx)/i,       // ucapan terima kasih
+]
+
+/**
+ * Deteksi apakah pertanyaan adalah general/capability question.
+ * Jika ya → return 'chat'. Jika tidak → return null (lanjut ke rules).
+ */
+function _detectGeneralQuestion(q) {
+  for (const pattern of GENERAL_QUESTION_PATTERNS) {
+    if (pattern.test(q)) return true
+  }
+  
+  // Deteksi pertanyaan sangat pendek (1-2 kata) yang mengandung keyword BKU tapi bukan query
+  // Contoh: "baca bku", "bku", "lihat bku", "data bku"
+  const shortQWords = q.toLowerCase().trim().split(/\s+/).length
+  if (shortQWords <= 3) {
+    const vaguePatterns = [/^(baca|lihat|tampilkan|buka|data|isi)\s+(bku|data)/i, /^bku$/i]
+    for (const pattern of vaguePatterns) {
+      if (pattern.test(q.trim())) return true
+    }
+  }
+  
+  return false
+}
+
+/**
  * Fallback klasifikasi berbasis keyword (0 token)
  */
 function _classifyWithRules(question) {
-  const q = question.toLowerCase()
+  const q = question.toLowerCase().trim()
+  
+  // ═══ PRIORITAS #1: Cek general/capability question ═══
+  // Jika user bertanya "apakah kamu bisa baca data bku?", 
+  // ini HARUS 'chat', bukan 'query'!
+  if (_detectGeneralQuestion(q)) {
+    return {
+      type: 'chat',
+      confidence: 0.8,
+      query: null,
+      fallbackReason: 'general_question_detected',
+    }
+  }
   
   // Deteksi sumber data
   let source = null
@@ -126,7 +173,19 @@ function _classifyWithRules(question) {
       query.search = 'setor pph'
       query.aggregate = { sum: 'pengeluaran' }
     } else {
-      query.aggregate = { count: true }
+      // Hanya buat query count jika ada keyword spesifik (total, jumlah, berapa)
+      // Ini mencegah "bku" saja → count query yang tidak berguna
+      if (q.includes('total') || q.includes('jumlah') || q.includes('berapa')) {
+        query.aggregate = { count: true }
+      } else {
+        // Keyword BKU ada tapi tanpa intent query spesifik → treat sebagai chat
+        return {
+          type: 'chat',
+          confidence: 0.6,
+          query: null,
+          fallbackReason: 'vague_query_without_specific_intent',
+        }
+      }
     }
   }
 
@@ -140,6 +199,7 @@ function _classifyWithRules(question) {
 
 /**
  * Klasifikasi dengan AI (lebih akurat)
+ * Support semua provider termasuk Puter.js!
  */
 async function _classifyWithAI(question) {
   const provider = aiConfig.getActiveProvider()
@@ -147,59 +207,88 @@ async function _classifyWithAI(question) {
 
   const intentPrompt = aiConfig.getPrompt('intentClassifier')
 
-  // Tentukan URL: proxy (dev) atau direct API (production/Vercel)
-  const url = aiConfig.getProviderUrl(provider)
-  const headers = aiConfig.getProviderHeaders(provider)
-
-  // Body: OpenAI format vs Gemini format
-  let body
-  if (provider.useApiKeyParam) {
-    // Gemini format
-    body = JSON.stringify({
-      contents: [
-        { role: 'user', parts: [{ text: `${intentPrompt}\n\nUser: ${question}` }] },
-      ],
-      generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
-    })
-  } else {
-    // OpenAI format (Groq/Cerebras)
-    body = JSON.stringify({
-      model: provider.model,
-      messages: [
-        { role: 'system', content: intentPrompt },
-        { role: 'user', content: question },
-      ],
-      max_tokens: 300,
-      temperature: 0.1,
-    })
-  }
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body,
-  })
-
-  if (!res.ok) return null
-
-  const data = await res.json()
-  // Support OpenAI format (Groq/Cerebras) dan Gemini format
-  const text = data?.choices?.[0]?.message?.content ||
-               data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-               data?.contents?.[0]?.parts?.[0]?.text || ''
-  
-  // Parse JSON dari response AI
   try {
-    // Cari JSON dalam response (antisipasi AI ngasih teks tambahan)
+    // ═══ PUTER.JS PATH ═══
+    // Puter.js pakai SDK sendiri, bukan HTTP fetch biasa.
+    // Gunakan puter.ai.chat() langsung untuk klasifikasi intent.
+    if (provider.name === 'Puter') {
+      const puterModule = await import('@heyputer/puter.js')
+      const puter = puterModule.default
+      
+      const prompt = `${intentPrompt}\n\nUser: ${question}`
+      const response = await puter.ai.chat(prompt, {
+        model: 'gpt-4o',
+        maxTokens: 200,
+        temperature: 0.1,
+      })
+      
+      const text = response?.message?.content ||
+                   response?.choices?.[0]?.message?.content ||
+                   (typeof response === 'string' ? response : '')
+      if (!text) return null
+      
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) return null
+      
+      const intent = JSON.parse(jsonMatch[0])
+      if (!intent.type || !['query', 'chat', 'general'].includes(intent.type)) return null
+      
+      return {
+        type: intent.type,
+        confidence: intent.confidence || 0.5,
+        query: intent.type === 'query' ? intent.query : null,
+        fallbackReason: null,
+      }
+    }
+
+    // ═══ FETCH-BASED PROVIDERS (Groq, Cerebras, Gemini) ═══
+    const url = aiConfig.getProviderUrl(provider)
+    if (!url) return null
+    
+    const headers = aiConfig.getProviderHeaders(provider)
+
+    let body
+    if (provider.useApiKeyParam) {
+      // Gemini format
+      body = JSON.stringify({
+        contents: [
+          { role: 'user', parts: [{ text: `${intentPrompt}\n\nUser: ${question}` }] },
+        ],
+        generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
+      })
+    } else {
+      // OpenAI format (Groq/Cerebras)
+      body = JSON.stringify({
+        model: provider.model,
+        messages: [
+          { role: 'system', content: intentPrompt },
+          { role: 'user', content: question },
+        ],
+        max_tokens: 300,
+        temperature: 0.1,
+      })
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body,
+    })
+
+    if (!res.ok) return null
+
+    const data = await res.json()
+    const text = data?.choices?.[0]?.message?.content ||
+                 data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+                 data?.contents?.[0]?.parts?.[0]?.text || ''
+    
+    if (!text) return null
+    
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) return null
     
     const intent = JSON.parse(jsonMatch[0])
-    
-    // Validasi
-    if (!intent.type || !['query', 'chat', 'general'].includes(intent.type)) {
-      return null
-    }
+    if (!intent.type || !['query', 'chat', 'general'].includes(intent.type)) return null
 
     return {
       type: intent.type,
@@ -217,9 +306,62 @@ async function _classifyWithAI(question) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * ═══ PRE-CLASSIFY ═══
+ * Deteksi cepat untuk pola yang HARUS 'chat', SEBELUM AI classification.
+ * Ini mencegah AI (termasuk Puter.js GPT-4o) salah klasifikasi untuk:
+ *   - "baca BKU saya" → AI kira query, padahal chat
+ *   - "apakah kamu bisa..." → AI bisa classify sebagai query karena ada keyword
+ * 
+ * Jika match → return langsung (tanpa AI, tanpa rules).
+ * Jika tidak match → return null (lanjut ke AI + rules).
+ */
+function _preClassify(question) {
+  const q = question.toLowerCase().trim()
+  
+  // ── Pola kapabilitas ──
+  const capabilityPatterns = [
+    /^apakah\s+(kamu|anda|kak|bang)/i,
+    /^(bisakah|dapatkah|bisa\s+tidak)\s+(kamu|anda)/i,
+    /^bagaimana\s+(cara|proses|langkah)/i,
+    /^apa\s+(itu|yang\s+dimaksud|yang\s+di)/i,
+    /^(halo|hai|helo|hey|pagi|siang|sore|malam)/i,
+    /^(terima\s+kasih|makasih|thanks|thx)/i,
+  ]
+  for (const p of capabilityPatterns) {
+    if (p.test(q)) {
+      return { type: 'chat', confidence: 0.9, query: null, source: 'pre_classify_capability' }
+    }
+  }
+  
+  // ── Pola vague pendek (≤4 kata) dengan keyword BKU ──
+  // "baca bku", "baca bku saya", "lihat bku", "data bku", "bku"
+  const wordCount = q.split(/\s+/).length
+  if (wordCount <= 4) {
+    const vaguePatterns = [
+      /^baca\s+(bku|data)/i,         // "baca bku", "baca bku saya"
+      /^lihat\s+(bku|data)/i,        // "lihat bku"
+      /^tampilkan\s+(bku|data)/i,    // "tampilkan bku"
+      /^buka\s+(bku|data)/i,         // "buka bku"
+      /^data\s+bku/i,                // "data bku"
+      /^isi\s+(bku|data)/i,          // "isi bku"
+      /^bku$/i,                       // "bku" aja
+      /^(bku|data)\s+(saya|ku)$/i,   // "bku saya", "bku ku"
+    ]
+    for (const p of vaguePatterns) {
+      if (p.test(q)) {
+        return { type: 'chat', confidence: 0.85, query: null, source: 'pre_classify_vague' }
+      }
+    }
+  }
+  
+  return null
+}
+
+/**
  * Klasifikasi intent pertanyaan user.
  * 
  * Priority:
+ * 0. Pre-classify → vague/capability question detected → DIRECT chat (tanpa AI!)
  * 1. Semantic cache → jika ada dan match, return langsung
  * 2. AI classifier → lebih akurat
  * 3. Rule-based fallback → 0 token, instant
@@ -230,6 +372,14 @@ async function _classifyWithAI(question) {
 export async function classifyIntent(question) {
   if (!question?.trim()) {
     return { type: 'general', confidence: 0, query: null, answer: null }
+  }
+
+  // ═══ PRIORITAS #0: Pre-classify ═══
+  // Sebelum cache, sebelum AI, sebelum rules.
+  // Tangkap pertanyaan vague/kapabilitas yang PASTI bukan query.
+  const preResult = _preClassify(question)
+  if (preResult) {
+    return { ...preResult, answer: null }
   }
 
   // 1. Cek semantic cache DULU (0 token, instant)
