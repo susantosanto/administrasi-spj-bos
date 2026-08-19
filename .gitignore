@@ -44,6 +44,9 @@ Thumbs.db
 # MCP config
 .mcp.json
 
+# Freebuff client cache
+.freebuff/
+
 # Dokumen Referensi (PDF) — source files
 build-resources/docs/
 spj-frontend/public/docs/
