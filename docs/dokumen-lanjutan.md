@@ -1,6 +1,6 @@
 # Fitur yang masih harus dibenahi
 
-1. Ubah lokasi fitur Generate Foto Dokumentasi (berikan saran) -> Brainstorming
+2. Ubah lokasi fitur Generate Foto Dokumentasi (berikan saran) -> Brainstorming
 2. Fix untuk respon AI Assistan nya karena masih perlu di optimasi kembali beberapa respon nya masih blm sesuai dengan intruksi / perintah / prompting dari user
  
 # Dokumen yang Belum Lengkap

@@ -75,30 +75,41 @@ const MONTH_NAMES = [
 /**
  * Pola pertanyaan umum/kapabilitas — DETECTED FIRST, sebelum keyword BKU.
  * Jika cocok → classified sebagai 'chat', bukan 'query'.
+ * 
+ * PENTING: Pola ini HARUS lebih spesifik agar tidak menangkap pertanyaan data BKU.
+ * Contoh: "apa itu BKU" → chat, tapi "apa total BKU" → query
  */
 const GENERAL_QUESTION_PATTERNS = [
-  /^apakah\s+(kamu|anda|kak|bang)/i,           // "apakah kamu bisa..."
-  /^(bisakah|dapatkah|bisa\s+tidak)\s+(kamu|anda)/i,  // "bisakah kamu..."
-  /^bagaimana\s+(cara|proses|langkah)/i,        // "bagaimana cara..."
-  /^apa\s+(itu|yang\s+dimaksud|yang\s+di)/i,    // "apa itu bku?"
-  /^(halo|hai|helo|hey|pagi|siang|sore|malam)/i, // sapaan
-  /^(terima\s+kasih|makasih|thanks|thx)/i,       // ucapan terima kasih
+  /^apakah\s+(kamu|anda|kak|bang)\s+(bisa|dapat|mau)/i,  // "apakah kamu bisa..." (WAJIB ada "bisa/dapat/mau")
+  /^(bisakah|dapatkah|bisa\s+tidak)\s+(kamu|anda)/i,     // "bisakah kamu..."
+  /^bagaimana\s+(cara|proses|langkah)/i,                 // "bagaimana cara..."
+  /^apa\s+(itu|yang\s+dimaksud)\s+(bku|bos|bsp|arkas|siplah|lpj|spj)/i, // "apa itu BKU/BOSP/ARKAS/SIPLAH/LPJ/SPJ"
+  /^(halo|hai|helo|hey|pagi|siang|sore|malam)/i,         // sapaan
+  /^(terima\s+kasih|makasih|thanks|thx)/i,               // ucapan terima kasih
+  /^bagaimana\s+kondisi/i,                                // "bagaimana kondisi keuangan"
+  /^(ceritakan|jelaskan|explain)\s+(tentang|soal)/i,     // "ceritakan tentang BKU"
 ]
 
 /**
  * Deteksi apakah pertanyaan adalah general/capability question.
  * Jika ya → return 'chat'. Jika tidak → return null (lanjut ke rules).
+ * 
+ * PENTING: Fungsi ini harus SANGAT selektif agar pertanyaan data BKU
+ * tidak salah diklasifikasikan sebagai 'chat'.
  */
 function _detectGeneralQuestion(q) {
   for (const pattern of GENERAL_QUESTION_PATTERNS) {
     if (pattern.test(q)) return true
   }
   
-  // Deteksi pertanyaan sangat pendek (1-2 kata) yang mengandung keyword BKU tapi bukan query
+  // Deteksi pertanyaan sangat pendek (1-3 kata) yang mengandung keyword BKU tapi bukan query
   // Contoh: "baca bku", "bku", "lihat bku", "data bku"
   const shortQWords = q.toLowerCase().trim().split(/\s+/).length
   if (shortQWords <= 3) {
-    const vaguePatterns = [/^(baca|lihat|tampilkan|buka|data|isi)\s+(bku|data)/i, /^bku$/i]
+    const vaguePatterns = [
+      /^(baca|lihat|tampilkan|buka|isi)\s+(bku|data)/i,
+      /^(bku|data)\s*(saya|ku)?$/i,
+    ]
     for (const pattern of vaguePatterns) {
       if (pattern.test(q.trim())) return true
     }
@@ -122,6 +133,30 @@ function _classifyWithRules(question) {
       confidence: 0.8,
       query: null,
       fallbackReason: 'general_question_detected',
+    }
+  }
+  
+  // ═══ PRIORITAS #1.5: Deteksi pertanyaan BKU spesifik ═══
+  // Pola: "apa/saya/berapa + keyword BKU + action word"
+  // Contoh: "apa total pengeluaran", "berapa honor guru", "saya mau lihat bku"
+  const bkuQueryPatterns = [
+    /total\s+(pengeluaran|penerimaan|belanja|bayar|saldo)/i,
+    /(berapa|jumlah)\s+(pengeluaran|penerimaan|belanja|bayar|pajak|pph|honor|mamin|atk|listrik|transport|guru|tendik)/i,
+    /(pengeluaran|penerimaan|belanja|bayar)\s+(bulan|perbulan|per\s+bulan)/i,
+    /(pengeluaran|penerimaan|belanja|bayar)\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)/i,
+    /(honor|mamin|atk|listrik|transport|cetak|perpus|internet|pulsa)\s+(berapa|total|jumlah)/i,
+    /(apa|sebutkan|tampilkan|lihat)\s+(data\s+)?(bku|transaksi|keuangan|realisasi)/i,
+    /(realisasi|anggaran|sisa\s+dana|sisa\s+anggaran)/i,
+  ]
+  
+  for (const pattern of bkuQueryPatterns) {
+    if (pattern.test(q)) {
+      return {
+        type: 'chat',  // Kirim ke AI Chat dengan data context (lebih fleksibel)
+        confidence: 0.85,
+        query: null,
+        fallbackReason: 'bku_specific_question_detected',
+      }
     }
   }
   
@@ -162,29 +197,45 @@ function _classifyWithRules(question) {
     query.filter = {}
     if (bulan) query.filter.bulan = [bulan]
     
-    // Deteksi tipe agregasi
-    if (q.includes('pengeluaran') || q.includes('belanja') || q.includes('pembayaran')) {
-      query.filter.tipe = ['PEMBAYARAN']
+    // Deteksi tipe agregasi — LEBIH AGRESIF untuk menangkap pertanyaan BKU
+    if (q.includes('pengeluaran') || q.includes('belanja') || q.includes('pembayaran') || q.includes('bayar')) {
+      // JANGAN filter tipe PEMBAYARAN saja! Hitung semua pengeluaran > 0
       query.aggregate = { sum: 'pengeluaran' }
     } else if (q.includes('penerimaan') || q.includes('pemasukan')) {
-      query.filter.tipe = ['PENERIMAAN_BOSP']
       query.aggregate = { sum: 'penerimaan' }
     } else if (q.includes('pajak') || q.includes('pph')) {
       query.search = 'setor pph'
       query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('honor') || q.includes('guru')) {
+      query.search = 'honor'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('mamin') || q.includes('makan')) {
+      query.search = 'makan'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('atk') || q.includes('alat tulis')) {
+      query.search = 'atk'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('listrik')) {
+      query.search = 'listrik'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('transport') || q.includes('perjalanan')) {
+      query.search = 'transport'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('cetak') || q.includes('penggandaan')) {
+      query.search = 'cetak'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('internet') || q.includes('pulsa')) {
+      query.search = 'internet'
+      query.aggregate = { sum: 'pengeluaran' }
+    } else if (q.includes('total') || q.includes('jumlah') || q.includes('berapa') || q.includes('saldo')) {
+      query.aggregate = { sum: 'pengeluaran' }
     } else {
-      // Hanya buat query count jika ada keyword spesifik (total, jumlah, berapa)
-      // Ini mencegah "bku" saja → count query yang tidak berguna
-      if (q.includes('total') || q.includes('jumlah') || q.includes('berapa')) {
-        query.aggregate = { count: true }
-      } else {
-        // Keyword BKU ada tapi tanpa intent query spesifik → treat sebagai chat
-        return {
-          type: 'chat',
-          confidence: 0.6,
-          query: null,
-          fallbackReason: 'vague_query_without_specific_intent',
-        }
+      // Keyword BKU ada tapi tanpa intent query spesifik → treat sebagai chat
+      return {
+        type: 'chat',
+        confidence: 0.6,
+        query: null,
+        fallbackReason: 'vague_query_without_specific_intent',
       }
     }
   }
@@ -312,18 +363,23 @@ async function _classifyWithAI(question) {
  *   - "baca BKU saya" → AI kira query, padahal chat
  *   - "apakah kamu bisa..." → AI bisa classify sebagai query karena ada keyword
  * 
+ * PENTING: Fungsi ini harus SANGAT selektif agar pertanyaan data BKU
+ * tidak salah diklasifikasikan sebagai 'chat'.
+ * 
  * Jika match → return langsung (tanpa AI, tanpa rules).
  * Jika tidak match → return null (lanjut ke AI + rules).
  */
 function _preClassify(question) {
   const q = question.toLowerCase().trim()
   
-  // ── Pola kapabilitas ──
+  // ── Pola kapabilitas — HARUS ada "bisa/dapat/mau" ──
+  // "apakah kamu bisa baca BKU" → chat
+  // "apa total pengeluaran" → JANGAN chat!
   const capabilityPatterns = [
-    /^apakah\s+(kamu|anda|kak|bang)/i,
+    /^apakah\s+(kamu|anda|kak|bang)\s+(bisa|dapat|mau)/i,
     /^(bisakah|dapatkah|bisa\s+tidak)\s+(kamu|anda)/i,
     /^bagaimana\s+(cara|proses|langkah)/i,
-    /^apa\s+(itu|yang\s+dimaksud|yang\s+di)/i,
+    /^apa\s+(itu|yang\s+dimaksud)\s+(bku|bos|bsp|arkas|siplah|lpj|spj)/i,
     /^(halo|hai|helo|hey|pagi|siang|sore|malam)/i,
     /^(terima\s+kasih|makasih|thanks|thx)/i,
   ]
@@ -333,19 +389,13 @@ function _preClassify(question) {
     }
   }
   
-  // ── Pola vague pendek (≤4 kata) dengan keyword BKU ──
+  // ── Pola vague pendek (≤3 kata) dengan keyword BKU ──
   // "baca bku", "baca bku saya", "lihat bku", "data bku", "bku"
   const wordCount = q.split(/\s+/).length
-  if (wordCount <= 4) {
+  if (wordCount <= 3) {
     const vaguePatterns = [
-      /^baca\s+(bku|data)/i,         // "baca bku", "baca bku saya"
-      /^lihat\s+(bku|data)/i,        // "lihat bku"
-      /^tampilkan\s+(bku|data)/i,    // "tampilkan bku"
-      /^buka\s+(bku|data)/i,         // "buka bku"
-      /^data\s+bku/i,                // "data bku"
-      /^isi\s+(bku|data)/i,          // "isi bku"
-      /^bku$/i,                       // "bku" aja
-      /^(bku|data)\s+(saya|ku)$/i,   // "bku saya", "bku ku"
+      /^(baca|lihat|tampilkan|buka|isi)\s+(bku|data)/i,   // "baca bku", "lihat data"
+      /^(bku|data)\s*(saya|ku)?$/i,                       // "bku", "bku saya"
     ]
     for (const p of vaguePatterns) {
       if (p.test(q)) {

@@ -516,6 +516,9 @@ function storageGet(key) {
 /**
  * Jawab pertanyaan langsung dari data — tanpa AI (0 token, 100% akurat).
  * Hanya untuk pertanyaan sederhana seperti "total pengeluaran bulan x".
+ * 
+ * PENTING: Fungsi ini harus menghitung SEMUA pengeluaran > 0,
+ * bukan hanya tipe PEMBAYARAN. SETOR_PAJAK juga termasuk pengeluaran.
  */
 function fallbackLocalAnswer(question) {
   const q = question.toLowerCase()
@@ -540,30 +543,55 @@ function fallbackLocalAnswer(question) {
     return null
   }
 
-  // Jawab berdasarkan keyword
-  if (q.includes('pengeluaran') || q.includes('belanja') || q.includes('pembayaran')) {
-    const bulanLabel = bulanNum ? BULAN_NAMES[bulanNum - 1] : 'semua bulan'
+  const bulanLabel = bulanNum ? BULAN_NAMES[bulanNum - 1] : 'semua bulan'
+
+  // ═══ PENGELUARAN ═══
+  // Hitung SEMUA transaksi dengan pengeluaran > 0 (termasuk SETOR_PAJAK, TARIK_TUNAI)
+  if (q.includes('pengeluaran') || q.includes('belanja') || q.includes('pembayaran') || q.includes('bayar')) {
     const txOut = filtered.filter(t => Number(t.pengeluaran) > 0)
     const total = txOut.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
-    return `Total pengeluaran ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${txOut.length} transaksi).`
+    
+    // Breakdown per tipe
+    const pembayaran = txOut.filter(t => t.tipe === 'PEMBAYARAN')
+    const setorPajak = txOut.filter(t => t.tipe === 'SETOR_PAJAK')
+    const tarikTunai = txOut.filter(t => t.tipe === 'TARIK_TUNAI')
+    
+    let answer = `Total pengeluaran ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${txOut.length} transaksi).`
+    
+    if (pembayaran.length > 0) {
+      const totPemb = pembayaran.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      answer += ` Belanja langsung: Rp ${totPemb.toLocaleString('id-ID')} (${pembayaran.length} tx).`
+    }
+    if (setorPajak.length > 0) {
+      const totPajak = setorPajak.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      answer += ` Setor pajak: Rp ${totPajak.toLocaleString('id-ID')} (${setorPajak.length} tx).`
+    }
+    if (tarikTunai.length > 0) {
+      const totTarik = tarikTunai.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      answer += ` Tarik tunai: Rp ${totTarik.toLocaleString('id-ID')} (${tarikTunai.length} tx).`
+    }
+    
+    return answer
   }
 
+  // ═══ PENERIMAAN ═══
   if (q.includes('penerimaan') || q.includes('pemasukan')) {
-    const bulanLabel = bulanNum ? BULAN_NAMES[bulanNum - 1] : 'semua bulan'
     const total = filtered.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
     return `Total penerimaan ${bulanLabel}: Rp ${total.toLocaleString('id-ID')}.`
   }
 
+  // ═══ PAJAK / PPh ═══
   if (q.includes('pajak') || q.includes('pph')) {
     const pajakTx = filtered.filter(t => {
+      const tipe = (t.tipe || '').toLowerCase()
       const u = (t.uraian || '').toLowerCase()
-      return (u.includes('setor pph') || u.includes('setor pajak') || 
+      return (tipe.includes('setor_pajak') || tipe.includes('setor pajak') ||
+              u.includes('setor pph') || u.includes('setor pajak') || 
               u.includes('pph 23') || u.includes('pajak')) &&
              t.pengeluaran > 0
     })
     if (pajakTx.length > 0) {
       const total = pajakTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
-      const bulanLabel = bulanNum ? BULAN_NAMES[bulanNum - 1] : 'semua bulan'
       return `Total pajak ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${pajakTx.length} transaksi).`
     }
     return bulanNum 
@@ -571,8 +599,92 @@ function fallbackLocalAnswer(question) {
       : 'Tidak ada pembayaran pajak.'
   }
 
-  if (q.includes('total') || q.includes('semua')) {
-    const bulanLabel = bulanNum ? BULAN_NAMES[bulanNum - 1] : 'semua bulan'
+  // ═══ HONOR / GURU ═══
+  if (q.includes('honor') || q.includes('guru')) {
+    const honorTx = filtered.filter(t => {
+      const u = (t.uraian || '').toLowerCase()
+      const kode = (t.kodeRekening || '')
+      return (u.includes('honor') || u.includes('guru') || kode.startsWith('5.1.02.02')) &&
+             t.pengeluaran > 0
+    })
+    if (honorTx.length > 0) {
+      const total = honorTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      return `Total honor ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${honorTx.length} transaksi).`
+    }
+    return `Tidak ada data honor/guru untuk ${bulanLabel}.`
+  }
+
+  // ═══ MAMIN / MAKAN ═══
+  if (q.includes('mamin') || q.includes('makan')) {
+    const maminTx = filtered.filter(t => {
+      const u = (t.uraian || '').toLowerCase()
+      const kode = (t.kodeRekening || '')
+      return (u.includes('makan') || u.includes('mamin') || kode === '5.1.02.01.01.0052') &&
+             t.pengeluaran > 0
+    })
+    if (maminTx.length > 0) {
+      const total = maminTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      return `Total makan/minuman ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${maminTx.length} transaksi).`
+    }
+    return `Tidak ada data makan/minuman untuk ${bulanLabel}.`
+  }
+
+  // ═══ ATK ═══
+  if (q.includes('atk') || q.includes('alat tulis')) {
+    const atkTx = filtered.filter(t => {
+      const u = (t.uraian || '').toLowerCase()
+      const kode = (t.kodeRekening || '')
+      return (u.includes('atk') || u.includes('alat tulis') || kode === '5.1.02.01.01.0024') &&
+             t.pengeluaran > 0
+    })
+    if (atkTx.length > 0) {
+      const total = atkTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      return `Total ATK ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${atkTx.length} transaksi).`
+    }
+    return `Tidak ada data ATK untuk ${bulanLabel}.`
+  }
+
+  // ═══ LISTRIK ═══
+  if (q.includes('listrik')) {
+    const listrikTx = filtered.filter(t => {
+      const u = (t.uraian || '').toLowerCase()
+      const kode = (t.kodeRekening || '')
+      return (u.includes('listrik') || u.includes('pln') || kode.startsWith('5.2.05.01.01.0001')) &&
+             t.pengeluaran > 0
+    })
+    if (listrikTx.length > 0) {
+      const total = listrikTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      return `Total listrik ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${listrikTx.length} transaksi).`
+    }
+    return `Tidak ada data listrik untuk ${bulanLabel}.`
+  }
+
+  // ═══ TRANSPORT ═══
+  if (q.includes('transport') || q.includes('perjalanan')) {
+    const transportTx = filtered.filter(t => {
+      const u = (t.uraian || '').toLowerCase()
+      const kode = (t.kodeRekening || '')
+      return (u.includes('transport') || u.includes('perjalanan') || kode.startsWith('5.1.02.04')) &&
+             t.pengeluaran > 0
+    })
+    if (transportTx.length > 0) {
+      const total = transportTx.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+      return `Total transport ${bulanLabel}: Rp ${total.toLocaleString('id-ID')} (${transportTx.length} transaksi).`
+    }
+    return `Tidak ada data transport untuk ${bulanLabel}.`
+  }
+
+  // ═══ SALDO ═══
+  if (q.includes('saldo')) {
+    const saldoAwal = filtered.find(t => t.tipe === 'SALDO_AWAL')?.saldo || 0
+    const totalPenerimaan = filtered.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
+    const totalPengeluaran = filtered.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+    const saldoAkhir = saldoAwal + totalPenerimaan - totalPengeluaran
+    return `Saldo ${bulanLabel}: Awal Rp ${saldoAwal.toLocaleString('id-ID')}, Akhir Rp ${saldoAkhir.toLocaleString('id-ID')}.`
+  }
+
+  // ═══ RINGKASAN / TOTAL ═══
+  if (q.includes('total') || q.includes('semua') || q.includes('ringkasan')) {
     const totalPenerimaan = filtered.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
     const totalPengeluaran = filtered.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
     return `Ringkasan ${bulanLabel}: Penerimaan Rp ${totalPenerimaan.toLocaleString('id-ID')}, Pengeluaran Rp ${totalPengeluaran.toLocaleString('id-ID')}, ${filtered.length} transaksi.`
@@ -649,39 +761,46 @@ export async function askAI(question) {
   // Untuk query yang tidak bisa di-handle QueryEngine
   // atau untuk pertanyaan umum
   if (intent.type === 'chat' || intent.type === 'general') {
-    console.log('💬 Path B: AI Chat')
-
-    // Kirim ke AI — dengan data context!
-    try {
-      // Bangun konteks data aplikasi untuk AI
-      const dataContext = buildFullContext({ compact: true })
-      let systemContent = aiConfig.getPrompt('general')
-      
-      if (dataContext) {
-        // Inject data context ke system prompt
-        systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataContext}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
+    console.log('💬 Path B: AI Chat')      // Kirim ke AI — dengan data context!
+      try {
+        // Bangun konteks data aplikasi untuk AI
+        const dataContext = buildFullContext({ compact: true })
+        let systemContent = aiConfig.getPrompt('general')
+        
+        if (dataContext) {
+          // Cek apakah konteks mengandung data BKU
+          const hasBkuData = dataContext.includes('BKU') || dataContext.includes('transaksi')
+          
+          // Build data context dengan interpretasi BKU jika ada data BKU
+          let dataSection = dataContext
+          if (hasBkuData) {
+            dataSection = `${dataContext}\n\n=== PANDUAN INTERPRETASI DATA BKU ===\n- "Pengeluaran" = semua transaksi dengan pengeluaran > 0 (termasuk SETOR_PAJAK, TARIK_TUNAI)\n- "Penerimaan" = semua transaksi dengan penerimaan > 0 (termasuk PUNGUT_PPH, BUNGA_BANK)\n- Kode rekening 5.1.02.02 = Honor Guru/Tendik\n- Kode rekening 5.1.02.04 = Transport/Perjalanan\n- Kode rekening 5.1.02.01.01 = Barang/Jasa (Mamin, ATK, Cetak)\n- Kode rekening 5.2.05.01 = Listrik, Internet`
+          }
+          
+          // Inject data context ke system prompt
+          systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataSection}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
+        }
+        
+        const msgs = [
+          { role: 'system', content: systemContent },
+          { role: 'user', content: question },
+        ]
+        const answer = await callAI(msgs)
+        if (answer) {
+          const formatted = formatAnswer(answer)
+          semanticCache.set(question, formatted, 'ai')
+          return { answer: formatted, source: 'ai' }
+        }
+      } catch (err) {
+        console.error('AI gagal:', err.message)
+        // Fallback: coba lokal
+        const localAnswer = fallbackLocalAnswer(question)
+        if (localAnswer) {
+          semanticCache.set(question, localAnswer, 'fallback')
+          return { answer: localAnswer, source: 'fallback' }
+        }
+        return { answer: `❌ Gagal: ${err.message || 'Coba lagi.'}`, source: 'error' }
       }
-      
-      const msgs = [
-        { role: 'system', content: systemContent },
-        { role: 'user', content: question },
-      ]
-      const answer = await callAI(msgs)
-      if (answer) {
-        const formatted = formatAnswer(answer)
-        semanticCache.set(question, formatted, 'ai')
-        return { answer: formatted, source: 'ai' }
-      }
-    } catch (err) {
-      console.error('AI gagal:', err.message)
-      // Fallback: coba lokal
-      const localAnswer = fallbackLocalAnswer(question)
-      if (localAnswer) {
-        semanticCache.set(question, localAnswer, 'fallback')
-        return { answer: localAnswer, source: 'fallback' }
-      }
-      return { answer: `❌ Gagal: ${err.message || 'Coba lagi.'}`, source: 'error' }
-    }
   }
 
   // ── FALLBACK AKHIR ──
@@ -860,7 +979,16 @@ export async function askAIStream(question, onToken, onDone, options = {}) {
           let systemContent = aiConfig.getPrompt('general')
           
           if (dataContext) {
-            systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataContext}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
+            // Cek apakah konteks mengandung data BKU
+            const hasBkuData = dataContext.includes('BKU') || dataContext.includes('transaksi')
+            
+            // Build data context dengan interpretasi BKU jika ada data BKU
+            let dataSection = dataContext
+            if (hasBkuData) {
+              dataSection = `${dataContext}\n\n=== PANDUAN INTERPRETASI DATA BKU ===\n- "Pengeluaran" = semua transaksi dengan pengeluaran > 0 (termasuk SETOR_PAJAK, TARIK_TUNAI)\n- "Penerimaan" = semua transaksi dengan penerimaan > 0 (termasuk PUNGUT_PPH, BUNGA_BANK)\n- Kode rekening 5.1.02.02 = Honor Guru/Tendik\n- Kode rekening 5.1.02.04 = Transport/Perjalanan\n- Kode rekening 5.1.02.01.01 = Barang/Jasa (Mamin, ATK, Cetak)\n- Kode rekening 5.2.05.01 = Listrik, Internet`
+            }
+            
+            systemContent = `${systemContent}\n\n=== DATA APLIKASI SAAT INI ===\n${dataSection}\n\nGunakan data di atas untuk menjawab pertanyaan user. Jika data cukup, jawab langsung dengan angka spesifik dalam format Rp. Jika tidak ada data yang relevan, gunakan pengetahuan umummu.`
           }
           
           if (!provider?.supportsStreaming || signal) {

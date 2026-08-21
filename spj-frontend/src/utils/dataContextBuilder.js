@@ -80,27 +80,48 @@ function buildBkuContext() {
   const txs = data.transactions
   const lines = []
 
-  // ── Total ──
+  // ── Total Semua Transaksi ──
   const totalPenerimaan = txs.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
   const totalPengeluaran = txs.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
   
-  // Pisahkan jenis pengeluaran
+  // Pisahkan jenis pengeluaran untuk detail
   const pembayaran = txs.filter(t => t.tipe === 'PEMBAYARAN' && Number(t.pengeluaran) > 0)
   const setorPajak = txs.filter(t => t.tipe === 'SETOR_PAJAK' && Number(t.pengeluaran) > 0)
-  const tarikTunai = txs.filter(t => t.tipe === 'TARIK_TUNAI')
+  const tarikTunai = txs.filter(t => t.tipe === 'TARIK_TUNAI' && Number(t.pengeluaran) > 0)
+  const pungutPph = txs.filter(t => t.tipe === 'PUNGUT_PPH' && Number(t.penerimaan) > 0)
+  const bungaBank = txs.filter(t => t.tipe === 'BUNGA_BANK' && Number(t.penerimaan) > 0)
+  
   const totalPembayaran = pembayaran.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
   const totalPajak = setorPajak.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+  const totalTarik = tarikTunai.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+  const totalPungut = pungutPph.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
+  const totalBunga = bungaBank.reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
 
   lines.push(`📊 BKU — ${txs.length} transaksi`)
-  lines.push(`   Penerimaan: Rp ${totalPenerimaan.toLocaleString('id-ID')}`)
-  lines.push(`   Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}`)
-  lines.push(`   Belanja Langsung: Rp ${totalPembayaran.toLocaleString('id-ID')} (${pembayaran.length} tx)`)
+  lines.push(`   Total Penerimaan: Rp ${totalPenerimaan.toLocaleString('id-ID')}`)
+  lines.push(`   Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}`)
+  
+  // Detail pengeluaran
+  lines.push('')
+  lines.push('   Detail Pengeluaran:')
+  lines.push(`   • Belanja Langsung (PEMBAYARAN): Rp ${totalPembayaran.toLocaleString('id-ID')} (${pembayaran.length} tx)`)
   if (totalPajak > 0) {
-    lines.push(`   Pajak: Rp ${totalPajak.toLocaleString('id-ID')} (${setorPajak.length} tx)`)
+    lines.push(`   • Setor Pajak (SETOR_PAJAK/PPh23): Rp ${totalPajak.toLocaleString('id-ID')} (${setorPajak.length} tx)`)
   }
-  if (tarikTunai.length > 0) {
-    const totalTarik = tarikTunai.reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
-    lines.push(`   Tarik Tunai: Rp ${totalTarik.toLocaleString('id-ID')} (${tarikTunai.length} tx)`)
+  if (totalTarik > 0) {
+    lines.push(`   • Tarik Tunai: Rp ${totalTarik.toLocaleString('id-ID')} (${tarikTunai.length} tx)`)
+  }
+  
+  // Detail penerimaan
+  if (totalPungut > 0 || totalBunga > 0) {
+    lines.push('')
+    lines.push('   Detail Penerimaan Lain:')
+    if (totalPungut > 0) {
+      lines.push(`   • Pungut PPh: Rp ${totalPungut.toLocaleString('id-ID')} (${pungutPph.length} tx)`)
+    }
+    if (totalBunga > 0) {
+      lines.push(`   • Bunga Bank: Rp ${totalBunga.toLocaleString('id-ID')} (${bungaBank.length} tx)`)
+    }
   }
 
   // ── Per Bulan ──
@@ -123,25 +144,26 @@ function buildBkuContext() {
     bulanAktif.forEach(b => {
       const d = byBulan[b]
       const pajakStr = d.pajak > 0 ? ` | Pajak Rp ${d.pajak.toLocaleString('id-ID')}` : ''
-      lines.push(`   • ${BULAN_SINGKAT[b-1]}: Penerimaan Rp ${d.penerimaan.toLocaleString('id-ID')} | Belanja Rp ${d.pengeluaran.toLocaleString('id-ID')}${pajakStr} (${d.count} tx)`)
+      lines.push(`   • ${BULAN_SINGKAT[b-1]}: Penerimaan Rp ${d.penerimaan.toLocaleString('id-ID')} | Pengeluaran Rp ${d.pengeluaran.toLocaleString('id-ID')}${pajakStr} (${d.count} tx)`)
     })
   }
 
-  // ── Per Kategori ──
+  // ── Per Kategori (semua pengeluaran, bukan hanya PEMBAYARAN) ──
   const byKategori = {}
-  pembayaran.forEach(t => {
+  txs.filter(t => Number(t.pengeluaran) > 0).forEach(t => {
     const kat = detectKategori(t.kodeRekening)
-    if (!byKategori[kat]) byKategori[kat] = 0
-    byKategori[kat] += Number(t.pengeluaran)
+    if (!byKategori[kat]) byKategori[kat] = { total: 0, count: 0 }
+    byKategori[kat].total += Number(t.pengeluaran)
+    byKategori[kat].count++
   })
 
-  const sortedKategori = Object.entries(byKategori).sort((a, b) => b[1] - a[1])
+  const sortedKategori = Object.entries(byKategori).sort((a, b) => b[1].total - a[1].total)
   if (sortedKategori.length > 0) {
     lines.push('')
-    lines.push('   Kategori Belanja:')
-    sortedKategori.forEach(([kat, total]) => {
-      const pct = totalPembayaran > 0 ? ((total / totalPembayaran) * 100).toFixed(0) : 0
-      lines.push(`   • ${kat}: Rp ${total.toLocaleString('id-ID')} (${pct}%)`)
+    lines.push('   Kategori Belanja (semua pengeluaran):')
+    sortedKategori.forEach(([kat, info]) => {
+      const pct = totalPengeluaran > 0 ? ((info.total / totalPengeluaran) * 100).toFixed(0) : 0
+      lines.push(`   • ${kat}: Rp ${info.total.toLocaleString('id-ID')} (${info.count} tx, ${pct}%)`)
     })
   }
 
