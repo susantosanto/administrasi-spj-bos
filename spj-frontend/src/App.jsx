@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -33,9 +34,10 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <AIProvider>
-        <Router>
+    <ThemeProvider>
+      <ToastProvider>
+        <AIProvider>
+          <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -71,8 +73,9 @@ export default function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Router>
-      </AIProvider>
-    </ToastProvider>
+          </Router>
+        </AIProvider>
+      </ToastProvider>
+    </ThemeProvider>
   )
 }

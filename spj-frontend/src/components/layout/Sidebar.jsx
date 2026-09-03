@@ -4,6 +4,7 @@
  */
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
+import ThemeToggle from '../ui/ThemeToggle'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -104,13 +105,14 @@ export default function Sidebar() {
           {/* ═══════════════════════════════════════════════════════════════ */}
           <div className="relative px-5 pt-6 pb-4">
             <div className="flex items-center gap-3">
-              {/* Logo Icon */}
-              <div className="relative">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25">
+              {/* Logo Icon — breathing */}
+              <div className="relative living-breathing" style={{ animationDuration: '4s' }}>
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25 living-gradient" style={{ backgroundSize: '200% 200%' }}>
                   <span className="material-symbols-outlined text-white text-xl">school</span>
                 </div>
-                {/* Online dot */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
+                {/* Online dot — live pulse */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white live-dot" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full pulse-ring text-emerald-400" style={{ borderWidth: '2px' }} />
               </div>
 
               {/* Logo Text */}
@@ -265,6 +267,15 @@ export default function Sidebar() {
                 )}
               </NavLink>
             ))}
+
+            {/* Theme Toggle */}
+            <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 mb-1">
+              <span className="flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-300">
+                <span className="material-symbols-outlined text-[18px]">contrast</span>
+                Tema Gelap
+              </span>
+              <ThemeToggle />
+            </div>
 
             {/* Logout Button */}
             <button

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import storageHelper from "../utils/storageHelper";
 import { useToast } from "../components/ui/Toast";
+import ThemeToggle from "../components/ui/ThemeToggle";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -55,46 +56,26 @@ export default function LoginPage() {
           backgroundSize: '60px 60px',
         }} />
 
-        {/* Premium Decorative Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* A2 — METABALLS Premium Decorative — out-of-the-box gooey blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none metaballs-container" aria-hidden="true">
           
-          {/* Soft Blue Gradient Orbs - Subtle, don't overpower text */}
-          <div className="absolute w-[500px] h-[500px] rounded-full"
-               style={{
-                 background: 'radial-gradient(circle, rgba(0,40,120,0.3) 0%, transparent 60%)',
-                 top: '-10%',
-                 right: '-10%',
-                 animation: 'orb-move-1 20s ease-in-out infinite',
-               }}
-          />
-          
-          <div className="absolute w-[400px] h-[400px] rounded-full"
-               style={{
-                 background: 'radial-gradient(circle, rgba(0,30,100,0.25) 0%, transparent 55%)',
-                 bottom: '-5%',
-                 left: '-5%',
-                 animation: 'orb-move-2 25s ease-in-out infinite',
-               }}
-          />
-          
-          <div className="absolute w-[300px] h-[300px] rounded-full"
-               style={{
-                 background: 'radial-gradient(circle, rgba(0,50,150,0.2) 0%, transparent 50%)',
-                 top: '50%',
-                 left: '50%',
-                 transform: 'translate(-50%, -50%)',
-                 animation: 'orb-pulse 8s ease-in-out infinite',
-               }}
-          />
-          
-          {/* Decorative Lines */}
+          {/* Blob 1 — large, top-right drift */}
+          <div className="metaball metaball-primary animate-metaball-1 w-[560px] h-[560px] -top-20 -right-20 opacity-85" />
+          {/* Blob 2 — medium, bottom-left */}
+          <div className="metaball metaball-accent animate-metaball-2 w-[460px] h-[460px] -bottom-20 -left-16 opacity-75" />
+          {/* Blob 3 — center, deep */}
+          <div className="metaball metaball-deep animate-metaball-3 w-[360px] h-[360px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-55" />
+          {/* Blob 4 — small, float */}
+          <div className="metaball metaball-accent animate-metaball-drift w-[220px] h-[220px] top-[22%] left-[18%] opacity-50" style={{ animationDelay: '1.2s' }} />
+
+          {/* Decorative Lines — keep subtle */}
           <div className="absolute top-[20%] left-[10%] w-[200px] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent rotate-[30deg]" />
           <div className="absolute top-[60%] right-[15%] w-[150px] h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent -rotate-[20deg]" />
           
-          {/* Small Accent Dots */}
-          <div className="absolute w-2 h-2 bg-white/30 rounded-full top-[15%] left-[25%]" />
-          <div className="absolute w-1.5 h-1.5 bg-white/25 rounded-full top-[45%] right-[20%]" />
-          <div className="absolute w-2 h-2 bg-white/20 rounded-full bottom-[25%] left-[35%]" />
+          {/* Small Accent Dots — gentle pulse */}
+          <div className="absolute w-2 h-2 bg-white/30 rounded-full top-[15%] left-[25%] animate-pulse" style={{ animationDuration: '3s' }} />
+          <div className="absolute w-1.5 h-1.5 bg-white/25 rounded-full top-[45%] right-[20%] animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+          <div className="absolute w-2 h-2 bg-white/20 rounded-full bottom-[25%] left-[35%] animate-pulse" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }} />
         </div>
 
         {/* Content */}
@@ -129,14 +110,14 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Feature Highlights */}
+          {/* Feature Highlights — tidak statis: breathing stagger */}
           <div className="space-y-3 mb-12">
             {[
               { icon: 'description', text: '13 Template Dokumen Siap Pakai' },
               { icon: 'upload_file', text: 'Upload BKU dari ARKAS Otomatis' },
               { icon: 'print', text: 'Cetak Dokumen Langsung dari Aplikasi' },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-white/70">
+              <div key={i} className="flex items-center gap-3 text-white/70 living-breathing" style={{ animationDelay: `${i * 0.35}s`, animationDuration: '3.8s' }}>
                 <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="material-symbols-outlined text-white/80 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
                     {item.icon}
@@ -177,14 +158,17 @@ export default function LoginPage() {
         <div className="flex-1 flex items-center justify-center px-8 py-12 md:px-12 lg:px-16 xl:px-20">
           <div className="w-full max-w-[380px]">
             
-            {/* Back Link */}
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-slate-400 hover:text-[#004ac6] transition-colors mb-8 text-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-              Beranda
-            </Link>
+            {/* Top Actions */}
+            <div className="flex items-center justify-between mb-8">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-slate-400 hover:text-[#004ac6] transition-colors text-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                Beranda
+              </Link>
+              <ThemeToggle variant="icon" />
+            </div>
 
             {/* Header */}
             <div className="mb-8">

@@ -3,6 +3,17 @@
  */
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import ThemeToggle from "../components/ui/ThemeToggle";
+import { useTheme } from "../contexts/ThemeContext";
+
+function ThemeToggleLanding({ variant }) {
+  // wrapper agar tidak error jika ThemeProvider belum ready di public route (sudah ada)
+  try {
+    return <ThemeToggle variant={variant} />;
+  } catch {
+    return null;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ANIMATED COUNTER
@@ -95,7 +106,7 @@ function PremiumTypingCard() {
       <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
 
       {/* Main document card */}
-      <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
+      <div className="premium-typing-card relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
 
         {/* Document header - soft premium gradient */}
         <div className="bg-gradient-to-r from-primary via-blue-500 to-primary px-6 py-5">
@@ -202,23 +213,36 @@ function PremiumFeaturePills() {
     { icon: 'groups', label: 'Data Guru' },
     { icon: 'auto_awesome', label: 'Foto AI' },
     { icon: 'description', label: '13 Template' },
+    { icon: 'verified', label: 'Resmi BOSP' },
+    { icon: 'speed', label: '85% Lebih Cepat' },
   ];
 
+  // Gandakan untuk infinite marquee seamless
+  const loop = [...features, ...features];
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      {features.map((feature, i) => (
-        <div
-          key={i}
-          className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group"
-        >
-          <span className="material-symbols-outlined text-primary/70 text-lg group-hover:text-primary transition-colors">
-            {feature.icon}
-          </span>
-          <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
-            {feature.label}
-          </span>
-        </div>
-      ))}
+    <div className="relative overflow-hidden py-2 group/marquee">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+      <div className="flex marquee-track gap-3 w-max" style={{ willChange: 'transform' }}>
+        {loop.map((feature, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group shrink-0 living-breathing"
+            style={{ animationDelay: `${(i % features.length) * 0.12}s`, animationDuration: '3.5s' }}
+          >
+            <span className="material-symbols-outlined text-primary/70 text-lg group-hover:text-primary transition-colors">
+              {feature.icon}
+            </span>
+            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors whitespace-nowrap">
+              {feature.label}
+            </span>
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full live-dot ml-1" />
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-[10px] text-slate-400 mt-2 tracking-wide">⟷ Hover untuk pause • Tidak statis, terus berjalan</p>
     </div>
   );
 }
@@ -245,6 +269,30 @@ function FeatureCard({ feature, index }) {
     return () => observer.disconnect();
   }, [index]);
 
+  // A1 — Magnetic spotlight + tilt (out-of-the-box)
+  const handleMouseMove = (e) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateY = ((x - centerX) / rect.width) * 6; // max ±3deg
+    const rotateX = ((centerY - y) / rect.height) * 6;
+    card.style.setProperty('--x', `${x}px`);
+    card.style.setProperty('--y', `${y}px`);
+    card.style.setProperty('--rotateX', `${rotateX}deg`);
+    card.style.setProperty('--rotateY', `${rotateY}deg`);
+  };
+  const handleMouseLeave = (e) => {
+    const card = e.currentTarget;
+    card.style.setProperty('--x', `50%`);
+    card.style.setProperty('--y', `50%`);
+    card.style.setProperty('--rotateX', `0deg`);
+    card.style.setProperty('--rotateY', `0deg`);
+  };
+
   return (
     <div
       ref={cardRef}
@@ -253,21 +301,28 @@ function FeatureCard({ feature, index }) {
                   transition-all duration-700 ease-out
                   ${feature.isLarge ? 'md:col-span-2' : ''}`}
     >
-      <div className="relative h-full bg-white rounded-3xl border border-slate-200/80 p-7
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="magnetic-card relative h-full bg-white rounded-3xl border border-slate-200/80 p-7
                       shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.12)]
+                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.14)]
                       hover:border-primary/20
-                      hover:-translate-y-2
-                      transition-all duration-500 overflow-hidden">
+                      transition-all duration-500 overflow-hidden"
+      >
+        <div className="magnetic-card-inner h-full">
+        {/* A1 — Magnetic spotlight + glow */}
+        <div className="magnetic-spotlight" />
+        <div className="magnetic-glow" />
 
         {/* Looping glow animation - different delay per card */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-blue-400/[0.02]
-                        rounded-3xl animate-card-glow"
+                        rounded-3xl animate-card-glow pointer-events-none"
              style={{ animationDelay: `${index * 1.5}s` }} />
 
         {/* Top accent line - animated flow */}
         <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient}
-                        animate-accent-flow rounded-t-3xl`}
+                        animate-accent-flow rounded-t-3xl pointer-events-none`}
              style={{ animationDelay: `${index * 1.5}s` }} />
 
         {/* Content */}
@@ -295,6 +350,7 @@ function FeatureCard({ feature, index }) {
         {feature.isLarge && feature.extra && (
           <div className="relative mt-5 pt-4 border-t border-slate-100">{feature.extra}</div>
         )}
+        </div>
       </div>
     </div>
   );
@@ -401,7 +457,7 @@ export default function LandingPage() {
 
       {/* TOP APP BAR */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrollY > 50 ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.05)]' : 'bg-transparent'
+        scrollY > 50 ? 'bg-white/95 dark:bg-[#0f0f3e]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.4)]' : 'bg-transparent dark:bg-transparent'
       }`}>
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3">
@@ -414,10 +470,15 @@ export default function LandingPage() {
             <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#fitur">Fitur</a>
             <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#tentang">Tentang</a>
             <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#kontak">Kontak</a>
+            <ThemeToggleLanding />
             <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95 text-sm">
               Mulai Sekarang
             </Link>
           </nav>
+          {/* Mobile Theme Toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggleLanding variant="icon" />
+          </div>
         </div>
       </header>
 
@@ -426,35 +487,47 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* HERO SECTION                                                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="relative min-h-[750px] flex items-center overflow-hidden px-6">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(circle at top right, rgba(0, 74, 198, 0.04), transparent), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.03), transparent)" }} />
+        <section className="relative min-h-[750px] flex items-center overflow-hidden px-6 bg-slate-50 dark:bg-transparent">
+          {/* Living background — LIGHT: tidak statis */}
+          <div className="absolute inset-0 living-gradient dark:hidden" style={{ background: "radial-gradient(circle at top right, rgba(0, 74, 198, 0.06), transparent 55%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 60%), linear-gradient(120deg, rgba(248,249,251,1) 0%, rgba(239,246,255,1) 50%, rgba(248,249,251,1) 100%)", backgroundSize: '200% 200%' }} />
+          {/* Living background — DARK: gradasi animasi (biar body gradient terlihat, hero jadi glass) */}
+          <div className="absolute inset-0 hidden dark:block living-gradient" style={{ background: "radial-gradient(ellipse 900px 600px at 20% 15%, rgba(26,0,255,0.28) 0%, transparent 65%), radial-gradient(ellipse 700px 500px at 85% 30%, rgba(202,0,122,0.22) 0%, transparent 65%), linear-gradient(120deg, rgba(15,12,92,0.55) 0%, rgba(109,0,194,0.35) 45%, rgba(230,0,107,0.25) 85%, rgba(26,0,255,0.2) 100%)", backgroundSize: '200% 200%' }} />
+          {/* Floating particles — halus, tidak statis */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            <div className="absolute w-2 h-2 bg-primary/20 dark:bg-white/20 rounded-full top-[18%] left-[12%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
+            <div className="absolute w-1.5 h-1.5 bg-blue-400/30 dark:bg-white/20 rounded-full top-[32%] left-[8%] floating-particle" style={{ animationDelay: '1.2s', animationDuration: '7s' }} />
+            <div className="absolute w-1 h-1 bg-violet-400/40 dark:bg-white/15 rounded-full top-[65%] left-[15%] floating-particle" style={{ animationDelay: '0.6s', animationDuration: '8s' }} />
+            <div className="absolute w-2 h-2 bg-emerald-400/20 dark:bg-white/10 rounded-full top-[22%] right-[18%] floating-particle" style={{ animationDelay: '2s', animationDuration: '6.5s' }} />
+            <div className="absolute w-1.5 h-1.5 bg-primary/15 dark:bg-white/10 rounded-full top-[55%] right-[10%] floating-particle" style={{ animationDelay: '1.8s', animationDuration: '7.5s' }} />
+            <div className="absolute w-1 h-1 bg-blue-500/30 dark:bg-white/20 rounded-full bottom-[20%] right-[22%] floating-particle" style={{ animationDelay: '0.9s', animationDuration: '9s' }} />
+          </div>
 
           <div className="container mx-auto relative z-10">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Left: Text Content */}
               <div className="text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-6">
-                  <span className="material-symbols-outlined text-primary text-lg">verified</span>
-                  <span className="text-primary text-sm font-semibold">Resmi & Terpercaya</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 dark:bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-primary/10 dark:border-white/10">
+                  <span className="material-symbols-outlined text-primary dark:text-white text-lg">verified</span>
+                  <span className="text-primary dark:text-white text-sm font-semibold">Resmi & Terpercaya</span>
                 </div>
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
-                  Sampurasun!
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6 drop-shadow-sm">
+                  <span className="text-slate-900 dark:text-white">Sampurasun!</span>
                   <br />
-                  <span className="text-primary">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
+                  <span className="text-primary dark:text-white">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
                 </h1>
 
-                <p className="text-lg text-slate-600 max-w-xl mb-8">
+                <p className="text-lg text-slate-600 dark:text-white/80 max-w-xl mb-8 leading-relaxed">
                   Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan.
                   Kelola dana BOS/BOSP dengan standar profesionalisme tinggi.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                  <Link to="/login" className="bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2">
-                    Mulai Sekarang
-                    <span className="material-symbols-outlined">arrow_forward</span>
+                  <Link to="/login" className="hero-cta-primary living-shimmer living-breathing bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden border-2 border-transparent">
+                    <span className="hero-cta-text">Mulai Sekarang</span>
+                    <span className="material-symbols-outlined hero-cta-icon">arrow_forward</span>
                   </Link>
-                  <a href="#fitur" className="bg-white text-primary px-8 py-4 rounded-2xl font-semibold border-2 border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+                  <a href="#fitur" className="hero-cta-secondary bg-white dark:bg-white/10 dark:backdrop-blur-md dark:border-white/20 dark:text-white text-primary px-8 py-4 rounded-2xl font-semibold border-2 border-primary/20 hover:bg-primary/5 dark:hover:bg-white/20 transition-all flex items-center justify-center gap-2 living-breathing" style={{ animationDelay: '0.6s' }}>
                     <span className="material-symbols-outlined">play_circle</span>
                     Lihat Fitur
                   </a>
@@ -472,19 +545,20 @@ export default function LandingPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* PREMIUM FEATURE PILLS                                              */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="py-10 px-6 bg-white border-y border-slate-100">
+        <section className="py-10 px-6 bg-white dark:bg-[#131d33]/60 dark:backdrop-blur-md border-y border-slate-100 dark:border-white/5">
           <div className="container mx-auto">
             <PremiumFeaturePills />
           </div>
         </section>
 
-        {/* STATS */}
-        <section className="py-14 px-6 bg-slate-50">
-          <div className="container mx-auto">
+        {/* STATS — living, tidak statis */}
+        <section className="py-14 px-6 bg-slate-50 dark:bg-transparent relative overflow-hidden">
+          <div className="absolute inset-0 living-gradient opacity-40 dark:opacity-20 pointer-events-none" style={{ background: 'linear-gradient(100deg, rgba(239,246,255,0) 0%, rgba(0,74,198,0.03) 50%, rgba(239,246,255,0) 100%)', backgroundSize: '200% 100%' }} />
+          <div className="container mx-auto relative">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {STATS.map((stat, i) => (
-                <div key={i} className="text-center group cursor-default">
-                  <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                <div key={i} className="text-center group cursor-default living-breathing" style={{ animationDelay: `${i * 0.3}s`, animationDuration: '3.8s' }}>
+                  <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform relative pulse-ring`}>
                     <span className={`material-symbols-outlined text-xl ${stat.color}`}>{stat.icon}</span>
                   </div>
                   <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-1">

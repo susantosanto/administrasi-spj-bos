@@ -143,13 +143,27 @@ export default function DashboardHome() {
         {/* HERO — ULTRA PREMIUM HEADER                                         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-primary/20">
-          {/* Background Layer — Deep Blue Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#003087] via-[#004ac6] to-[#0066ff]" />
+          {/* Background Layer — Deep Blue Gradient — living */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#003087] via-[#004ac6] to-[#0066ff] living-gradient" style={{ backgroundSize: '200% 200%' }} />
 
-          {/* Animated Light Effect */}
-          <div className="absolute inset-0">
-            <div className="absolute -top-24 -right-24 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-cyan-400/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-blue-600/40 to-indigo-500/30 rounded-full blur-3xl" />
+          {/* A2 — METABALLS / GOOEY ORBS — out-of-the-box living gradient */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none metaballs-container" aria-hidden="true">
+            {/* Blob 1 — large primary, top-right */}
+            <div className="metaball metaball-primary animate-metaball-1 w-[520px] h-[520px] -top-28 -right-24 opacity-90" />
+            {/* Blob 2 — accent cyan, bottom-left */}
+            <div className="metaball metaball-accent animate-metaball-2 w-[480px] h-[480px] -bottom-36 -left-28 opacity-80" />
+            {/* Blob 3 — deep, center floating */}
+            <div className="metaball metaball-deep animate-metaball-3 w-[380px] h-[380px] top-1/2 left-[42%] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+            {/* Blob 4 — small highlight, drift */}
+            <div className="metaball metaball-primary animate-metaball-drift w-[260px] h-[260px] top-[18%] right-[28%] opacity-50" style={{ animationDelay: '2s' }} />
+          </div>
+
+          {/* Floating particles — tidak statis */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            <div className="absolute w-1.5 h-1.5 bg-white/40 rounded-full top-[20%] left-[15%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
+            <div className="absolute w-1 h-1 bg-white/30 rounded-full top-[45%] left-[8%] floating-particle" style={{ animationDelay: '1.1s', animationDuration: '7s' }} />
+            <div className="absolute w-2 h-2 bg-white/15 rounded-full top-[18%] right-[20%] floating-particle" style={{ animationDelay: '0.7s', animationDuration: '8s' }} />
+            <div className="absolute w-1 h-1 bg-white/25 rounded-full bottom-[25%] right-[18%] floating-particle" style={{ animationDelay: '1.5s', animationDuration: '6.5s' }} />
           </div>
 
           {/* Grid Pattern */}
@@ -158,7 +172,7 @@ export default function DashboardHome() {
             backgroundSize: '50px 50px'
           }} />
 
-          {/* Glass Pattern Top-Right */}
+          {/* Glass Pattern Top-Right — keep as foreground depth */}
           <div className="absolute top-8 right-8 w-32 h-32 border border-white/10 rounded-3xl rotate-12 backdrop-blur-sm" />
           <div className="absolute top-12 right-12 w-24 h-24 border border-white/10 rounded-2xl rotate-6 backdrop-blur-sm" />
 
@@ -188,20 +202,22 @@ export default function DashboardHome() {
                   Lengkapi semua dokumen Anda dengan mudah, cepat, dan profesional.
                 </p>
 
-                {/* Stats Row — Glass Cards */}
+                {/* Stats Row — Glass Cards — breathing, tidak statis */}
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {[
                     { icon: 'description', label: '26+ Dokumen LPJ' },
                     { icon: 'folder_open', label: '15+ Kelengkapan' },
                     { icon: 'print', label: '13 Template Cetak' },
                     { icon: 'auto_awesome', label: 'Foto AI' },
-                  ].map((stat) => (
+                  ].map((stat, i) => (
                     <div
                       key={stat.label}
-                      className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/10 hover:bg-white/20 transition-all"
+                      className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-white/10 hover:bg-white/20 transition-all living-breathing"
+                      style={{ animationDelay: `${i * 0.4}s`, animationDuration: '3.6s' }}
                     >
                       <span className="material-symbols-outlined text-white text-base sm:text-lg">{stat.icon}</span>
                       <span className="text-xs sm:text-sm font-semibold text-white">{stat.label}</span>
+                      <span className="w-1.5 h-1.5 bg-emerald-300 rounded-full live-dot ml-1" />
                     </div>
                   ))}
                 </div>
@@ -219,16 +235,17 @@ export default function DashboardHome() {
                   </div>
                 </div>
 
-                {/* CTA Button — Ultra Premium */}
+                {/* CTA Button — Ultra Premium — shimmer + breathing */}
                 <Link
                   to="/dashboard/dokumen-lpj"
-                  className="group relative overflow-hidden"
+                  className="group relative overflow-hidden living-breathing"
+                  style={{ animationDuration: '3.2s' }}
                 >
                   {/* Button Glow Effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-white to-blue-100 rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
 
                   {/* Button */}
-                  <div className="relative flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
+                  <div className="relative living-shimmer flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
                       <span className="material-symbols-outlined text-lg sm:text-xl text-primary group-hover:text-white transition-colors">print</span>
                     </div>
@@ -345,11 +362,12 @@ export default function DashboardHome() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {FEATURES.map((feature) => (
+            {FEATURES.map((feature, idx) => (
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300"
+                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300 living-breathing"
+                style={{ animationDelay: `${idx * 0.2}s`, animationDuration: '5s' }}
               >
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
                   <span className="material-symbols-outlined text-2xl text-slate-700 group-hover:text-white transition-colors">

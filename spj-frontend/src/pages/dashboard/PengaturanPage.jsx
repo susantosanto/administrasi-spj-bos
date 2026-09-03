@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import ThemeToggle from '../../components/ui/ThemeToggle'
+import { useTheme } from '../../contexts/ThemeContext'
 
 export default function PengaturanPage() {
   const [tab, setTab] = useState('profil')
   const [siplah, setSiplah] = useState(false)
+  const { isDark, toggle } = useTheme()
   const toast = useToast()
 
   return (
@@ -16,6 +19,7 @@ export default function PengaturanPage() {
         <div className="flex flex-wrap gap-sm border-b border-outline-variant pb-md">
           {[
             { id: 'profil', label: 'Profil Sekolah', icon: 'school' },
+            { id: 'tampilan', label: 'Tampilan', icon: 'contrast' },
             { id: 'master', label: 'Data Master', icon: 'database' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
             { id: 'tentang', label: 'Tentang', icon: 'info' },
@@ -54,6 +58,39 @@ export default function PengaturanPage() {
             <button onClick={() => toast.success('Pengaturan profil disimpan')} className="flex items-center gap-sm bg-primary text-on-primary px-lg py-2 rounded-lg hover:brightness-110 shadow-md transition-all active:scale-95 font-label-md">
               <span className="material-symbols-outlined">save</span> Simpan
             </button>
+          </div>
+        )}
+
+        {tab === 'tampilan' && (
+          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+            <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
+              <span className="material-symbols-outlined text-primary">contrast</span> Tampilan
+            </h3>
+            <div className="flex items-center justify-between p-md bg-surface-container-low rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-slate-800 text-yellow-400' : 'bg-amber-100 text-amber-600'}`}>
+                  <span className="material-symbols-outlined">{isDark ? 'dark_mode' : 'light_mode'}</span>
+                </div>
+                <div>
+                  <p className="font-label-md text-text-high">{isDark ? 'Mode Gelap' : 'Mode Terang'}</p>
+                  <p className="text-text-low text-sm">{isDark ? 'Nyaman di mata saat malam hari' : 'Cerah dan jelas untuk siang hari'}</p>
+                </div>
+              </div>
+              <ThemeToggle />
+            </div>
+            <div className="grid grid-cols-2 gap-md">
+              <button onClick={() => { if (isDark) toggle(); toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
+                <div className="w-full h-20 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-200 mb-3" />
+                <p className="font-semibold text-sm text-text-high">Terang</p>
+                <p className="text-xs text-text-low">Background putih, kontras tinggi</p>
+              </button>
+              <button onClick={() => { if (!isDark) toggle(); toast.success('Mode gelap diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${isDark ? 'border-primary bg-primary/10' : 'border-outline-variant hover:border-primary/30'}`}>
+                <div className="w-full h-20 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg border border-slate-700 mb-3" />
+                <p className="font-semibold text-sm text-text-high">Gelap</p>
+                <p className="text-xs text-text-low">Background gelap, hemat mata</p>
+              </button>
+            </div>
+            <p className="text-xs text-text-low flex items-center gap-1"><span className="material-symbols-outlined text-sm">info</span> Tema tersimpan otomatis dan mengikuti pengaturan sistem jika belum dipilih.</p>
           </div>
         )}
 
