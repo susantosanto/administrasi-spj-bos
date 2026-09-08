@@ -86,7 +86,7 @@
   position: relative;
   min-height: 100vh;
 }
-/* Layer aura tambahan — blur wave di belakang body (dark) — override light */
+/* Layer aura tambahan — blur wave di belakang body (dark) — override light — blur dihapus */
 .dark body::before {
   content: '';
   position: fixed;
@@ -98,7 +98,7 @@
     radial-gradient(ellipse 700px 500px at 85% 30%, rgba(196,0,122,0.45) 0%, transparent 60%),
     radial-gradient(ellipse 900px 700px at 50% 85%, rgba(255,0,107,0.35) 0%, transparent 65%),
     radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%) !important;
-  filter: blur(12px) saturate(1.2) !important;
+  filter: saturate(1.2) !important;
   animation: dark-aura-drift 22s ease-in-out infinite !important;
   opacity: 0.9 !important;
 }
@@ -269,7 +269,8 @@ body::before {
     radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.75) 0%, transparent 65%),
     radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.70) 0%, transparent 60%),
     radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.80) 0%, transparent 60%);
-  filter: blur(8px) saturate(1.35) contrast(1.08);
+  /* blur dihapus sesuai request */
+  filter: saturate(1.35) contrast(1.08);
   animation: light-aura-drift 16s ease-in-out infinite;
   opacity: 1;
 }
@@ -283,7 +284,8 @@ body::after {
   background-size: 280% 100%;
   animation: light-wave-sweep 12s ease-in-out infinite;
   opacity: 0.90;
-  filter: blur(1px);
+  /* blur dihapus */
+  filter: none;
 }
 @keyframes light-body-gradient {
   0% { background-position: 0% 50%; }
@@ -322,6 +324,49 @@ textarea:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(0,74,198,0.12);
+}
+
+/* Hero Wavy/Floral — 4 sisi paskan + motion ke 4 sisi saling bergerak */
+.hero-bg-wavy {
+  will-change: transform;
+  animation: hero-bg-4sides 14s ease-in-out infinite;
+  transform-origin: center;
+}
+.hero-bg-floral {
+  will-change: background-position;
+  animation: hero-floral-pan 30s linear infinite;
+}
+/* Fly-in-Fly — untuk card Laporan Pertanggungjawaban */
+@keyframes fly-in-fly {
+  0% { transform: translateX(120px) translateY(30px) rotate(3deg) scale(0.92); opacity: 0; }
+  35% { transform: translateX(-8px) translateY(-6px) rotate(-1deg) scale(1.02); opacity: 1; }
+  55% { transform: translateX(4px) translateY(2px) rotate(0.6deg) scale(1); opacity: 1; }
+  75% { transform: translateX(0) translateY(-3px) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateX(0) translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
+@keyframes fly-continuous {
+  0%,100% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-8px) translateX(4px) rotate(0.6deg); }
+  50% { transform: translateY(0) translateX(0) rotate(0deg); }
+  75% { transform: translateY(-5px) translateX(-3px) rotate(-0.5deg); }
+}
+.animate-fly-in { animation: fly-in-fly 1.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+.animate-fly-continuous { animation: fly-continuous 6s ease-in-out infinite 1.5s; }
+@keyframes hero-bg-4sides {
+  0% { transform: scale(1) translate(0, 0); }
+  15% { transform: scale(1.03) translate(0.6%, 0.4%); }
+  30% { transform: scale(1.06) translate(-0.4%, 0.6%); }
+  45% { transform: scale(1.04) translate(-0.6%, -0.4%); }
+  60% { transform: scale(1.06) translate(0.5%, -0.6%); }
+  75% { transform: scale(1.03) translate(0.3%, 0.3%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+@keyframes hero-floral-pan {
+  0% { background-position: 0 0; }
+  100% { background-position: 420px 420px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-wavy, .hero-bg-floral, .animate-fly-in, .animate-fly-continuous { animation: none !important; }
 }
 
 /* Premium Animations */

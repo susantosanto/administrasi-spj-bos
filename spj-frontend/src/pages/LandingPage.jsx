@@ -100,7 +100,7 @@ function PremiumTypingCard() {
   }, [charIndex, isDeleting, textIndex, isPaused]);
 
   return (
-    <div className="relative perspective-1000">
+    <div className="relative perspective-1000 animate-fly-in animate-fly-continuous">
       {/* Background stack of documents - visible shadows */}
       <div className="absolute -bottom-5 -right-5 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-3xl rotate-3 shadow-xl" />
       <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
@@ -488,10 +488,22 @@ export default function LandingPage() {
         {/* HERO SECTION                                                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <section className="relative min-h-[750px] flex items-center overflow-hidden px-6 bg-slate-50 dark:bg-transparent">
-          {/* Living background — LIGHT: tidak statis */}
-          <div className="absolute inset-0 living-gradient dark:hidden" style={{ background: "radial-gradient(circle at top right, rgba(0, 74, 198, 0.06), transparent 55%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 60%), linear-gradient(120deg, rgba(248,249,251,1) 0%, rgba(239,246,255,1) 50%, rgba(248,249,251,1) 100%)", backgroundSize: '200% 200%' }} />
-          {/* Living background — DARK: gradasi animasi (biar body gradient terlihat, hero jadi glass) */}
-          <div className="absolute inset-0 hidden dark:block living-gradient" style={{ background: "radial-gradient(ellipse 900px 600px at 20% 15%, rgba(26,0,255,0.28) 0%, transparent 65%), radial-gradient(ellipse 700px 500px at 85% 30%, rgba(202,0,122,0.22) 0%, transparent 65%), linear-gradient(120deg, rgba(15,12,92,0.55) 0%, rgba(109,0,194,0.35) 45%, rgba(230,0,107,0.25) 85%, rgba(26,0,255,0.2) 100%)", backgroundSize: '200% 200%' }} />
+          {/* Floral ornamental seamless pattern — paskan 4 sisi + motion — tanpa blur */}
+          <div className="absolute inset-0 hero-bg-floral" style={{
+            backgroundImage: "url('/floral-pattern.jpg')",
+            backgroundSize: '420px 420px',
+            backgroundRepeat: 'repeat',
+            backgroundPosition: '0 0',
+            opacity: 0.45,
+          }} />
+          {/* Base wash agar pattern tidak terlalu ramai — tanpa blur */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/88 via-white/75 to-white/60 dark:from-[#0f0f3e]/88 dark:via-[#1a1a5c]/75 dark:to-[#0f0f3e]/65 pointer-events-none" />
+          {/* Overlay — biar teks tetap terbaca — tanpa blur */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/15 dark:to-black/15 pointer-events-none" />
+          {/* Living background — LIGHT: tidak statis (di atas wavy, subtle) */}
+          <div className="absolute inset-0 living-gradient dark:hidden opacity-40" style={{ background: "radial-gradient(circle at top right, rgba(255,255,255,0.6), transparent 55%), radial-gradient(circle at bottom left, rgba(255,255,255,0.4), transparent 60%)", backgroundSize: '200% 200%' }} />
+          {/* Living background — DARK: gradasi animasi (di atas wavy) */}
+          <div className="absolute inset-0 hidden dark:block living-gradient opacity-30" style={{ background: "radial-gradient(ellipse 900px 600px at 20% 15%, rgba(26,0,255,0.18) 0%, transparent 65%), radial-gradient(ellipse 700px 500px at 85% 30%, rgba(202,0,122,0.12) 0%, transparent 65%)", backgroundSize: '200% 200%' }} />
           {/* Floating particles — halus, tidak statis */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
             <div className="absolute w-2 h-2 bg-primary/20 dark:bg-white/20 rounded-full top-[18%] left-[12%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
@@ -514,7 +526,7 @@ export default function LandingPage() {
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6 drop-shadow-sm">
                   <span className="text-slate-900 dark:text-white">Sampurasun!</span>
                   <br />
-                  <span className="text-primary dark:text-white">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
+                  <span className="text-blue-900 dark:text-white">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
                 </h1>
 
                 <p className="text-lg text-slate-600 dark:text-white/80 max-w-xl mb-8 leading-relaxed">
