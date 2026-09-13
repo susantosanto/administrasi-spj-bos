@@ -6,8 +6,9 @@
 
 ## Status Saat Ini
 - Sprint Aktif: Sprint 000 — ONBOARDING (titik adopsi workflow)
-- Status: Adopsi selesai & ter-commit — scaffold + backfill + konsolidasi file agent +
-  ekstraksi dokumen standar + konstitusi di commit `8544246`. Berikutnya: baseline keamanan.
+- Status: Baseline keamanan SELESAI (ritel 6) — docs/SECURITY-AUDIT-001.md:
+  FINDINGS (2 TINGGI terjadwal RISKS.MD, 0 KRITIS, verdict tidak memblok — baseline).
+  Onboarding Jalur A tuntas; menunggu commit hasil audit.
 - Terakhir Diperbarui: 2026-09-13
 
 ## Riwayat Sprint
@@ -16,10 +17,10 @@
 | 000 | ONBOARDING — titik adopsi workflow, commit hash 9cdcd10 | 🔄 Berjalan | 2026-09-13 |
 
 ## Langkah Selanjutnya (Jalur A 27.8.2)
-- Commit perubahan adopsi (scaffold + konsolidasi docs + konstitusi) — titik adopsi 9cdcd10
-- /security-dependency-auditor → baseline keamanan pertama (konstitusi ✅ selesai)
+- Commit & push hasil baseline audit (SECURITY-AUDIT-001 + RISKS + STATE)
 - Verifikasi test cetak 13 template (lihat RISKS.MD)
 - Setelah itu: /idea-clarifier → problem brief untuk fitur berikutnya
+- REWORK keamanan bertahap → lihat docs/SECURITY-AUDIT-001.md §8 (sprint berikutnya)
 
 ## Blockers
 - (tidak ada)
