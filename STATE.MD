@@ -6,9 +6,9 @@
 
 ## Status Saat Ini
 - Sprint Aktif: Sprint 000 — ONBOARDING (titik adopsi workflow)
-- Status: Baseline keamanan SELESAI (ritel 6) — docs/SECURITY-AUDIT-001.md:
-  FINDINGS (2 TINGGI terjadwal RISKS.MD, 0 KRITIS, verdict tidak memblok — baseline).
-  Onboarding Jalur A tuntas; menunggu commit hasil audit.
+- Status: Baseline keamanan SELESAI & ter-commit `aedd65c` (docs/SECURITY-AUDIT-001.md:
+  FINDINGS — 2 TINGGI terjadwal RISKS.MD, 0 KRITIS, verdict tidak memblok — baseline).
+  Onboarding Jalur A 27.8.2 TUNTAS. Posisi ritel 27.3: siap Tahap 2 langkah 4 (/idea-clarifier).
 - Terakhir Diperbarui: 2026-09-13
 
 ## Riwayat Sprint
@@ -17,9 +17,9 @@
 | 000 | ONBOARDING — titik adopsi workflow, commit hash 9cdcd10 | 🔄 Berjalan | 2026-09-13 |
 
 ## Langkah Selanjutnya (Jalur A 27.8.2)
-- Commit & push hasil baseline audit (SECURITY-AUDIT-001 + RISKS + STATE)
+- /idea-clarifier (ritel 27.3 Tahap 2 langkah 4) — chat BARU, agent mana pun
+  (baca AGENTS.MD → STATE.MD dulu; panduan pindah agent → Bab 27.7)
 - Verifikasi test cetak 13 template (lihat RISKS.MD)
-- Setelah itu: /idea-clarifier → problem brief untuk fitur berikutnya
 - REWORK keamanan bertahap → lihat docs/SECURITY-AUDIT-001.md §8 (sprint berikutnya)
 
 ## Blockers
