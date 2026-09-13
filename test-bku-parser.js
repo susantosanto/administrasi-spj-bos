@@ -72,19 +72,19 @@ function getCellValueByColLetter(worksheet, row, colLetter) {
 function parseHeader(worksheet) {
   const header = {};
   const headerRows = BKU_STRUCTURE.HEADER.ROWS;
-  
+
   for (const [key, pos] of Object.entries(headerRows)) {
     header[key] = getCellValue(worksheet, pos.row, pos.col);
   }
-  
+
   // Read header row columns
   const headerRow = BKU_STRUCTURE.HEADER.HEADER_ROW;
   const headerCols = BKU_STRUCTURE.HEADER.HEADER_COLUMNS;
-  
+
   for (const [key, colLetter] of Object.entries(headerCols)) {
     header[`HEADER_${key}`] = getCellValueByColLetter(worksheet, headerRow, colLetter);
   }
-  
+
   return header;
 }
 
@@ -93,30 +93,30 @@ function detectSectionHeaders(worksheet) {
   const dataCols = BKU_STRUCTURE.DATA_COLUMNS;
   const sectionHeaders = BKU_STRUCTURE.SECTION_HEADERS;
   const headerRow = BKU_STRUCTURE.HEADER.HEADER_ROW;
-  
+
   // Start scanning from row after header row (row 15, 0-indexed = 14)
   let currentRow = headerRow + 2; // Row 16 (0-indexed = 15)
   const maxRows = 1000; // Safety limit
-  
+
   let currentSection = null;
-  
+
   while (currentRow < maxRows) {
     // Check column A (TANGGAL column) for section headers
     const cellA = getCellValue(worksheet, currentRow, dataCols.TANGGAL);
     const cellK = getCellValue(worksheet, currentRow, dataCols.URAIAN);
-    
+
     if (!cellA && !cellK) {
       currentRow++;
       continue;
     }
-    
+
     const cellA_str = cellA ? String(cellA).toUpperCase().trim() : '';
     const cellK_str = cellK ? String(cellK).toUpperCase().trim() : '';
-    
+
     // Check for monthly section headers in column A or K
     let sectionType = null;
     let month = null;
-    
+
     for (const m of sectionHeaders.MONTHS) {
       if (cellA_str.includes(`PENERIMAAN_${m}`) || cellK_str.includes(`PENERIMAAN_${m}`)) {
         sectionType = 'PENERIMAAN';
@@ -139,7 +139,7 @@ function detectSectionHeaders(worksheet) {
         break;
       }
     }
-    
+
     // Also check for "Saldo Bank Bulan" and "Saldo Tunai Bulan" patterns
     if (!sectionType) {
       if (cellA_str.includes('SALDO BANK BULAN') || cellK_str.includes('SALDO BANK BULAN')) {
@@ -153,14 +153,14 @@ function detectSectionHeaders(worksheet) {
         month = match ? match[1].toUpperCase() : 'DESEMBER';
       }
     }
-    
+
     if (sectionType) {
       // Save previous section if exists
       if (currentSection) {
         currentSection.endRow = currentRow - 1;
         sections.push(currentSection);
       }
-      
+
       // Start new section
       currentSection = {
         type: sectionType,
@@ -169,16 +169,16 @@ function detectSectionHeaders(worksheet) {
         endRow: null,
       };
     }
-    
+
     currentRow++;
   }
-  
+
   // Add last section
   if (currentSection) {
     currentSection.endRow = currentRow - 1;
     sections.push(currentSection);
   }
-  
+
   // If no sections found, create a single section covering all data rows
   if (sections.length === 0) {
     // Find first data row (row with date in column A)
@@ -190,7 +190,7 @@ function detectSectionHeaders(worksheet) {
       }
       firstDataRow++;
     }
-    
+
     // Find last data row
     let lastDataRow = firstDataRow;
     while (lastDataRow < maxRows) {
@@ -201,7 +201,7 @@ function detectSectionHeaders(worksheet) {
       lastDataRow++;
     }
     lastDataRow--; // Last valid row
-    
+
     if (firstDataRow <= lastDataRow) {
       sections.push({
         type: 'TRANSAKSI',
@@ -211,22 +211,22 @@ function detectSectionHeaders(worksheet) {
       });
     }
   }
-  
+
   return sections;
 }
 
 function parseTransactionRows(worksheet, section) {
   const transactions = [];
   const dataCols = BKU_STRUCTURE.DATA_COLUMNS;
-  
+
   for (let row = section.startRow; row <= section.endRow; row++) {
     const tanggal = getCellValue(worksheet, row, dataCols.TANGGAL);
-    
+
     // Skip if no valid date
     if (!tanggal || !String(tanggal).match(/^\d{2}-\d{2}-\d{4}$/)) {
       continue;
     }
-    
+
     const kodeKegiatan = getCellValue(worksheet, row, dataCols.KODE_KEGIATAN);
     const kodeRekening = getCellValue(worksheet, row, dataCols.KODE_REKENING);
     const noBukti = getCellValue(worksheet, row, dataCols.NO_BUKTI);
@@ -234,7 +234,7 @@ function parseTransactionRows(worksheet, section) {
     const penerimaan = getCellValue(worksheet, row, dataCols.PENERIMAAN);
     const pengeluaran = getCellValue(worksheet, row, dataCols.PENGELUARAN);
     const saldo = getCellValue(worksheet, row, dataCols.SALDO);
-    
+
     // Parse numbers
     const parseNumber = (val) => {
       if (val === null || val === undefined || val === '') return 0;
@@ -242,11 +242,11 @@ function parseTransactionRows(worksheet, section) {
       const num = parseFloat(str);
       return isNaN(num) ? 0 : num;
     };
-    
+
     const debet = parseNumber(penerimaan);
     const kredit = parseNumber(pengeluaran);
     const saldoNum = parseNumber(saldo);
-    
+
     transactions.push({
       tanggal: String(tanggal),
       kodeKegiatan: kodeKegiatan ? String(kodeKegiatan).trim() : '',
@@ -260,18 +260,18 @@ function parseTransactionRows(worksheet, section) {
       sectionMonth: section.month,
     });
   }
-  
+
   return transactions;
 }
 
 function parseFooter(worksheet) {
   const footer = {};
   const sigRows = BKU_STRUCTURE.FOOTER.SIGNATURE_ROWS;
-  
+
   for (const [role, pos] of Object.entries(sigRows)) {
     footer[role] = getCellValue(worksheet, pos.row, pos.col);
   }
-  
+
   return footer;
 }
 
@@ -299,10 +299,10 @@ console.log(`\nTotal transactions: ${allTransactions.length}`);
 if (allTransactions.length > 0) {
   console.log('\nFirst 5 transactions:');
   console.log(JSON.stringify(allTransactions.slice(0, 5), null, 2));
-  
+
   console.log('\nLast 5 transactions:');
   console.log(JSON.stringify(allTransactions.slice(-5), null, 2));
-  
+
   // Summary
   const totalDebet = allTransactions.reduce((sum, t) => sum + t.debet, 0);
   const totalKredit = allTransactions.reduce((sum, t) => sum + t.kredit, 0);

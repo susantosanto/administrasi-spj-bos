@@ -20,6 +20,11 @@ import {
   PoinPembahasan,
   UraianKegiatan,
   SignatureFooter,
+  SKHonorer,
+  KopGugus,
+  SuratUndangan,
+  SuratTugas,
+  SPDForm,
 } from './blocks'
 
 // Block type → Component mapping
@@ -33,6 +38,11 @@ const BLOCK_RENDERERS = {
   'signature': SignatureFooter,
   'poin-pembahasan': PoinPembahasan,
   'uraian-kegiatan': UraianKegiatan,
+  'sk-honorer': SKHonorer,
+  'kop-gugus': KopGugus,
+  'surat-undangan': SuratUndangan,
+  'surat-tugas': SuratTugas,
+  'spd-form': SPDForm,
 }
 
 export default function TemplateEngine({

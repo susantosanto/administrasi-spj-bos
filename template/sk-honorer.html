@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surat Perjanjian Kerja - SDN Pasirhalang</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e8e8e8;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    color: #000;
+    line-height: 1.5;
+  }
+
+  /* ===== Tombol cetak (tidak ikut tercetak) ===== */
+  .btn-print {
+    position: fixed; top: 15px; right: 15px; z-index: 99;
+    padding: 10px 18px; font-family: Arial, sans-serif; font-size: 13px;
+    background: #1f6f43; color: #fff; border: none; border-radius: 6px;
+    cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  }
+  .btn-print:hover { background: #14532f; }
+
+  /* ===== Lembar A4 ===== */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 25px auto;
+    padding: 20mm 22mm;
+    background: #fff;
+    box-shadow: 0 3px 15px rgba(0,0,0,.25);
+  }
+
+  /* ===== KOP SURAT ===== */
+  .kop { display: flex; align-items: center; gap: 15px; }
+  .kop-logo { flex: 0 0 80px; text-align: center; }
+  .kop-logo svg { width: 78px; height: 78px; }
+  .kop-text { flex: 1; text-align: center; line-height: 1.25; }
+  .kop-text .l1 { font-size: 13pt; font-weight: bold; letter-spacing: .5px; }
+  .kop-text .l2 { font-size: 15.5pt; font-weight: bold; letter-spacing: .5px; }
+  .kop-text .l3 { font-size: 12pt; font-weight: bold; letter-spacing: 1px; }
+  .kop-text .alamat { font-size: 9.5pt; margin-top: 2px; }
+
+  .kop-garis {
+    margin-top: 6px;
+    border-top: 3.5px solid #000;
+    border-bottom: 1.2px solid #000;
+    height: 3px;
+  }
+
+  /* ===== JUDUL DOKUMEN ===== */
+  .judul { text-align: center; margin-top: 24px; }
+  .judul h1 {
+    font-size: 13.5pt; font-weight: bold; text-decoration: underline;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .judul .nomor { margin-top: 4px; font-size: 12pt; }
+  .judul .antara { margin-top: 18px; line-height: 1.4; }
+  .judul .antara .instansi { font-weight: bold; }
+
+  /* ===== ISI ===== */
+  .isi { margin-top: 22px; text-align: justify; }
+  .isi p { margin-bottom: 8px; }
+
+  .pihak { display: flex; gap: 8px; margin-top: 6px; }
+  .pihak-no { flex: 0 0 22px; }
+  table.identitas { border-collapse: collapse; }
+  table.identitas td { padding: 1px 0; vertical-align: top; }
+  table.identitas td.lbl { width: 175px; }
+  table.identitas td.sep { width: 14px; }
+
+  .status-pihak { margin: 4px 0 14px 30px; text-align: justify; }
+
+  /* ===== PASAL ===== */
+  .pasal { margin-top: 16px; }
+  .pasal-head { text-align: center; font-weight: bold; margin-bottom: 8px; }
+  .pasal-head .no-pasal { display: block; }
+  .pasal-head .nama-pasal { display: block; text-transform: uppercase; }
+
+  ol.angka { list-style: none; counter-reset: item; margin: 0; }
+  ol.angka > li {
+    counter-increment: item;
+    position: relative;
+    padding-left: 2em;
+    margin-bottom: 4px;
+    text-align: justify;
+  }
+  ol.angka > li::before {
+    content: counter(item) ".";
+    position: absolute; left: .3em; top: 0;
+  }
+  ol.angka ol.angka { margin-top: 4px; }
+
+  /* ===== TANDA TANGAN ===== */
+  .ttd { margin-top: 30px; width: 100%; border-collapse: collapse; }
+  .ttd td { vertical-align: top; }
+  .ttd .info { line-height: 1.7; }
+  .ttd .blok-ttd { text-align: center; width: 45%; }
+  .ttd .blok-ttd .jabatan { display: block; }
+  .ttd .blok-ttd .space-ttd { height: 75px; }
+  .ttd .blok-ttd .nama { font-weight: bold; text-decoration: underline; }
+
+  /* ===== CETAK ===== */
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: auto; min-height: auto; }
+    .btn-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<button class="btn-print" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+
+<div class="page">
+
+  <!-- ============ KOP SURAT ============ -->
+  <div class="kop">
+    <div class="kop-logo">
+      <!-- Ganti placeholder di bawah ini dengan logo Kabupaten Bandung Barat -->
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 4 L90 17 V50 C90 75 72 91 50 97 C28 91 10 75 10 50 V17 Z"
+              fill="#fdfdfd" stroke="#333" stroke-width="2.5"/>
+        <text x="50" y="55" text-anchor="middle" font-size="14"
+              font-family="Arial" fill="#555">LOGO</text>
+      </svg>
+    </div>
+    <div class="kop-text">
+      <div class="l1">PEMERINTAH KABUPATEN BANDUNG BARAT</div>
+      <div class="l2">SD NEGERI PASIRHALANG KECAMATAN CIKALONGWETAN</div>
+      <div class="l3">DINAS PENDIDIKAN</div>
+      <div class="alamat">Alamat : Kp. Pasirhalang RT 03/014 Ds. Mandalamukti Kec. Cikalongwetan Kab. Bandung Barat Kode Pos : 40556</div>
+    </div>
+  </div>
+  <div class="kop-garis"></div>
+
+  <!-- ============ JUDUL ============ -->
+  <div class="judul">
+    <h1>Surat Perjanjian Kerja</h1>
+    <div class="nomor">Nomor : 814.1/ SD PSH - VII /2025</div>
+    <div class="antara">
+      ANTARA<br>
+      <span class="instansi">SEKOLAH DASAR NEGERI PASIRHALANG</span><br>
+      DENGAN<br>
+      <span class="instansi">GURU HONORER</span>
+    </div>
+  </div>
+
+  <!-- ============ ISI ============ -->
+  <div class="isi">
+    <p>Pada hari ini <b>Selasa</b> tanggal <b>lima belas</b> bulan <b>Juli</b> tahun <b>dua ribu dua puluh lima</b>, bertempat di SDN Pasirhalang Kabupaten Bandung Barat, yang bertanda tangan di bawah ini :</p>
+
+    <!-- PIHAK KESATU -->
+    <div class="pihak">
+      <div class="pihak-no">1.</div>
+      <table class="identitas">
+        <tr><td class="lbl">Nama</td><td class="sep">:</td><td>Yuniarti, S.Pd</td></tr>
+        <tr><td class="lbl">Tempat, tanggal lahir</td><td class="sep">:</td><td>Bandung, 07 Juli 1966</td></tr>
+        <tr><td class="lbl">NIP</td><td class="sep">:</td><td>196607071986102005</td></tr>
+        <tr><td class="lbl">Jabatan</td><td class="sep">:</td><td>Kepala Sekolah</td></tr>
+      </table>
+    </div>
+    <p class="status-pihak">Berbuat dan bertindak secara hukum untuk dan atas nama SD Negeri Pasirhalang, untuk selanjutnya disebut <b>PIHAK KESATU</b>.</p>
+
+    <!-- PIHAK KEDUA -->
+    <div class="pihak">
+      <div class="pihak-no">2.</div>
+      <table class="identitas">
+        <tr><td class="lbl">Nama</td><td class="sep">:</td><td>Meyta Murthy Lasari, SE</td></tr>
+        <tr><td class="lbl">Tempat, tanggal lahir</td><td class="sep">:</td><td>Bandung, 14 Mei 1991</td></tr>
+        <tr><td class="lbl">Pendidikan Terakhir</td><td class="sep">:</td><td>S1</td></tr>
+        <tr><td class="lbl">Alamat</td><td class="sep">:</td><td>Kp. Sirnaraja RT 01/012 Desa Mandalasari<br>Kecamatan Cikalongwetan Kabupaten Bandung Barat</td></tr>
+      </table>
+    </div>
+    <p class="status-pihak">Berbuat dan bertindak secara hukum untuk dan atas nama pribadi untuk selanjutnya disebut <b>PIHAK KEDUA</b>.</p>
+
+    <p>Para pihak masing-masing telah mempelajari, memahami dan sepakat untuk mengikat diri dalam Surat Perjanjian Kerja dengan ketentuan sebagai berikut :</p>
+
+    <!-- ============ PASAL 1 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 1</span>
+        <span class="nama-pasal">Pertimbangan Perjanjian Kerja</span>
+      </div>
+      <p>PIHAK KESATU mengangkat PIHAK KEDUA dengan mempertimbangkan :</p>
+      <ol class="angka">
+        <li>Kebutuhan Sekolah untuk memenuhi Standar Pelayanan Minimal (SPM) PIHAK KESATU;</li>
+        <li>Kompetensi PIHAK KEDUA;</li>
+        <li>Kemampuan anggaran / keuangan sekolah.</li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 2 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 2</span>
+        <span class="nama-pasal">Hak dan Kewajiban</span>
+      </div>
+      <ol class="angka">
+        <li>PIHAK KEDUA mempunyai hak :
+          <ol class="angka">
+            <li>Mengembangkan diri sesuai dengan pekerjaannya;</li>
+            <li>Memperoleh imbalan jasa (honor) dan/atau keuangan lain sesuai dengan peraturan yang berlaku dan kemampuan keuangan sekolah;</li>
+            <li>Imbalan jasa (honor);</li>
+            <li>Mendapat ijin tidak masuk sekolah dan/atau cuti sesuai dengan Surat Permohonan dan Surat Keterangan pihak lain yang bersangkutan;</li>
+            <li>Berbuat dan bertindak secara hukum untuk dan atas nama sekolah sesuai dengan tugas dan/atau ijin Kepala Sekolah.</li>
+          </ol>
+        </li>
+        <li>PIHAK KEDUA mempunyai kewajiban :
+          <ol class="angka">
+            <li>Melaksanakan tugas mengajar sebagai guru kelas III;</li>
+            <li>Mematuhi Peraturan Sekolah baik tertulis maupun tidak tertulis;</li>
+            <li>Melaksanakan tugas dari Kepala Sekolah;</li>
+            <li>Menjaga nama baik Sekolah dan Dinas Pendidikan Kabupaten Bandung Barat.</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 3 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 3</span>
+        <span class="nama-pasal">Tupoksi Guru</span>
+      </div>
+      <ol class="angka">
+        <li>Menyusun kurikulum pembelajaran pada satuan pendidikan;</li>
+        <li>Menyusun silabus pembelajaran;</li>
+        <li>Menyusun Rencana Pelaksanaan Pembelajaran (RPP);</li>
+        <li>Melaksanakan kegiatan pembelajaran;</li>
+        <li>Menyusun alat ukur / soal sesuai mata pelajaran;</li>
+        <li>Menilai dan mengevaluasi proses dan hasil belajar pada mata pelajaran di kelasnya;</li>
+        <li>Menganalisis hasil penilaian pembelajaran;</li>
+        <li>Melaksanakan pembelajaran / perbaikan dan pengayaan dengan memanfaatkan hasil penilaian dan evaluasi;</li>
+        <li>Melaksanakan bimbingan dan konseling di kelas yang menjadi tanggungjawabnya (khusus guru kelas);</li>
+        <li>Membimbing siswa dalam kegiatan ekstrakurikuler proses pembelajaran;</li>
+        <li>Melaksanakan pengembangan diri;</li>
+        <li>Melaksanakan publikasi ilmiah dan/atau karya inovatif; dan</li>
+        <li>Melakukan presentasi ilmiah.</li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 4 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 4</span>
+        <span class="nama-pasal">Beban Kerja Guru</span>
+      </div>
+      <p>Beban kerja Guru untuk melaksanakan pembelajaran paling sedikit 24 (dua puluh empat) jam tatap muka dan paling banyak 40 (empat puluh) jam tatap muka dalam 1 (satu) minggu.</p>
+    </div>
+
+    <!-- ============ PASAL 5 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 5</span>
+        <span class="nama-pasal">Masa Berlaku Surat Perjanjian Kerja</span>
+      </div>
+      <ol class="angka">
+        <li>Surat Perjanjian Kerja ini berlaku 1 tahun semenjak ditandatangani oleh PIHAK KESATU dan PIHAK KEDUA pada awal tahun anggaran sampai dengan akhir tahun anggaran;</li>
+        <li>Perpanjangan Perjanjian Kerja dapat dilaksanakan oleh Kepala Sekolah sesuai dengan Pasal 1 (satu) huruf (1) (2) (3).</li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 6 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 6</span>
+        <span class="nama-pasal">Perselisihan</span>
+      </div>
+      <ol class="angka">
+        <li>Apabila terjadi perselisihan antara PIHAK KESATU dengan PIHAK KEDUA dapat diselesaikan secara musyawarah mufakat di unit kerja, dan;</li>
+        <li>Apabila sebagaimana dimaksud pada ayat 1 (satu) tidak terlaksana, maka penyelesaian tersebut dapat difasilitasi oleh Dinas Pendidikan Kabupaten Bandung Barat.</li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 7 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 7</span>
+        <span class="nama-pasal">Lain – Lain</span>
+      </div>
+      <ol class="angka">
+        <li>Surat Perjanjian Kerja :
+          <ol class="angka">
+            <li>Surat Perjanjian Kerja dilampiri oleh Surat Keputusan Pembagian Tugas Pendidik dan Tenaga Kependidikan.</li>
+            <li>Hal–hal yang belum diatur dari/atau terdapat kekeliruan dalam Surat Perjanjian Kerja ini dapat dimusyawarahkan kembali oleh kedua belah pihak.</li>
+          </ol>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ============ PASAL 8 ============ -->
+    <div class="pasal">
+      <div class="pasal-head">
+        <span class="no-pasal">Pasal 8</span>
+        <span class="nama-pasal">Penutup</span>
+      </div>
+      <p>Surat Perjanjian Kerja ini dibuat dengan sebenarnya dan bersifat mengikat serta untuk selanjutnya dapat dijadikan kekuatan hukum kembali oleh kedua belah pihak.</p>
+    </div>
+
+    <!-- ============ TANDA TANGAN ============ -->
+    <table class="ttd">
+      <tr>
+        <td class="info">
+          Dibuat di&emsp;&emsp;&emsp;: Bandung Barat<br>
+          Pada tanggal&ensp;: 15 Juli 2025<br>
+          Ditandatangani oleh :
+        </td>
+        <td class="blok-ttd">
+          <span class="jabatan">Kepala SDN Pasirhalang,</span>
+          <div class="space-ttd"></div>
+          <span class="nama">Yuniarti, S.Pd</span><br>
+          NIP. 19660707 198610 2 005
+        </td>
+      </tr>
+    </table>
+
+  </div><!-- /isi -->
+</div><!-- /page -->
+
+</body>
+</html>

@@ -511,6 +511,39 @@
 - [x] Ukuran foto proporsional — 75% area konten A4
 - [x] Title "DOKUMENTASI KEGIATAN" di A4 preview
 
+### 📄 SK Honorer — Konsep Detail Dokumen Premium (2 Wajah) (2026-08)
+- [x] SKHonorer.jsx — format formal sesuai template/sk-honorer.html (kop + garis ganda, judul, pihak 1-2, pasal 1-8, ttd)
+- [x] Fix blank screen SK Honor — helper field `E` diubah dari fungsi biasa ke komponen React (props-based)
+- [x] SkHonorerEditor.jsx — wajah layar premium: data surat, kartu penerima (enrich Data Guru/Tendik), CRUD pasal
+- [x] skPasal.js — DEFAULT_PASAL + cloneDefaultPasal() + persistensi localStorage (spj_pasal) + tombol Reset ke Standar
+- [x] Penomoran pasal — level 0 angka (1., 2.), level 1 huruf (a., b.) sesuai numbering DOCX asli
+- [x] Token {{field}} per penerima ({{kelasGuru}}) diganti saat render cetak
+- [x] Readiness check + highlight field kosong (amber dashed, layar only — tidak ikut cetak)
+- [x] CSS sk-print-area / sk-screen-only — cetak hanya dokumen formal, page-break per dokumen
+- [x] Daftar Penerima tab — layar hanya tabel (tanpa judul/info keuangan/kolom TTD), versi lengkap saat cetak
+- [x] docs/AGENT.md — aturan "Konsep Detail Dokumen Premium (2 Wajah)" + **Premium Design Language** (tokens, anatomy, section header, micro-interactions) untuk semua template masa depan
+
+### 📄 Mamin — Buku Tamu Kedinasan (2026-09-08)
+- [x] Form Buku Tamu Kedinasan di card Makan & Minum — No.Urut, Hari/Tanggal, Ingin bertemu dengan, Tiba/Kembali Pukul, Diterima oleh, Tujuan
+- [x] Identitas Tamu — tabel dinamis (Nama, Jabatan, Alamat Kantor) + Tambah/Hapus tamu
+- [x] Uraian Kegiatan/Temuan/Saran/Pesan (textarea)
+- [x] Data disimpan di formData.bukuTamu — opsional, preview hanya tampil jika diisi
+- [x] templateConfig buku_tamu diperbarui sesuai DOCX: IDENTITAS TAMU section + Diterima oleh/Tiba/Kembali + Tujuan + Uraian
+- [x] Preview: Buku Tamu Kedinasan sebagai dokumen tersendiri (bukan gabung Daftar Hadir)
+
+### 📄 Perjalanan Dinas — 6 Dokumen Bundle (2026-09-08)
+- [x] Research DOCX `Surat Tugas + SPPD_rapat ops_gugus_2026.docx` — mengandung 3 dokumen: Surat Undangan (Gugus), SURAT PERINTAH TUGAS (MENUGASKAN), SURAT PERJALANAN DINAS (SPD numbered 1-10)
+- [x] Form transport diredesain — 6 tab data-edit (Daftar Penerima, Surat Perintah Tugas, Surat Tugas, SPPD, Resume, Undangan) — bukan tampilan cetak
+- [x] Block baru `KopGugus` — kop gugus (Pemerintah Bandung Barat / Gugus Ki Hajar Dewantara / Sekretariat)
+- [x] Block baru `SuratUndangan` — surat undangan gugus (nomor/lampiran/perihal, kepada, isi, hari/tanggal/pukul/tempat, Ketua Gugus, tembusan)
+- [x] Block baru `SuratTugas` — surat perintah tugas per penerima (penandatangan, MENUGASKAN, untuk, hari/tanggal/tempat, Mengetahui/Mengesahkan)
+- [x] Block baru `SPDForm` — SPD numbered 1-10 (pengguna anggaran, pelaksana, maksud, alat, tempat, lamanya, pengikut, SKPD/Akun, dikeluarkan) + surat berangkat/tiba
+- [x] Template configs baru: `undangan_gugus`, `spt`, `surat_tugas`; config `sppd` diubah ke SPD form per penerima
+- [x] Preview transport — 6 tab dokumen: Daftar Penerima, SPT, Surat Tugas, SPPD (per penerima), Resume (notulen), Undangan
+- [x] NomorSuratPopup generate untuk SPT + Undangan di form tab
+- [x] Tab filter per sub-kategori — Koordinasi & Bank: hanya 4 tab (Daftar Penerima, SPT, Surat Tugas, SPPD, tanpa Resume & Undangan); Rapat & Pendamping: semua 6 tab
+- [x] Filter juga di Preview tabs — Resume/Undangan dihapus untuk Koordinasi & Bank
+
 ---
 
 ## 🐛 KNOWN ISSUES
@@ -608,6 +641,10 @@
 74. ✅ Balance fix: TARIK_TUNAI tidak dihitung sebagai pengeluaran riil
 75. ✅ Ceklis hanya untuk tipe PEMBAYARAN (non-PEMBAYARAN tidak bisa hijau)
 76. ✅ Warna merah lebih jelas: bg-red-100/80 + border-red-400
+77. ✅ Detail dokumen = 2 wajah (SK Honorer): tab = editor premium, cetak = dokumen formal
+78. ✅ Fix blank screen SK Honor — helper field diubah ke komponen React props-based
+79. ✅ Daftar Penerima: layar hanya tabel (tanpa judul/info keuangan/kolom TTD), lengkap saat cetak
+80. ✅ Aturan AI "Konsep Detail Dokumen Premium (2 Wajah)" + Premium Design Language tab (tokens/anatomy/micro-interactions) di docs/AGENT.md — wajib untuk template baru
 
 ---
 
@@ -624,4 +661,4 @@
 
 ---
 
-*Last updated: 2026-07-31 | Session: Multi-foto Generate Dokumentasi AI*
+*Last updated: 2026-09-08 | Session: Perjalanan Dinas — 6 Dokumen Bundle (form tab + print template persis DOCX) + tab filter per sub-kategori*

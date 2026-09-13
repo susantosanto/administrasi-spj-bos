@@ -490,3 +490,43 @@ body {
   }
 }
 
+/* ============================================
+   SK Honorer — Review Premium
+   ============================================ */
+
+/* Field kosong pada preview layar (tidak ikut cetak) */
+.sk-missing-field {
+  background: rgba(245, 158, 11, 0.14);
+  border-bottom: 1.5px dashed #f59e0b;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* Area cetak SK Honorer: tersembunyi di layar, muncul saat print */
+.sk-print-area {
+  display: none;
+}
+
+/* Konten layar (mis. preview tabel saja) yang disembunyikan saat print */
+.sk-screen-only {
+  display: block;
+}
+
+@media print {
+  .sk-print-area {
+    display: block !important;
+  }
+
+  .sk-print-area .sk-doc-print {
+    page-break-after: always;
+  }
+
+  .sk-print-area .sk-doc-print:last-child {
+    page-break-after: auto;
+  }
+
+  .sk-screen-only {
+    display: none !important;
+  }
+}
+

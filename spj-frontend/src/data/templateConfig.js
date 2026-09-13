@@ -11,7 +11,6 @@
  * - blocks: urutan block yang di-render
  * - defaults: nilai default
  */
-
 export const TEMPLATE_CONFIGS = {
   // ─── NOTULEN (DOCX) ───
   notulen: {
@@ -173,35 +172,37 @@ export const TEMPLATE_CONFIGS = {
     },
   },
 
-  // ─── BUKU TAMU (DOCX) ───
+  // ─── BUKU TAMU KEDINASAN (DOCX) ───
+  // Source: template/BUKU TAMU KEDINASAN.docx
+  // Layout: judul + No.Urut/Hari-Tanggal/Ingin bertemu + IDENTITAS TAMU (tabel 5 kolom)
+  //         + Diterima oleh/Tiba/Kembali Pukul + TUJUAN + URAIAN KEGIATAN + ttd Kepala Sekolah
   buku_tamu: {
     id: 'buku_tamu',
     label: 'Buku Tamu Kedinasan',
     card: 'mamin',
     sub_kategori: 'buku_tamu',
     sourceFile: '/templates/BUKU TAMU KEDINASAN.docx',
+    orientation: 'portrait',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
-        judul: 'BUKU TAMU KEDINASAN',
+        judul: 'BUKU TAMU',
         nomor: false,
         showBulan: false,
       },
       {
         type: 'table-fields',
         fields: [
-          { key: 'noUrut', label: 'No. Urut', type: 'number' },
-          { key: 'tanggal', label: 'Hari/Tanggal', type: 'date' },
-          {
-            key: 'bertemu',
-            label: 'Ingin bertemu dengan',
-            type: 'select',
-            options: ['Kepala Sekolah', 'Guru', 'Tendik'],
-          },
-          { key: 'tiba', label: 'Tiba Pukul', type: 'time' },
-          { key: 'kembali', label: 'Kembali Pukul', type: 'time' },
+          { key: 'noUrut', label: 'No. Urut', type: 'text' },
+          { key: 'tanggal', label: 'Hari/Tanggal', type: 'text' },
+          { key: 'bertemu', label: 'Ingin bertemu dengan', type: 'text' },
         ],
+      },
+      {
+        type: 'header',
+        judul: 'IDENTITAS TAMU',
+        nomor: false,
+        showBulan: false,
       },
       {
         type: 'table-dinamis',
@@ -213,10 +214,26 @@ export const TEMPLATE_CONFIGS = {
           { key: 'ttd', label: 'TANDA TANGAN', width: 20 },
         ],
       },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'diterima', label: 'Diterima oleh', type: 'text' },
+          { key: 'tiba', label: 'Tiba Pukul', type: 'text' },
+          { key: 'kembali', label: 'Kembali Pukul', type: 'text' },
+        ],
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'tujuan', label: 'Tujuan', type: 'text' },
+        ],
+      },
       { type: 'uraian-kegiatan' },
       { type: 'signature', roles: ['kepala-sekolah'] },
     ],
-    defaults: {},
+    defaults: {
+      diterima: 'Kepala Sekolah',
+    },
   },
 
   // ─── DAFTAR HADIR (DOCX) ───
@@ -256,53 +273,109 @@ export const TEMPLATE_CONFIGS = {
     defaults: {},
   },
 
-  // ─── SPPD / SURAT TUGAS (DOCX) ───
-  // Format standar: 1 Surat Tugas berisi list nama penerima tugas
+  // ─── SPPD / SURAT PERJALANAN DINAS (DOCX) ───
+  // Format standar: form numbered 1-10, per penerima (perRecipient)
   sppd: {
     id: 'sppd',
-    label: 'Surat Perintah Tugas',
+    label: 'Surat Perjalanan Dinas (SPPD)',
     card: 'perjalanan_dinas',
     sub_kategori: null, // Tidak ada tab sendiri, auto-include di transport
     sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
     orientation: 'portrait',
     useAutoFillFromTransport: true, // Flag: auto-fill dari transport
+    perRecipient: true, // Flag: generate 1 document per recipient
     blocks: [
       { type: 'kop-surat' },
-      {
-        type: 'header',
-        judul: 'SURAT PERINTAH TUGAS',
-        nomor: true,
-        showBulan: false,
-        showNomorPopup: true, // Enable popup generate nomor
-      },
-      {
-        type: 'table-fields',
-        fields: [
-          { key: 'tujuan', label: 'Untuk keperluan', type: 'textarea' },
-          { key: 'tanggal', label: 'Tanggal', type: 'date' },
-          { key: 'tempat', label: 'Tempat', type: 'text' },
-          { key: 'lama', label: 'Lama perjalanan', type: 'text' },
-        ],
-      },
-      // List penerima tugas (auto dari transport)
-      {
-        type: 'table-dinamis',
-        label: 'Yang diberi tugas:',
-        showIndex: true,
-        columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA', width: 25 },
-          { key: 'nip', label: 'NIP', width: 20 },
-          { key: 'jabatan', label: 'JABATAN', width: 25 },
-          { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
-        ],
-      },
-      { type: 'signature', roles: ['kepala-sekolah'] },
+      { type: 'spd-form' },
     ],
     defaults: {
       nomorSurat: '',
       tempat: 'Cikalongwetan',
       tujuan: '',
+      pengguna: 'Kepala SD NEGERI LEBAKLEUNGSIR',
+      penggunaInstansi: 'Kec. Cikalongwetan Kab. Bandung Barat',
+      alat: 'Kendaraan darat',
+      skpd: 'BOS Reguler',
+      akun: '5.1.02.04.01.0003',
+      dikeluarkanDi: 'Cikalongwetan',
+    },
+  },
+
+  // ─── SURAT PERINTAH TUGAS (DOCX) ───
+  // Surat tugas lengkap, per penerima (perRecipient)
+  spt: {
+    id: 'spt',
+    label: 'Surat Perintah Tugas',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    perRecipient: true,
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'surat-tugas',
+        judul: 'SURAT PERINTAH TUGAS',
+        nomor: true,
+      },
+    ],
+    defaults: {
+      nomorSpt: '',
+      namaPenandatangan: 'BADRUDDIN, S.Ag.',
+      nipPenandatangan: '197405082014121002',
+      jabatanPenandatangan: 'Kepala Sekolah',
+      namaMengetahui: 'WAHYUDIN, S.Pd.SD.',
+      nipMengetahui: '197912222014121003',
+    },
+  },
+
+  // ─── SURAT TUGAS (DOCX) ───
+  // Sama dengan SPT, judul 'SURAT TUGAS' — 1 surat per penerima
+  surat_tugas: {
+    id: 'surat_tugas',
+    label: 'Surat Tugas',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    perRecipient: true,
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'surat-tugas',
+        judul: 'SURAT TUGAS',
+        nomor: true,
+      },
+    ],
+    defaults: {
+      nomorSpt: '',
+      namaPenandatangan: 'BADRUDDIN, S.Ag.',
+      nipPenandatangan: '197405082014121002',
+      jabatanPenandatangan: 'Kepala Sekolah',
+      namaMengetahui: 'WAHYUDIN, S.Pd.SD.',
+      nipMengetahui: '197912222014121003',
+    },
+  },
+
+  // ─── SURAT UNDANGAN GUGUS (DOCX) ───
+  // Undangan dari Ketua Gugus (kop gugus, tembusan)
+  undangan_gugus: {
+    id: 'undangan_gugus',
+    label: 'Surat Undangan (Gugus)',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-gugus' },
+      { type: 'surat-undangan' },
+    ],
+    defaults: {
+      lampiranUndangan: '-',
+      perihalUndangan: 'Undangan Rapat Operator',
+      tempatUndangan: 'Tempat',
+      namaKetuaGugus: 'WAHYUDIN, S.Pd.SD.',
+      nipKetuaGugus: '197912222014121003',
     },
   },
 
@@ -820,6 +893,28 @@ export const TEMPLATE_CONFIGS = {
       kegiatan: 'Pulsa Internet',
       kodeRekening: '5.1.02.02.01.0063',
       kodePenggunaan: '12',
+    },
+  },
+
+  // ─── SK HONORER (Surat Perjanjian Kerja) ───
+  // Per-orang: PIHAK KESATU (Kepala Sekolah) + PIHAK KEDUA (Guru Honorer)
+  // Source: template/SK Honorer Contoh.docx
+  sk_honorer: {
+    id: 'sk_honorer',
+    label: 'SK Honorer (Perjanjian Kerja)',
+    card: 'honor',
+    sub_kategori: null,
+    sourceFile: '/templates/SK Honorer Contoh.docx',
+    orientation: 'portrait',
+    perRecipient: true, // Flag: generate 1 document per recipient
+    blocks: [
+      { type: 'sk-honorer' },
+    ],
+    defaults: {
+      namaPihakKesatu: 'BADRUDDIN, S.Ag.',
+      nipPihakKesatu: '197405082014121002',
+      jabatanPihakKesatu: 'Kepala Sekolah',
+      tempatTtd: 'Bandung Barat',
     },
   },
 
