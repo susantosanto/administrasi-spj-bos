@@ -6,8 +6,8 @@
 
 ## Status Saat Ini
 - Sprint Aktif: Sprint 000 — ONBOARDING (titik adopsi workflow)
-- Status: Adopsi selesai — scaffold + backfill + konsolidasi file agent + ekstraksi
-  dokumen standar done. Perubahan BELUM di-commit. Berikutnya: baseline keamanan.
+- Status: Adopsi selesai & ter-commit — scaffold + backfill + konsolidasi file agent +
+  ekstraksi dokumen standar + konstitusi di commit `8544246`. Berikutnya: baseline keamanan.
 - Terakhir Diperbarui: 2026-09-13
 
 ## Riwayat Sprint
@@ -34,7 +34,8 @@
 - Status legacy per docs/AGENT.md (2026-07-30): ~95% fitur selesai — klaim tidak
   diverifikasi ulang; detail progres → `docs/PROGRESS.md` (single source of truth status)
 - Titik adopsi: commit `9cdcd10` (2026-08-21, "fix ai response") — commit terakhir
-  SEBELUM adopsi. Semua file scaffold/konsolidasi 2026-09-13 masih uncommitted.
+  SEBELUM adopsi. Hasil adopsi ter-commit di `8544246` (scaffold + konstitusi) dan
+  `6ed57d6` (pekerjaan fitur legacy yang tertunda), keduanya sudah di-push ke main.
 - Kode existing TIDAK dipindah/diubah saat adopsi (aturan emas adopsi 27.8)
 - Workflow berlaku MAJU: semua kerja baru ikuti pipeline penuh; TIDAK ADA sprint fitur
   sebelum baseline keamanan selesai (27.8.2)
