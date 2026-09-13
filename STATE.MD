@@ -6,15 +6,17 @@
 
 ## Status Saat Ini
 - Sprint Aktif: Sprint 000 — ONBOARDING (titik adopsi workflow)
-- Status: Baseline keamanan SELESAI & ter-commit `aedd65c` (docs/SECURITY-AUDIT-001.md:
-  FINDINGS — 2 TINGGI terjadwal RISKS.MD, 0 KRITIS, verdict tidak memblok — baseline).
-  Onboarding Jalur A 27.8.2 TUNTAS. Posisi ritel 27.3: siap Tahap 2 langkah 4 (/idea-clarifier).
+- Status: Onboarding Jalur A 27.8.2 TUNTAS & ter-commit. Baseline keamanan
+  `aedd65c` (FINDINGS: 2 TINGGI terjadwal RISKS.MD, 0 KRITIS). Checklist A
+  27.7.1 hijau — posisi aman untuk pindah agent. 2 pertanyaan OPEN di
+  QUESTIONS.MD (parser xlsx, lokasi idea-clarifier). Posisi ritel 27.3:
+  Tahap 2 langkah 4 (/idea-clarifier, chat baru).
 - Terakhir Diperbarui: 2026-09-13
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
-| 000 | ONBOARDING — titik adopsi workflow, commit hash 9cdcd10 | 🔄 Berjalan | 2026-09-13 |
+| 000 | ONBOARDING — titik adopsi workflow, commit hash 9cdcd10 | ✅ Selesai | 2026-09-13 |
 
 ## Langkah Selanjutnya (Jalur A 27.8.2)
 - /idea-clarifier (ritel 27.3 Tahap 2 langkah 4) — chat BARU, agent mana pun

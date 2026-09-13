@@ -83,3 +83,25 @@
   Dampak: temuan keamanan (API key AI client-exposed) tercatat sebagai risiko
     Tinggi di RISKS.MD dengan mitigasi; gate build menggantikan test suite sampai
     framework test diadopsi
+
+[2026-09-13] Keputusan: Baseline keamanan pertama dijalankan & tercatat
+  (docs/SECURITY-AUDIT-001.md, commit aedd65c) — verdict FINDINGS: 2 TINGGI
+  (xlsx, API key client) terjadwal via RISKS.MD, 0 KRITIS, tidak memblok
+  Status: accepted
+  Alasan: ritel 6 Jalur A 27.8.2 — baseline = garis awal pengukuran; aturan
+    baseline: "temuan belum wajib diperbaiki semua — jadwalkan bertahap"
+  Dibuat oleh: security-dependency-auditor (tool: npm audit nyata + secret scan
+    manual — gitleaks belum terpasang)
+  Dampak: 9 temuan terjadwal; 2 item TINGGI WAJIB selesai sebelum deploy publik
+    pertama (dicek ulang /deploy-production-gate); REWORK list §8 untuk sprint
+    berikutnya
+
+[2026-09-13] Keputusan: Sprint-000 ONBOARDING ditutup — status Selesai
+  (commit 2ad42e9); onboarding Jalur A 27.8.2 tuntas, posisi ritel 27.3 =
+  Tahap 2 langkah 4 (/idea-clarifier)
+  Status: accepted
+  Alasan: ritel 1–6 selesai & ter-commit (scaffold, backfill, konstitusi,
+    AGENTS.MD, baseline audit); Checklist A 27.7.1 hijau
+  Dibuat oleh: state-keeper
+  Dampak: sprint fitur pertama kini BOLEH dimulai (aturan 27.8.2 "tidak ada
+    sprint fitur sebelum langkah 1–6 selesai" terpenuhi)
