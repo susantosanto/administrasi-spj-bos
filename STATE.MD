@@ -7,7 +7,8 @@
 ## Status Saat Ini
 - Sprint Aktif: **Sprint 001 — Fondasi Data Sekolah & Pejabat** — 🟡 **SEDANG DIKERJAKAN**
   (**FASE 1–6 SELESAI (STATIK)** — FASE 1–4 di-commit `8398fe1` 2026-09-18; FASE 5–6
-  selesai + lulus gate Builder 2026-09-18, *belum di-commit*; **belum di-push**;
+  selesai + lulus gate Builder 2026-09-18, di-commit `73174c0` (`feat:`) + `2e23441`
+  (`docs:`); **belum di-push**;
   verifikasi UI runtime menunggu /acceptance-runner ulang utuh)
   Pack: DIBUAT + di-realign Bab 8.4 + dipecah jadi 2 sprint + **direvisi 2026-09-17
   v2/v3/v4 (verifikasi)** + **v5 (dry run Fase 1+4)**.
@@ -120,7 +121,7 @@
   (d) **T-14 (statik)** — SKHonorer baris 94/96/100/117/142/144/150/227 prop-driven
   dari `getSchoolData()`; T-02 menjamin 0 literal `Pasirhalang`/`Mandalamukti`.
 - **FASE 6 SPRINT 001 SELESAI — SPRINT TUTUP (STATIK) 2026-09-18** (task 6.1–6.3;
-  **belum di-commit** — menyusul commit `feat:` FASE 5+6 atas persetujuan user).
+  tanpa file kode — dokumentasi termasuk dalam commit `2e23441`).
   **6.1 Regresi 6 konsumen × 2 kondisi (T-11) — 12/12 kombinasi statik LULUS:**
   KopSurat (identitas+logo baca saat render, kosong → baris kosong, tanpa crash) ·
   SignatureFooter (2 cabang, `data.ttd_*_nama || roleConfig.nama` → '' jujur-kosong) ·
@@ -140,7 +141,7 @@
   `DRYRUN-T1.md` (status V1/V3–V7) diperbarui — sprint ditutup **statik**;
   UI runtime (T-03…T-15, V2–V12, E-1/E-2) menunggu /acceptance-runner ulang utuh.
 - **FASE 5 SPRINT 001 SELESAI & LULUS GATE BUILDER 2026-09-18** (task 5.1–5.4;
-  **belum di-commit** — menyusul sebagai commit `feat:` terpisah atas persetujuan user).
+  di-commit `73174c0` — `feat:` terpisah; dokumentasi di `2e23441`).
   Isi: **5.1** `blocks/PeringatanData.jsx` BARU (67 baris ≤ batas 300; banner merah
   `border-red-300 bg-red-50` + `role="alert"`; **2 varian**: identitas sekolah kosong →
   teks "upload data sekolah terlebih dahulu" + tautan "Buka tab Data Sekolah"
@@ -272,13 +273,14 @@
 - Ledger sebelumnya: `cdc5abe` (2026-09-14) — **realign pack ke Bab 8.4**: pack = 4 dokumen,
   salinan audit Bab 8.5, `DRYRUN-T1.md` keluar pack, `PACK.md` + `BLUEPRINT.MD` lama
   dihapus, `STATE.MD` + `RISKS.MD` (insiden worktree #2). **Belum di-push.**
-- Ledger (belum di-commit, 2026-09-18) — **Sprint 001 FASE 5+6**: 1 file baru
-  (`blocks/PeringatanData.jsx`, 67 baris) + 3 file diubah (`blocks/index.js` re-export,
-  `TemplateEngine.jsx` pasang edit-mode 5.2, `DokumenFormPreview.jsx` pasang tab
-  Perjalanan Dinas 5.3) + `STATE.MD`/`ACCEPTANCE.MD`/`DRYRUN-T1.md` diperbarui.
+- Ledger: `73174c0` + `2e23441` (2026-09-18) — **Sprint 001 FASE 5+6**: `73174c0`
+  (`feat:`) = 1 file baru (`blocks/PeringatanData.jsx`, 67 baris) + 3 file diubah
+  (`blocks/index.js` re-export, `TemplateEngine.jsx` pasang edit-mode 5.2,
+  `DokumenFormPreview.jsx` pasang tab Perjalanan Dinas 5.3); `2e23441` (`docs:`) =
+  `STATE.MD`/`ACCEPTANCE.MD`/`DRYRUN-T1.md` diperbarui.
   FASE 6 = tanpa file kode: regresi statik 12/12 + gate akhir (build 179 modules
   exit 0, T-02 final 0 hit verbatim, smoke statik DataSekolahPage) + tutup loop.
-  **Belum di-commit & belum di-push.**
+  **Belum di-push.**
 - Ledger: `8398fe1` (2026-09-18) — **Sprint 001 FASE 1–4**: 1 file baru
   (`pejabatRoles.js`) + 19 file kode diubah (FASE 1–4) + 14 file pack/dokumen
   (pack sprint-001 6 berkas, pack sprint-002 4 berkas, salinan audit 2 berkas,
@@ -291,28 +293,27 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-18 (FASE 6 selesai — Sprint 001 tutup statik; dicatat Builder)
+- Terakhir Diperbarui: 2026-09-18 (FASE 6 selesai + FASE 5–6 di-commit `73174c0`/`2e23441` — Sprint 001 tutup statik; dicatat Builder)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
-| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 6/6 selesai (statik) 2026-09-18; FASE 1–4 di-commit `8398fe1`; FASE 5–6 lulus gate, belum di-commit** — menunggu commit + push + acceptance-runner) | 🟡 Berjalan | 2026-09-17 |
+| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 6/6 selesai (statik) 2026-09-18; di-commit `8398fe1` + `73174c0` + `2e23441`** — menunggu push + acceptance-runner) | 🟡 Berjalan | 2026-09-17 |
 | 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (pack dibuat 2026-09-14, handoff disesuaikan 2026-09-17 — **menunggu Sprint 001**) | ⬜ Belum dimulai | — |
 
 ## Langkah Selanjutnya
-- **Sprint 001 FASE 1–6 SELESAI (STATIK) — FASE 1–4 di-commit `8398fe1`; FASE 5–6
-  selesai & lulus gate, menunggu: commit + push + acceptance-runner ulang utuh.**
+- **Sprint 001 FASE 1–6 SELESAI (STATIK) — seluruh fase di-commit: FASE 1–4 `8398fe1`,
+  FASE 5 `73174c0` (`feat:`), FASE 5–6 docs `2e23441`; menunggu: push +
+  acceptance-runner ulang utuh.**
   ⏸️ **Berhenti di sini.** Yang menunggu user:
-  1. **Izin commit FASE 5+6** (1 file baru `PeringatanData.jsx` + 3 file kode diubah:
-     `blocks/index.js`, `TemplateEngine.jsx`, `DokumenFormPreview.jsx`) — gaya
-     `feat:` terpisah dari `8398fe1`; dokumentasi menyusul `docs:`.
-  2. **Push ke origin** — commit `8398fe1` + `2dde982` + riwayat (9759c20, 21b7713)
-     masih **belum di-push** (pelajaran insiden #3: push = jaring pengaman sesungguhnya).
-  3. **/acceptance-runner ulang utuh di konteks segar** (aturan AGENTS.MD) — sesi
+  1. **Push ke origin** — commit `8398fe1` + `2dde982` + `73174c0` + `2e23441` +
+     riwayat (9759c20, 21b7713) masih **belum di-push** (pelajaran insiden #3:
+     push = jaring pengaman sesungguhnya).
+  2. **/acceptance-runner ulang utuh di konteks segar** (aturan AGENTS.MD) — sesi
      2026-09-18 terputus di tengah (baru T-01/T-13); wajib membuktikan UI runtime
      T-03…T-15 + V2–V12 + E-1/E-2 sebelum sprint dinyatakan lulus penuh.
-  4. Setelah itu → **Sprint 002** (Rework Modul Perjalanan Dinas) — prasyarat
+  3. Setelah itu → **Sprint 002** (Rework Modul Perjalanan Dinas) — prasyarat
      `blocks/PeringatanData.jsx` & kontrak data Sprint 001 sudah tersedia.
   Blok "Sprint 001 FASE 1–3 SELESAI — menunggu keputusan user: commit + izin FASE 4"
   di bawah **superseded** oleh blok ini (FASE 4 sudah dikerjakan 2026-09-18 atas
