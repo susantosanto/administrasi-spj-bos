@@ -25,6 +25,7 @@ import {
   SuratUndangan,
   SuratTugas,
   SPDForm,
+  PeringatanData,
 } from './blocks'
 
 // Block type → Component mapping
@@ -76,6 +77,10 @@ export default function TemplateEngine({
         mode === 'print' ? 'print-container' : 'preview-container'
       } ${templateConfig.orientation || 'portrait'}`}
     >
+      {/* Sprint 001 FASE 5 (task 5.2): peringatan data kosong — tampil di SEMUA
+          form template (mode edit). Varian pesan + tautan aksi ada di komponen. */}
+      {mode === 'edit' && <PeringatanData />}
+
       {/* Source file indicator (mode edit only) - DISABLED */}
       {/* mode === 'edit' && templateConfig.sourceFile && (
         <div className="text-[10px] text-text-low mb-2 flex items-center gap-1">

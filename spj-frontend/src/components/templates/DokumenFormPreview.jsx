@@ -30,6 +30,7 @@ import { useToast } from '../ui/Toast'
 import storageHelper from '../../utils/storageHelper'
 import { getSchoolData } from '../../utils/sekolahData'
 import { getSignatureRoles } from '../../utils/signatureRoles'
+import PeringatanData from './blocks/PeringatanData'
 
 // ─── Auto-calc helper (mirip TabelDinamis) ────────────────────────────────
 function computeAutoValue(row, auto) {
@@ -1749,6 +1750,11 @@ export default function DokumenFormPreview({
             )}
           </div>
         </div>
+
+        {/* Sprint 001 FASE 5 (task 5.3): peringatan data kosong di area Perjalanan
+            Dinas — tab spt/sppd/undangan merender mode="print" di layar sehingga
+            tidak tertutup pemasangan edit-mode (task 5.2) di TemplateEngine. */}
+        {isTransport && <PeringatanData />}
 
         {/* Tabs (recipient-based docs: Honor / Transport) */}
         {showTabs && (
