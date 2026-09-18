@@ -106,3 +106,13 @@
     9. Pemulihan worktree: `mkdir -p <dir>` → `git checkout -- <dir>/.gitkeep`
        (restore dari index, bukan HEAD, agar perubahan ter-stage tidak ikut kembali)
        → regenerasi manual file untracked yang hilang.
+
+⚠️ [Rendah] RISIKO: key `nama_sekolah` snake_case di `DokumentasiAIGenerate.jsx:432`
+  tidak pernah cocok dengan `getSchoolData()` camelCase → fallback generik
+  `'SD NEGERI ...'` (bukan nama riil) SELALU terpakai di caption dokumentasi.
+  FAKTA (regresi statik FASE 6 Sprint 001, T-11, 2026-09-18): tidak crash, data
+  user tidak salah tampilkan — hanya caption fallback generik.
+  Dampak: Rendah — kosmetik; nama sekolah di caption dokumentasi tidak data-driven.
+  Mitigasi: catat sebagai observasi Sprint 002 (Rework Perjalanan Dinas) — perbaiki
+  key saat menyentuh `DokumentasiAIGenerate.jsx`; JANGAN refactor di luar scope
+  sprint (aturan AGENTS.MD).

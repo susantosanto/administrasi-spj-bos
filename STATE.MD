@@ -340,6 +340,14 @@
 - (tidak ada)
 
 ## Catatan Penting
+- **Sprint 001 ditutup STATIK 2026-09-18** (dicatat /state-keeper): FASE 1–6 selesai,
+  semua lulus gate Builder (build exit 0, T-02 15 pola 0 hit verbatim, regresi
+  6 konsumen × 2 kondisi = 12/12). Commit: `8398fe1` (FASE 1–4) · `73174c0`
+  (`feat:` FASE 5) · `2e23441` + `58ecc25` (`docs:`). **UI runtime (T-03…T-15,
+  V2–V12, E-1/E-2) belum terbukti — wajib /acceptance-runner ulang utuh di konteks
+  segar sebelum sprint dinyatakan lulus penuh** (sesi runner 2026-09-18 terputus
+  di T-01/T-13). `docs/ARCHITECTURE.MD` STALE: `blocks/PeringatanData.jsx` baru
+  belum terdokumentasi (refresh saat planning sprint berikutnya).
 - File agent lama `docs/AGENT.md` (2026-07-30) dipindah 2026-09-13: router → `AGENTS.MD`
   (root), domain → `DOMAIN.MD`, keputusan → `DECISIONS.MD`. Kini HANYA ADA SATU
   file agent: `AGENTS.MD`.
