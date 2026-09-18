@@ -6,8 +6,8 @@
 
 ## Status Saat Ini
 - Sprint Aktif: **Sprint 001 — Fondasi Data Sekolah & Pejabat** — 🟡 **SEDANG DIKERJAKAN**
-  (**FASE 1–4 SELESAI** 2026-09-17…18; FASE 4 lulus gate Builder 2026-09-18; FASE 5–6
-  belum; **belum di-commit**)
+  (**FASE 1–4 SELESAI & DI-COMMIT `8398fe1`** 2026-09-18; FASE 4 lulus gate Builder
+  2026-09-18; FASE 5–6 belum; **belum di-push**)
   Pack: DIBUAT + di-realign Bab 8.4 + dipecah jadi 2 sprint + **direvisi 2026-09-17
   v2/v3/v4 (verifikasi)** + **v5 (dry run Fase 1+4)**.
   ⏸️ **BERHENTI sebelum FASE 4** sesuai AGENTS.MD (dry run → lapor → tunggu persetujuan).
@@ -89,7 +89,8 @@
   (`SuratTugas:23-44`) **memang beda** → **D-2 benar**, Kelas B wajib label generik.
   ⏸️ **Menunggu keputusan user** atas 3 pertanyaan di `DRYRUN-T1.md` §8.
 - **FASE 4 SPRINT 001 SELESAI & LULUS GATE BUILDER 2026-09-18** (task 4.1–4.20;
-  **belum di-commit**; verifikasi UI runtime penuh menunggu /acceptance-runner konteks segar).
+  **di-commit `8398fe1`** 2026-09-18, belum di-push; verifikasi UI runtime penuh
+  menunggu /acceptance-runner konteks segar).
   Isi: **4.1** auto-fill `getSignatureRoles()` di `DokumenFormPreview.jsx` (SPT/SPPD:
   `namaPenandatangan`/`nipPenandatangan` dari `kepala-sekolah`, `namaMengetahui`/`nipMengetahui`
   dari `ketua-gugus`; notulen: `ttd_pimpinan_*`/`ttd_notulen_*` per D-8; undangan:
@@ -118,7 +119,7 @@
   (d) **T-14 (statik)** — SKHonorer baris 94/96/100/117/142/144/150/227 prop-driven
   dari `getSchoolData()`; T-02 menjamin 0 literal `Pasirhalang`/`Mandalamukti`.
 - **FASE 2 + FASE 3 SPRINT 001 SELESAI & LULUS GATE 2026-09-18** (task 2.1–2.8 + 3.1–3.6;
-  user setujui lanjut 2026-09-18; **belum di-commit**).
+  user setujui lanjut 2026-09-18; **di-commit `8398fe1`** 2026-09-18).
   File: **2 halaman + 3 blok/preview diubah** —
   `pages/dashboard/DataSekolahPage.jsx` (import `PEJABAT_ROLES`/`mergePejabat` bersama,
   hapus definisi lokal 4 peran; load/upload/update `mergePejabat()`; kartu pejabat
@@ -152,7 +153,7 @@
   ⚠️ **Catatan desain:** `KopSurat` sengaja tetap baca storage sendiri (pola blok lain
   + baca saat render anti nilai basi G6); yang prop-driven hanya `KopGugus` (ADR F-4).
   CSS hash berubah (`index-DdzAS_Re.css`) — wajar (warna kartu berubah).
-- **FASE 1 SPRINT 001 SELESAI & LULUS GATE 2026-09-17** (task 1.1–1.12; **belum di-commit**).
+- **FASE 1 SPRINT 001 SELESAI & LULUS GATE 2026-09-17** (task 1.1–1.12; **di-commit `8398fe1`** 2026-09-18).
   File: **1 baru + 5 diubah** — `utils/pejabatRoles.js` (baru, 47 baris) ·
   `utils/sekolahData.js` (84 → 116 baris, tanpa fallback, +resolver `allFields`,
   +`getPejabat`/`getPejabatStatus`/`isSchoolDataEmpty`/`findFieldByLabel`) ·
@@ -227,30 +228,37 @@
 - Ledger sebelumnya: `cdc5abe` (2026-09-14) — **realign pack ke Bab 8.4**: pack = 4 dokumen,
   salinan audit Bab 8.5, `DRYRUN-T1.md` keluar pack, `PACK.md` + `BLUEPRINT.MD` lama
   dihapus, `STATE.MD` + `RISKS.MD` (insiden worktree #2). **Belum di-push.**
+- Ledger: `8398fe1` (2026-09-18) — **Sprint 001 FASE 1–4**: 1 file baru
+  (`pejabatRoles.js`) + 19 file kode diubah (FASE 1–4) + 14 file pack/dokumen
+  (pack sprint-001 6 berkas, pack sprint-002 4 berkas, salinan audit 2 berkas,
+  AGENTS/STATE/DECISIONS/QUESTIONS/RISKS/CONSTITUTION/README/ARCHITECTURE,
+  `docs/PROGRESS.md` dihapus, `.gitignore`, `package.json` pin eksak).
+  Gate FASE 4: T-01 build 178 modules exit 0 · T-02 15 pola → 0 hit / 0 aset.
+  **Belum di-push.**
 - Ledger sebelumnya: `9759c20` (2026-09-14) — pack Sprint 001 awal: PRD (18 user story,
   13 temuan G1–G13), `DECISIONS.MD` +14 ADR, `QUESTIONS.MD` tutup 1/buka 1. **Belum di-push.**
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-18 (FASE 4 selesai & lulus gate Builder; STATE.MD diperbarui Builder)
+- Terakhir Diperbarui: 2026-09-18 (FASE 1–4 di-commit `8398fe1`; STATE.MD dicatat Builder)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
-| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 1–4/6 selesai, FASE 4 lulus gate Builder 2026-09-18**, belum di-commit; FASE 5–6 belum) | 🟡 Berjalan | 2026-09-17 |
+| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 1–4/6 selesai, di-commit `8398fe1` 2026-09-18**; FASE 5–6 belum) | 🟡 Berjalan | 2026-09-17 |
 | 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (pack dibuat 2026-09-14, handoff disesuaikan 2026-09-17 — **menunggu Sprint 001**) | ⬜ Belum dimulai | — |
 
 ## Langkah Selanjutnya
-- **Sprint 001 FASE 1–4 SELESAI — menunggu keputusan user: commit + izin FASE 5.**
-  ⏸️ **Berhenti di sini.** Dua hal menunggu user:
-  1. **Commit FASE 1–4** — 1 file baru (`pejabatRoles.js`) + file kode diubah
-     (lihat blok FASE 1–4 di atas) + dokumentasi masih **belum di-commit**
-     (aturan AGENTS.MD: dry run dulu → lapor → tunggu persetujuan;
-     commit = kewenangan user).
+- **Sprint 001 FASE 1–4 DI-COMMIT `8398fe1` (2026-09-18, 41 file +6474/−997) —
+  menunggu: push + izin FASE 5 + acceptance-runner.**
+  ⏸️ **Berhenti di sini.** Yang menunggu user:
+  1. **Push ke origin** — commit `8398fe1` + riwayat (9759c20, 21b7713) masih
+     **belum di-push** (pelajaran insiden #3: push = jaring pengaman sesungguhnya).
   2. **Izin lanjut FASE 5** (4 task; urutan wajib sesuai BLUEPRINT.MD §Task Breakdown).
   Verifikasi UI runtime penuh (T-03…T-15 skenario klik) → /acceptance-runner
-  WAJIB di konteks segar (aturan AGENTS.MD) — jalankan setelah keputusan user.
+  WAJIB di konteks segar (aturan AGENTS.MD) — sesi 2026-09-18 terputus di tengah
+  eksekusi (baru T-01/T-13 selesai, T-02+statik belum) → jalankan ulang utuh.
   Blok "Sprint 001 FASE 1–3 SELESAI — menunggu keputusan user: commit + izin FASE 4"
   di bawah **superseded** oleh blok ini (FASE 4 sudah dikerjakan 2026-09-18 atas
   persetujuan user; riwayat dibiarkan untuk audit trail).
