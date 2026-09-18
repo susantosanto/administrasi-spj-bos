@@ -475,18 +475,18 @@ mencakup **seluruh** template.
 
 | # | Uji | Kondisi | Bukti |
 |---|---|---|---|
-| V1 | `npm run build` (+ sebut versi runtime) | — | output asli |
+| V1 | `npm run build` (+ sebut versi runtime) | — | output asli | **LULUS 2026-09-18 (FASE 6.2):** exit 0, 179 modules, 7.38s |
 | V2 | Kop surat setelah ubah Data Sekolah **tanpa reload** | data terisi | screenshot sebelum/sesudah (bukti G6 hilang) |
-| V3 | Semua TTD **kosong** + peringatan merah | Data Sekolah **kosong** | screenshot 6 konsumen |
-| V4 | Semua TTD benar | Data Sekolah **terisi** | screenshot 6 konsumen |
-| V5 | Halaman Pejabat **tidak crash** | `spj_data_sekolah` **lama** (tanpa `ketuaGugus`/`notulen`) | screenshot + console bersih |
-| V6 | Role ke-6 bisa diisi & tersimpan | — | screenshot + isi `spj_data_sekolah.pejabat.notulen` |
-| V7 | `grep -rniE "<15 pola>" src/ \| wc -l` | — | **0** |
+| V3 | Semua TTD **kosong** + peringatan merah | Data Sekolah **kosong** | screenshot 6 konsumen | **Statik lulus (6.1):** semua konsumen jujur-kosong; screenshot menunggu acceptance-runner |
+| V4 | Semua TTD benar | Data Sekolah **terisi** | screenshot 6 konsumen | **Statik lulus (6.1):** jalur auto-fill terbaca di semua konsumen; screenshot menunggu acceptance-runner |
+| V5 | Halaman Pejabat **tidak crash** | `spj_data_sekolah` **lama** (tanpa `ketuaGugus`/`notulen`) | screenshot + console bersih | **Runtime data-layer lulus (FASE 2 b)**; UI console menunggu acceptance-runner |
+| V6 | Role ke-6 bisa diisi & tersimpan | — | screenshot + isi `spj_data_sekolah.pejabat.notulen` | **Runtime data-layer lulus (FASE 2 b)**; UI menunggu acceptance-runner |
+| V7 | `grep -rniE "<15 pola>" src/ \| wc -l` | — | **0** | **LULUS 2026-09-18 (FASE 6.2):** T-02 final verbatim — exit 1, 0 hit |
 | V8 | Email terbaca dari `allFields` (T-03) | `allFields` punya `Email` | screenshot kop |
 | V9 | **TTD notulen + pimpinan terisi** (T-15, D-8) | data terisi | screenshot notulen |
 | V10 | SK Honorer mencetak **nama sekolah yang benar** (T-14) | data terisi | screenshot SK Honorer |
 | V11 | BKU mencetak NPSN dari Data Sekolah (T-14) | data terisi | screenshot BKU |
-| V12 | Peringatan **tidak** ikut cetak (5.4) | — | print preview |
+| V12 | Peringatan **tidak** ikut cetak (5.4) | — | print preview | **Status 2026-09-18 (statik):** `print:hidden` + banner terpasang di luar `.print-container`; verifikasi UI runtime menunggu /acceptance-runner |
 
 ---
 

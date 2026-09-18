@@ -42,17 +42,32 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
 ## Checklist
 
 - [x] C-01 Pejabat dari Data Sekolah (6 peran), tanpa hardcode (T-02, T-03) — statik; T-03 UI menunggu acceptance-runner
-- [ ] C-02 Kop sekolah dari tab Data Sekolah + logo kiri/kanan atas (T-08)
-- [ ] C-03 Kop gugus dari Data Sekolah (Nama Gugus + Alamat Gugus + kabupaten) (T-09)
-- [ ] C-04 Data kosong → field kosong + peringatan merah (2 varian pesan) (T-05, T-06)
-- [ ] C-05 Nilai tidak basi setelah ubah Data Sekolah tanpa reload (T-07)
-- [ ] C-06 Data lama tidak menyebabkan crash saat peran baru ditambahkan (T-04)
-- [ ] C-07 Regresi 6 konsumen existing lulus (T-11)
-- [ ] C-08 Warna blue-only pada file yang disentuh (T-10)
+- [x] C-02 Kop sekolah dari tab Data Sekolah + logo kiri/kanan atas (T-08) — statik:
+  `KopSurat.jsx` baca identitas + logo saat render (kiri sekolah / kanan dinas),
+  kosong → baris kosong (FASE 3 + regresi FASE 6); screenshot menunggu acceptance-runner
+- [x] C-03 Kop gugus dari Data Sekolah (Nama Gugus + Alamat Gugus + kabupaten) (T-09) —
+  statik: KopGugus prop-driven, grep storage = 0 hasil (gate FASE 3 d); screenshot menunggu acceptance-runner
+- [x] C-04 Data kosong → field kosong + peringatan merah (2 varian pesan) (T-05, T-06) —
+  statik: banner 2 varian + tautan aksi terverifikasi di `PeringatanData.jsx`
+  (FASE 5, 2026-09-18); screenshot UI runtime menunggu acceptance-runner
+- [x] C-05 Nilai tidak basi setelah ubah Data Sekolah tanpa reload (T-07) — statik:
+  semua konsumen baca storage SAAT render (konstanta level-modul dihapus FASE 1);
+  uji UI sebelum/sesudah menunggu acceptance-runner
+- [x] C-06 Data lama tidak menyebabkan crash saat peran baru ditambahkan (T-04) —
+  runtime data-layer FASE 2 (b): `roles: 6`, `old4-in-6-out: true`, `null-safe: true`;
+  UI console menunggu acceptance-runner
+- [x] C-07 Regresi 6 konsumen existing lulus (T-11) — statik **12/12 kombinasi**
+  (FASE 6.1, 2026-09-18); screenshot per konsumen menunggu acceptance-runner
+- [x] C-08 Warna blue-only pada file yang disentuh (T-10) — grep 0 hasil di 2 halaman
+  (gate FASE 2 c); merah `PeringatanData` = indikator status layar (pengecualian sah AGENTS.MD)
 - [x] C-09 `npm run build` sukses (T-01) — `✓ built in 4.63s`, 178 modules, exit 0, Node v24.19.0
 - [x] C-10 **Nol hardcode identitas mutlak** — 15 pola, `grep -i`, 73 → 0 baris (T-02) — 0 hit / 0 aset via Select-String 2026-09-18
-- [ ] C-11 **TTD SPT/SPD/Undangan tetap terisi** dari Data Sekolah, tidak kosong (T-12)
-- [ ] C-12 `package.json` pinned eksak + `npm ci` bersih (T-13)
+- [x] C-11 **TTD SPT/SPD/Undangan tetap terisi** dari Data Sekolah, tidak kosong (T-12) —
+  statik: jalur auto-fill `DokumenFormPreview.jsx:1622-1705` terverifikasi (gate FASE 4 c);
+  UI menunggu acceptance-runner
+- [x] C-12 `package.json` pinned eksak + `npm ci` bersih (T-13) — 0 caret, 14/14 cocok
+  lockfile, lockfile tidak berubah (FASE 1 c + subagent T-13 PASS); `npm ci` penuh
+  diblokir sandbox (tercatat FASE 1) — substitusi: build sukses berulang kali
 - [x] C-13 `STATE.MD` + pack sprint diperbarui — 2026-09-18
 - [x] C-14 **SK Honorer satu identitas** — nama/alamat/kabupaten/NPSN sama dengan Data Sekolah, tidak ada `Pasirhalang` (T-14) — statik; screenshot print menunggu acceptance-runner
 - [x] C-15 **TTD Notulen & Pimpinan tetap terisi** dari Data Sekolah, tidak kosong (T-15) — statik; UI menunggu acceptance-runner
@@ -153,6 +168,10 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
   berisi teks *"upload data sekolah terlebih dahulu"* beserta arah ke tab Data Sekolah,
   (d) pencetakan **tidak diblokir**
 - **Bukti** screenshot
+- **Status (2026-09-18, FASE 5):** statik LULUS — banner varian 1 terverifikasi di
+  `PeringatanData.jsx`: teks "upload data sekolah terlebih dahulu" + tautan
+  "Buka tab Data Sekolah" (`/dashboard/data-sekolah`); `print:hidden`; cetak tidak
+  diblokir. Screenshot UI runtime menunggu /acceptance-runner.
 
 ### T-06 — Data parsial → peringatan pejabat
 - **Given** identitas sekolah **terisi**, tetapi `pejabat.ks` dan `pejabat.bendahara` **kosong**
@@ -160,6 +179,10 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
 - **Then** peringatan merah **menyebut peran yang kosong** (bukan pesan upload data sekolah),
   dan kop **tetap terisi** dari identitas sekolah
 - **Bukti** screenshot
+- **Status (2026-09-18, FASE 5):** statik LULUS — banner varian 2 menyebut **HANYA**
+  peran kosong via `getPejabatStatus()` + tautan "Buka tab Pejabat Sekolah"
+  (`/dashboard/pejabat-sekolah`); kop tetap terisi dari identitas sekolah.
+  Screenshot UI runtime menunggu /acceptance-runner.
 
 ### T-07 — Nilai tidak basi (bug nilai basi hilang)
 - **Given** aplikasi terbuka di halaman Data Sekolah
@@ -208,6 +231,13 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
 - **Bukti** screenshot tiap konsumen (2 kondisi)
 - **Catatan** daftar 6 konsumen terverifikasi 2026-09-17 via grep import `sekolahData` +
   `signatureRoles` — tidak ada konsumen ke-7
+- **Status (2026-09-18, FASE 6):** statik **12/12 kombinasi LULUS** — tiap konsumen
+  terbaca: jalur data terisi & kosong bebas crash, jujur-kosong (tidak ada nama orang
+  lain saat data kosong). ⚠️ Observasi (di luar scope sprint — catat untuk Sprint 002):
+  `DokumentasiAIGenerate.jsx:432` memakai key `nama_sekolah` (snake_case) yang tak
+  pernah cocok `getSchoolData()` (camelCase) → fallback generik `'SD NEGERI ...'`
+  selalu terpakai; tidak crash, bukan nama riil. Screenshot UI menunggu
+  /acceptance-runner.
 
 ### T-12 — TTD SPT/SPD/Undangan tetap terisi (guard regresi FASE 4) ⚠️ BARU
 - **Given** Data Sekolah → tab Pejabat Sekolah terisi (`ks`, `ketuaGugus`), dan

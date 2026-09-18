@@ -6,11 +6,12 @@
 
 ## Status Saat Ini
 - Sprint Aktif: **Sprint 001 — Fondasi Data Sekolah & Pejabat** — 🟡 **SEDANG DIKERJAKAN**
-  (**FASE 1–4 SELESAI & DI-COMMIT `8398fe1`** 2026-09-18; FASE 4 lulus gate Builder
-  2026-09-18; FASE 5–6 belum; **belum di-push**)
+  (**FASE 1–6 SELESAI (STATIK)** — FASE 1–4 di-commit `8398fe1` 2026-09-18; FASE 5–6
+  selesai + lulus gate Builder 2026-09-18, *belum di-commit*; **belum di-push**;
+  verifikasi UI runtime menunggu /acceptance-runner ulang utuh)
   Pack: DIBUAT + di-realign Bab 8.4 + dipecah jadi 2 sprint + **direvisi 2026-09-17
   v2/v3/v4 (verifikasi)** + **v5 (dry run Fase 1+4)**.
-  ⏸️ **BERHENTI sebelum FASE 4** sesuai AGENTS.MD (dry run → lapor → tunggu persetujuan).
+  ⏸️ **SPRINT 001 TUTUP (statik)** — sesuai AGENTS.MD semua keputusan commit/push = kewenangan user.
   Requirement: `planning/sprints/sprint-001/PRD.md` (18 user story, **umbrella untuk
   dua sprint**) — hasil `/idea-clarifier` + `/prd-generator`, dikonfirmasi user 2026-09-14.
   Pack teknis (4 dokumen, Bab 8.4): `planning/sprints/sprint-001/`
@@ -118,6 +119,49 @@
   didelegasikan ke /acceptance-runner.
   (d) **T-14 (statik)** — SKHonorer baris 94/96/100/117/142/144/150/227 prop-driven
   dari `getSchoolData()`; T-02 menjamin 0 literal `Pasirhalang`/`Mandalamukti`.
+- **FASE 6 SPRINT 001 SELESAI — SPRINT TUTUP (STATIK) 2026-09-18** (task 6.1–6.3;
+  **belum di-commit** — menyusul commit `feat:` FASE 5+6 atas persetujuan user).
+  **6.1 Regresi 6 konsumen × 2 kondisi (T-11) — 12/12 kombinasi statik LULUS:**
+  KopSurat (identitas+logo baca saat render, kosong → baris kosong, tanpa crash) ·
+  SignatureFooter (2 cabang, `data.ttd_*_nama || roleConfig.nama` → '' jujur-kosong) ·
+  SKHonorer (prop-driven `data.namaPihakKesatu || ks.nama`, null-safe) ·
+  InfoKeuangan (`data.X || schoolData.X || ''`) · DokumentasiAIGenerate (fallback
+  generik `'SD NEGERI ...'`, bukan nama riil — ⚠️ **observasi Sprint 002**: key
+  `nama_sekolah` snake_case di baris 432 tak pernah cocok `getSchoolData()`
+  camelCase → fallback generik selalu terpakai; tidak crash, di luar scope) ·
+  signatureRoles (5 peran → `{label, nama:'', nip:''}` saat kosong).
+  **6.2 GATE AKHIR LULUS:** (a) `npm run build` — `GATE62_BUILD_EXIT_0`,
+  **179 modules**, `✓ built in 7.38s`; (b) **T-02 final verbatim** (pola diekstrak
+  programatik dari ACCEPTANCE.MD, tidak diketik ulang) — `GREP EXIT: 1` = **0 HIT**;
+  (c) smoke statik `DataSekolahPage.jsx` — load `mergePejabat(stored.pejabat)`
+  null-safe, tulis deep-merge per peran, import `PEJABAT_ROLES`/`DEFAULT_PEJABAT`
+  bersama; `PejabatSekolahPage.jsx` 226 baris ≤ batas.
+  **6.3** `STATE.MD` + `ACCEPTANCE.MD` (checklist C-01…C-15 hijau + status T-11) +
+  `DRYRUN-T1.md` (status V1/V3–V7) diperbarui — sprint ditutup **statik**;
+  UI runtime (T-03…T-15, V2–V12, E-1/E-2) menunggu /acceptance-runner ulang utuh.
+- **FASE 5 SPRINT 001 SELESAI & LULUS GATE BUILDER 2026-09-18** (task 5.1–5.4;
+  **belum di-commit** — menyusul sebagai commit `feat:` terpisah atas persetujuan user).
+  Isi: **5.1** `blocks/PeringatanData.jsx` BARU (67 baris ≤ batas 300; banner merah
+  `border-red-300 bg-red-50` + `role="alert"`; **2 varian**: identitas sekolah kosong →
+  teks "upload data sekolah terlebih dahulu" + tautan "Buka tab Data Sekolah"
+  (`/dashboard/data-sekolah`) untuk T-05; identitas terisi → menyebut **HANYA** peran
+  kosong dari `getPejabatStatus()` + tautan "Buka tab Pejabat Sekolah"
+  (`/dashboard/pejabat-sekolah`) untuk T-06/E-2; `print:hidden`; baca storage SAAT
+  RENDER → tidak basi, mendukung T-07) · **5.2** `TemplateEngine.jsx:82`
+  `{mode === 'edit' && <PeringatanData />}` → mencakup **semua** form template ·
+  **5.3** `DokumenFormPreview.jsx:1757` `{isTransport && <PeringatanData />}` di area
+  tab Perjalanan Dinas — spt/sppd/undangan merender `mode="print"` di layar sehingga
+  tidak tertutup pemasangan 5.2 (+ re-export `blocks/index.js`) · **5.4** gate di bawah.
+  **Bukti gate (5.4):**
+  (a) **T-01** `npm run build` **LULUS** — `BUILD_EXIT_0`, **179 modules** (+1 =
+  modul `PeringatanData`);
+  (b) **statik banner** — `print:hidden` ada; teks T-05 persis; 2 tautan aksi ada;
+  0 warna terlarang (T-10: merah = indikator status layar, pengecualian sah per
+  AGENTS.MD/CONSTITUTION — tidak pernah ikut cetak); 0 hit pola hardcode identitas;
+  (c) banner terpasang di 2 titik (TemplateEngine edit-mode; DokumenFormPreview
+  transport), di luar `.print-container` → tidak ikut tercetak;
+  (d) **UI runtime** (screenshot T-05/T-06, V12 banner tidak ikut cetak) →
+  /acceptance-runner konteks segar (sesi 2026-09-18 terputus di tengah eksekusi).
 - **FASE 2 + FASE 3 SPRINT 001 SELESAI & LULUS GATE 2026-09-18** (task 2.1–2.8 + 3.1–3.6;
   user setujui lanjut 2026-09-18; **di-commit `8398fe1`** 2026-09-18).
   File: **2 halaman + 3 blok/preview diubah** —
@@ -228,6 +272,13 @@
 - Ledger sebelumnya: `cdc5abe` (2026-09-14) — **realign pack ke Bab 8.4**: pack = 4 dokumen,
   salinan audit Bab 8.5, `DRYRUN-T1.md` keluar pack, `PACK.md` + `BLUEPRINT.MD` lama
   dihapus, `STATE.MD` + `RISKS.MD` (insiden worktree #2). **Belum di-push.**
+- Ledger (belum di-commit, 2026-09-18) — **Sprint 001 FASE 5+6**: 1 file baru
+  (`blocks/PeringatanData.jsx`, 67 baris) + 3 file diubah (`blocks/index.js` re-export,
+  `TemplateEngine.jsx` pasang edit-mode 5.2, `DokumenFormPreview.jsx` pasang tab
+  Perjalanan Dinas 5.3) + `STATE.MD`/`ACCEPTANCE.MD`/`DRYRUN-T1.md` diperbarui.
+  FASE 6 = tanpa file kode: regresi statik 12/12 + gate akhir (build 179 modules
+  exit 0, T-02 final 0 hit verbatim, smoke statik DataSekolahPage) + tutup loop.
+  **Belum di-commit & belum di-push.**
 - Ledger: `8398fe1` (2026-09-18) — **Sprint 001 FASE 1–4**: 1 file baru
   (`pejabatRoles.js`) + 19 file kode diubah (FASE 1–4) + 14 file pack/dokumen
   (pack sprint-001 6 berkas, pack sprint-002 4 berkas, salinan audit 2 berkas,
@@ -240,25 +291,29 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-18 (FASE 1–4 di-commit `8398fe1`; STATE.MD dicatat Builder)
+- Terakhir Diperbarui: 2026-09-18 (FASE 6 selesai — Sprint 001 tutup statik; dicatat Builder)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
-| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 1–4/6 selesai, di-commit `8398fe1` 2026-09-18**; FASE 5–6 belum) | 🟡 Berjalan | 2026-09-17 |
+| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 6/6 selesai (statik) 2026-09-18; FASE 1–4 di-commit `8398fe1`; FASE 5–6 lulus gate, belum di-commit** — menunggu commit + push + acceptance-runner) | 🟡 Berjalan | 2026-09-17 |
 | 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (pack dibuat 2026-09-14, handoff disesuaikan 2026-09-17 — **menunggu Sprint 001**) | ⬜ Belum dimulai | — |
 
 ## Langkah Selanjutnya
-- **Sprint 001 FASE 1–4 DI-COMMIT `8398fe1` (2026-09-18, 41 file +6474/−997) —
-  menunggu: push + izin FASE 5 + acceptance-runner.**
+- **Sprint 001 FASE 1–6 SELESAI (STATIK) — FASE 1–4 di-commit `8398fe1`; FASE 5–6
+  selesai & lulus gate, menunggu: commit + push + acceptance-runner ulang utuh.**
   ⏸️ **Berhenti di sini.** Yang menunggu user:
-  1. **Push ke origin** — commit `8398fe1` + riwayat (9759c20, 21b7713) masih
-     **belum di-push** (pelajaran insiden #3: push = jaring pengaman sesungguhnya).
-  2. **Izin lanjut FASE 5** (4 task; urutan wajib sesuai BLUEPRINT.MD §Task Breakdown).
-  Verifikasi UI runtime penuh (T-03…T-15 skenario klik) → /acceptance-runner
-  WAJIB di konteks segar (aturan AGENTS.MD) — sesi 2026-09-18 terputus di tengah
-  eksekusi (baru T-01/T-13 selesai, T-02+statik belum) → jalankan ulang utuh.
+  1. **Izin commit FASE 5+6** (1 file baru `PeringatanData.jsx` + 3 file kode diubah:
+     `blocks/index.js`, `TemplateEngine.jsx`, `DokumenFormPreview.jsx`) — gaya
+     `feat:` terpisah dari `8398fe1`; dokumentasi menyusul `docs:`.
+  2. **Push ke origin** — commit `8398fe1` + `2dde982` + riwayat (9759c20, 21b7713)
+     masih **belum di-push** (pelajaran insiden #3: push = jaring pengaman sesungguhnya).
+  3. **/acceptance-runner ulang utuh di konteks segar** (aturan AGENTS.MD) — sesi
+     2026-09-18 terputus di tengah (baru T-01/T-13); wajib membuktikan UI runtime
+     T-03…T-15 + V2–V12 + E-1/E-2 sebelum sprint dinyatakan lulus penuh.
+  4. Setelah itu → **Sprint 002** (Rework Modul Perjalanan Dinas) — prasyarat
+     `blocks/PeringatanData.jsx` & kontrak data Sprint 001 sudah tersedia.
   Blok "Sprint 001 FASE 1–3 SELESAI — menunggu keputusan user: commit + izin FASE 4"
   di bawah **superseded** oleh blok ini (FASE 4 sudah dikerjakan 2026-09-18 atas
   persetujuan user; riwayat dibiarkan untuk audit trail).
