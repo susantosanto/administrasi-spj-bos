@@ -222,7 +222,7 @@ Referensi konsep: website `pekppp.disdikkbb.org` (section "Ringkasan Capaian 6 A
 - [ ] CSS `print-area` / `screen-only` + page-break
 - [ ] Build: `cd spj-frontend && npm run build`
 - [ ] Smoke-test render server-side (editor + format formal, mode preview & edit)
-- [ ] Update `docs/PROGRESS.md`
+- [ ] Update `STATE.MD` (status + riwayat sprint)
 
 ## 📄 UKURAN KERTAS: A4 (WAJIB)
 

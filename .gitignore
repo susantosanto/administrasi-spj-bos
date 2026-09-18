@@ -6,6 +6,11 @@ node_modules/
 # Build output
 dist/
 build/
+# Output build verifikasi sementara (dry run / gate) + cache vite
+dist-verify*/
+verify-bundle.mjs
+verify-fase1.mjs
+vite.config.js.timestamp-*.mjs
 
 # Environment variables
 .env
@@ -55,3 +60,10 @@ spj-frontend/public/docs/
 nul
 NUL
 Nul.*
+
+# Agent working dirs (bukan bagian repo — jangan di-commit)
+.zcode/
+.workbuddy-ai/
+
+# Data kerja user (bukan artefak repo, keputusan user 2026-09-14)
+template-data/BKU\ tahunan.pdf

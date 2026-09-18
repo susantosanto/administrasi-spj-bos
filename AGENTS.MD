@@ -2,12 +2,13 @@
 
 > Satu-satunya file agent di proyek ini (menggantikan `docs/AGENT.md`, 2026-09-13).
 > Aturan proyek wajib → `CONSTITUTION.md`. Arsitektur & standar desain → `docs/ARCHITECTURE.MD`.
-> Status detail → `docs/PROGRESS.md`.
+> Status terkini + riwayat sprint → `STATE.MD` (tidak ada tracker status terpisah).
 
 ## Konteks Proyek
 - Aplikasi LPJ BOS/BOSP — frontend React untuk CETAK dokumen pertanggungjawaban BOS/BOSP (BUKAN BKU management)
 - Stack (as adopted): React 18 + Vite + Tailwind CSS, data via localStorage (prefix `spj_`), tanpa backend
 - Arsitektur inti: `templateConfig.js` (13 template) → `TemplateEngine.jsx` → block components
+- `README.md` = tampilan GitHub saja — BUKAN source of truth, agent TIDAK perlu membacanya
 
 ## Model Operasi
 - Metode Architect-Builder (folder = source of truth, bukan chat history)
@@ -38,7 +39,7 @@
 - localStorage prefix `spj_` — JANGAN diubah
 - Detail dokumen = 2 wajah: tab = editor premium (`Sk*Editor.jsx`), cetak = dokumen formal
   di print-area — spesifikasi lengkap di `docs/ARCHITECTURE.MD`
-- Setiap fitur selesai → update `docs/PROGRESS.md` (checklist + revisi + status)
+- Setiap fitur selesai → update `STATE.MD` + pack sprint aktif (checklist + status)
 - Komunikasi: caveman mode (default full) untuk implementasi, research, planning
 
 ## Quick Commands
@@ -51,5 +52,5 @@ cd spj-frontend && npm run build   # build — jalankan setelah setiap perubahan
 1. Baca architect pack sprint aktif
 2. Dry run → lapor hasil
 3. Disetujui → coding + test
-4. Selesai → lapor hasil dengan bukti + update `docs/PROGRESS.md`
+4. Selesai → lapor hasil dengan bukti + update `STATE.MD` + pack sprint aktif
 5. Update folder via /state-keeper

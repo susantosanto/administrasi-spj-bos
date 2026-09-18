@@ -53,7 +53,7 @@
 - Commit style: **Conventional Commits** — `feat:|fix:|docs:|refactor:|chore:|test:` + deskripsi singkat
 - Branch: `main` langsung (solo dev); PR tidak diwajibkan
 - Dilarang commit: `.env*`, `node_modules/`, `dist/`, file >1MB tanpa alasan
-- Setiap selesai fitur → update `docs/PROGRESS.md` (aturan warisan AGENTS.MD)
+- Setiap selesai fitur → update `STATE.MD` + pack sprint aktif (aturan warisan AGENTS.MD)
 
 ## Deployment
 - Platform: BELUM DIPUTUSKAN — riset berjalan (`docs/PANDUAN_ARSITEKTUR_DEPLOY_LARAVEL_SPJ.md`,

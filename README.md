@@ -2,6 +2,11 @@
 
 Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/BOSP sekolah. Membantu operator sekolah dalam menyusun, mengelola, dan mencetak dokumen LPJ dengan mudah dan efisien.
 
+> **Catatan untuk AI agent:** file ini **hanya untuk tampilan GitHub**. BUKAN source of
+> truth dan **TIDAK perlu dibaca** agent. Source of truth proyek → `AGENTS.MD`,
+> `STATE.MD`, `DECISIONS.MD`, `DOMAIN.MD`, `CONSTITUTION.md`. Isi README bisa
+> tertinggal dari kondisi repo — jangan dijadikan acuan implementasi.
+
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=flat-square&logo=tailwindcss)
@@ -73,8 +78,8 @@ Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/
 ```
 spj-app/
 ├── 📄 README.md                    ← File ini
-├── 📄 AGENT.md                     ← AI Agent Quick Start
-├── 📄 PROGRESS.md                  ← Task Tracking
+├── 📄 AGENTS.MD                    ← Router agent (satu-satunya)
+├── 📄 STATE.MD                     ← Status terkini + riwayat sprint
 ├── 📄 PRD_IMPLEMENTASI.md          ← Master Plan
 │
 ├── 📁 spj-frontend/               ← Frontend React
@@ -226,8 +231,8 @@ templateConfig (JSON) → TemplateEngine → Block Components
 
 ## 📄 Documentation
 
-- [AGENT.md](AGENT.md) — AI Agent Quick Start
-- [PROGRESS.md](PROGRESS.md) — Task Tracking
+- [AGENTS.MD](AGENTS.MD) — Router agent (baca ini dulu)
+- [STATE.MD](STATE.MD) — Status terkini + riwayat sprint
 - [PRD_IMPLEMENTASI.md](PRD_IMPLEMENTASI.md) — Master Plan
 - [RESEARCH_TEMPLATE_ENGINE.md](RESEARCH_TEMPLATE_ENGINE.md) — Template Engine Architecture
 - [RESEARCH_BKU_UPLOAD.md](RESEARCH_BKU_UPLOAD.md) — BKU Upload Research

@@ -5,7 +5,7 @@
  * | Kolom 0-2 (kiri)        | Kolom 3-4 (kanan)           |
  * | Nomor    : 007/...      | Kepada Yth,                 |
  * | Sifat    : Biasa        | Bapak/Ibu Guru              |
- * | Lampiran : -            | SD Negeri Lebakleungsir     |
+ * | Lampiran : -            | <Nama Sekolah>              |
  * | Perihal  : Undangan... | Di                          |
  * |                          | Tempat                      |
  *

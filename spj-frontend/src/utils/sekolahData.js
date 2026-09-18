@@ -1,83 +1,116 @@
 /**
- * Sekolah Data — Data Default Sekolah
- * Untuk Kop Surat dan field otomatis
- * Reads from localStorage (Data Sekolah page)
+ * Sekolah Data — Akses identitas sekolah & pejabat
+ *
+ * Membaca dari localStorage (halaman Data Sekolah, prefix `spj_`).
+ *
+ * Prinsip sprint 001: **tidak ada nilai identitas yang diam-diam diisi**.
+ * Bila data belum diisi, fungsi mengembalikan string kosong — bukan nama
+ * sekolah/orang hardcoded. Peringatan merah (`blocks/PeringatanData.jsx`)
+ * yang memberi tahu pengguna, bukan dokumen yang mencetak nama orang lain.
+ *
+ * Semua fungsi membaca storage **saat dipanggil** (bukan saat import) supaya
+ * nilai tidak basi setelah Data Sekolah diubah tanpa reload.
  */
 import storageHelper from './storageHelper'
+import { PEJABAT_ROLES } from './pejabatRoles'
 
-// Default fallback values
-const SEKOLAH_DEFAULTS = {
-  namaSekolah: 'SD NEGERI LEBAKLEUNGSIR',
-  npsn: '20228636',
-  alamat: 'Kp. Lebakleungsir RT 02 RW 10 Desa Mekarjaya Kec. Cikalongwetan Kab. Bandung Barat Kode Pos 40556',
-  email: 'sdn.lebakleungsir@gmail.com',
-  telepon: '-',
-  kabupaten: 'Kabupaten Bandung Barat',
-  provinsi: 'Jawa Barat',
-  kecamatan: 'Cikalongwetan',
-  kelurahan: 'Mekarjaya',
-  kodePos: '40556',
-}
-
-const KEPALA_SEKOLAH_DEFAULT = {
-  nama: 'BADRUDDIN, S.Ag.',
-  nip: '197405082014121002',
-}
-
-const BENDAHARA_DEFAULT = {
-  nama: 'DEDE GUNAWAN, S.Pd.',
-  nip: '198507172020121003',
+/**
+ * Cari nilai field di `allFields` berdasarkan label (regex).
+ *
+ * Diperlukan karena `LABEL_MAP` (sekolahParser.js) tidak memuat semua key —
+ * mis. `email` tidak pernah masuk `data.email` walau sudah ada di `allFields`.
+ * Dengan resolver ini data yang SUDAH ter-upload langsung terbaca.
+ *
+ * @param {Array<{label?: string, value?: string}>|undefined} allFields
+ * @param {RegExp} regex - pola label, mis. /email/i
+ * @returns {string} nilai, atau '' bila tidak ditemukan
+ */
+export function findFieldByLabel(allFields, regex) {
+  if (!Array.isArray(allFields)) return ''
+  const hit = allFields.find((f) => f && typeof f.label === 'string' && regex.test(f.label))
+  return hit?.value || ''
 }
 
 /**
- * Get school data from localStorage or use defaults
+ * Ambil nilai identitas: utamakan key tersimpan, jatuh ke `allFields` by label.
+ */
+function pick(stored, key, allFields, regex) {
+  return stored?.[key] || findFieldByLabel(allFields, regex) || ''
+}
+
+/**
+ * Get identitas sekolah dari localStorage.
+ * Tidak ada fallback — nilai kosong dikembalikan apa adanya.
  */
 export function getSchoolData() {
   const stored = storageHelper.get('data_sekolah', null)
-  if (!stored) return SEKOLAH_DEFAULTS
-  
+  const allFields = stored?.allFields
+
   return {
-    namaSekolah: stored.namaSekolah || SEKOLAH_DEFAULTS.namaSekolah,
-    npsn: stored.npsn || SEKOLAH_DEFAULTS.npsn,
-    alamat: stored.alamat || SEKOLAH_DEFAULTS.alamat,
-    email: stored.email || SEKOLAH_DEFAULTS.email,
-    kabupaten: stored.kabupaten || SEKOLAH_DEFAULTS.kabupaten,
-    provinsi: stored.provinsi || SEKOLAH_DEFAULTS.provinsi,
-    kecamatan: stored.kecamatan || SEKOLAH_DEFAULTS.kecamatan,
+    namaSekolah: stored?.namaSekolah || '',
+    npsn: stored?.npsn || '',
+    alamat: stored?.alamat || '',
+    email: pick(stored, 'email', allFields, /email/i),
+    telepon: pick(stored, 'telepon', allFields, /nomor telepon|telepon/i),
+    website: pick(stored, 'website', allFields, /website/i),
+    kabupaten: stored?.kabupaten || '',
+    provinsi: stored?.provinsi || '',
+    kecamatan: stored?.kecamatan || '',
+    kelurahan: stored?.kelurahan || '',
+    kodePos: stored?.kodePos || '',
+    // Data Gugus (US-18) — dipakai kop gugus pada surat undangan
+    gugusNama: stored?.gugusNama || '',
+    gugusAlamat: stored?.gugusAlamat || '',
   }
 }
 
 /**
- * Get Kepala Sekolah data from localStorage or use defaults
+ * Get pejabat berdasarkan role.
+ * @param {string} role - salah satu key PEJABAT_ROLES
+ * @returns {{nama: string, nip: string}}
+ */
+export function getPejabat(role) {
+  const stored = storageHelper.get('data_sekolah', null)
+  const pejabat = stored?.pejabat?.[role]
+  return {
+    nama: pejabat?.nama || '',
+    nip: pejabat?.nip || '',
+  }
+}
+
+/**
+ * Daftar peran pejabat yang masih kosong (tidak punya nama).
+ * Bahan peringatan merah US-15.
+ *
+ * @returns {Array<{key: string, label: string}>}
+ */
+export function getPejabatStatus() {
+  const stored = storageHelper.get('data_sekolah', null)
+  const pejabat = stored?.pejabat || {}
+  return PEJABAT_ROLES.filter((r) => !pejabat?.[r.key]?.nama).map((r) => ({
+    key: r.key,
+    label: r.label,
+  }))
+}
+
+/** Apakah identitas sekolah sudah diisi (minimal nama sekolah). */
+export function isSchoolDataEmpty() {
+  const stored = storageHelper.get('data_sekolah', null)
+  return !stored?.namaSekolah
+}
+
+/**
+ * Get Kepala Sekolah. Tanpa fallback hardcoded.
+ * @returns {{nama: string, nip: string}}
  */
 export function getKepalaSekolah() {
-  const stored = storageHelper.get('data_sekolah', null)
-  const pejabat = stored?.pejabat?.ks
-  if (!pejabat?.nama) return KEPALA_SEKOLAH_DEFAULT
-  
-  return {
-    nama: pejabat.nama || KEPALA_SEKOLAH_DEFAULT.nama,
-    nip: pejabat.nip || KEPALA_SEKOLAH_DEFAULT.nip,
-  }
+  return getPejabat('ks')
 }
 
 /**
- * Get Bendahara data from localStorage or use defaults
+ * Get Bendahara. Tanpa fallback hardcoded.
+ * @returns {{nama: string, nip: string}}
  */
 export function getBendahara() {
-  const stored = storageHelper.get('data_sekolah', null)
-  const pejabat = stored?.pejabat?.bendahara
-  if (!pejabat?.nama) return BENDAHARA_DEFAULT
-  
-  return {
-    nama: pejabat.nama || BENDAHARA_DEFAULT.nama,
-    nip: pejabat.nip || BENDAHARA_DEFAULT.nip,
-  }
+  return getPejabat('bendahara')
 }
-
-// Legacy exports for backward compatibility
-export const SEKOLAH_DEFAULT = getSchoolData()
-export const KEPALA_SEKOLAH = getKepalaSekolah()
-export const BENDAHARA = getBendahara()
-
-export default SEKOLAH_DEFAULT

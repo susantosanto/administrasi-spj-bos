@@ -54,8 +54,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       {/* 1. Pengguna Anggaran */}
       {section('1', 'Pengguna Anggaran/Kuasa Pengguna Anggaran', (
         <div className="grid grid-cols-2 gap-4">
-          <div>{val('pengguna', 'Kepala SD NEGERI LEBAKLEUNGSIR')}</div>
-          <div>{val('penggunaInstansi', 'Kec. Cikalongwetan Kab. Bandung Barat')}</div>
+          <div>{val('pengguna', 'Nama Pengguna Anggaran')}</div>
+          <div>{val('penggunaInstansi', 'Jabatan / instansi')}</div>
         </div>
       ))}
 
@@ -73,7 +73,7 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
           <tbody>
             <tr>
               <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdPangkat', '-')}</td>
-              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdJabatan', 'Operator Sekolah / SD NEGERI LEBAKLEUNGSIR')}</td>
+              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdJabatan', 'Jabatan / instansi')}</td>
               <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdTingkat', 'Gugus/Kecamatan')}</td>
             </tr>
           </tbody>
@@ -93,7 +93,7 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       {/* 6. Tempat berangkat / tujuan */}
       {section('6', 'a. Tempat berangkat / b. Tempat tujuan', (
         <div className="grid grid-cols-2 gap-4">
-          <div><span className="text-gray-500">a. </span>{val('tempatBerangkat', 'SD NEGERI LEBAKLEUNGSIR')}</div>
+          <div><span className="text-gray-500">a. </span>{val('tempatBerangkat', 'Tempat berangkat')}</div>
           <div><span className="text-gray-500">b. </span>{val('tempatTujuan', 'SD Negeri Cipada')}</div>
         </div>
       ))}
@@ -153,8 +153,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       <div className="text-center w-56 mx-auto mt-2">
         <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
         <div className="h-16" />
-        <div className="text-xs font-bold">{data.namaPenandatangan || 'BADRUDDIN, S.Ag.'}</div>
-        <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan || '197405082014121002'}</div>
+        <div className="text-xs font-bold">{data.namaPenandatangan}</div>
+        <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
       </div>
 
       {/* ─── Surat Berangkat / Tiba (per penerima) ─── */}
@@ -163,7 +163,7 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
           SPD Nomor : <span className="font-bold">{data.nomorSurat || <PlaceholderText label="SPD Nomor" />}</span>
         </div>
         <div className="text-xs text-gray-700 mb-1">
-          Berangkat dari : {val('tempatBerangkat', 'SD NEGERI LEBAKLEUNGSIR')}
+          Berangkat dari : {val('tempatBerangkat', 'Tempat berangkat')}
         </div>
         <div className="text-[10px] text-gray-500 mb-2">(tempat kedudukan)</div>
         <div className="text-xs text-gray-700 mb-1">
@@ -175,8 +175,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
         <div className="text-center w-56 mx-auto mt-2">
           <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
           <div className="h-16" />
-          <div className="text-xs font-bold">{data.namaPenandatangan || 'BADRUDDIN, S.Ag.'}</div>
-          <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan || '197405082014121002'}</div>
+          <div className="text-xs font-bold">{data.namaPenandatangan}</div>
+          <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
         </div>
 
         <div className="text-xs text-gray-700 mt-4 mb-1">
@@ -188,8 +188,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
         <div className="text-center w-56 mx-auto mt-2">
           <div className="text-xs font-medium mb-4">Kepala,</div>
           <div className="h-16" />
-          <div className="text-xs font-bold">{data.namaMengetahui || 'WAHYUDIN, S.Pd.SD.'}</div>
-          <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui || '197912222014121003'}</div>
+          <div className="text-xs font-bold">{data.namaMengetahui}</div>
+          <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
         </div>
       </div>
     </div>

@@ -27,6 +27,9 @@ import {
 import { findBkuNominal } from '../../utils/bkuHelper'
 import { generateRingkasanNotulen } from '../../utils/aiHelper'
 import { useToast } from '../ui/Toast'
+import storageHelper from '../../utils/storageHelper'
+import { getSchoolData } from '../../utils/sekolahData'
+import { getSignatureRoles } from '../../utils/signatureRoles'
 
 // ─── Auto-calc helper (mirip TabelDinamis) ────────────────────────────────
 function computeAutoValue(row, auto) {
@@ -490,12 +493,12 @@ export default function DokumenFormPreview({
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Yang bertandatangan di bawah ini</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama" value={formData.namaPenandatangan} onChange={(e) => setFormData({ ...formData, namaPenandatangan: e.target.value })} placeholder="BADRUDDIN, S.Ag." />
+                  <Field label="Nama" value={formData.namaPenandatangan} onChange={(e) => setFormData({ ...formData, namaPenandatangan: e.target.value })} placeholder="Nama penandatangan" />
                   <Field label="Jabatan" value={formData.jabatanPenandatangan} onChange={(e) => setFormData({ ...formData, jabatanPenandatangan: e.target.value })} placeholder="Kepala Sekolah" />
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Menugaskan Kepada</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama" value={formData.kepadaSpt} onChange={(e) => setFormData({ ...formData, kepadaSpt: e.target.value })} placeholder="Kepala Sekolah SD NEGERI LEBAKLEUNGSIR" />
+                  <Field label="Nama" value={formData.kepadaSpt} onChange={(e) => setFormData({ ...formData, kepadaSpt: e.target.value })} placeholder="Nama penerima" />
                   <Field label="Alamat / Instansi" value={formData.alamatSpt} onChange={(e) => setFormData({ ...formData, alamatSpt: e.target.value })} placeholder="se-gugus K.H Dewantara" />
                 </div>
                 <Field label="Isi Surat" textarea rows={3} value={formData.isiSpt} onChange={(e) => setFormData({ ...formData, isiSpt: e.target.value })} placeholder="Dengan hormat, Ketua gugus K.H. Dewantara melalui Kepala Sekolah dapat menghadirkan Operator Sekolah untuk mengikuti..." />
@@ -508,8 +511,8 @@ export default function DokumenFormPreview({
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Mengetahui / Mengesahkan</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama Kepala (Gugus)" value={formData.namaMengetahui} onChange={(e) => setFormData({ ...formData, namaMengetahui: e.target.value })} placeholder="WAHYUDIN, S.Pd.SD." />
-                  <Field label="NIP" value={formData.nipMengetahui} onChange={(e) => setFormData({ ...formData, nipMengetahui: e.target.value })} placeholder="197912222014121003" />
+                  <Field label="Nama Kepala (Gugus)" value={formData.namaMengetahui} onChange={(e) => setFormData({ ...formData, namaMengetahui: e.target.value })} placeholder="Nama ketua gugus" />
+                  <Field label="NIP" value={formData.nipMengetahui} onChange={(e) => setFormData({ ...formData, nipMengetahui: e.target.value })} placeholder="NIP ketua gugus" />
                 </div>
               </div>
             )}
@@ -574,7 +577,7 @@ export default function DokumenFormPreview({
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">1. Pengguna Anggaran / Kuasa Pengguna Anggaran</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama" value={sppdData.pengguna} onChange={(e) => setSppdData({ ...sppdData, pengguna: e.target.value })} placeholder="Kepala SD NEGERI LEBAKLEUNGSIR" />
+                  <Field label="Nama" value={sppdData.pengguna} onChange={(e) => setSppdData({ ...sppdData, pengguna: e.target.value })} placeholder="Nama pengguna anggaran" />
                   <Field label="Instansi" value={sppdData.penggunaInstansi} onChange={(e) => setSppdData({ ...sppdData, penggunaInstansi: e.target.value })} placeholder="Kec. Cikalongwetan Kab. Bandung Barat" />
                 </div>
                 {tRows.length === 0 ? (
@@ -601,7 +604,7 @@ export default function DokumenFormPreview({
                     <Field label="5. Alat Angkutan yang digunakan" value={sppdData.alat} onChange={(e) => setSppdData({ ...sppdData, alat: e.target.value })} placeholder="Kendaraan darat" />
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">6-7. Tempat Berangkat / Tujuan & Lamanya</div>
                     <div className="grid grid-cols-2 gap-3">
-                      <Field label="Tempat Berangkat" value={sppdData.tempatBerangkat} onChange={(e) => setSppdData({ ...sppdData, tempatBerangkat: e.target.value })} placeholder="SD NEGERI LEBAKLEUNGSIR" />
+                      <Field label="Tempat Berangkat" value={sppdData.tempatBerangkat} onChange={(e) => setSppdData({ ...sppdData, tempatBerangkat: e.target.value })} placeholder="Tempat berangkat" />
                       <Field label="Tempat Tujuan" value={sppdData.tempatTujuan} onChange={(e) => setSppdData({ ...sppdData, tempatTujuan: e.target.value })} placeholder="SD Negeri Cipada" />
                       <Field label="Lamanya Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
                       <Field label="Tanggal Berangkat" type="date" value={sppdData.tanggalBerangkat} onChange={(e) => setSppdData({ ...sppdData, tanggalBerangkat: e.target.value })} />
@@ -715,8 +718,8 @@ export default function DokumenFormPreview({
                 <Field label="Isi Undangan" textarea rows={3} value={formData.isiUndangan} onChange={(e) => setFormData({ ...formData, isiUndangan: e.target.value })} placeholder="Dengan hormat, ..." />
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Ketua Gugus</div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama" value={formData.namaKetuaGugus} onChange={(e) => setFormData({ ...formData, namaKetuaGugus: e.target.value })} placeholder="WAHYUDIN, S.Pd.SD." />
-                  <Field label="NIP" value={formData.nipKetuaGugus} onChange={(e) => setFormData({ ...formData, nipKetuaGugus: e.target.value })} placeholder="197912222014121003" />
+                  <Field label="Nama" value={formData.namaKetuaGugus} onChange={(e) => setFormData({ ...formData, namaKetuaGugus: e.target.value })} placeholder="Nama ketua gugus" />
+                  <Field label="NIP" value={formData.nipKetuaGugus} onChange={(e) => setFormData({ ...formData, nipKetuaGugus: e.target.value })} placeholder="NIP ketua gugus" />
                 </div>
                 <Field label="Tembusan" textarea rows={2} value={formData.tembusan} onChange={(e) => setFormData({ ...formData, tembusan: e.target.value })} placeholder="Yth. Pengawas Bina Satuan Pendidikan SD Kecamatan Cikalongwetan" />
               </div>
@@ -1029,7 +1032,7 @@ export default function DokumenFormPreview({
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Alamat / Instansi</label>
-                      <input type="text" value={formData.alamatUndangan || ''} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.alamatUndangan || ''} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="Alamat / instansi" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                   </div>
                   {/* Detail Acara */}
@@ -1044,7 +1047,7 @@ export default function DokumenFormPreview({
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tempat</label>
-                      <input type="text" value={formData.tempatAcara || ''} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.tempatAcara || ''} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="Tempat acara" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Waktu</label>
@@ -1493,7 +1496,7 @@ export default function DokumenFormPreview({
                 tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
                 hariUndangan: formData.hariUndangan || formData.hari || '',
                 tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
-                tempatAcara: formData.tempatAcara || formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+                tempatAcara: formData.tempatAcara || formData.tempat || '',
                 waktuAcara: formData.waktuAcara || formData.waktu || '',
                 kegiatan: formData.isiUndangan || formData.acara || '',
               }}
@@ -1613,9 +1616,17 @@ export default function DokumenFormPreview({
     const isDaftarTab = showTabs && previewTab === 'daftar'
 
     // ─── Data dokumen per penerima ───
+    // Sprint 001 FASE 4 task 4.1 (auto-fill + D-8): TTD diisi dari
+    // getSignatureRoles() — pengganti defaults yang dikosongkan 4.2–4.5.
+    // Prioritas: ketikan user (formData) → Data Sekolah → '' (jujur-kosong).
+    const sig = getSignatureRoles()
     const buildSptData = (row) => ({
       ...TEMPLATE_CONFIGS.spt.defaults,
       ...formData,
+      namaPenandatangan: formData.namaPenandatangan || sig['kepala-sekolah']?.nama || '',
+      nipPenandatangan: formData.nipPenandatangan || sig['kepala-sekolah']?.nip || '',
+      namaMengetahui: formData.namaMengetahui || sig['ketua-gugus']?.nama || '',
+      nipMengetahui: formData.nipMengetahui || sig['ketua-gugus']?.nip || '',
       nomorSpt: formData.nomorSpt || '',
       nama: row.nama || '',
       sptNip: row.sptNip || row.nip || row.nuptk || '-',
@@ -1632,13 +1643,17 @@ export default function DokumenFormPreview({
       ...TEMPLATE_CONFIGS.sppd.defaults,
       ...formData,
       ...sppdData,
+      namaPenandatangan: formData.namaPenandatangan || sig['kepala-sekolah']?.nama || '',
+      nipPenandatangan: formData.nipPenandatangan || sig['kepala-sekolah']?.nip || '',
+      namaMengetahui: formData.namaMengetahui || sig['ketua-gugus']?.nama || '',
+      nipMengetahui: formData.nipMengetahui || sig['ketua-gugus']?.nip || '',
       nomorSurat: sppdData.nomorSurat || '',
       nama: row.nama || '',
       sppdNip: row.sppdNip || row.nip || row.nuptk || '-',
       sppdPangkat: row.sppdPangkat || '-',
       sppdJabatan: row.sppdJabatan || row.jabatan || '',
       sppdTingkat: row.sppdTingkat || '',
-      tempatBerangkat: sppdData.tempatBerangkat || sppdData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+      tempatBerangkat: sppdData.tempatBerangkat || sppdData.tempat || '',
       tempatTujuan: sppdData.tempatTujuan || sppdData.tempat || '',
       tanggalBerangkat: sppdData.tanggalBerangkat || sppdData.tanggal || '',
       tanggalKembali: sppdData.tanggalKembali || sppdData.tanggal || '',
@@ -1664,15 +1679,31 @@ export default function DokumenFormPreview({
     const resumeData = {
       ...TEMPLATE_CONFIGS.notulen.defaults,
       ...formData,
+      // D-8: jalur notulen WAJIB diisi — SignatureFooter baca key ttd_${role}_nama
+      // (templateConfig signature ['pimpinan','notulen']); tanpa ini TTD kosong permanen.
+      ttd_pimpinan_nama: formData.ttd_pimpinan_nama || sig['pimpinan']?.nama || '',
+      ttd_pimpinan_nip: formData.ttd_pimpinan_nip || sig['pimpinan']?.nip || '',
+      ttd_notulen_nama: formData.ttd_notulen_nama || sig['notulen']?.nama || '',
+      ttd_notulen_nip: formData.ttd_notulen_nip || sig['notulen']?.nip || '',
       hari: formData.hariSpt || '',
       tanggal: sppdData.tanggal || '',
-      tempat: sppdData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
+      tempat: sppdData.tempat || '',
       acara: formData.acara || sppdData.tujuan || '',
       poinPembahasan: formData.resume ? [{ id: 'resume-1', text: formData.resume }] : [],
     }
     const undanganData = {
       ...TEMPLATE_CONFIGS.undangan_gugus.defaults,
       ...formData,
+      // Sprint 001 FASE 3 (task 3.4/3.5/3.6): KopGugus prop-driven — data gugus +
+      // kabupaten + logo gugus diisi di sini dari Data Sekolah (blok TIDAK baca storage).
+      gugusNama: formData.gugusNama || getSchoolData().gugusNama || '',
+      gugusAlamat: formData.gugusAlamat || getSchoolData().gugusAlamat || '',
+      kabupaten: formData.kabupaten || getSchoolData().kabupaten || '',
+      provinsi: formData.provinsi || getSchoolData().provinsi || '',
+      logoGugus: storageHelper.get('logo_gugus', null),
+      // Task 4.1: TTD undangan dari Data Sekolah (pengganti defaults 4.4).
+      namaKetuaGugus: formData.namaKetuaGugus || sig['ketua-gugus']?.nama || '',
+      nipKetuaGugus: formData.nipKetuaGugus || sig['ketua-gugus']?.nip || '',
       tanggalSurat: formData.tanggalSurat || '',
       hariUndangan: formData.hariUndangan || '',
       tanggalAcara: formData.tanggalAcara || sppdData.tanggal || '',

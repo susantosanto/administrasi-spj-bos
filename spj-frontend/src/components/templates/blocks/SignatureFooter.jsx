@@ -6,16 +6,19 @@
  *   Mengetahui/Menyetujui  |  Dibayar Lunas Tgl.
  *   Kepala Sekolah,         |  Bendahara BOS,
  *   [spasi TTD]            |  [spasi TTD]
- *   BADRUDDIN, S.Ag.       |  DEDE GUNAWAN, S.Pd.
+ *   [nama dari Data Sekolah] | [nama dari Data Sekolah]
  *   NIP. ...               |  NIP. ...
  */
-import { SIGNATURE_ROLES } from '../../../utils/signatureRoles'
+import { getSignatureRoles } from '../../../utils/signatureRoles'
 import { formatDate } from '../../../utils/templateHelpers'
 
 export default function SignatureFooter({ blockConfig, data = {}, onChange, mode }) {
   const roles = blockConfig.roles || ['kepala-sekolah']
   const tempat = data.tempat || 'Cikalongwetan'
   const tanggal = data.tanggalCetak || formatDate(new Date())
+
+  // Dibaca saat render — sumber nama/NIP pejabat (tanpa fallback hardcoded).
+  const signatureRoles = getSignatureRoles()
 
   // Cek apakah signature menggunakan format 2-kolom (untuk Honor/Transport)
   // atau format single column (untuk SPPD, Notulen, dll)
@@ -77,7 +80,7 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
           {/* Signature blocks row */}
           <div className="flex justify-between">
             {roles.map((role) => {
-              const roleConfig = SIGNATURE_ROLES[role]
+              const roleConfig = signatureRoles[role]
               if (!roleConfig) return null
 
               return (
@@ -91,22 +94,22 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
                     <>
                       <input
                         className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none font-bold"
-                        value={data[`ttd_${role}_nama`] || roleConfig.defaultName}
+                        value={data[`ttd_${role}_nama`] || roleConfig.nama}
                         onChange={(e) => onChange(`ttd_${role}_nama`, e.target.value)}
                       />
                       <input
                         className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none text-gray-500"
-                        value={data[`ttd_${role}_nip`] || roleConfig.defaultNip}
+                        value={data[`ttd_${role}_nip`] || roleConfig.nip}
                         onChange={(e) => onChange(`ttd_${role}_nip`, e.target.value)}
                       />
                     </>
                   ) : (
                     <>
                       <div className="text-xs font-bold">
-                        {data[`ttd_${role}_nama`] || roleConfig.defaultName}
+                        {data[`ttd_${role}_nama`] || roleConfig.nama}
                       </div>
                       <div className="text-[10px] text-gray-500">
-                        {data[`ttd_${role}_nip`] || roleConfig.defaultNip}
+                        {data[`ttd_${role}_nip`] || roleConfig.nip}
                       </div>
                     </>
                   )}
@@ -119,7 +122,7 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
         <div className="flex justify-between">
           {/* ─── Format Single (SPPD, Notulen, Buku Tamu) ─── */}
           {roles.map((role) => {
-            const roleConfig = SIGNATURE_ROLES[role]
+            const roleConfig = signatureRoles[role]
             if (!roleConfig) return null
 
             return (
@@ -134,22 +137,22 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
                   <>
                     <input
                       className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none font-bold"
-                      value={data[`ttd_${role}_nama`] || roleConfig.defaultName}
+                      value={data[`ttd_${role}_nama`] || roleConfig.nama}
                       onChange={(e) => onChange(`ttd_${role}_nama`, e.target.value)}
                     />
                     <input
                       className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none text-gray-500"
-                      value={data[`ttd_${role}_nip`] || roleConfig.defaultNip}
+                      value={data[`ttd_${role}_nip`] || roleConfig.nip}
                       onChange={(e) => onChange(`ttd_${role}_nip`, e.target.value)}
                     />
                   </>
                 ) : (
                   <>
                     <div className="text-xs font-bold">
-                      {data[`ttd_${role}_nama`] || roleConfig.defaultName}
+                      {data[`ttd_${role}_nama`] || roleConfig.nama}
                     </div>
                     <div className="text-[10px] text-gray-500">
-                      {data[`ttd_${role}_nip`] || roleConfig.defaultNip}
+                      {data[`ttd_${role}_nip`] || roleConfig.nip}
                     </div>
                   </>
                 )}

@@ -8,7 +8,7 @@ import NomorSuratPopup from './NomorSuratPopup'
 
 // Field definitions
 const FIELDS = {
-  namaSekolah: { label: 'Nama Sekolah', placeholder: 'SD NEGERI LEBAKLEUNGSIR', source: 'sekolah' },
+  namaSekolah: { label: 'Nama Sekolah', placeholder: 'Nama Sekolah', source: 'sekolah' },
   kecamatan: { label: 'Kecamatan', placeholder: 'Cikalongwetan', source: 'sekolah' },
   kabupaten: { label: 'Kabupaten', placeholder: 'Bandung Barat', source: 'sekolah' },
   program: { label: 'Program', placeholder: '07 Pengembangan Standar Pembiayaan' },

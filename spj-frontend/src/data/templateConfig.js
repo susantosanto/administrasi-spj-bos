@@ -48,7 +48,7 @@ export const TEMPLATE_CONFIGS = {
       { type: 'signature', roles: ['pimpinan', 'notulen'], showDibayarLunas: false },
     ],
     defaults: {
-      tempat: 'SD NEGERI LEBAKLEUNGSIR',
+      tempat: '',
     },
   },
 
@@ -292,7 +292,7 @@ export const TEMPLATE_CONFIGS = {
       nomorSurat: '',
       tempat: 'Cikalongwetan',
       tujuan: '',
-      pengguna: 'Kepala SD NEGERI LEBAKLEUNGSIR',
+      pengguna: '',
       penggunaInstansi: 'Kec. Cikalongwetan Kab. Bandung Barat',
       alat: 'Kendaraan darat',
       skpd: 'BOS Reguler',
@@ -321,11 +321,11 @@ export const TEMPLATE_CONFIGS = {
     ],
     defaults: {
       nomorSpt: '',
-      namaPenandatangan: 'BADRUDDIN, S.Ag.',
-      nipPenandatangan: '197405082014121002',
+      namaPenandatangan: '',
+      nipPenandatangan: '',
       jabatanPenandatangan: 'Kepala Sekolah',
-      namaMengetahui: 'WAHYUDIN, S.Pd.SD.',
-      nipMengetahui: '197912222014121003',
+      namaMengetahui: '',
+      nipMengetahui: '',
     },
   },
 
@@ -349,11 +349,11 @@ export const TEMPLATE_CONFIGS = {
     ],
     defaults: {
       nomorSpt: '',
-      namaPenandatangan: 'BADRUDDIN, S.Ag.',
-      nipPenandatangan: '197405082014121002',
+      namaPenandatangan: '',
+      nipPenandatangan: '',
       jabatanPenandatangan: 'Kepala Sekolah',
-      namaMengetahui: 'WAHYUDIN, S.Pd.SD.',
-      nipMengetahui: '197912222014121003',
+      namaMengetahui: '',
+      nipMengetahui: '',
     },
   },
 
@@ -374,8 +374,8 @@ export const TEMPLATE_CONFIGS = {
       lampiranUndangan: '-',
       perihalUndangan: 'Undangan Rapat Operator',
       tempatUndangan: 'Tempat',
-      namaKetuaGugus: 'WAHYUDIN, S.Pd.SD.',
-      nipKetuaGugus: '197912222014121003',
+      namaKetuaGugus: '',
+      nipKetuaGugus: '',
     },
   },
 
@@ -911,8 +911,8 @@ export const TEMPLATE_CONFIGS = {
       { type: 'sk-honorer' },
     ],
     defaults: {
-      namaPihakKesatu: 'BADRUDDIN, S.Ag.',
-      nipPihakKesatu: '197405082014121002',
+      namaPihakKesatu: '',
+      nipPihakKesatu: '',
       jabatanPihakKesatu: 'Kepala Sekolah',
       tempatTtd: 'Bandung Barat',
     },
@@ -954,8 +954,8 @@ export const TEMPLATE_CONFIGS = {
       { type: 'signature', roles: ['bendahara', 'kepala-sekolah'] },
     ],
     defaults: {
-      npsn: '20212345',
-      namaSekolah: 'SD NEGERI LEBAKLEUNGSIR',
+      npsn: '',
+      namaSekolah: '',
       tahunAnggaran: '2026',
       bulan: 'Januari',
       program: '07 Pengembangan Standar Pembiayaan',

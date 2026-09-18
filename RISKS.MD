@@ -53,3 +53,56 @@
   pin versi di BLUEPRINT.MD sprint-001 (F8), gitleaks belum terpasang (F9).
   Dampak: Sedang — akumulasi utangan teknis keamanan; F5 relevan saat deploy publik.
   Mitigasi: kerjakan lewat REWORK list SECURITY-AUDIT-001 §8 pada sprint berikutnya.
+
+⚠️ [Tinggi] RISIKO: Worktree DAN `.git/` bisa kehilangan file/direktori saat operasi git
+  yang memindahkan objek dijalankan — **TERJADI 3×**: 2× `git rm`, 1× `git stash`.
+  FAKTA insiden #1 (2026-09-13): seluruh folder `docs/` (68 file tracked) hilang
+  dari disk saat `git rm docs/PROGRESS.md` dijalankan.
+  FAKTA insiden #2 (2026-09-14): seluruh folder `architect-packs/` hilang dari disk
+  saat `git rm -q architect-packs/sprint-001/PACK.md architect-packs/sprint-001/BLUEPRINT.MD`
+  dijalankan — `architect-packs/.gitkeep` tampil ` D` di `git status`, dan
+  `architect-packs/architect-pack-001-perjalanan-dinas.md` (UNTRACKED, baru dibuat,
+  665 baris) HILANG TOTAL tanpa jaring pengaman. Harus ditulis ulang dari nol.
+  FAKTA insiden #3 (2026-09-17) — **PALING BERAT**: `git stash push -u -m "..."` yang
+  **ter-SIGTERM di tengah jalan** membuat **`.git/` RUSAK TOTAL**:
+  `.git/refs/` hilang · `.git/packed-refs` hilang · `.git/objects/` **0 objek**
+  (25 subdir kosong) · `.git/objects/pack/*.pack` hilang (hanya `.idx` orphan sisa).
+  Akibatnya git tidak mengenali repo sama sekali (`fatal: not a git repository`)
+  dan **5 commit lokal hilang permanen** (`bb561c6`, `cdc5abe`, `68de37f`, `849a75b`,
+  `5c2b400` — semuanya belum pernah di-push). Isi file SELAMAT (ada di disk + backup),
+  tapi riwayat git-nya harus dibuat ulang.
+  Tidak ada git hook non-sample, `core.sparseCheckout` tidak aktif, reflog semula bersih.
+  Tiga insiden dengan pola identik → trigger praktis = operasi git yang menulis/memindahkan
+  objek (diduga interaksi dengan proses eksternal yang memantau worktree;
+  `.zcode/` untracked ada di repo).
+  Dampak: Tinggi — file tracked bisa dipulihkan via git, tapi **file UNTRACKED yang
+    hilang tidak bisa dipulihkan sama sekali**, dan **objek git yang hilang tidak bisa
+    dipulihkan bila belum di-push**.
+  Mitigasi:
+    1. **DILARANG** menjalankan: `git stash` · `git gc` · `git repack` · `git prune` ·
+       `git rm` / `git rm -r` · `git clean -fd` · `git reset --hard`.
+    2. **Backup dulu SELALU**: `cp -r <file/folder> <dir-backup>/` sebelum operasi apa pun
+       yang mengubah worktree atau `.git`. Verifikasi dengan `diff -rq` (harus IDENTIK).
+    3. Untuk membatalkan perubahan: `git diff > patch.diff` lalu
+       `git checkout -- <file>` **per file** (bukan bulk). JANGAN pakai `git stash`.
+    4. **Commit + PUSH sesering mungkin** — ini satu-satunya jaring pengaman nyata untuk
+       objek git. Commit lokal saja TIDAK cukup (insiden #3 membuktikannya).
+    5. JANGAN jalankan dua agent/proses yang menulis worktree yang sama bersamaan.
+    6. Cek `git status --short` SEBELUM dan SESUDAH setiap operasi git.
+    7. Verifikasi penutup wajib: `git diff HEAD --stat` harus cocok persis dengan
+       perubahan yang diniatkan.
+    8. **Prosedur pemulihan `.git` rusak** (terbukti berhasil 2026-09-17):
+       a. `cp -r .git <backup>/git-rusak` — simpan kondisi rusak untuk diagnostik
+       b. `mkdir -p .git/refs/heads .git/refs/tags` → git langsung dikenali lagi
+       c. `git fetch <url> main` → tarik objek dari remote
+       d. `echo <sha> > .git/refs/heads/main` → tulis ref manual
+       e. `rm -f .git/index && git reset` → index lama menunjuk objek hilang
+       f. `git fetch --refetch origin` → rebuild indeks pack (bila `.idx` terhapus)
+       g. `mkdir -p .git/refs/remotes/origin` + tulis `origin/main` manual
+       h. `rm -f .git/logs/HEAD .git/logs/refs/heads/main` → reflog basi bikin fsck error
+       i. Verifikasi: `git fsck --connectivity-only` harus **kosong**
+       ⚠️ Sebelum `rm` wildcard di `.git/objects/pack/`, cek pasangan `.idx` ↔ `.pack`
+       satu per satu — jangan hapus `.idx` yang `.pack`-nya masih ada.
+    9. Pemulihan worktree: `mkdir -p <dir>` → `git checkout -- <dir>/.gitkeep`
+       (restore dari index, bukan HEAD, agar perubahan ter-stage tidak ikut kembali)
+       → regenerasi manual file untracked yang hilang.

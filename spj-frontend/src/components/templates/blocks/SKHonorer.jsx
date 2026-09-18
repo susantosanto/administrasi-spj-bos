@@ -2,7 +2,7 @@
  * SKHonorer — Surat Perjanjian Kerja Guru Honorer
  * Layout mengikuti template/sk-honorer.html
  *
- * - KOP: logo + teks (PEMERINTAH KABUPATEN BANDUNG BARAT / NAMA SEKOLAH / DINAS PENDIDIKAN / alamat)
+ * - KOP: logo + teks (baris kabupaten / NAMA SEKOLAH / DINAS PENDIDIKAN / alamat)
  * - Garis kop dobel (tebal + tipis)
  * - Judul + Nomor + ANTARA / instansi / DENGAN / GURU HONORER
  * - PIHAK numbered 1. dan 2. dengan layout label : value
@@ -91,13 +91,15 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
           </svg>
         </div>
         <div style={{ flex: 1, textAlign: 'center', lineHeight: '1.25' }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '.5px' }}>PEMERINTAH KABUPATEN BANDUNG BARAT</div>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '.5px' }}>
+            {sekolah.kabupaten ? `PEMERINTAH ${sekolah.kabupaten}`.toUpperCase() : ''}
+          </div>
           <div style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '.5px', textTransform: 'uppercase' }}>
-            {sekolah.namaSekolah || 'SD NEGERI PASIRHALANG'} KECAMATAN {sekolah.kecamatan || 'CIKALONGWETAN'}
+            {sekolah.namaSekolah || ''} KECAMATAN {sekolah.kecamatan || ''}
           </div>
           <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px' }}>DINAS PENDIDIKAN</div>
           <div style={{ fontSize: '9px', marginTop: '2px' }}>
-            Alamat : {sekolah.alamat || 'Kp. Pasirhalang RT 03/014 Ds. Mandalamukti Kec. Cikalongwetan Kab. Bandung Barat Kode Pos : 40556'}
+            Alamat : {sekolah.alamat || ''}
           </div>
         </div>
       </div>
@@ -114,7 +116,7 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
         <div style={{ marginTop: '12px', lineHeight: '1.4' }}>
           ANTARA<br />
           <span style={{ fontWeight: 'bold' }}>
-            {sekolah.namaSekolah || 'SEKOLAH DASAR NEGERI PASIRHALANG'}
+            {sekolah.namaSekolah || ''}
           </span>
           <br />
           DENGAN<br />
@@ -139,15 +141,15 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
           <div style={{ flex: '0 0 20px' }}>1.</div>
           <table style={{ fontSize: '12px', borderCollapse: 'collapse' }}>
             <tbody>
-              <tr><td style={{ width: '160px' }}>Nama</td><td style={{ padding: '0 4px' }}>:</td><td><E field="namaPihakKesatu" placeholder={ks.nama || 'Yuniarti, S.Pd'} /></td></tr>
+              <tr><td style={{ width: '160px' }}>Nama</td><td style={{ padding: '0 4px' }}>:</td><td><E field="namaPihakKesatu" placeholder={ks.nama || 'Nama pejabat'} /></td></tr>
               <tr><td>Tempat, tanggal lahir</td><td style={{ padding: '0 4px' }}>:</td><td><E field="ttlPihakKesatu" placeholder="Bandung, 07 Juli 1966" /></td></tr>
-              <tr><td>NIP</td><td style={{ padding: '0 4px' }}>:</td><td><E field="nipPihakKesatu" placeholder={ks.nip || '196607071986102005'} /></td></tr>
+              <tr><td>NIP</td><td style={{ padding: '0 4px' }}>:</td><td><E field="nipPihakKesatu" placeholder={ks.nip || 'NIP pejabat'} /></td></tr>
               <tr><td>Jabatan</td><td style={{ padding: '0 4px' }}>:</td><td><E field="jabatanPihakKesatu" placeholder="Kepala Sekolah" /></td></tr>
             </tbody>
           </table>
         </div>
         <div style={{ margin: '4px 0 14px 30px', textAlign: 'justify' }}>
-          Berbuat dan bertindak secara hukum untuk dan atas nama {sekolah.namaSekolah || 'SD Negeri Pasirhalang'},
+          Berbuat dan bertindak secara hukum untuk dan atas nama {sekolah.namaSekolah || ''},
           untuk selanjutnya disebut <b>PIHAK KESATU</b>.
         </div>
 
@@ -224,7 +226,7 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
               </td>
               {mode === 'print' && (
                 <td style={{ verticalAlign: 'top', textAlign: 'center', width: '45%' }}>
-                  <div>Kepala {sekolah.namaSekolah || 'SDN Pasirhalang'},</div>
+                  <div>Kepala {sekolah.namaSekolah || ''},</div>
                   <div style={{ height: '75px' }} />
                   <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
                     {data.namaPihakKesatu || ks.nama}

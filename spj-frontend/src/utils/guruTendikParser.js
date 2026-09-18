@@ -94,7 +94,7 @@ function parseString(val) {
 function parseHeader(worksheet) {
   const header = {
     jenis: parseString(getCell(worksheet, 0, 0)),     // "Daftar Guru" / "Daftar Tenaga Kependidikan"
-    namaSekolah: parseString(getCell(worksheet, 1, 0)), // "SD NEGERI PASIRHALANG"
+    namaSekolah: parseString(getCell(worksheet, 1, 0)), // nama sekolah dari Dapodik
     lokasi: parseString(getCell(worksheet, 2, 0)),     // Kecamatan, Kabupaten, Provinsi
     tanggalUnduh: parseString(getCell(worksheet, 3, 0)), // "Tanggal Unduh: ..."
     pengunduh: parseString(getCell(worksheet, 3, 3)),   // "Pengunduh: ..."

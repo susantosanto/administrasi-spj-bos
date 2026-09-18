@@ -9,7 +9,7 @@
  *   Hari / Tanggal / Pukul / Tempat
  *   Mengingat pentingnya acara ... tepat pada waktu yang telah ditentukan.
  *   Demikian undangan ini kami sampaikan, atas perhatian ... terima kasih.
- *   Ketua Gugus, [TTD] WAHYUDIN, S.Pd.SD. NIP. ...
+ *   Ketua Gugus, [TTD] ... NIP. ...
  *   Tembusan : ...
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
@@ -213,8 +213,8 @@ export default function SuratUndangan({ blockConfig, data = {}, onChange, mode }
       <div className="text-center w-56 mx-auto">
         <div className="text-xs font-medium mb-4">Ketua Gugus,</div>
         <div className="h-16" />
-        <div className="text-xs font-bold">{data.namaKetuaGugus || 'WAHYUDIN, S.Pd.SD.'}</div>
-        <div className="text-[10px] text-gray-500">NIP. {data.nipKetuaGugus || '197912222014121003'}</div>
+        <div className="text-xs font-bold">{data.namaKetuaGugus}</div>
+        <div className="text-[10px] text-gray-500">NIP. {data.nipKetuaGugus}</div>
       </div>
 
       {/* Tembusan */}

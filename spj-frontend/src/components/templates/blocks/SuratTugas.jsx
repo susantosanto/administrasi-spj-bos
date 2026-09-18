@@ -12,7 +12,7 @@
  *   Hari / tanggal / Tempat
  *   Demikian surat tugas ini dibuat ...
  *   Mengetahui/Mengesahkan
- *   Kepala, [TTD] WAHYUDIN ...  |  Cikalongwetan, ... / Kepala Sekolah, [TTD] BADRUDDIN ...
+ *   Kepala, [TTD] ...  |  Cikalongwetan, ... / Kepala Sekolah, [TTD] ...
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
 
@@ -62,7 +62,7 @@ export default function SuratTugas({ blockConfig, data = {}, onChange, mode }) {
       <p className="text-xs font-medium text-gray-700 mb-2">Yang bertandatangan di bawah ini :</p>
       <table className="w-full text-xs mb-3 border-collapse">
         <tbody>
-          {F('Nama', 'namaPenandatangan', 'BADRUDDIN, S.Ag.')}
+          {F('Nama', 'namaPenandatangan', 'Nama penandatangan')}
           {F('Jabatan', 'jabatanPenandatangan', 'Kepala Sekolah')}
         </tbody>
       </table>
@@ -100,15 +100,15 @@ export default function SuratTugas({ blockConfig, data = {}, onChange, mode }) {
         <div className="text-center w-56">
           <div className="text-xs font-medium mb-1">Kepala,</div>
           <div className="h-16" />
-          <div className="text-xs font-bold">{data.namaMengetahui || 'WAHYUDIN, S.Pd.SD.'}</div>
-          <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui || '197912222014121003'}</div>
+          <div className="text-xs font-bold">{data.namaMengetahui}</div>
+          <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
         </div>
         <div className="text-center w-56">
           <div className="text-xs text-gray-600 mb-1">{data.tanggalSpt || 'Cikalongwetan, ...'}</div>
           <div className="text-xs font-medium mb-1">Kepala Sekolah,</div>
           <div className="h-16" />
-          <div className="text-xs font-bold">{data.namaPenandatangan || 'BADRUDDIN, S.Ag.'}</div>
-          <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan || '197405082014121002'}</div>
+          <div className="text-xs font-bold">{data.namaPenandatangan}</div>
+          <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
         </div>
       </div>
     </div>

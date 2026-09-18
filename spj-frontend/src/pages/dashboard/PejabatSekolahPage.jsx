@@ -6,55 +6,31 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const PEJABAT_ROLES = [
-  {
-    key: 'ks',
-    label: 'Kepala Sekolah',
-    sublabel: 'Pimpinan Sekolah',
-    icon: 'person',
-    gradient: 'from-blue-500 to-blue-600',
-  },
-  {
-    key: 'bendahara',
-    label: 'Bendahara',
-    sublabel: 'Pengelola Keuangan',
-    icon: 'account_balance',
-    gradient: 'from-emerald-500 to-emerald-600',
-  },
-  {
-    key: 'pengawas',
-    label: 'Pengawas Bina',
-    sublabel: 'Pembina Sekolah',
-    icon: 'supervisor_account',
-    gradient: 'from-violet-500 to-violet-600',
-  },
-  {
-    key: 'sekdik',
-    label: 'Sekretaris Dinas Pendidikan',
-    sublabel: 'Perwakilan Dinas',
-    icon: 'badge',
-    gradient: 'from-amber-500 to-amber-600',
-  },
-]
-
-const defaultPejabat = {
-  ks: { nama: '', nip: '' },
-  bendahara: { nama: '', nip: '' },
-  pengawas: { nama: '', nip: '' },
-  sekdik: { nama: '', nip: '' },
+// Kartu pejabat: blue-only. Warna aksen per peran DIHAPUS (Sprint 001 task 2.7) —
+/** Sublabel kartu — tampilan saja, bukan bagian kontrak data. */
+const PEJABAT_SUBLABELS = {
+  ks: 'Pimpinan Sekolah',
+  bendahara: 'Pengelola Keuangan',
+  pengawas: 'Pembina Sekolah',
+  sekdik: 'Perwakilan Dinas',
+  ketuaGugus: 'Ketua Gugus',
+  notulen: 'Notulen Rapat',
 }
+
+const defaultPejabat = { ...DEFAULT_PEJABAT }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function PejabatSekolahPage() {
-  const [pejabat, setPejabat] = useState(defaultPejabat)
+  const [pejabat, setPejabat] = useState({ ...DEFAULT_PEJABAT })
   const [sekolah, setSekolah] = useState(null)
   const [hasChanges, setHasChanges] = useState(false)
   const toast = useToast()
@@ -63,16 +39,21 @@ export default function PejabatSekolahPage() {
     const stored = storageHelper.get('data_sekolah', null)
     if (stored) {
       setSekolah(stored)
-      if (stored.pejabat) setPejabat(stored.pejabat)
+      // Deep-merge: data LAMA tanpa ketuaGugus/notulen tetap aman.
+      setPejabat(mergePejabat(stored.pejabat))
     }
   }, [])
 
   // ─── Update Field ────────────────────────────────────────────────
+  // Guard optional-chaining: peran baru dari data lama selalu ada via merge.
   const updateField = (jabatan, field, value) => {
-    setPejabat(prev => ({
-      ...prev,
-      [jabatan]: { ...prev[jabatan], [field]: value },
-    }))
+    setPejabat(prev => {
+      const merged = mergePejabat(prev)
+      return {
+        ...merged,
+        [jabatan]: { ...merged[jabatan], [field]: value },
+      }
+    })
     setHasChanges(true)
   }
 
@@ -87,8 +68,8 @@ export default function PejabatSekolahPage() {
   // ─── Reset ───────────────────────────────────────────────────────
   const handleReset = () => {
     const stored = storageHelper.get('data_sekolah', null)
-    if (stored?.pejabat) {
-      setPejabat(stored.pejabat)
+    if (stored) {
+      setPejabat(mergePejabat(stored.pejabat))
       setHasChanges(false)
     }
   }
@@ -148,8 +129,8 @@ export default function PejabatSekolahPage() {
               key={role.key}
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
-              {/* Card Header */}
-              <div className={`relative bg-gradient-to-r ${role.gradient} p-5 overflow-hidden`}>
+              {/* Card Header — blue-only (Sprint 001 task 2.7) */}
+              <div className="relative bg-gradient-to-r from-primary to-blue-600 p-5 overflow-hidden">
                 {/* Decorative */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-2xl" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl" />
@@ -160,7 +141,7 @@ export default function PejabatSekolahPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white">{role.label}</h3>
-                    <p className="text-white/70 text-xs">{role.sublabel}</p>
+                    <p className="text-white/70 text-xs">{PEJABAT_SUBLABELS[role.key] || ''}</p>
                   </div>
                 </div>
               </div>
@@ -178,7 +159,7 @@ export default function PejabatSekolahPage() {
                     </span>
                     <input
                       type="text"
-                      value={pejabat[role.key].nama}
+                      value={pejabat?.[role.key]?.nama || ''}
                       onChange={(e) => updateField(role.key, 'nama', e.target.value)}
                       placeholder={`Nama ${role.label}`}
                       className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -197,7 +178,7 @@ export default function PejabatSekolahPage() {
                     </span>
                     <input
                       type="text"
-                      value={pejabat[role.key].nip}
+                      value={pejabat?.[role.key]?.nip || ''}
                       onChange={(e) => updateField(role.key, 'nip', e.target.value)}
                       placeholder="NIP. 000000000000000000"
                       className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -206,7 +187,7 @@ export default function PejabatSekolahPage() {
                 </div>
 
                 {/* Preview */}
-                {pejabat[role.key].nama && (
+                {pejabat?.[role.key]?.nama && (
                   <div className="pt-3 border-t border-slate-100">
                     <p className="text-xs text-slate-400 mb-2">Preview:</p>
                     <div className="bg-slate-50 rounded-xl p-3 text-center">
