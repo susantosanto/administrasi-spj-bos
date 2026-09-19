@@ -329,34 +329,6 @@ export const TEMPLATE_CONFIGS = {
     },
   },
 
-  // ─── SURAT TUGAS (DOCX) ───
-  // Sama dengan SPT, judul 'SURAT TUGAS' — 1 surat per penerima
-  surat_tugas: {
-    id: 'surat_tugas',
-    label: 'Surat Tugas',
-    card: 'perjalanan_dinas',
-    sub_kategori: null,
-    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
-    orientation: 'portrait',
-    perRecipient: true,
-    blocks: [
-      { type: 'kop-surat' },
-      {
-        type: 'surat-tugas',
-        judul: 'SURAT TUGAS',
-        nomor: true,
-      },
-    ],
-    defaults: {
-      nomorSpt: '',
-      namaPenandatangan: '',
-      nipPenandatangan: '',
-      jabatanPenandatangan: 'Kepala Sekolah',
-      namaMengetahui: '',
-      nipMengetahui: '',
-    },
-  },
-
   // ─── SURAT UNDANGAN GUGUS (DOCX) ───
   // Undangan dari Ketua Gugus (kop gugus, tembusan)
   undangan_gugus: {

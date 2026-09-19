@@ -183,10 +183,11 @@ const BULAN_LIST = [
 // ─── Tab dokumen Perjalanan Dinas ────────────────────────────────────────
 // Tab = data yang akan di-edit, bukan tampilan cetak.
 // Template cetak (persis dengan DOCX) dirender di Preview.
+// ADR 2026-09-14: tab "Surat Tugas" dihapus — satu dokumen = satu tab
+// (dokumen sumber hanya memuat Undangan, SPT, SPD).
 const TRANSPORT_FORM_TABS = [
   { id: 'daftar', label: 'Daftar Penerima', icon: 'table_chart' },
   { id: 'spt', label: 'Surat Perintah Tugas', icon: 'assignment' },
-  { id: 'surat_tugas', label: 'Surat Tugas', icon: 'task_alt' },
   { id: 'sppd', label: 'SPPD', icon: 'directions_car' },
   { id: 'resume', label: 'Resume', icon: 'description' },
   { id: 'undangan', label: 'Undangan', icon: 'mail' },
@@ -195,8 +196,8 @@ const TRANSPORT_FORM_TABS = [
 // Tab dokumen per sub-kategori Perjalanan Dinas
 // Koordinasi & Bank: hanya antar dokumen (tanpa Resume & Undangan)
 const TRANSPORT_TABS_BY_SUB = {
-  koordinasi: ['daftar', 'spt', 'surat_tugas', 'sppd'],
-  bank: ['daftar', 'spt', 'surat_tugas', 'sppd'],
+  koordinasi: ['daftar', 'spt', 'sppd'],
+  bank: ['daftar', 'spt', 'sppd'],
 }
 
 // Tab list sesuai sub-kategori (default: semua 6 tab)
@@ -515,42 +516,6 @@ export default function DokumenFormPreview({
                   <Field label="Nama Kepala (Gugus)" value={formData.namaMengetahui} onChange={(e) => setFormData({ ...formData, namaMengetahui: e.target.value })} placeholder="Nama ketua gugus" />
                   <Field label="NIP" value={formData.nipMengetahui} onChange={(e) => setFormData({ ...formData, nipMengetahui: e.target.value })} placeholder="NIP ketua gugus" />
                 </div>
-              </div>
-            )}
-
-            {/* ═══ TAB: SURAT TUGAS (transport, per penerima) ═══ */}
-            {isTransport && formTab === 'surat_tugas' && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-                <div className="flex items-center gap-2 text-primary mb-2">
-                  <span className="material-symbols-outlined text-lg">task_alt</span>
-                  <span className="text-sm font-bold">Surat Tugas (per penerima)</span>
-                </div>
-                {tRows.length === 0 ? (
-                  <p className="text-xs text-amber-600 p-2">Belum ada penerima. Pilih penerima terlebih dahulu di tab Daftar Penerima.</p>
-                ) : (
-                  <>
-                    <div>
-                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
-                      <select value={selRow?.id || ''} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
-                        {tRows.map((r) => (
-                          <option key={r.id} value={r.id}>{r.no}. {r.nama} — {r.jabatan}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Nama" value={selRow?.nama} readOnly />
-                      <Field label="NIP" value={selRow?.sptNip} onChange={(e) => updateRow(selRow.id, 'sptNip', e.target.value)} />
-                      <Field label="Pangkat / Golongan" value={selRow?.sptPangkat} onChange={(e) => updateRow(selRow.id, 'sptPangkat', e.target.value)} />
-                      <Field label="Jabatan" value={selRow?.sptJabatan} onChange={(e) => updateRow(selRow.id, 'sptJabatan', e.target.value)} placeholder={selRow?.jabatan || ''} />
-                    </div>
-                    <Field label="Untuk / Keperluan" textarea rows={2} value={formData.sptUntuk} onChange={(e) => setFormData({ ...formData, sptUntuk: e.target.value })} placeholder="Rapat Kerja Teknis Operator Sekolah Tingkat Gugus..." />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Hari" value={formData.sptHari} onChange={(e) => setFormData({ ...formData, sptHari: e.target.value })} placeholder="Jumat" />
-                      <Field label="Tanggal" value={formData.sptTanggal} onChange={(e) => setFormData({ ...formData, sptTanggal: e.target.value })} placeholder="8 Mei 2026" />
-                      <Field label="Tempat" value={formData.sptTempat} onChange={(e) => setFormData({ ...formData, sptTempat: e.target.value })} placeholder="SD Negeri Cipada" />
-                    </div>
-                  </>
-                )}
               </div>
             )}
 
@@ -1822,9 +1787,6 @@ export default function DokumenFormPreview({
             )}
             {showTabs && previewTab === 'spt' && renderPerRecipient(
               TEMPLATE_CONFIGS.spt, buildSptData, 'Surat Perintah Tugas', 'assignment'
-            )}
-            {showTabs && previewTab === 'surat_tugas' && renderPerRecipient(
-              TEMPLATE_CONFIGS.surat_tugas, buildSptData, 'Surat Tugas', 'task_alt'
             )}
             {showTabs && previewTab === 'sppd' && renderPerRecipient(
               TEMPLATE_CONFIGS.sppd, buildSppdData, 'SPPD', 'directions_car'
