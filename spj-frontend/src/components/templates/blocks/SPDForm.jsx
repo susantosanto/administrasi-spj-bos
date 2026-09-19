@@ -139,8 +139,9 @@ export default function SPDForm({ blockConfig, data = {} }) {
         <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
       </div>
 
-      {/* ─── Surat Berangkat / Tiba (per penerima) ─── */}
-      <div className="mt-8 border-t border-dashed border-gray-300 pt-4">
+      {/* ─── Surat Berangkat / Tiba (per penerima) — break-inside-avoid agar
+          kotak TTD tidak terpotong antar halaman cetak (task 4.5) ─── */}
+      <div className="mt-8 border-t border-dashed border-gray-300 pt-4 break-inside-avoid-page">
         <div className="text-xs font-medium text-gray-700 mb-2">
           SPD Nomor : <span className="font-bold">{data.nomorSurat || <PlaceholderText label="SPD Nomor" />}</span>
         </div>
@@ -154,7 +155,7 @@ export default function SPDForm({ blockConfig, data = {} }) {
         <div className="text-xs text-gray-700 mb-1">
           Pada tanggal : {val('tanggalBerangkat', 'Tanggal berangkat')}
         </div>
-        <div className="text-center w-56 mx-auto mt-2">
+        <div className="text-center w-56 mx-auto mt-2 break-inside-avoid">
           <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
           <div className="h-16" />
           <div className="text-xs font-bold">{data.namaPenandatangan}</div>
@@ -167,11 +168,26 @@ export default function SPDForm({ blockConfig, data = {} }) {
         <div className="text-xs text-gray-700 mb-1">
           Pada tanggal : {val('tanggalKembali', 'Tanggal')}
         </div>
-        <div className="text-center w-56 mx-auto mt-2">
+        <div className="text-center w-56 mx-auto mt-2 break-inside-avoid">
           <div className="text-xs font-medium mb-4">Kepala,</div>
           <div className="h-16" />
           <div className="text-xs font-bold">{data.namaMengetahui}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
+        </div>
+      </div>
+
+      {/* ─── 3 blok resmi SPD — kalimat PERSIS dokumen sumber (task 4.2–4.4) ─── */}
+      <div className="mt-8 break-inside-avoid-page">
+        <p className="text-xs text-gray-700 leading-relaxed">
+          Telah diperiksa dengan keterangan bahwa perjalanan tersebut atas perintah pejabat yang berwenang dan semata-mata untuk kepentingan jabatan dalam waktu yang sesingkat-singkatnya.
+        </p>
+        <div className="text-xs font-medium text-gray-700 mt-4 mb-1">Catatan Lain-Lain</div>
+        <div className="text-xs text-gray-700 whitespace-pre-wrap">{data.keterangan || ''}</div>
+        <div className="mt-6">
+          <div className="text-xs font-bold text-gray-700 mb-1">PERHATIAN :</div>
+          <p className="text-xs text-gray-700 leading-relaxed">
+            Pengguna Anggaran/Kuasa Pengguna Anggaran yang menerbitkan SPD, Kepala Daerah/Wakil Kepala Daerah, Pimpinan dan Anggota DPR, PNS dan PTT yang melakukan perjalanan dinas, para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara pengeluaran bertanggungjawab berdasarkan peraturan-peraturan Keuangan Daerah apabila daerah menderita rugi akibat kesalahan dan kelalaian.
+          </p>
         </div>
       </div>
     </div>
