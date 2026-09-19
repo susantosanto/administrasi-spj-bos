@@ -142,6 +142,20 @@ export default function DokumenSPJPage() {
     return stored[key]?.status || 'Belum'
   }
 
+  // ─── Sprint 002 FASE 5 (task 5.1): reset bersih data lama ────────────────
+  // ADR 2026-09-14: tanpa fungsi migrasi — data lama dibuang.
+  // HANYA dokumen_lpj; spj_data_sekolah TIDAK ikut terhapus.
+  const handleResetDokumenLpj = () => {
+    if (!window.confirm('Reset seluruh data dokumen LPJ (termasuk Perjalanan Dinas)?\nData Sekolah & pejabat TIDAK ikut terhapus.')) return
+    storageHelper.remove('dokumen_lpj')
+    setSelectedCard(null)
+    setSelectedSubKategori(null)
+    setFormData({})
+    setSppdData({})
+    setViewMode('form')
+    toast.success('Data dokumen LPJ di-reset bersih. Data Sekolah tetap utuh.')
+  }
+
   // ─── Premium Scroll Handler ──────────────────────────────────────────────
   const scrollToDetail = () => {
     setTimeout(() => {
@@ -663,6 +677,17 @@ export default function DokumenSPJPage() {
             <div className="w-1.5 h-6 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">BKU Utama</h3>
             <span className="text-xs text-slate-500">— Dokumen utama pertanggungjawaban</span>
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleResetDokumenLpj}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+              title="Buang seluruh data dokumen LPJ lama (skema baru) — Data Sekolah tidak ikut terhapus"
+            >
+              <span className="material-symbols-outlined text-sm">restart_alt</span>
+              Reset Data Dokumen LPJ
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
