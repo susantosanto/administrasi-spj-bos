@@ -19,18 +19,39 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
 
 ## Checklist
 
-- [ ] C-01 Tab "Surat Tugas" hilang; tidak ada referensi tersisa (T-02)
-- [ ] C-02 Form SPT, SPD, Undangan memetakan elemen dokumen sumber (T-03)
-- [ ] C-03 Print-area SPT/SPD/Undangan lengkap kop → TTD (T-06, T-07)
-- [ ] C-04 Tab = data saja; blok cetak tidak merender `<input>` (T-04)
-- [ ] C-05 Print-area SPD memuat 3 blok resmi yang hilang, kalimat persis (T-05)
-- [ ] C-06 TTD Undangan memakai Ketua Gugus (T-07)
-- [ ] C-07 A4 + satuan `mm` + `orientation` benar untuk ketiga dokumen (T-08)
-- [ ] C-08 Data lama Perjalanan Dinas di-reset bersih, tanpa migrasi (T-09)
-- [ ] C-09 Warna blue-only pada file yang disentuh (T-10)
-- [ ] C-10 Regresi 6 konsumen existing lulus (T-11)
-- [ ] C-11 `npm run build` sukses (T-01)
-- [ ] C-12 `STATE.MD` + pack sprint diperbarui
+> Status 2026-09-19 (Builder, statik): seluruh item dicek statik + gate grep + build;
+> screenshot UI runtime menunggu /acceptance-runner konteks segar (aturan AGENTS.MD).
+> Koreksi dry run yang disetujui user 2026-09-19: **T-02 di-rescope** (kecualikan
+> `utils/templateSuratHelper.js` — fitur "Template Surat Cerdas" lain, lihat
+> `DRYRUN-REPORT.MD` D-1 + QUESTIONS.MD) · **T-04 diperluas** `<input|<textarea`
+> (D-3) · placeholder nama riil diganti generik (D-2).
+
+- [x] C-01 Tab "Surat Tugas" hilang; tidak ada referensi tersisa (T-02) — statik:
+  grep rescoped = 0; 3 sisa di `templateSuratHelper.js` = fitur lain (D-1)
+- [x] C-02 Form SPT, SPD, Undangan memetakan elemen dokumen sumber (T-03) — statik:
+  SPT kini per-penerima (Nama/NIP/Pangkat/Jabatan); SPPD butir 1–10 + Pengikut
+  multi-baris; Undangan + 2 paragraf penutup + tembusan multi-baris; tabel pemetaan
+  formal menunggu acceptance-runner
+- [x] C-03 Print-area SPT/SPD/Undangan lengkap kop → TTD (T-06, T-07) — statik:
+  kop via blok config (kop-surat/kop-gugus), TTD auto-fill Sprint 001 dipertahankan;
+  screenshot menunggu acceptance-runner
+- [x] C-04 Tab = data saja; blok cetak tidak merender `<input>` (T-04) — statik:
+  grep `<input|<textarea` 3 blok = 0 (diperluas D-3)
+- [x] C-05 Print-area SPD memuat 3 blok resmi yang hilang, kalimat persis (T-05) —
+  statik: 4 string persis docx terverifikasi via grep; screenshot menunggu runner
+- [x] C-06 TTD Undangan memakai Ketua Gugus (T-07) — statik: `namaKetuaGugus` dari
+  `sig['ketua-gugus']` (DokumenFormPreview, dipertahankan dari Sprint 001)
+- [x] C-07 A4 + satuan `mm` + `orientation` benar untuk ketiga dokumen (T-08) —
+  statik: 3× portrait di templateConfig; CSS cetak 210/297mm + `@page` ada
+- [x] C-08 Data lama Perjalanan Dinas di-reset bersih, tanpa migrasi (T-09) — statik:
+  tombol "Reset Data Dokumen LPJ" + `storageHelper.remove('dokumen_lpj')` + confirm;
+  `spj_data_sekolah` tidak disentuh; uji localStorage runtime menunggu runner
+- [x] C-09 Warna blue-only pada file yang disentuh (T-10) — statik: 3 blok = 0 warna
+  terlarang; DokumenSPJPage sisa `amber`×10 = pil status sub-kategori (pengecualian sah)
+- [x] C-10 Regresi 6 konsumen existing lulus (T-11) — statik: 6 konsumen TIDAK tersentuh
+  (git diff 264c431..HEAD); gate 15-pola Sprint 001 tetap 0 hit
+- [x] C-11 `npm run build` sukses (T-01) — `✓ built in 4.41s`, exit 0 (gate akhir)
+- [x] C-12 `STATE.MD` + pack sprint diperbarui — 2026-09-19
 
 ---
 

@@ -5,7 +5,9 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
-- Sprint Aktif: **Sprint 001 — Fondasi Data Sekolah & Pejabat** — 🟡 **SEDANG DIKERJAKAN**
+- Sprint Aktif: **tidak ada — Sprint 002 (terbaru) tutup STATIK 2026-09-19, menunggu
+  push + /acceptance-runner.** Sprint 001 juga tutup statik 2026-09-18.
+- Sprint 001 — Fondasi Data Sekolah & Pejabat — 🟡 **TUTUP (STATIK)**
   (**FASE 1–6 SELESAI (STATIK)** — FASE 1–4 di-commit `8398fe1` 2026-09-18; FASE 5–6
   selesai + lulus gate Builder 2026-09-18, di-commit `73174c0` (`feat:`) + `2e23441`
   (`docs:`); **belum di-push**;
@@ -31,8 +33,10 @@
   `package.json` sendiri masih memakai `^` untuk 14 paket → dijadikan **task 1.11 + T-13**.
   **Status: DRAFT v3 — menunggu persetujuan user; coding DILARANG dimulai sebelum
   pack disetujui (aturan AGENTS.MD).**
-- Sprint Berikutnya: **Sprint 002 — Rework Modul Perjalanan Dinas** (pack DIBUAT,
-  **menunggu Sprint 001 selesai**). Pack: `planning/sprints/sprint-002/` (4 dokumen) ·
+- Sprint Terbaru: **Sprint 002 — Rework Modul Perjalanan Dinas** — 🟡 **FASE 1–5 SELESAI (STATIK) 2026-09-19**
+  (di-commit `36b408f`→`5b11f10`, **belum di-push**; verifikasi UI runtime menunggu
+  /acceptance-runner konteks segar). Pack: `planning/sprints/sprint-002/` (4 dokumen +
+  `DRYRUN-REPORT.MD`) ·
   salinan audit `architect-packs/architect-pack-002-perjalanan-dinas.md` (656 baris,
   Lampiran **5 LULUS**). Isi: US-01…US-10, US-12 (+US-11 sebagian, + regresi US-16) ·
   5 fase / 27 task. ⚠️ **Prasyarat keras** — memakai `getSignatureRoles()`,
@@ -46,11 +50,31 @@
   + membersihkan 5 placeholder nama/NIP di file itu. ⚠️ **5 file tumpang tindih** dengan
   Sprint 001 (`SPDForm`, `SuratTugas`, `SuratUndangan`, `templateConfig.js`,
   `DokumenFormPreview.jsx`) — batas tegas: **001 = sumber nilai · 002 = struktur & layout**.
+  **FASE 1–5 SELESAI & LULUS GATE BUILDER (STATIK) 2026-09-19** — 6 file disentuh, 0 file
+  baru. **FASE 1** (`36b408f`) hapus tab & config `surat_tugas` (satu dokumen = satu tab).
+  **FASE 2** (`6a5408f`) form SPT/SPD/Undangan selaras docx sumber: SPT per-penerima
+  (Nama/NIP/Pangkat/Jabatan), pengikut SPD multi-baris, 2 paragraf penutup + tembusan
+  undangan, `sifat` default `-`; efek auto-sync SPPD diperbaiki dengan `...prev`.
+  **FASE 3** (`e7c0150`) 3 blok cetak murni — 0 `<input>`/`<textarea>`, placeholder nama
+  riil → label generik (D-2), pengikut SPD tampil data. **FASE 4** (`6746d66`) print-area
+  SPD lengkap: 3 blok resmi kalimat persis docx ("Telah diperiksa…", "Catatan Lain-Lain",
+  "PERHATIAN :") + anti-terpotong halaman. **FASE 5** (`5b11f10`) tombol "Reset Data
+  Dokumen LPJ" (`storageHelper.remove('dokumen_lpj')` + confirm, tanpa migrasi; Data
+  Sekolah utuh) + gate akhir. **3 koreksi dry run disetujui user 2026-09-19:** D-1 rescope
+  T-02 (kecualikan `templateSuratHelper.js` — fitur "Template Surat Cerdas" lain) · D-2
+  placeholder generik · D-3 perluas T-04 ke `<textarea`. Bukti gate: build exit 0 ·
+  grep `surat_tugas` (rescoped) = 0 · grep `<input|<textarea` 3 blok = 0 · 4 string legal
+  SPD persis · 15 pola anti-hardcode Sprint 001 tetap 0 hit · 6 konsumen tidak tersentuh.
+  Detail di `DRYRUN-REPORT.MD` + ADR bagian M di `DECISIONS.MD`. ⚠️ **UI runtime
+  (T-03…T-11) belum terbukti — wajib /acceptance-runner konteks segar.**
+  Juga selesai pra-sprint: fix `nama_sekolah` snake_case → camelCase di
+  `DokumentasiAIGenerate.jsx` (commit `c955019`, 2 titik: kop preview + HTML cetak).
 - Status: Sprint 000 (ONBOARDING) sudah **DITUTUP**. Baseline keamanan `aedd65c`
   (FINDINGS: 2 TINGGI terjadwal RISKS.MD, 0 KRITIS). Checklist A 27.7.1 hijau —
-  posisi aman untuk pindah agent. **4 pertanyaan OPEN** di QUESTIONS.MD (keputusan parser
+  posisi aman untuk pindah agent. **5 pertanyaan OPEN** di QUESTIONS.MD (keputusan parser
   xlsx, duplikat xlsx di root `package.json`, `NomorSuratPopup` `'SDN-PSR'`, batas literal
-  tempat/tanggal dokumen — dua terakhir ditambahkan 2026-09-17, **tidak memblok** sprint).
+  tempat/tanggal dokumen, `templateSuratHelper.js` fitur "Template Surat Cerdas" — dua
+  terakhir tidak memblok sprint; pertanyaan `nama_sekolah` CLOSED 2026-09-19).
   Posisi ritel 27.3: Tahap 2 langkah 4 (/idea-clarifier) **selesai**.
 - **VERIFIKASI INDEPENDEN 2026-09-17 (v4)** — 11 klaim pack v3 diukur ulang terhadap
   kode nyata (dipicu permintaan user "cek AGENTS/STATE/DECISIONS"). **Semua COCOK:**
@@ -293,16 +317,28 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-18 (FASE 6 selesai + FASE 5–6 di-commit `73174c0`/`2e23441` — Sprint 001 tutup statik; dicatat Builder)
+- Terakhir Diperbarui: 2026-09-19 (Sprint 002 FASE 1–5 selesai statik + docs task 5.4 di-commit; dicatat Builder)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
 | 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 6/6 selesai (statik) 2026-09-18; di-commit `8398fe1` + `73174c0` + `2e23441`** — menunggu push + acceptance-runner) | 🟡 Berjalan | 2026-09-17 |
-| 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (pack dibuat 2026-09-14, handoff disesuaikan 2026-09-17 — **menunggu Sprint 001**) | ⬜ Belum dimulai | — |
+| 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (**FASE 1–5 selesai (statik) 2026-09-19; di-commit `36b408f`→`5b11f10`** + fix pra-sprint `c955019` — menunggu push + acceptance-runner) | 🟡 Tutup (statik) | 2026-09-19 |
 
 ## Langkah Selanjutnya
+- **Sprint 002 FASE 1–5 SELESAI (STATIK) 2026-09-19 — seluruh fase di-commit
+  `36b408f`→`5b11f10` (+ fix pra-sprint `c955019`); docs task 5.4 (STATE/DECISIONS/
+  QUESTIONS/ACCEPTANCE) di-commit terpisah. Menunggu: push + acceptance-runner.**
+  ⏸️ **Berhenti di sini.** Yang menunggu user:
+  1. **Push ke origin** — 12 commit lokal masih **belum di-push** (Sprint 001 + 002 +
+     fix; pelajaran insiden #3: push = jaring pengaman sesungguhnya).
+  2. **/acceptance-runner ulang utuh di konteks segar** (aturan AGENTS.MD) — wajib
+     membuktikan UI runtime Sprint 002 (T-03…T-11: form SPT/SPD/Undangan, print-area
+     kop→TTD, 3 blok SPD, reset localStorage) **dan** Sprint 001 (T-03…T-15, V2–V12,
+     E-1/E-2) sebelum kedua sprint dinyatakan lulus penuh.
+  3. Setelah itu → sprint berikutnya (lihat PRD umbrella; sisa US di luar 001/002) atau
+     REWORK keamanan bertahap (docs/SECURITY-AUDIT-001.md §8).
 - **Sprint 001 FASE 1–6 SELESAI (STATIK) — seluruh fase di-commit: FASE 1–4 `8398fe1`,
   FASE 5 `73174c0` (`feat:`), FASE 5–6 docs `2e23441`; menunggu: push +
   acceptance-runner ulang utuh.**
@@ -315,6 +351,8 @@
      T-03…T-15 + V2–V12 + E-1/E-2 sebelum sprint dinyatakan lulus penuh.
   3. Setelah itu → **Sprint 002** (Rework Modul Perjalanan Dinas) — prasyarat
      `blocks/PeringatanData.jsx` & kontrak data Sprint 001 sudah tersedia.
+     **(SUPERSEDED — Sprint 002 kini sudah dikerjakan & tutup statik 2026-09-19;
+     lihat blok di atas.)**
   Blok "Sprint 001 FASE 1–3 SELESAI — menunggu keputusan user: commit + izin FASE 4"
   di bawah **superseded** oleh blok ini (FASE 4 sudah dikerjakan 2026-09-18 atas
   persetujuan user; riwayat dibiarkan untuk audit trail).
@@ -340,6 +378,16 @@
 - (tidak ada)
 
 ## Catatan Penting
+- **Sprint 002 ditutup STATIK 2026-09-19** (dicatat Builder, task 5.4): FASE 1–5
+  selesai, semua lulus gate Builder (build exit 0 · grep `surat_tugas` rescoped = 0 ·
+  grep `<input|<textarea` 3 blok = 0 · 4 string legal SPD persis docx · 15 pola
+  anti-hardcode Sprint 001 tetap 0 hit · 6 konsumen tidak tersentuh · blue-only).
+  Commit: `c955019` (fix pra-sprint `nama_sekolah`) · `36b408f` (F1) · `6a5408f` (F2) ·
+  `e7c0150` (F3) · `6746d66` (F4) · `5b11f10` (F5) + commit docs ini. **3 koreksi dry
+  run disetujui user** (D-1 rescope T-02, D-2 placeholder generik, D-3 perluas T-04) —
+  ADR bagian M di `DECISIONS.MD`, detail di `DRYRUN-REPORT.MD`. **UI runtime (T-03…T-11)
+  belum terbukti — wajib /acceptance-runner ulang utuh di konteks segar.** Batas tegas
+  dipertahankan: **001 = sumber nilai · 002 = struktur & layout** (5 file tumpang tindih).
 - **Sprint 001 ditutup STATIK 2026-09-18** (dicatat /state-keeper): FASE 1–6 selesai,
   semua lulus gate Builder (build exit 0, T-02 15 pola 0 hit verbatim, regresi
   6 konsumen × 2 kondisi = 12/12). Commit: `8398fe1` (FASE 1–4) · `73174c0`

@@ -604,6 +604,72 @@
     (`KopSurat`, `SignatureFooter`) · kedua **`export default` 0 konsumen** · helper
     `val()` vs `F()` **terbukti beda** (D-2 benar) · **19 file cukup**, tidak ada file ke-20
 
+[2026-09-19] Keputusan: **Fix `nama_sekolah` snake_case di DokumentasiAIGenerate**
+  (observasi warisan T-11 Sprint 001) — commit `c955019`
+  Status: accepted
+  Alasan: `getSchoolData()` mengembalikan camelCase `namaSekolah`, tetapi komponen
+  membaca `sekolah?.nama_sekolah` di 2 titik (baris 74 kop preview A4 + 432 HTML
+  cetak) → fallback generik `'SD NEGERI ...'` SELALU terpakai meski Data Sekolah
+  terisi. Sisa `nama_sekolah` di kode = shape output parser xlsx (bkuParser,
+  sekolahParser, konsumennya) — benar, tidak disentuh.
+  Dibuat oleh: user (perintah eksplisit) + agent (eksekusi)
+  Dampak: 1 file, 2 baris; build exit 0; kop dokumentasi kini tampil dari Data Sekolah.
+
+## M. Sprint 002 — Rework Modul Perjalanan Dinas (2026-09-19)
+
+[2026-09-19] Keputusan: **Gate T-02 di-rescope** — `grep -rn "surat_tugas"`
+  dicek = 0 hasil DI LUAR `utils/templateSuratHelper.js` (temuan dry run D-1)
+  Status: accepted
+  Alasan: `templateSuratHelper.js:21-22,234` memuat `surat_tugas` milik fitur
+  BERBEDA ("Template Surat Cerdas" → `TemplateSuratPage.jsx`, rute aktif di
+  App.jsx:65), bukan modul Perjalanan Dinas. Membatasi penghapusan ke modul saja
+  sesuai ADR 2026-09-14; menyentuh template fitur lain = perubahan scope.
+  Ditemukan oleh: agent (dry run Sprint 002)
+  Dampak: pack 4 dokumen + 27 task; 6 file disentuh (commit 36b408f–5b11f10);
+  pertanyaan masa depan fitur itu → QUESTIONS.MD.
+  Dibatalkan: tidak ada — keputusan final; gate T-02 aslinya mustahil lulus apa adanya.
+
+[2026-09-19] Keputusan: **Placeholder nama orang riil diganti label generik** di
+  blok cetak (D-2: `RISNA MARSELA HARTINI` di `SPDForm.jsx:65` & `SuratTugas.jsx:76`)
+  Status: accepted
+  Alasan: di `SPDForm` nilai `ph` TERCETAK dalam kurung siku saat print + data kosong
+  → nama riil bocor ke dokumen. Sama kelas dengan cacat yang Sprint 001 bersihkan;
+  lolos T-02 karena bukan salah satu dari 15 pola.
+  Ditemukan oleh: agent (dry run Sprint 002)
+  Dampak: FASE 3 (commit e7c0150) — placeholder generik ("Nama pelaksana perjalanan
+  dinas", dst.); grep nama riil = 0.
+
+[2026-09-19] Keputusan: **Gate T-04 diperluas** `<input|<textarea` = 0 di 3 blok cetak
+  (D-3)
+  Status: accepted
+  Alasan: konsep dua wajah (tab = data, print-area = dokumen formal) dibuktikan oleh
+  absennya SEMUA elemen input; hanya `<input` akan membiarkan `<textarea>` bocor ke
+  dokumen cetak.
+  Ditemukan oleh: agent (dry run Sprint 002)
+  Dampak: SuratUndangan memiliki 2 `<textarea>` (isi + tembusan) — ikut dihapus;
+  cetak kini pakai span + fallback PlaceholderText.
+
+[2026-09-19] Keputusan: **Pergeseran editor per-penerima ke form SPT** (D-4/D-5 dry run)
+  Status: accepted
+  Alasan: menghapus tab `surat_tugas` menghapus satu-satunya editor `sptNip`/
+  `sptPangkat` yang dipakai `buildSptData` (cetak "Menugaskan Kepada"). Form SPT kini
+  punya pemilih penerima + field Nama/NIP/Pangkat/Jabatan sesuai struktur docx;
+  field tanpa padanan dokumen (sifatSpt, lampiranSpt, perihalSpt, isiSpt, alamatSpt,
+  pukulSpt, tanggalAcaraSpt) dihapus — terverifikasi 0 konsumen.
+  Ditemukan oleh: agent (dry run Sprint 002)
+  Dampak: FASE 2 (commit 6a5408f); efek auto-sync SPPD juga diperbaiki dengan `...prev`
+  — sebelumnya setiap perubahan daftar penerima MENGHAPUS field form SPPD lain.
+
+[2026-09-19] Keputusan: **Reset data tanpa migrasi** di DokumenSPJPage
+  Status: accepted
+  Alasan: ADR 2026-09-14 — skema berubah (tab dihapus, print-area bertambah), data
+  lama tidak konsisten; `dokumen_lpj` **tidak pernah ditulis** oleh kode lama
+  (3 pembaca saja: DokumenSPJPage:140, dataContextBuilder:232, queryEngine:52) jadi
+  reset = clear key, bukan migrasi. `spj_data_sekolah` TIDAK disentuh.
+  Ditemukan oleh: agent (dry run Sprint 002, task 5.1)
+  Dampak: tombol "Reset Data Dokumen LPJ" dengan confirm; status per dokumen kembali
+  "Belum" setelah reset (commit 5b11f10).
+
 ## Catatan audit trail
 
 - ADR 2026-09-17 F-1c "5 NIP hardcoded (15 kemunculan di 6 file) — satu grep 11 pola"

@@ -37,11 +37,30 @@
   Apakah batas itu permanen, atau kelak tempat/tanggal juga harus data-driven
   (mis. `kecamatan` dari Data Sekolah untuk tempat, tanggal hari ini untuk tanggal)?
   Ditanya: 2026-09-17 | Dari: agent (batas ditetapkan saat revisi pack sprint-001) |
-  Status: Menunggu keputusan user — **TIDAK memblok sprint 001** (batas sudah tertulis
-  di `REQUIREMENTS.MD` §Batasan dan diuji di E-2). Perlu dijawab sebelum Sprint 002
-  merombak print-area, supaya Builder tidak "sekalian" membersihkan literal ini.
+  Status: Menunggu keputusan user — Sprint 002 FASE 3/4 menjalankan batas ini
+  (placeholder tempat/tanggal dibiarkan sebagai teks bantu); perlu dijawab sebelum
+  sprint berikutnya menyentuh blok yang sama.
+
+❓ [OPEN] Pertanyaan: `utils/templateSuratHelper.js` (fitur "Template Surat Cerdas",
+  konsumen `TemplateSuratPage.jsx` rute `/dashboard/template-surat`) memuat template
+  `surat_tugas` SENDIRI — ditemukan dry run Sprint 002 (D-1, 2026-09-19). Fitur ini
+  BUKAN modul Perjalanan Dinas; gate T-02 Sprint 002 di-rescope mengecualikannya.
+  Apakah fitur ini kelak dirapikan/dihapus/dibiarkan?
+  Ditanya: 2026-09-19 | Dari: agent (dry run Sprint 002, disetujui user utk rescope) |
+  Status: Menunggu keputusan user — TIDAK memblok Sprint 002.
 
 ## Pertanyaan yang Sudah Dijawab
+
+✅ [CLOSED] Pertanyaan: `nama_sekolah` (snake_case) di `DokumentasiAIGenerate.jsx`
+  (eks baris 432) tak pernah cocok `getSchoolData()` (camelCase) — bagaimana diperbaiki?
+  Jawaban: **diganti jadi `namaSekolah`** — dan ternyata ada 2 titik, bukan satu:
+    baris 74 (kop preview A4) + baris 432 (HTML cetak). `getSchoolData()` mengembalikan
+    `namaSekolah`/`alamat`/`telepon`/`email` (camelCase), jadi `nama_sekolah` selalu
+    jatuh ke fallback `'SD NEGERI ...'`. Fallback generik dipertahankan (konsisten
+    dengan pola `BKUPage.jsx:345`). Sisa `nama_sekolah` di kode (bkuParser,
+    sekolahParser, BKUPage, DataSekolahPage) = shape output parser xlsx — BUKAN bug,
+    dibiarkan apa adanya. Bukti: `✓ built in 7.50s` exit 0. Commit `c955019`.
+  Ditutup: 2026-09-19 (keputusan ADR — DECISIONS.MD)
 
 ✅ [CLOSED] Pertanyaan: `template-data/BKU tahunan.pdf` (untracked, muncul terus di
   `git status`) — dilacak, diabaikan, atau dihapus?
