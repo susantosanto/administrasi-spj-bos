@@ -297,6 +297,16 @@
 - Ledger sebelumnya: `cdc5abe` (2026-09-14) — **realign pack ke Bab 8.4**: pack = 4 dokumen,
   salinan audit Bab 8.5, `DRYRUN-T1.md` keluar pack, `PACK.md` + `BLUEPRINT.MD` lama
   dihapus, `STATE.MD` + `RISKS.MD` (insiden worktree #2). **Belum di-push.**
+- Ledger: **Sprint 002 (2026-09-19)** — `c955019` (`fix:` nama_sekolah pra-sprint) ·
+  `36b408f` (F1) · `6a5408f` (F2) · `e7c0150` (F3) · `6746d66` (F4) · `5b11f10` (F5) ·
+  `c5872d8` (`docs:` task 5.4 STATE/DECISIONS/QUESTIONS/ACCEPTANCE) · `b2b0728`
+  (`docs:` re-verifikasi §6 + koreksi C-09/R-1). 6 file kode disentuh (DokumenFormPreview,
+  templateConfig, SuratTugas, SPDForm, SuratUndangan, DokumenSPJPage) + DokumentasiAIGenerate
+  (fix). **RE-VERIFIKASI statik independen 2026-09-19: 11/11 gate + build LULUS, 0 cacat
+  kode, 1 cacat dokumen (R-1, sudah dibereskan)** → `DRYRUN-REPORT.MD` §6. **UI runtime
+  (T-03, T-05…T-09, T-11, E-1/E-2) BELUM diverifikasi** — acceptance-runner via subagent
+  konteks-segar DITOLAK user sesi ini; wajib dijalankan di chat baru. **Belum di-push**
+  (14 commit lokal ahead origin/main).
 - Ledger: `73174c0` + `2e23441` (2026-09-18) — **Sprint 001 FASE 5+6**: `73174c0`
   (`feat:`) = 1 file baru (`blocks/PeringatanData.jsx`, 67 baris) + 3 file diubah
   (`blocks/index.js` re-export, `TemplateEngine.jsx` pasang edit-mode 5.2,
@@ -317,7 +327,7 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-19 (Sprint 002 FASE 1–5 selesai statik + docs task 5.4 di-commit; dicatat Builder)
+- Terakhir Diperbarui: 2026-09-19 (/state-keeper — Sprint 002 tutup statik + re-verifikasi 11/11 LULUS + R-1 dibereskan; ledger commit `c955019`…`b2b0728`; RISKS `nama_sekolah` RESOLVED; blocker UI runtime dicatat)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
@@ -375,7 +385,12 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
-- (tidak ada)
+- **Verifikasi UI runtime tertunda (Sprint 001 + 002)** — kedua sprint tutup STATIK
+  (grep + build LULUS) tetapi UI runtime belum pernah dibuktikan: Sprint 001
+  (T-03…T-15, V2–V12, E-1/E-2; sesi runner 2026-09-18 terputus di T-01/T-13) dan
+  Sprint 002 (T-03, T-05…T-09, T-11, E-1/E-2). acceptance-runner **wajib** konteks
+  segar (AGENTS.MD); percobaan via subagent di sesi ini DITOLAK user. **Blokir status
+  "lulus penuh"** — jalankan `/acceptance-runner` di chat baru. Bukan blocker coding.
 
 ## Catatan Penting
 - **Sprint 002 ditutup STATIK 2026-09-19** (dicatat Builder, task 5.4): FASE 1–5
@@ -388,6 +403,10 @@
   ADR bagian M di `DECISIONS.MD`, detail di `DRYRUN-REPORT.MD`. **UI runtime (T-03…T-11)
   belum terbukti — wajib /acceptance-runner ulang utuh di konteks segar.** Batas tegas
   dipertahankan: **001 = sumber nilai · 002 = struktur & layout** (5 file tumpang tindih).
+  ⚠️ **docs/ARCHITECTURE.MD STALE** (refresh saat planning sprint berikutnya): belum
+  mencatat (a) `blocks/PeringatanData.jsx` baru [Sprint 001], (b) tab "Surat Tugas"
+  dihapus → satu dokumen = satu tab, (c) 3 blok cetak kini murni (0 `<input>`/`<textarea>`),
+  (d) tombol Reset Data Dokumen LPJ di DokumenSPJPage.
 - **Sprint 001 ditutup STATIK 2026-09-18** (dicatat /state-keeper): FASE 1–6 selesai,
   semua lulus gate Builder (build exit 0, T-02 15 pola 0 hit verbatim, regresi
   6 konsumen × 2 kondisi = 12/12). Commit: `8398fe1` (FASE 1–4) · `73174c0`

@@ -113,6 +113,9 @@
   FAKTA (regresi statik FASE 6 Sprint 001, T-11, 2026-09-18): tidak crash, data
   user tidak salah tampilkan — hanya caption fallback generik.
   Dampak: Rendah — kosmetik; nama sekolah di caption dokumentasi tidak data-driven.
-  Mitigasi: catat sebagai observasi Sprint 002 (Rework Perjalanan Dinas) — perbaiki
-  key saat menyentuh `DokumentasiAIGenerate.jsx`; JANGAN refactor di luar scope
-  sprint (aturan AGENTS.MD).
+  Status: **RESOLVED 2026-09-19** (commit `c955019`) — diperbaiki di 2 titik (baris 74
+  kop preview A4 + 432 HTML cetak): `nama_sekolah` → `namaSekolah` sesuai output
+  `getSchoolData()`. Fallback generik dipertahankan. Sisa `nama_sekolah` di kode =
+  shape output parser xlsx (bkuParser/sekolahParser/konsumen) — bukan bug. Tercatat
+  di ADR `DECISIONS.MD` + QUESTIONS.MD (CLOSED).
+  Mitigasi (selesai): observasi Sprint 002 dieksekusi sebagai fix pra-sprint terpisah.
