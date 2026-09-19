@@ -71,7 +71,7 @@ function A4Page({ pageNumber, totalPages, images, imageStartIndex, onEdit, onRem
         <div className="h-full flex flex-col p-[6%]">
           {/* Kop Surat */}
           <div className="border-b-2 border-double border-slate-800 pb-2 mb-3 text-center flex-shrink-0">
-            <h2 className="text-[10px] font-bold text-slate-900 uppercase tracking-wide">{sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2>
+            <h2 className="text-[10px] font-bold text-slate-900 uppercase tracking-wide">{sekolah?.namaSekolah || 'SD NEGERI ...'}</h2>
             <p className="text-[7px] text-slate-600 leading-tight">{sekolah?.alamat || 'Alamat Sekolah'}</p>
             <p className="text-[7px] text-slate-600 leading-tight">Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}</p>
           </div>
@@ -429,7 +429,7 @@ export default function DokumentasiAIGenerate({ transaction }) {
                   for (let i = 0; i < emptySlots; i++) {
                     slots
                   }
-                  pagesHtml += `<div class="a4-page"><div class="header"><h2>${sekolah?.nama_sekolah || 'SD NEGERI ...'}</h2><p>${sekolah?.alamat || ''}</p><p>Telp: ${sekolah?.telepon || '-'} | Email: ${sekolah?.email || '-'}</p></div><div class="photo-grid">${pageImages.map(img => `<div class="photo-slot"><img src="${img.dataUrl}" /></div>`).join('')}${Array(emptySlots).fill('<div class="photo-slot empty"></div>').join('')}</div></div>`
+                  pagesHtml += `<div class="a4-page"><div class="header"><h2>${sekolah?.namaSekolah || 'SD NEGERI ...'}</h2><p>${sekolah?.alamat || ''}</p><p>Telp: ${sekolah?.telepon || '-'} | Email: ${sekolah?.email || '-'}</p></div><div class="photo-grid">${pageImages.map(img => `<div class="photo-slot"><img src="${img.dataUrl}" /></div>`).join('')}${Array(emptySlots).fill('<div class="photo-slot empty"></div>').join('')}</div></div>`
                 })
                 printWindow.document.write(`<!DOCTYPE html><html><head><title>Dokumentasi LPJ</title><style>@page{size:A4 portrait;margin:15mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Times New Roman',serif;font-size:12pt;color:#000}.a4-page{width:210mm;height:297mm;padding:15mm;page-break-after:always}.header{text-align:center;border-bottom:3px double #000;padding-bottom:8px;margin-bottom:10px}.header h2{font-size:13pt;text-transform:uppercase}.header p{font-size:10pt;margin:1px 0}.photo-grid{display:flex;flex-direction:column;gap:8mm;margin-top:8mm}.photo-slot{flex:1;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;min-height:100mm}.photo-slot img{max-width:100%;max-height:100%;object-fit:contain}.photo-slot.empty{border:1px dashed #ccc}</style></head><body>${pagesHtml}</body></html>`)
                 printWindow.document.close()
