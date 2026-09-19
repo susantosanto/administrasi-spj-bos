@@ -279,6 +279,9 @@ export default function DokumenFormPreview({
     if (!isTransport) return
     const transportRows = formData.rows || []
     setSppdData((prev) => ({
+      // Sprint 002: pertahankan field lain (maksud, pengikutRows, dst.) saat
+      // daftar penerima berubah — hanya `rows` yang di-sinkronkan ulang.
+      ...prev,
       nomorSurat: prev.nomorSurat || '',
       tujuan: prev.tujuan || (TEMPLATE_CONFIGS[selectedSub?.templateId]?.defaults?.kegiatan || 'Perjalanan Dinas'),
       tanggal: prev.tanggal || '',
@@ -317,6 +320,26 @@ export default function DokumenFormPreview({
     )
     setFormData({ ...formData, rows })
   }
+
+  // ─── Sprint 002 FASE 2: pengikut SPD (butir 8) & tembusan undangan ───
+  const updatePengikut = (i, key, value) => {
+    const rows = [...(sppdData.pengikutRows || [])]
+    rows[i] = { ...(rows[i] || {}), [key]: value }
+    setSppdData({ ...sppdData, pengikutRows: rows })
+  }
+  const addPengikut = () =>
+    setSppdData({ ...sppdData, pengikutRows: [...(sppdData.pengikutRows || []), { nama: '', tanggalLahir: '', keterangan: '' }] })
+  const removePengikut = (i) =>
+    setSppdData({ ...sppdData, pengikutRows: (sppdData.pengikutRows || []).filter((_, idx) => idx !== i) })
+  const updateTembusan = (i, value) => {
+    const items = [...(formData.tembusanItems || [])]
+    items[i] = value
+    setFormData({ ...formData, tembusanItems: items })
+  }
+  const addTembusan = () =>
+    setFormData({ ...formData, tembusanItems: [...(formData.tembusanItems || []), ''] })
+  const removeTembusan = (i) =>
+    setFormData({ ...formData, tembusanItems: (formData.tembusanItems || []).filter((_, idx) => idx !== i) })
 
   // ─── Buku Tamu Kedinasan (Mamin) ─────────────────────────────────────
   const bt = formData.bukuTamu || {}
@@ -489,9 +512,6 @@ export default function DokumenFormPreview({
                     <input type="text" value={formData.nomorSpt || ''} onChange={(e) => setFormData({ ...formData, nomorSpt: e.target.value })} placeholder="400.3.7.6/018-SD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <Field label="Tanggal Surat" value={formData.tanggalSpt} onChange={(e) => setFormData({ ...formData, tanggalSpt: e.target.value })} placeholder="Cikalongwetan, 7 Mei 2026" />
-                  <Field label="Sifat" options={['Biasa', 'Penting', 'Segera']} value={formData.sifatSpt || 'Biasa'} onChange={(e) => setFormData({ ...formData, sifatSpt: e.target.value })} />
-                  <Field label="Lampiran" value={formData.lampiranSpt} onChange={(e) => setFormData({ ...formData, lampiranSpt: e.target.value })} placeholder="-" />
-                  <Field label="Perihal" value={formData.perihalSpt} onChange={(e) => setFormData({ ...formData, perihalSpt: e.target.value })} placeholder="Surat Perintah Tugas" />
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Yang bertandatangan di bawah ini</div>
                 <div className="grid grid-cols-2 gap-3">
@@ -499,18 +519,32 @@ export default function DokumenFormPreview({
                   <Field label="Jabatan" value={formData.jabatanPenandatangan} onChange={(e) => setFormData({ ...formData, jabatanPenandatangan: e.target.value })} placeholder="Kepala Sekolah" />
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Menugaskan Kepada</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama" value={formData.kepadaSpt} onChange={(e) => setFormData({ ...formData, kepadaSpt: e.target.value })} placeholder="Nama penerima" />
-                  <Field label="Alamat / Instansi" value={formData.alamatSpt} onChange={(e) => setFormData({ ...formData, alamatSpt: e.target.value })} placeholder="se-gugus K.H Dewantara" />
-                </div>
-                <Field label="Isi Surat" textarea rows={3} value={formData.isiSpt} onChange={(e) => setFormData({ ...formData, isiSpt: e.target.value })} placeholder="Dengan hormat, Ketua gugus K.H. Dewantara melalui Kepala Sekolah dapat menghadirkan Operator Sekolah untuk mengikuti..." />
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Detail Acara</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Hari" value={formData.hariSpt} onChange={(e) => setFormData({ ...formData, hariSpt: e.target.value })} placeholder="Jumat" />
-                  <Field label="Tanggal Acara" value={formData.tanggalAcaraSpt} onChange={(e) => setFormData({ ...formData, tanggalAcaraSpt: e.target.value })} placeholder="8 Mei 2026" />
-                  <Field label="Pukul" value={formData.pukulSpt} onChange={(e) => setFormData({ ...formData, pukulSpt: e.target.value })} placeholder="11.00 s.d selesai" />
-                  <Field label="Tempat" value={formData.tempatSpt} onChange={(e) => setFormData({ ...formData, tempatSpt: e.target.value })} placeholder="SD Negeri Cipada" />
-                </div>
+                {!selRow ? (
+                  <p className="text-xs text-amber-600 p-2">Belum ada penerima. Pilih penerima terlebih dahulu di tab Daftar Penerima.</p>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
+                      <select value={selRow.id} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
+                        {tRows.map((r) => (
+                          <option key={r.id} value={r.id}>{r.no}. {r.nama} — {r.jabatan}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Nama" value={selRow.nama} readOnly />
+                      <Field label="NIP" value={selRow.sptNip} onChange={(e) => updateRow(selRow.id, 'sptNip', e.target.value)} />
+                      <Field label="Pangkat / Golongan" value={selRow.sptPangkat} onChange={(e) => updateRow(selRow.id, 'sptPangkat', e.target.value)} />
+                      <Field label="Jabatan" value={selRow.sptJabatan} onChange={(e) => updateRow(selRow.id, 'sptJabatan', e.target.value)} placeholder={selRow.jabatan || ''} />
+                    </div>
+                    <Field label="Untuk / Keperluan" textarea rows={2} value={formData.sptUntuk} onChange={(e) => setFormData({ ...formData, sptUntuk: e.target.value })} placeholder="Rapat Kerja Teknis Operator Sekolah Tingkat Gugus..." />
+                    <div className="grid grid-cols-3 gap-3">
+                      <Field label="Hari" value={formData.sptHari} onChange={(e) => setFormData({ ...formData, sptHari: e.target.value })} placeholder="Jumat" />
+                      <Field label="Tanggal" value={formData.sptTanggal} onChange={(e) => setFormData({ ...formData, sptTanggal: e.target.value })} placeholder="8 Mei 2026" />
+                      <Field label="Tempat" value={formData.sptTempat} onChange={(e) => setFormData({ ...formData, sptTempat: e.target.value })} placeholder="SD Negeri Cipada" />
+                    </div>
+                  </>
+                )}
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Mengetahui / Mengesahkan</div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nama Kepala (Gugus)" value={formData.namaMengetahui} onChange={(e) => setFormData({ ...formData, namaMengetahui: e.target.value })} placeholder="Nama ketua gugus" />
@@ -575,6 +609,22 @@ export default function DokumenFormPreview({
                       <Field label="Lamanya Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
                       <Field label="Tanggal Berangkat" type="date" value={sppdData.tanggalBerangkat} onChange={(e) => setSppdData({ ...sppdData, tanggalBerangkat: e.target.value })} />
                       <Field label="Tanggal Kembali" type="date" value={sppdData.tanggalKembali} onChange={(e) => setSppdData({ ...sppdData, tanggalKembali: e.target.value })} />
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">8. Pengikut</div>
+                    <div className="space-y-2">
+                      {(sppdData.pengikutRows || []).map((r, i) => (
+                        <div key={i} className="flex items-end gap-2">
+                          <Field className="flex-1" label="Nama" value={r.nama} onChange={(e) => updatePengikut(i, 'nama', e.target.value)} />
+                          <Field className="w-32" label="Tgl Lahir" value={r.tanggalLahir} onChange={(e) => updatePengikut(i, 'tanggalLahir', e.target.value)} />
+                          <Field className="flex-1" label="Keterangan" value={r.keterangan} onChange={(e) => updatePengikut(i, 'keterangan', e.target.value)} />
+                          <button type="button" onClick={() => removePengikut(i)} className="px-2 py-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors" title="Hapus pengikut">
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={addPengikut} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-sm">add</span> Tambah Pengikut
+                      </button>
                     </div>
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">9. Pembebanan Anggaran</div>
                     <div className="grid grid-cols-2 gap-3">
@@ -666,7 +716,7 @@ export default function DokumenFormPreview({
                     </div>
                     <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="400.3.7.6/018/G-KHD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
                   </div>
-                  <Field label="Sifat" options={['Biasa', 'Penting', 'Segera']} value={formData.sifatUndangan || 'Biasa'} onChange={(e) => setFormData({ ...formData, sifatUndangan: e.target.value })} />
+                  <Field label="Sifat" options={['-', 'Biasa', 'Penting', 'Segera']} value={formData.sifatUndangan || '-'} onChange={(e) => setFormData({ ...formData, sifatUndangan: e.target.value })} />
                   <Field label="Lampiran" value={formData.lampiranUndangan} onChange={(e) => setFormData({ ...formData, lampiranUndangan: e.target.value })} placeholder="-" />
                   <Field label="Perihal" value={formData.perihalUndangan} onChange={(e) => setFormData({ ...formData, perihalUndangan: e.target.value })} placeholder="Undangan Rapat Operator" />
                   <Field label="Tanggal Surat" value={formData.tanggalSurat} onChange={(e) => setFormData({ ...formData, tanggalSurat: e.target.value })} placeholder="Cikalongwetan, 7 Mei 2026" />
@@ -682,12 +732,28 @@ export default function DokumenFormPreview({
                   <Field label="Tempat" value={formData.tempatAcara} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="SD Negeri Cipada" />
                 </div>
                 <Field label="Isi Undangan" textarea rows={3} value={formData.isiUndangan} onChange={(e) => setFormData({ ...formData, isiUndangan: e.target.value })} placeholder="Dengan hormat, ..." />
+                <Field label="Paragraf Penutup 1" textarea rows={2} value={formData.penutupUndangan1} onChange={(e) => setFormData({ ...formData, penutupUndangan1: e.target.value })} placeholder="Mengingat pentingnya acara tersebut di atas kami harap kehadiran Operator tepat pada waktu yang telah ditentukan." />
+                <Field label="Paragraf Penutup 2" textarea rows={2} value={formData.penutupUndangan2} onChange={(e) => setFormData({ ...formData, penutupUndangan2: e.target.value })} placeholder="Demikian undangan ini kami sampaikan, atas perhatian dan kehadirannya kami ucapkan terima kasih." />
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Ketua Gugus</div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nama" value={formData.namaKetuaGugus} onChange={(e) => setFormData({ ...formData, namaKetuaGugus: e.target.value })} placeholder="Nama ketua gugus" />
                   <Field label="NIP" value={formData.nipKetuaGugus} onChange={(e) => setFormData({ ...formData, nipKetuaGugus: e.target.value })} placeholder="NIP ketua gugus" />
                 </div>
-                <Field label="Tembusan" textarea rows={2} value={formData.tembusan} onChange={(e) => setFormData({ ...formData, tembusan: e.target.value })} placeholder="Yth. Pengawas Bina Satuan Pendidikan SD Kecamatan Cikalongwetan" />
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Tembusan</div>
+                <div className="space-y-2">
+                  {(formData.tembusanItems || []).map((t, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400 w-4">{i + 1}.</span>
+                      <input value={t} onChange={(e) => updateTembusan(i, e.target.value)} placeholder="Yth. ..." className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <button type="button" onClick={() => removeTembusan(i)} className="px-2 py-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors" title="Hapus tembusan">
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addTembusan} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                    <span className="material-symbols-outlined text-sm">add</span> Tambah Tembusan
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1675,6 +1741,8 @@ export default function DokumenFormPreview({
       tanggalAcara: formData.tanggalAcara || sppdData.tanggal || '',
       tempatAcara: formData.tempatAcara || sppdData.tempat || '',
       isiUndangan: formData.isiUndangan || '',
+      // ADR 2026-09-14: field "Sifat" dipertahankan, default '-' ikut tercetak
+      sifatUndangan: formData.sifatUndangan || '-',
     }
 
     const handlePrint = () => {

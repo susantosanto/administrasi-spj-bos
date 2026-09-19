@@ -344,6 +344,7 @@ export const TEMPLATE_CONFIGS = {
     ],
     defaults: {
       lampiranUndangan: '-',
+      sifatUndangan: '-',
       perihalUndangan: 'Undangan Rapat Operator',
       tempatUndangan: 'Tempat',
       namaKetuaGugus: '',
