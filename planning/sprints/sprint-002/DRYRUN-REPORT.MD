@@ -46,3 +46,32 @@
 1. `fix:` nama_sekolah DokumentasiAIGenerate (perubahan pra-sprint, terpisah)
 2. `feat:` FASE 1 · 3. `feat:` FASE 2 · 4. `feat:` FASE 3 · 5. `feat:` FASE 4 · 6. `feat:` FASE 5 + `docs:` dokumen
 Push = kewenangan user (aturan STATE.MD).
+
+## 6. RE-VERIFIKASI POST-EKSEKUSI (2026-09-19, ai-coding-coach MODE DRY RUN)
+
+> Diukur ulang independen terhadap kode aktual @ HEAD `c5872d8` (bukan klaim ACCEPTANCE).
+> Semua gate statik + build dijalankan ulang dari nol.
+
+| Gate | Perintah | Hasil ukur ulang | Verdict |
+|---|---|---|---|
+| T-01 build | `npm run build` | `✓ built in 6.79s`, `BUILD_EXIT: 0` | ✅ LULUS |
+| T-02 rescoped | `grep surat_tugas` luar templateSuratHelper | 0 hasil (3 sisa hanya di `templateSuratHelper.js:21,22,234` = fitur lain, D-1) | ✅ LULUS |
+| T-04 (D-3) | `grep <input\|<textarea` 3 blok | 0 hasil | ✅ LULUS |
+| D-2 | `grep RISNA MARSELA` | 0 hasil | ✅ LULUS |
+| T-05 | 4 string legal SPD | masing-masing 1 hit, di jalur render JSX (SPDForm:180-187) + `break-inside-avoid-page` (4.5) | ✅ LULUS |
+| T-07/C-06 | TTD Undangan | `SuratUndangan.jsx:126-127` = `data.namaKetuaGugus/nipKetuaGugus`, feed `sig['ketua-gugus']` (DokumenFormPreview:1737-1738) — Ketua Gugus, BUKAN Kepala Sekolah | ✅ LULUS |
+| T-08 | orientasi | `spt`(312) · parent `spd-form`(284) · `undangan_gugus`(340) semua `portrait`; CSS `@page size:A4` + 210/297mm (index.css:391-437) | ✅ LULUS |
+| T-09 | reset | `handleResetDokumenLpj` → `storageHelper.remove('dokumen_lpj')` + confirm; `spj_data_sekolah` tidak disentuh; tombol slate/primary (DokumenSPJPage:150,689) | ✅ LULUS (statik; localStorage runtime menunggu runner) |
+| T-11 | 15 pola + konsumen | 15 pola anti-hardcode = 0 hit; 6 konsumen Sprint 001 TIDAK ada di `git diff 264c431..HEAD` (7 file tersentuh, semuanya wilayah 002 + DokumentasiAIGenerate=fix c955019) | ✅ LULUS |
+| D-4/D-5 | form SPT | field per-penerima `sptNip/sptPangkat/sptJabatan` + `updateRow` (536-538); auto-sync SPPD pakai `...prev` (281-284); field mati (sifatSpt/isiSpt/alamatSpt/pukulSpt/tanggalAcaraSpt/perihalSpt/lampiranSpt) = 0 konsumen | ✅ LULUS |
+| Budget | `wc -l` | SuratTugas 105 · SPDForm 195 · SuratUndangan 147 (≤300 ✅); DokumenFormPreview 1914 · templateConfig 966 (legacy, di luar cakupan pemecahan) | ✅ LULUS |
+
+### Temuan re-verifikasi
+
+| # | Temuan | Severity | Rekomendasi |
+|---|---|---|---|
+| R-1 | **ACCEPTANCE C-09 tidak akurat**: klaim "DokumenSPJPage sisa `amber`×10 = pil status" tetapi TIDAK menyebut **4 `emerald`** (baris 362, 368, 425, 464 = ✓ complete marker + pulse dot). Gate FASE 5 asli hanya grep `amber` di file itu, `emerald` tidak pernah dicek. | RENDAH (dokumen) | `emerald` **pre-existing** (bukan ditambah Sprint 002 — `git diff` konfirmasi 0 emerald/amber baru) & murni indikator status layar → **pengecualian sah AGENTS.MD**. KODE aman; hanya **teks bukti C-09 perlu dikoreksi** agar menyebut emerald juga (jujur-lengkap). |
+
+**Verdict re-verifikasi: 11/11 gate statik + build LULUS. 0 cacat kode. 1 cacat dokumentasi (R-1, rendah).**
+UI runtime (T-03 pemetaan field↔docx, T-05/T-06/T-07/T-08 screenshot, T-09 localStorage, T-11 render 12 kombinasi, E-1/E-2) **tetap belum terbukti** — wajib `/acceptance-runner` konteks segar.
+

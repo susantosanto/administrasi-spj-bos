@@ -47,7 +47,11 @@ Sprint ini dianggap **SELESAI** jika **seluruh** checklist di bawah tercentang
   tombol "Reset Data Dokumen LPJ" + `storageHelper.remove('dokumen_lpj')` + confirm;
   `spj_data_sekolah` tidak disentuh; uji localStorage runtime menunggu runner
 - [x] C-09 Warna blue-only pada file yang disentuh (T-10) — statik: 3 blok = 0 warna
-  terlarang; DokumenSPJPage sisa `amber`×10 = pil status sub-kategori (pengecualian sah)
+  terlarang; DokumenSPJPage sisa `amber`×10 + `emerald`×4 (baris 362/368/425/464 =
+  pil status sub-kategori + marker ✓ lengkap + pulse dot) — SEMUA pre-existing
+  (`git diff 264c431..HEAD` = 0 warna baru ditambahkan Sprint 002) & murni indikator
+  status layar, tidak ikut cetak → pengecualian sah AGENTS.MD (dikoreksi re-verifikasi
+  R-1, `DRYRUN-REPORT.MD` §6)
 - [x] C-10 Regresi 6 konsumen existing lulus (T-11) — statik: 6 konsumen TIDAK tersentuh
   (git diff 264c431..HEAD); gate 15-pola Sprint 001 tetap 0 hit
 - [x] C-11 `npm run build` sukses (T-01) — `✓ built in 4.41s`, exit 0 (gate akhir)
