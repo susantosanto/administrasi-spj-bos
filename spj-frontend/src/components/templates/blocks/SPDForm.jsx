@@ -2,37 +2,17 @@
  * SPDForm — SURAT PERJALANAN DINAS (SPD) numbered form (pages 7+ docx)
  * Source: template/Surat Tugas + SPPD_rapat ops_gugus_2026.docx
  *
- * Per penerima (perRecipient). Layout DOCX:
- *   SURAT PERJALANAN DINAS (SPD)
- *   1. Pengguna Anggaran / Kuasa Pengguna Anggaran
- *   2. Nama PNS dan NIP/PTT yang melaksanakan perjalanan dinas
- *   3. Pangkat dan Golongan | Jabatan/Instansi | Tingkat Biaya Perjalanan Dinas
- *   4. Maksud Perjalanan Dinas
- *   5. Alat angkutan yang digunakan
- *   6. a. Tempat berangkat | b. Tempat tujuan
- *   7. a. Lamanya Perjalanan Dinas | b. Tanggal berangkat | c. Tanggal harus kembali/tiba di tempat baru*)
- *   8. Pengikut : Nama | Tanggal lahir | Keterangan
- *   9. Pembebanan Anggaran | SKPD | Akun
- *   10. Keterangan lain-lain
- *   Dikeluarkan di : ... / Pada tanggal : ... / Kepala Sekolah, [TTD]
- *   [Surat berangkat/tiba] SPD Nomor / Berangkat dari / Ke / Pada tanggal / Kepala Sekolah / Tiba di / Pada tanggal / Kepala
+ * Sprint 002 FASE 3: blok CETAK MURNI — per penerima (perRecipient).
+ * Pengeditan data dilakukan di tab form (DokumenFormPreview), bukan di blok.
+ * Layout DOCX: butir 1–10 + Dikeluarkan di/Pada tanggal + Kepala Sekolah [TTD]
+ * + surat berangkat/tiba.
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
 
-export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
+export default function SPDForm({ blockConfig, data = {} }) {
   const val = (key, ph) => {
     const value = data[key] || ''
-    return mode === 'edit' ? (
-      <input
-        type="text"
-        className="w-full border-b border-dashed border-primary/30 focus:border-primary outline-none px-1 bg-transparent text-xs"
-        value={value}
-        onChange={(e) => onChange(key, e.target.value)}
-        placeholder={ph}
-      />
-    ) : (
-      <span>{value || <PlaceholderText label={ph || key} />}</span>
-    )
+    return <span>{value || <PlaceholderText label={ph || key} />}</span>
   }
 
   const section = (num, label, body) => (
@@ -43,6 +23,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       <div className="text-xs text-gray-700 mt-1">{body}</div>
     </div>
   )
+
+  const pengikutRows = data.pengikutRows || []
 
   return (
     <div className="mb-4">
@@ -62,8 +44,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       {/* 2. Nama PNS + NIP */}
       {section('2', 'Nama PNS dan NIP/PTT yang melaksanakan perjalanan dinas', (
         <div className="grid grid-cols-2 gap-4">
-          <div>{val('nama', 'RISNA MARSELA HARTINI')}</div>
-          <div>{val('sppdNip', '-')}</div>
+          <div>{val('nama', 'Nama pelaksana perjalanan dinas')}</div>
+          <div>{val('sppdNip', 'NIP / PTT')}</div>
         </div>
       ))}
 
@@ -72,9 +54,9 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
         <table className="w-full text-xs border-collapse border border-gray-300">
           <tbody>
             <tr>
-              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdPangkat', '-')}</td>
+              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdPangkat', 'Pangkat / golongan')}</td>
               <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdJabatan', 'Jabatan / instansi')}</td>
-              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdTingkat', 'Gugus/Kecamatan')}</td>
+              <td className="border border-gray-300 px-2 py-1 w-1/3">{val('sppdTingkat', 'Tingkat biaya')}</td>
             </tr>
           </tbody>
         </table>
@@ -82,28 +64,28 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
 
       {/* 4. Maksud */}
       {section('4', 'Maksud Perjalanan Dinas', (
-        <div>{val('maksud', 'Rapat Kerja Teknis Operator Sekolah Tingkat Gugus...')}</div>
+        <div>{val('maksud', 'Maksud perjalanan dinas')}</div>
       ))}
 
       {/* 5. Alat angkutan */}
       {section('5', 'Alat angkutan yang digunakan', (
-        <div>{val('alat', 'Kendaraan darat')}</div>
+        <div>{val('alat', 'Alat angkutan')}</div>
       ))}
 
       {/* 6. Tempat berangkat / tujuan */}
       {section('6', 'a. Tempat berangkat / b. Tempat tujuan', (
         <div className="grid grid-cols-2 gap-4">
           <div><span className="text-gray-500">a. </span>{val('tempatBerangkat', 'Tempat berangkat')}</div>
-          <div><span className="text-gray-500">b. </span>{val('tempatTujuan', 'SD Negeri Cipada')}</div>
+          <div><span className="text-gray-500">b. </span>{val('tempatTujuan', 'Tempat tujuan')}</div>
         </div>
       ))}
 
       {/* 7. Lamanya / tanggal */}
       {section('7', 'a. Lamanya Perjalanan Dinas / b. Tanggal berangkat / c. Tanggal harus kembali/tiba di tempat baru*)', (
         <div className="grid grid-cols-3 gap-4">
-          <div><span className="text-gray-500">a. </span>{val('lama', '1 (satu) hari')}</div>
-          <div><span className="text-gray-500">b. </span>{val('tanggalBerangkat', '8 Mei 2026')}</div>
-          <div><span className="text-gray-500">c. </span>{val('tanggalKembali', '8 Mei 2026')}</div>
+          <div><span className="text-gray-500">a. </span>{val('lama', 'Lamanya perjalanan')}</div>
+          <div><span className="text-gray-500">b. </span>{val('tanggalBerangkat', 'Tanggal berangkat')}</div>
+          <div><span className="text-gray-500">c. </span>{val('tanggalKembali', 'Tanggal kembali')}</div>
         </div>
       ))}
 
@@ -119,11 +101,11 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
             </tr>
           </thead>
           <tbody>
-            {(data.pengikutRows || [{}, {}, {}]).map((r, i) => (
+            {(pengikutRows.length ? pengikutRows : [{}, {}, {}]).map((r, i) => (
               <tr key={i}>
-                <td className="border border-gray-300 px-2 py-2">{mode === 'edit' ? val(`pengikut${i}Nama`, '') : ''}</td>
-                <td className="border border-gray-300 px-2 py-2" />
-                <td className="border border-gray-300 px-2 py-2" />
+                <td className="border border-gray-300 px-2 py-2">{r.nama || ''}</td>
+                <td className="border border-gray-300 px-2 py-2">{r.tanggalLahir || ''}</td>
+                <td className="border border-gray-300 px-2 py-2">{r.keterangan || ''}</td>
               </tr>
             ))}
           </tbody>
@@ -133,8 +115,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       {/* 9. Pembebanan Anggaran */}
       {section('9', 'Pembebanan Anggaran', (
         <div className="grid grid-cols-2 gap-4">
-          <div><span className="text-gray-500 font-medium">SKPD : </span>{val('skpd', 'BOS Reguler')}</div>
-          <div><span className="text-gray-500 font-medium">Akun : </span>{val('akun', '5.1.02.04.01.0003')}</div>
+          <div><span className="text-gray-500 font-medium">SKPD : </span>{val('skpd', 'SKPD')}</div>
+          <div><span className="text-gray-500 font-medium">Akun : </span>{val('akun', 'Akun')}</div>
         </div>
       ))}
 
@@ -146,8 +128,8 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
       {/* Dikeluarkan */}
       <div className="text-xs text-gray-700 mt-4">
         <div className="grid grid-cols-2 gap-4">
-          <div><span className="font-medium text-gray-700">Dikeluarkan di : </span>{val('dikeluarkanDi', 'Cikalongwetan')}</div>
-          <div><span className="font-medium text-gray-700">Pada tanggal : </span>{val('padaTanggal', '8 Mei 2026')}</div>
+          <div><span className="font-medium text-gray-700">Dikeluarkan di : </span>{val('dikeluarkanDi', 'Dikeluarkan di')}</div>
+          <div><span className="font-medium text-gray-700">Pada tanggal : </span>{val('padaTanggal', 'Pada tanggal')}</div>
         </div>
       </div>
       <div className="text-center w-56 mx-auto mt-2">
@@ -167,10 +149,10 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
         </div>
         <div className="text-[10px] text-gray-500 mb-2">(tempat kedudukan)</div>
         <div className="text-xs text-gray-700 mb-1">
-          Ke : {val('tempatTujuan', 'SD Negeri Cipada')}
+          Ke : {val('tempatTujuan', 'Tempat tujuan')}
         </div>
         <div className="text-xs text-gray-700 mb-1">
-          Pada tanggal : {val('tanggalBerangkat', '8 Mei 2026')}
+          Pada tanggal : {val('tanggalBerangkat', 'Tanggal berangkat')}
         </div>
         <div className="text-center w-56 mx-auto mt-2">
           <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
@@ -180,10 +162,10 @@ export default function SPDForm({ blockConfig, data = {}, onChange, mode }) {
         </div>
 
         <div className="text-xs text-gray-700 mt-4 mb-1">
-          Tiba di : {val('tempatTujuan', 'SD Negeri Cipada')}
+          Tiba di : {val('tempatTujuan', 'Tempat tujuan')}
         </div>
         <div className="text-xs text-gray-700 mb-1">
-          Pada tanggal : {val('tanggalKembali', '8 Mei 2026')}
+          Pada tanggal : {val('tanggalKembali', 'Tanggal')}
         </div>
         <div className="text-center w-56 mx-auto mt-2">
           <div className="text-xs font-medium mb-4">Kepala,</div>
