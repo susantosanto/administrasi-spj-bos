@@ -5,8 +5,47 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
-- Sprint Aktif: **tidak ada — Sprint 002 (terbaru) tutup STATIK 2026-09-19, menunggu
-  push + /acceptance-runner.** Sprint 001 juga tutup statik 2026-09-18.
+- Sprint Aktif: **Sprint 003 — FASE 1–4 SELESAI & LULUS GATE BUILDER 2026-10-01
+  (dry run disetujui user; komit `17a266d`→`45129a9`; build exit 0 ×5;
+  runtime sebagian via pencil browser — pill+popover+rename terbukti, cetak/T-09/E-2 UNTESTED).
+  Menunggu: FASE 5 gate akhir + /acceptance-runner konteks segar.**
+  Pack 4 dokumen (Bab 8.4): `planning/sprints/sprint-003/` REQUIREMENTS · BLUEPRINT ·
+  ACCEPTANCE · HANDOFF-PROMPT. PRD: `planning/sprints/sprint-003/PRD.md` (US-19…US-30).
+  Salinan audit: `architect-packs/architect-pack-003-rework-preview-dan-panduan.md`
+  (593 baris). Isi: Fitur A — preview → kartu ringkasan (tanpa kop/TTD), rename
+  tombol, cetak Perjalanan Dinas 5 dokumen + Mamin set lengkap, penerima semua
+  status; Fitur B — MenuGuide pill+popover sadar-state di 4 menu, config-driven.
+  **23 task / 5 fase / 3 file baru / 3-4 file diubah / 0 dependency baru / 12 test
+  case (T-01…T-10 + C-11/C-12)**. Cross-artifact check: LULUS (1 cacat ketemu &
+  diperbaiki — task 5.4 tanpa kriteria → C-12 ditambah).
+  Keputusan tertunda ke dry run: nama final tombol (usulan "Lihat Ringkasan"),
+  pemetaan docx Mamin, Pemeliharaan pola penuh/parsial.
+- Sprint 001 + 002 resmi DITUTUP & APPROVED 2026-09-30
+  (lihat blok penutupan di bawah).
+- **PENUTUPAN RESMI SPRINT 001 + 002 — 2026-09-30 (/acceptance-runner konteks segar).**
+  Kedua ACCEPTANCE dijalankan ulang: **T-01 build exit 0** (`✓ built in 8.09s`,
+  Node v24.19.0) · **T-02 Sprint 001** 15 pola `-i` = 0 hit + aset 0 · **T-02 Sprint
+  002** rescoped = 0 · **T-04** 3 blok 0 `<input>/<textarea>` · **T-10** 0 warna baru
+  (`git diff 264c431..HEAD` terverifikasi) · **T-13** 0 caret, MATCH 14/14, lockfile
+  bersih · jalur auto-fill T-12/T-15, banner 2 varian, logo kop, SKHonorer
+  prop-driven, 3 blok resmi SPD, reset `dokumen_lpj` — semua **PASS statik segar**.
+  Bukti lengkap: `planning/sprints/sprint-001/VERIFICATION-REPORT.MD` +
+  `planning/sprints/sprint-002/VERIFICATION-REPORT.MD`.
+  ⚠️ **Kriteria UI runtime = UNTESTED, risiko DITERIMA EKSPLISIT oleh user
+  2026-09-30** (tool browser tidak tersedia di sesi runner; user memilih menutup
+  sprint & lanjut Sprint 003). Mitigasi: uji manual user (`fix-template-document.md`)
+  tidak menemukan cacat di lingkup 001/002 — temuan ulasan ada di lapisan preview
+  (lingkup Sprint 003). Status kedua sprint: **✅ SELESAI (APPROVED, risiko
+  diterima)**. **Push ke origin MASIH tertunda** (±14 commit lokal).
+- **2026-09-30: PRD Sprint 003 DIBUAT (draft — belum pack, belum disetujui).**
+  `planning/sprints/sprint-003/PRD.md` (US-19…US-30): (A) rework lapisan preview →
+  kartu ringkasan data tanpa kop/TTD, rename tombol "Preview Dokumen", Cetak Semua
+  Perjalanan Dinas = 5 dokumen, set cetak Mamin = semua docx di `template/`,
+  penerima = semua pegawai semua status (Honorarium tetap honorer-only);
+  (B) Panduan langkah = pill+popover sadar-state di 4 menu, config-driven.
+  Sumber: feedback `fix-template-document.md` + 2 ronde keputusan user sesi ini.
+  Urutan tetap: /acceptance-runner konteks segar dulu (Sprint 001+002), baru
+  planning pack Sprint 003. Kode TIDAK disentuh.
 - Sprint 001 — Fondasi Data Sekolah & Pejabat — 🟡 **TUTUP (STATIK)**
   (**FASE 1–6 SELESAI (STATIK)** — FASE 1–4 di-commit `8398fe1` 2026-09-18; FASE 5–6
   selesai + lulus gate Builder 2026-09-18, di-commit `73174c0` (`feat:`) + `2e23441`
@@ -327,14 +366,18 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-19 (/state-keeper — Sprint 002 tutup statik + re-verifikasi 11/11 LULUS + R-1 dibereskan; ledger commit `c955019`…`b2b0728`; RISKS `nama_sekolah` RESOLVED; blocker UI runtime dicatat)
+- Terakhir Diperbarui: 2026-09-30 (pack Sprint 003 jadi + cross-artifact check lulus;
+  Sprint 001+002 APPROVED via /acceptance-runner — VERIFICATION-REPORT.MD ×2; risiko
+  UI runtime UNTESTED diterima eksplisit user)
+- Terakhir Diperbarui sebelumnya: 2026-09-19 (/state-keeper — Sprint 002 tutup statik + re-verifikasi 11/11 LULUS + R-1 dibereskan; ledger commit `c955019`…`b2b0728`; RISKS `nama_sekolah` RESOLVED; blocker UI runtime dicatat)
 
 ## Riwayat Sprint
 | Sprint | Nama | Status | Tanggal |
 |--------|------|--------|---------|
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
-| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**FASE 6/6 selesai (statik) 2026-09-18; di-commit `8398fe1` + `73174c0` + `2e23441`** — menunggu push + acceptance-runner) | 🟡 Berjalan | 2026-09-17 |
-| 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (**FASE 1–5 selesai (statik) 2026-09-19; di-commit `36b408f`→`5b11f10`** + fix pra-sprint `c955019` — menunggu push + acceptance-runner) | 🟡 Tutup (statik) | 2026-09-19 |
+| 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `8398fe1` + `73174c0` + `2e23441`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-17 |
+| 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `36b408f`→`5b11f10` + `c955019`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-19 |
+| 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 selesai 2026-10-01 `17a266d`→`45129a9`; gate statik lulus; runtime sebagian pencil browser; **menunggu Fase 5 gate akhir + acceptance-runner**) | 🟡 Dikerjakan | 2026-09-30 |
 
 ## Langkah Selanjutnya
 - **Sprint 002 FASE 1–5 SELESAI (STATIK) 2026-09-19 — seluruh fase di-commit
@@ -385,12 +428,11 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
-- **Verifikasi UI runtime tertunda (Sprint 001 + 002)** — kedua sprint tutup STATIK
-  (grep + build LULUS) tetapi UI runtime belum pernah dibuktikan: Sprint 001
-  (T-03…T-15, V2–V12, E-1/E-2; sesi runner 2026-09-18 terputus di T-01/T-13) dan
-  Sprint 002 (T-03, T-05…T-09, T-11, E-1/E-2). acceptance-runner **wajib** konteks
-  segar (AGENTS.MD); percobaan via subagent di sesi ini DITOLAK user. **Blokir status
-  "lulus penuh"** — jalankan `/acceptance-runner` di chat baru. Bukan blocker coding.
+- **TIDAK ADA blocker sprint.** Pencatatan risiko (non-blocking, diterima user
+  2026-09-30): kriteria UI runtime Sprint 001+002 tetap UNTESTED — uji manual
+  operator sekolah adalah jaring pengamat; temuan masuk Sprint 003.
+- **Push ke origin tertunda** — ±14 commit lokal (Sprint 001 + 002 + fix) belum
+  di-push (pelajaran insiden #3: push = jaring pengaman sesungguhnya).
 
 ## Catatan Penting
 - **Sprint 002 ditutup STATIK 2026-09-19** (dicatat Builder, task 5.4): FASE 1–5
