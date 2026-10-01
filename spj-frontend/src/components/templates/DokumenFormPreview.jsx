@@ -242,16 +242,18 @@ export default function DokumenFormPreview({
   setSppdData,
   viewMode, // 'form' | 'preview'
   setViewMode,
+  formTab, // Sprint 003 ADDENDUM: state DIANGKAT ke DokumenSPJPage (R1) —
+  setFormTab, // MenuGuide perlu tahu tab aktif (ctx.activeTab)
+  previewTab,
+  setPreviewTab,
   onClose,
 }) {
   const [showRecipients, setShowRecipients] = useState(false)
-  const [previewTab, setPreviewTab] = useState('daftar') // 'daftar' | 'sk'
   const [showNomorPopup, setShowNomorPopup] = useState(false)
   const [showSppdNomorPopup, setShowSppdNomorPopup] = useState(false)
   const [showUndanganNomorPopup, setShowUndanganNomorPopup] = useState(false)
   const [showPesananNomorPopup, setShowPesananNomorPopup] = useState(false)
   const [showSptNomorPopup, setShowSptNomorPopup] = useState(false)
-  const [formTab, setFormTab] = useState('daftar') // Tab form dokumen (Perjalanan Dinas)
   const [selRowId, setSelRowId] = useState(null) // Penerima yang dipilih (Surat Tugas / SPPD)
   const [generatingRingkasan, setGeneratingRingkasan] = useState(false)
   const toast = useToast()

@@ -132,8 +132,76 @@ export default function DokumenSPJPage() {
   const [viewMode, setViewMode] = useState('form')
   const [isAnimating, setIsAnimating] = useState(false)
   const [sppdData, setSppdData] = useState({})
+  // ─── Sprint 003 ADDENDUM (revisi panduan 2026-10-01 — BLUEPRINT R1/R2/R5) ──
+  // formTab/previewTab DIANGKAT dari DokumenFormPreview (dulu useState lokal)
+  // supaya MenuGuide sadar tab mana yang sedang aktif.
+  const [formTab, setFormTab] = useState('daftar')
+  const [previewTab, setPreviewTab] = useState('daftar')
+  // Riwayat tab yang pernah dikunjungi menu aktif — kunci "<menu>:<activeTab>"
+  // + "<menu>:preview" (penanda "ringkasan sudah dilihat"). Ikut RESET bersih
+  // seperti formData: data detail di-wipe saat tutup/ganti menu, centang ikut hilang.
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set())
   const detailRef = useRef(null)
   const toast = useToast()
+
+  // Konteks tab aktif (untuk panduan):
+  //   form    → transport: f:<tab form> · menu lain: f:form
+  //   preview → mamin/pemeliharaan: p:ringkasan · honor/transport: p:<tab preview>
+  const activeTab = !selectedCard
+    ? null
+    : viewMode === 'form'
+      ? (selectedCard.id === 'perjalanan_dinas' ? `f:${formTab}` : 'f:form')
+      : (selectedCard.id === 'mamin' || selectedCard.id === 'pemeliharaan')
+        ? 'p:ringkasan'
+        : `p:${previewTab}`
+
+  // Reset riwayat saat konteks data berganti (deklarasi PERTAMA — urutan efek:
+  // bersihkan dulu, baru catat tab aktif di efek kedua di bawah).
+  useEffect(() => {
+    setVisitedTabs(new Set())
+  }, [selectedCard?.id, selectedSubKategori?.id])
+
+  // Catat tab yang sudah dikunjungi + penanda "ringkasan sudah dilihat"
+  useEffect(() => {
+    if (!selectedCard || !activeTab) return
+    setVisitedTabs((prev) => {
+      const key = `${selectedCard.id}:${activeTab}`
+      const wantPreview = viewMode === 'preview'
+      const previewKey = `${selectedCard.id}:preview`
+      if (prev.has(key) && (!wantPreview || prev.has(previewKey))) return prev
+      const next = new Set(prev)
+      next.add(key)
+      if (wantPreview) next.add(previewKey)
+      return next
+    })
+  }, [selectedCard?.id, activeTab, viewMode])
+
+  // Ctx kaya MenuGuide — predikat langkah guideConfig.js dibaca dari field NYATA
+  const visitedMenu = new Set()
+  if (selectedCard) {
+    const prefix = `${selectedCard.id}:`
+    visitedTabs.forEach((k) => {
+      if (k.startsWith(prefix)) visitedMenu.add(k.slice(prefix.length))
+    })
+  }
+  const guideCtx = {
+    subId: selectedSubKategori?.id,
+    activeTab: activeTab || 'f:form',
+    visited: visitedMenu,
+    rowsCount: (formData.rows || []).length,
+    nomor: formData.nomor,
+    nomorSpt: formData.nomorSpt,
+    nomorSppd: sppdData.nomorSurat,
+    sppdTanggal: sppdData.tanggal,
+    resume: formData.resume,
+    nomorUndangan: formData.nomorUndangan,
+    isiUndangan: formData.isiUndangan,
+    acara: formData.acara,
+    tanggal: formData.tanggal,
+    btFilled: Object.values(formData.bukuTamu || {}).some((v) =>
+      Array.isArray(v) ? v.length > 0 : v !== null && v !== undefined && v !== ''
+    ),
+  }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -154,6 +222,8 @@ export default function DokumenSPJPage() {
     setFormData({})
     setSppdData({})
     setViewMode('form')
+    setFormTab('daftar')
+    setPreviewTab('daftar')
     toast.success('Data dokumen LPJ di-reset bersih. Data Sekolah tetap utuh.')
   }
 
@@ -180,6 +250,8 @@ export default function DokumenSPJPage() {
         setSelectedCard(null)
         setSelectedSubKategori(null)
         setFormData({})
+        setFormTab('daftar')
+        setPreviewTab('daftar')
         setIsAnimating(false)
       }, 200)
     } else {
@@ -192,6 +264,8 @@ export default function DokumenSPJPage() {
       setSelectedSubKategori(firstValidSub || null)
       setFormData({})
       setViewMode('form')
+      setFormTab('daftar')
+      setPreviewTab('daftar')
       
       // Trigger animation then scroll
       setTimeout(() => {
@@ -208,6 +282,8 @@ export default function DokumenSPJPage() {
       setSelectedSubKategori(null)
       setFormData({})
       setViewMode('form')
+      setFormTab('daftar')
+      setPreviewTab('daftar')
       setIsAnimating(false)
       // Scroll back to top
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -219,6 +295,20 @@ export default function DokumenSPJPage() {
     setSelectedSubKategori(sub)
     setFormData({})
     setTimeout(() => setIsAnimating(false), 300)
+  }
+
+  // Revisi panduan ronde-2 (2026-10-01): klik langkah di popover → lompat ke
+  // tab/mode langkah tsb + scroll ke area detail. Popover TIDAK ditutup.
+  const handleGuideJump = (jump) => {
+    if (!jump) return
+    if (jump.mode === 'preview') {
+      if (jump.tab) setPreviewTab(jump.tab)
+      setViewMode('preview')
+    } else {
+      setViewMode('form')
+      if (jump.tab) setFormTab(jump.tab)
+    }
+    scrollToDetail()
   }
 
   const getTemplateConfig = () => {
@@ -434,18 +524,15 @@ export default function DokumenSPJPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                {/* Sprint 003 FASE 4 (US-26): pill Panduan sadar-state di 4 menu LPJ */}
+                {/* Sprint 003 FASE 4 (US-26): pill Panduan sadar-state di 4 menu LPJ.
+                    key={menuId} → remount per menu: popover TIDAK kebawa antar menu
+                    (revisi 2026-10-01, aturan c) */}
                 {isSpecial && (
                   <MenuGuide
+                    key={selectedCard.id}
                     menuId={selectedCard.id}
-                    ctx={{
-                      subId: selectedSubKategori?.id,
-                      rowsCount: (formData.rows || []).length,
-                      hasNomor: formData.nomor || formData.nomorSpt || formData.nomorSurat || formData.nomorUndangan || sppdData.nomorSurat,
-                      hasAcara: formData.acara,
-                      hasDetail: sppdData.tujuan || sppdData.tanggal,
-                      viewedSummary: viewMode === 'preview',
-                    }}
+                    ctx={guideCtx}
+                    onJump={handleGuideJump}
                   />
                 )}
                 <button
@@ -500,6 +587,10 @@ export default function DokumenSPJPage() {
                 setSppdData={setSppdData}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
+                formTab={formTab}
+                setFormTab={setFormTab}
+                previewTab={previewTab}
+                setPreviewTab={setPreviewTab}
                 onClose={handleCloseDetail}
               />
             ) : (
