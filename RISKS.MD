@@ -107,6 +107,18 @@
        (restore dari index, bukan HEAD, agar perubahan ter-stage tidak ikut kembali)
        → regenerasi manual file untracked yang hilang.
 
+⚠️ [Sedang] RISIKO: hasil cetak multi-dokumen Sprint 003 belum terbukti fisik.
+  FAKTA (BUILD-REPORT.MD 2026-10-01): print-area 5-doc transport + 5-doc mamin
+  lulus gate statik (build exit 0, diff warisan kosong) dan layar ringkasan
+  terbukti runtime (R-1/R-2 pencil browser), tetapi T-04/T-05 (urutan + kop→TTD
+  per dokumen, anti-terpotong halaman, layar≠cetak) UNTESTED — klik tidak
+  tersedia di pencil browser dan backend playwright MCP mati sesi ini.
+  Dampak: Sedang — susunan cetak bisa meleset (urutan/orientasi/page-break)
+    tanpa terlihat di gate statik.
+  Status: OPEN — wajib dibuktikan /acceptance-runner konteks segar sebelum
+    Sprint 003 dinyatakan lulus penuh (STATE.MD Langkah Selanjutnya).
+  Mitigasi: uji cetak manual per T-04…T-06 + E-2 saat runner; temuan → rework.
+
 ⚠️ [Rendah] RISIKO: key `nama_sekolah` snake_case di `DokumentasiAIGenerate.jsx:432`
   tidak pernah cocok dengan `getSchoolData()` camelCase → fallback generik
   `'SD NEGERI ...'` (bukan nama riil) SELALU terpakai di caption dokumentasi.

@@ -366,7 +366,17 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
-- Terakhir Diperbarui: 2026-09-30 (pack Sprint 003 jadi + cross-artifact check lulus;
+- Ledger: **Sprint 003 FASE 1–4 (2026-10-01)** — `17a266d` (F1 penerima+rename) ·
+  `a3bd7e6` (F2 SummaryCard+jalur layar) · `41369ce` (F3 print-area 5-doc) ·
+  `45129a9` (F4 MenuGuide) · `27c036b` (`docs:` BUILD-REPORT + STATE + ACCEPTANCE C-11/C-12) ·
+  `e8af618` (`docs:` pack 003 masuk repo). 3 file baru + 3 file diubah, 0 dependency.
+  Gate: build exit 0 ×6 · 15 pola 0 · 3 blok 0 input · blue-only 0 · diff warisan kosong.
+  Runtime pencil browser: pill+popover+rename terbukti (R-1/R-2), cetak/T-09/E-2 UNTESTED.
+  Detail: `planning/sprints/sprint-003/BUILD-REPORT.MD`. **Belum di-push** (branch kini ahead ±24).
+- Terakhir Diperbarui: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
+  ledger komit `17a266d`…`e8af618`; risiko cetak-fisik UNTESTED; ARCHITECTURE.MD stale
+  bertambah: SummaryCard/MenuGuide/guideConfig/print-area)
+- Terakhir Diperbarui sebelumnya: 2026-09-30 (pack Sprint 003 jadi + cross-artifact check lulus;
   Sprint 001+002 APPROVED via /acceptance-runner — VERIFICATION-REPORT.MD ×2; risiko
   UI runtime UNTESTED diterima eksplisit user)
 - Terakhir Diperbarui sebelumnya: 2026-09-19 (/state-keeper — Sprint 002 tutup statik + re-verifikasi 11/11 LULUS + R-1 dibereskan; ledger commit `c955019`…`b2b0728`; RISKS `nama_sekolah` RESOLVED; blocker UI runtime dicatat)
@@ -380,6 +390,11 @@
 | 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 selesai 2026-10-01 `17a266d`→`45129a9`; gate statik lulus; runtime sebagian pencil browser; **menunggu Fase 5 gate akhir + acceptance-runner**) | 🟡 Dikerjakan | 2026-09-30 |
 
 ## Langkah Selanjutnya
+- **Sprint 003 FASE 5 GATE AKHIR (tersisa): /acceptance-runner konteks segar**
+  (aturan AGENTS.MD) — wajib membuktikan runtime T-04/T-05 (cetak 5-doc fisik),
+  T-06/T-07 (PNS/PPPK muncul, honor-only), T-09 (config-driven revert-test),
+  E-2, dismiss permanen, print-hidden. Statik sudah lulus (BUILD-REPORT.MD).
+  1. **Push ke origin** — branch ahead ±24 commit (pelajaran insiden #3).
 - **Sprint 002 FASE 1–5 SELESAI (STATIK) 2026-09-19 — seluruh fase di-commit
   `36b408f`→`5b11f10` (+ fix pra-sprint `c955019`); docs task 5.4 (STATE/DECISIONS/
   QUESTIONS/ACCEPTANCE) di-commit terpisah. Menunggu: push + acceptance-runner.**
@@ -448,7 +463,11 @@
   ⚠️ **docs/ARCHITECTURE.MD STALE** (refresh saat planning sprint berikutnya): belum
   mencatat (a) `blocks/PeringatanData.jsx` baru [Sprint 001], (b) tab "Surat Tugas"
   dihapus → satu dokumen = satu tab, (c) 3 blok cetak kini murni (0 `<input>`/`<textarea>`),
-  (d) tombol Reset Data Dokumen LPJ di DokumenSPJPage.
+  (d) tombol Reset Data Dokumen LPJ di DokumenSPJPage, (e) [Sprint 003]
+  `SummaryCard.jsx` + `guide/MenuGuide.jsx` + `data/guideConfig.js` baru,
+  (f) jalur layar transport/mamin = kartu ringkasan + print-area 5-doc,
+  (g) `renderMaminPreview()` terpisah di `DokumenFormPreview.jsx`,
+  (h) `getSemuaPegawai()` di `honorHelper.js`.
 - **Sprint 001 ditutup STATIK 2026-09-18** (dicatat /state-keeper): FASE 1–6 selesai,
   semua lulus gate Builder (build exit 0, T-02 15 pola 0 hit verbatim, regresi
   6 konsumen × 2 kondisi = 12/12). Commit: `8398fe1` (FASE 1–4) · `73174c0`

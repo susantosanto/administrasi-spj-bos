@@ -670,6 +670,41 @@
   Dampak: tombol "Reset Data Dokumen LPJ" dengan confirm; status per dokumen kembali
   "Belum" setelah reset (commit 5b11f10).
 
+## N. Sprint 003 — Rework Lapisan Preview & Panduan (2026-10-01)
+
+[2026-10-01] Keputusan: **Perbaiki dry-run gap renderMaminPreview terpisah** (D-1 BUILD-REPORT)
+  Status: accepted
+  Alasan: dry run mengasumsikan preview Mamin lewat jalur generik; kode nyata
+    early-return ke `renderMaminPreview()` (`DokumenFormPreview.jsx:1624`).
+    Tanpa perbaikan US-20 tidak tercapai (layar Mamin tetap dokumen formal).
+  Dibuat oleh: builder (temuan eksekusi Fase 2, dalam scope persetujuan dry run)
+  Dampak: layar Mamin → SummaryCard + print-area 5-doc dari builder lama;
+    preskripsi pack tetap terpenuhi; tidak ada perubahan kriteria
+
+[2026-10-01] Keputusan: **Catat off-by-one nomor baris config Mamin di BLUEPRINT** (D-2)
+  Status: accepted
+  Alasan: BLUEPRINT menulis `:17/57/113/180/242`, aktual `:16/56/112/179/241`.
+    Murni cacat dokumentasi, tidak memengaruhi preskripsi atau gate
+  Dibuat oleh: builder (temuan eksekusi Fase 3)
+  Dampak: tidak ada perubahan kode; BLUEPRINT tidak direvisi (lihat ADR struktur pack —
+    pack architect tidak diubah builder); tercatat di BUILD-REPORT.MD
+
+[2026-10-01] Keputusan: **Catat selisih jumlah baris templateConfig di BLUEPRINT** (D-3)
+  Status: accepted
+  Alasan: BLUEPRINT menulis 993 baris, aktual 966 — pack ditulis dari revisi berbeda
+  Dibuat oleh: builder (temuan eksekusi Fase 3)
+  Dampak: tidak ada perubahan kode; tercatat di BUILD-REPORT.MD
+
+[2026-10-01] Keputusan: **Mount MenuGuide 1× kondisional, bukan 4× statis** (D-4)
+  Status: accepted
+  Alasan: DoD 4.4 meminta 4 pemakaian `<MenuGuide`; satu mount kondisional
+    (`isSpecial` = tepat 4 menu honor/perjalanan_dinas/mamin/pemeliharaan,
+    ctx dari state nyata formData/viewMode/sppdData) berperilaku setara dengan
+    lebih sedikit duplikasi, sejalan semangat config-driven US-29.
+    Terbukti runtime R-1/R-2 (pill + popover + badge 1/5 di menu Honorarium)
+  Dibuat oleh: builder (eksekusi Fase 4)
+  Dampak: `DokumenSPJPage.jsx` 1 mount; /acceptance-runner mengadili T-08 final
+
 ## Catatan audit trail
 
 - ADR 2026-09-17 F-1c "5 NIP hardcoded (15 kemunculan di 6 file) — satu grep 11 pola"
