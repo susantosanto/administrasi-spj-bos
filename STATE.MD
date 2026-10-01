@@ -5,10 +5,23 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
-- Sprint Aktif: **Sprint 003 — FASE 1–4 SELESAI & LULUS GATE BUILDER 2026-10-01
-  (dry run disetujui user; komit `17a266d`→`45129a9`; build exit 0 ×5;
-  runtime sebagian via pencil browser — pill+popover+rename terbukti, cetak/T-09/E-2 UNTESTED).
-  Menunggu: FASE 5 gate akhir + /acceptance-runner konteks segar.**
+- Sprint Aktif: **Sprint 003 — ✅ DITUTUP 2026-10-01 (risiko diterima user;
+  ronde-2 dibatalkan).** /acceptance-runner RONDE-1: 12 PASS / 0 FAIL /
+  8 UNTESTED (gap = browser mati, 0 bug). Question ronde-2 vs risiko → CLOSED
+  (QUESTIONS.MD): user pilih terima risiko (preseden 001/002).
+  Laporan final: `planning/sprints/sprint-003/VERIFICATION-REPORT.MD`.
+  Rincian ronde-1 —
+  PASS runtime: T-08(a) auto-open + T-08(h) jump-tetap-buka + badge 0/6→1/6,
+  T-02 rename, T-03 kartu ringkasan, E-1 kosong-jujur (0 console error).
+  PASS statik: T-01 build EXIT=0, T-07 2 cabang + honor-only, T-08 ronde-2
+  (jump=21, tabseen=0), T-10 (15 pola 0, warisan kosong), C-11/C-12.
+  Gap = browser Playwright mati tengah sesi (8 item runtime: T-04 penuh, T-05
+  penuh, T-06, T-07 picker, T-08 b/c/d/e/f/g, T-09 revert-test, T-10 Honorarium,
+  E-2). TIDAK ADA temuan bug. Laporan:
+  `planning/sprints/sprint-003/VERIFICATION-REPORT.MD` (belum di-commit).
+  Builder: dry run disetujui user; komit `17a266d`→`45129a9` + revisi R1…R9
+  `414b53d`; build exit 0 ×7; runtime pencil/Playwright — pill+popover+rename+
+  jump terbukti, 8 gap diterima sebagai risiko.**
   **REVISI PANDUAN (keputusan user 2026-10-01 sesi 2) — kode selesai, gate statik lulus,
   BELUM di-commit:** (1) konten langkah = tab nyata tiap menu (`when(ctx)` utk sub
   Koordinasi/Bank) · (2) auto-open SETIAP masuk menu · (3) trigger "selesai isi tab"
@@ -381,6 +394,11 @@
 - Ledger sebelumnya: `21b7713` (2026-09-13) — koreksi sprint aktif → Sprint 001, hapus
   `docs/PROGRESS.md`, `.gitignore` agent dirs (`.zcode/`, `.workbuddy-ai/`),
   `README.md` GitHub-only. Juga **belum di-push**.
+- Ledger: **/acceptance-runner RONDE-1 Sprint 003 (2026-10-01, sesi segar)** —
+  12 PASS / 0 FAIL / 8 UNTESTED → REWORK (gap = browser mati, bukan bug).
+  Detail: `planning/sprints/sprint-003/VERIFICATION-REPORT.MD` (untracked).
+  HEAD sesi ini `983735b`; ledger ronde-2 `414b53d` (kode R8/R9) + `983735b`
+  (pack+status). **Belum di-push** (branch ahead ±24+).
 - Ledger: **Sprint 003 FASE 1–4 (2026-10-01)** — `17a266d` (F1 penerima+rename) ·
   `a3bd7e6` (F2 SummaryCard+jalur layar) · `41369ce` (F3 print-area 5-doc) ·
   `45129a9` (F4 MenuGuide) · `27c036b` (`docs:` BUILD-REPORT + STATE + ACCEPTANCE C-11/C-12) ·
@@ -403,10 +421,11 @@
 | 000 | ONBOARDING — titik adopsi workflow (ditutup `2ad42e9`, commit terakhir `2bd80cb`) | ✅ Selesai | 2026-09-13 |
 | 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `8398fe1` + `73174c0` + `2e23441`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-17 |
 | 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `36b408f`→`5b11f10` + `c955019`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-19 |
-| 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 selesai 2026-10-01 `17a266d`→`45129a9`; gate statik lulus; runtime sebagian pencil browser; **menunggu Fase 5 gate akhir + acceptance-runner**) | 🟡 Dikerjakan | 2026-09-30 |
+| 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 + revisi R1…R9 `17a266d`→`414b53d`; acceptance ronde-1 12 PASS/0 FAIL/8 UNTESTED → **✅ DITUTUP 2026-10-01, risiko diterima user**, ronde-2 dibatalkan) | ✅ Selesai | 2026-10-01 |
 
 ## Langkah Selanjutnya
-- **Sprint 003 FASE 5 GATE AKHIR (tersisa): /acceptance-runner konteks segar**
+- **Sprint 003 SELESAI (risiko diterima). Berikutnya:**
+  1. **Push ke origin** — branch ahead ±24+ commit (pelajaran insiden #3).
   (aturan AGENTS.MD) — wajib membuktikan runtime T-04/T-05 (cetak 5-doc fisik),
   T-06/T-07 (PNS/PPPK muncul, honor-only), T-09 (config-driven revert-test),
   E-2, dismiss permanen, print-hidden. Statik sudah lulus (BUILD-REPORT.MD).

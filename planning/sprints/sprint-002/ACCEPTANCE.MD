@@ -168,3 +168,18 @@ TTD hanya terisi untuk peran yang ada, peringatan merah menyebut **hanya** peran
 
 > **Bukan cakupan sprint ini:** fondasi data, kop berlogo, peringatan merah, halaman
 > Data Sekolah → diuji di `planning/sprints/sprint-001/ACCEPTANCE.MD`.
+
+---
+
+## PENUTUPAN SPRINT (2026-09-30, /acceptance-runner konteks segar)
+
+**Verdict: APPROVED** — detail bukti per kriteria di `VERIFICATION-REPORT.MD`.
+- Segar 2026-09-30: T-01 build exit 0 · `surat_tugas` rescoped = 0 · T-04
+  `<input>/<textarea>` 3 blok = 0 · 3 blok resmi SPD persis docx (SPDForm:182/184/187) ·
+  T-10 3 blok 0 warna + `git diff 264c431..HEAD` = 0 warna baru · T-11 6 konsumen
+  tak tersentuh · T-09 statik reset `dokumen_lpj` + `spj_data_sekolah` aman.
+- **UNTESTED diterima user 2026-09-30:** kriteria UI runtime (T-05/T-06/T-07/T-08
+  print preview + pembandingan docx, T-09 klik reset) — tool browser tidak tersedia
+  di sesi runner; risiko DITERIMA eksplisit oleh user. Mitigasi: feedback uji manual
+  user menyentuh lapisan preview (lingkup Sprint 003), bukan lingkup Sprint 002.
+- Status final sprint: **✅ SELESAI (APPROVED, risiko UI runtime diterima)**.

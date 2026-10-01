@@ -7,6 +7,15 @@
 
 ## Daftar Risiko
 
+⚠️ [Sedang] RISIKO: backend browser otomasi (Playwright MCP) mati tengah sesi
+  verifikasi → item runtime jadi UNTESTED dan butuh ronde ulang.
+  FAKTA: 2026-10-01 acceptance Sprint 003 ronde-1 terhenti di 8 gap runtime
+  (browser closed, Pencil fallback gagal konek); 0 indikasi bug kode.
+  Dampak: Sedang — siklus verifikasi memanjang, bukan cacat produk.
+  Mitigasi: ronde-2 sesi segar + browser hidup; dev server :5173 dibiarkan
+  jalan; seed data via localStorage terbukti bisa.
+  Status: OPEN (materialized 1×, termitigasi parsial).
+
 ⚠️ [Sedang] RISIKO: 13 template belum pernah diverifikasi test cetak end-to-end
   (per docs/AGENT.md 2026-07-30: "test cetak 13 template — perlu running app")
   Dampak: Sedang — output cetak bisa meleset dari template asli

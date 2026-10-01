@@ -346,3 +346,18 @@ tanggal = konten dokumen, **di luar cakupan** pembersihan sprint ini).
 > print-area Perjalanan Dinas (3 blok SPD yang hilang, tembusan, kop → TTD), konsep dua wajah
 > `<input>` vs cetak murni, reset data lama → diuji di
 > `planning/sprints/sprint-002/ACCEPTANCE.MD`.
+
+---
+
+## PENUTUPAN SPRINT (2026-09-30, /acceptance-runner konteks segar)
+
+**Verdict: APPROVED** — detail bukti per kriteria di `VERIFICATION-REPORT.MD`.
+- Segar 2026-09-30: T-01 build exit 0 (`✓ built in 8.09s`, v24.19.0) · T-02 15 pola
+  `-i` = 0 hit + aset 0 · T-13 0 caret + MATCH 14/14 + lockfile bersih · jalur
+  auto-fill T-12/T-15, banner T-05/T-06, logo T-08, SKHonorer T-14, email T-03
+  terverifikasi statik.
+- **UNTESTED diterima user 2026-09-30:** kriteria UI runtime (T-04/T-07/T-11 render
+  2 kondisi, screenshot print preview) — tool browser tidak tersedia di sesi runner;
+  risiko DITERIMA eksplisit oleh user. Mitigasi: uji manual user
+  (`fix-template-document.md`) tidak menemukan cacat lingkup Sprint 001.
+- Status final sprint: **✅ SELESAI (APPROVED, risiko UI runtime diterima)**.

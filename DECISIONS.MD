@@ -9,6 +9,18 @@
 
 ## Daftar Keputusan
 
+[2026-10-01] Keputusan: 8 gap runtime Sprint 003 DITERIMA sebagai risiko (ronde-2 dibatalkan) — Sprint 003 DITUTUP
+  Status: accepted
+  Alasan: perintah user langsung 2026-10-01; preseden Sprint 001/002 (risiko UI runtime diterima 2026-09-30); 0 FAIL di ronde-1, gap = keterbatasan tooling bukan bug
+  Dibuat oleh: user
+  Dampak: Sprint 003 ✅ selesai (risiko diterima); VERIFICATION-REPORT.MD ronde-1 jadi bukti final; uji manual user via `fix-template-document.md` jadi jaring pengaman
+
+[2026-10-01] Keputusan: Verdict acceptance Sprint 003 ronde-1 = REWORK (12 PASS / 0 FAIL / 8 UNTESTED), lanjut ronde-2 bukan ubah kode
+  Status: accepted
+  Alasan: 8 gap = browser Playwright mati tengah sesi (bukan temuan bug); semua yang teramati PASS dengan bukti fresh (Bab 12)
+  Dibuat oleh: /acceptance-runner (sesi segar)
+  Dampak: ronde-2 hanya uji 8 gap runtime; laporan `planning/sprints/sprint-003/VERIFICATION-REPORT.MD`
+
 [2026-09-13] Keputusan: Stack React 18 + Vite + Tailwind CSS (as adopted)
   Status: accepted
   Alasan: legacy, belum terdokumentasi (keputusan dibuat sebelum adopsi workflow)

@@ -7,6 +7,10 @@
 
 ## Pertanyaan Terbuka
 
+🔹 [CLOSED] Pertanyaan: 8 gap runtime Sprint 003 (T-04 penuh, T-05 penuh, T-06, T-07 picker, T-08 b/c/d/e/f/g, T-09, T-10 Honorarium, E-2) — wajib ronde-2 acceptance, atau sebagian diterima sebagai risiko (seperti Sprint 001/002 2026-09-30)?
+  Jawaban: DITERIMA sebagai risiko — ronde-2 DIBATALKAN, question ditutup.
+  Ditutup: 2026-10-01 (perintah user langsung)
+
 ❓ [OPEN] Pertanyaan: Keputusan dependency `xlsx@0.18.5` — mana yang dipilih:
   (a) terima + mitigasi (parse hanya file pilihan user, tanpa auto-fetch), atau
   (b) migrasi ke parser Excel lain (mis. exceljs)?
