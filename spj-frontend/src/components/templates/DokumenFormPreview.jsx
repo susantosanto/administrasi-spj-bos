@@ -13,6 +13,7 @@
  */
 import { useState, useEffect } from 'react'
 import TemplateEngine from './TemplateEngine'
+import SummaryCard from './SummaryCard'
 import SkHonorerEditor from './blocks/SkHonorerEditor'
 import TabelDinamis from './blocks/TabelDinamis'
 import { loadSkPasal, saveSkPasal, cloneDefaultPasal } from '../../data/skPasal'
@@ -257,6 +258,7 @@ export default function DokumenFormPreview({
 
   const isTransport = card.id === 'perjalanan_dinas'
   const isMamin = card.id === 'mamin'
+  const isPemeliharaan = card.id === 'pemeliharaan'
   const isPemeliharaanUpah = card.id === 'pemeliharaan' && selectedSub?.id === 'alat'
   const isRecipientBased = card.id === 'honor' || isTransport
   const isMaminOrUpah = isMamin || isPemeliharaanUpah
@@ -1696,18 +1698,8 @@ export default function DokumenFormPreview({
       maksud: sppdData.maksud || sppdData.tujuan || '',
     })
 
-    // Render 1 dokumen per penerima (Surat Tugas / SPT / SPPD)
-    const renderPerRecipient = (cfg, build, label, icon) => (
-      tRows.map((row) => (
-        <div key={`${cfg.id}-${row.id}`} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-          <div className="flex items-center gap-2 text-primary mb-3">
-            <span className="material-symbols-outlined">{icon}</span>
-            <span className="text-sm font-bold">{label} — {row.nama}</span>
-          </div>
-          <TemplateEngine templateConfig={cfg} data={build(row)} mode="print" />
-        </div>
-      ))
-    )
+    // Sprint 003 FASE 2: jalur LAYAR = kartu ringkasan (0 kop, 0 TTD).
+    // Builder data dipakai seksi; dokumen formal hanya dirender jalur CETAK (Fase 3).
 
     // ─── Data Resume / Undangan ───
     const resumeData = {
@@ -1746,6 +1738,106 @@ export default function DokumenFormPreview({
       // ADR 2026-09-14: field "Sifat" dipertahankan, default '-' ikut tercetak
       sifatUndangan: formData.sifatUndangan || '-',
     }
+
+    // ─── Sprint 003 FASE 2: section builder kartu ringkasan (layar-only) ───
+    // 0 kop, 0 TTD: nama penandatangan/NIP/kop gugus SENGAJA tidak masuk seksi —
+    // mereka milik jalur CETAK (Fase 3) yang memakai builder di atas apa adanya.
+    const RECIPIENT_COLS = [
+      { key: 'no', label: 'No' },
+      { key: 'nama', label: 'Nama' },
+      { key: 'nip', label: 'NIP/NUPTK' },
+      { key: 'jabatan', label: 'Jabatan' },
+    ]
+    const recipientRows = tRows.map((r, i) => ({
+      id: r.id, no: i + 1, nama: r.nama || '', nip: r.nip || r.nuptk || '', jabatan: r.jabatan || '',
+    }))
+    const sptSections = (row) => {
+      const d = buildSptData(row)
+      return [
+        { title: 'Penerima Tugas', fields: [
+          { label: 'Nama', value: d.nama },
+          { label: 'NIP', value: d.sptNip },
+          { label: 'Pangkat', value: d.sptPangkat },
+          { label: 'Jabatan', value: d.sptJabatan },
+        ] },
+        { title: 'Isi Penugasan', fields: [
+          { label: 'Nomor SPT', value: d.nomorSpt },
+          { label: 'Untuk', value: d.sptUntuk },
+          { label: 'Hari', value: d.sptHari },
+          { label: 'Tanggal', value: d.sptTanggal },
+          { label: 'Tempat', value: d.sptTempat },
+        ] },
+      ]
+    }
+    const sppdSections = (row) => {
+      const d = buildSppdData(row)
+      return [
+        { title: 'Pelaksana', fields: [
+          { label: 'Nama', value: d.nama },
+          { label: 'NIP', value: d.sppdNip },
+          { label: 'Pangkat', value: d.sppdPangkat },
+          { label: 'Jabatan', value: d.sppdJabatan },
+        ] },
+        { title: 'Perjalanan', fields: [
+          { label: 'Nomor SPPD', value: d.nomorSurat },
+          { label: 'Maksud', value: d.maksud },
+          { label: 'Berangkat', value: d.tempatBerangkat },
+          { label: 'Tujuan', value: d.tempatTujuan },
+          { label: 'Tgl Berangkat', value: d.tanggalBerangkat },
+          { label: 'Tgl Kembali', value: d.tanggalKembali },
+          { label: 'Lama', value: d.lama },
+        ] },
+      ]
+    }
+    const resumeSections = () => ([
+      { title: 'Acara', fields: [
+        { label: 'Hari', value: resumeData.hari },
+        { label: 'Tanggal', value: resumeData.tanggal },
+        { label: 'Tempat', value: resumeData.tempat },
+        { label: 'Acara', value: resumeData.acara },
+      ] },
+      { title: 'Poin Pembahasan', fields: [
+        { label: 'Resume', value: (resumeData.poinPembahasan || []).map((p) => p.text) },
+      ] },
+    ])
+    const undanganSections = () => ([
+      { title: 'Surat Undangan', fields: [
+        { label: 'Nomor', value: formData.nomorUndangan },
+        { label: 'Tanggal Surat', value: undanganData.tanggalSurat },
+        { label: 'Hari Acara', value: undanganData.hariUndangan },
+        { label: 'Tanggal Acara', value: undanganData.tanggalAcara },
+        { label: 'Tempat Acara', value: undanganData.tempatAcara },
+        { label: 'Sifat', value: undanganData.sifatUndangan },
+        { label: 'Isi', value: undanganData.isiUndangan },
+        { label: 'Tembusan', value: formData.tembusanItems },
+      ] },
+    ])
+    const daftarSections = () => ([
+      { title: 'Informasi Perjalanan', fields: [
+        { label: 'Nomor', value: formData.nomor },
+        { label: 'Kegiatan', value: sppdData.tujuan },
+        { label: 'Tanggal', value: sppdData.tanggal },
+        { label: 'Tempat', value: sppdData.tempat },
+        { label: 'Lama', value: sppdData.lama },
+      ] },
+      { title: `Daftar Penerima (${recipientRows.length})`, table: { columns: RECIPIENT_COLS, rows: recipientRows } },
+    ])
+    const maminSections = () => ([
+      { title: isMamin ? 'Detail Acara' : 'Detail Pekerjaan', fields: [
+        { label: 'Nomor Surat', value: formData.nomor },
+        ...(isMamin ? [
+          { label: 'Tanggal', value: formData.tanggal },
+          { label: 'Waktu', value: formData.waktu },
+          { label: 'Tempat', value: formData.tempat },
+          { label: 'Acara', value: formData.acara },
+          { label: 'Resume', value: formData.resume },
+        ] : [
+          { label: 'Bulan', value: formData.bulan },
+          { label: 'Tahun', value: formData.tahun },
+        ]),
+      ] },
+      { title: `Daftar Hadir (${recipientRows.length})`, table: { columns: RECIPIENT_COLS, rows: recipientRows } },
+    ])
 
     const handlePrint = () => {
       const printContainer = document.querySelector('.print-container')
@@ -1787,8 +1879,8 @@ export default function DokumenFormPreview({
         </div>
 
         {/* Sprint 001 FASE 5 (task 5.3): peringatan data kosong di area Perjalanan
-            Dinas — tab spt/sppd/undangan merender mode="print" di layar sehingga
-            tidak tertutup pemasangan edit-mode (task 5.2) di TemplateEngine. */}
+            Dinas. Sprint 003: tab kini kartu ringkasan — banner tetap di sini
+            (di luar print-container, tidak ikut cetak). */}
         {isTransport && <PeringatanData />}
 
         {/* Tabs (recipient-based docs: Honor / Transport) */}
@@ -1841,49 +1933,50 @@ export default function DokumenFormPreview({
           </div>
         )}
 
-        {/* Transport: tab content — 6 dokumen perjalanan dinas */}
+        {/* Transport: tab content — kartu ringkasan (layar), bukan dokumen formal */}
         {isTransport && (
           <>
-            {/* Tanpa penerima: tabel daftar saja */}
+            {/* Tanpa penerima: ringkasan daftar saja */}
             {!showTabs && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-                <TemplateEngine templateConfig={tableOnlyConfig} data={previewData} mode="print" />
-              </div>
+              <SummaryCard title={`Ringkasan — ${selectedSub?.label || ''}`} icon="table_chart" sections={daftarSections()} />
             )}
             {showTabs && previewTab === 'daftar' && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-                <TemplateEngine templateConfig={tableOnlyConfig} data={previewData} mode="print" />
+              <SummaryCard title="Ringkasan Daftar Penerima" icon="table_chart" sections={daftarSections()} />
+            )}
+            {showTabs && previewTab === 'spt' && (
+              <div className="space-y-4">
+                {tRows.map((row) => (
+                  <SummaryCard key={`spt-${row.id}`} title={`SPT — ${row.nama || 'Tanpa nama'}`} icon="assignment" sections={sptSections(row)} />
+                ))}
               </div>
             )}
-            {showTabs && previewTab === 'spt' && renderPerRecipient(
-              TEMPLATE_CONFIGS.spt, buildSptData, 'Surat Perintah Tugas', 'assignment'
-            )}
-            {showTabs && previewTab === 'sppd' && renderPerRecipient(
-              TEMPLATE_CONFIGS.sppd, buildSppdData, 'SPPD', 'directions_car'
+            {showTabs && previewTab === 'sppd' && (
+              <div className="space-y-4">
+                {tRows.map((row) => (
+                  <SummaryCard key={`sppd-${row.id}`} title={`SPPD — ${row.nama || 'Tanpa nama'}`} icon="directions_car" sections={sppdSections(row)} />
+                ))}
+              </div>
             )}
             {showTabs && previewTab === 'resume' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-                <div className="flex items-center gap-2 text-primary mb-3">
-                  <span className="material-symbols-outlined">description</span>
-                  <span className="text-sm font-bold">Resume / Notulen</span>
-                </div>
-                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.notulen} data={resumeData} mode="print" />
-              </div>
+              <SummaryCard title="Resume / Notulen" icon="description" sections={resumeSections()} />
             )}
             {showTabs && previewTab === 'undangan' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-                <div className="flex items-center gap-2 text-primary mb-3">
-                  <span className="material-symbols-outlined">mail</span>
-                  <span className="text-sm font-bold">Surat Undangan</span>
-                </div>
-                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.undangan_gugus} data={undanganData} mode="print" />
-              </div>
+              <SummaryCard title="Surat Undangan" icon="mail" sections={undanganSections()} />
             )}
           </>
         )}
 
+        {/* Sprint 003 FASE 2 (US-20): preview Mamin/Pemeliharaan = kartu ringkasan.
+            Jalur Honor (sk) di bawah TIDAK diubah (US-25). */}
+        {(isMamin || isPemeliharaan) && (
+          <>
+            <PeringatanData />
+            <SummaryCard title={`Ringkasan — ${card.nama} — ${selectedSub?.label || ''}`} icon="list_alt" sections={maminSections()} />
+          </>
+        )}
+
         {/* Non-transport: Tab Content — Daftar Penerima + SK Honorer */}
-        {(!showTabs || previewTab === 'daftar') && !isTransport && (
+        {(!showTabs || previewTab === 'daftar') && !isTransport && !isMamin && !isPemeliharaan && (
           <div
             className={
               isDaftarTab
