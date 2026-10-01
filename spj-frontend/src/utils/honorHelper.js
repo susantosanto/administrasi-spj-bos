@@ -67,13 +67,7 @@ export function getPenjagaStaff() {
     return roleHonor === 'penjaga'
   })
 }
-
-/**
- * Semua pegawai semua status (PNS/PPPK/Honorer: guru + tendik + perpus + penjaga).
- * Untuk daftar penerima Perjalanan Dinas & daftar hadir Mamin (US-24).
- * Honorarium tetap honorer-only via helper lama — JANGAN pakai fungsi ini di jalur honor.
- * Dedupe O(n) by nip/nuptk/nama via Set (lihat BLUEPRINT DSA 1.1).
- */
+// Semua pegawai semua status untuk transport & mamin (US-24) — dedupe O(n) via Set. Honor tetap honorer-only.
 export function getSemuaPegawai() {
   const all = [...(storageHelper.get('data_guru', []) || []), ...(storageHelper.get('data_tendik', []) || [])]
   const seen = new Set()
@@ -84,7 +78,6 @@ export function getSemuaPegawai() {
     return true
   })
 }
-
 /**
  * Map guru/tendik data to honor table row format
  * @param {Object} item - Guru/tendik data

@@ -13,6 +13,7 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
+import MenuGuide from '../../components/guide/MenuGuide'
 import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 
@@ -432,12 +433,28 @@ export default function DokumenSPJPage() {
                   <p className="text-xs text-slate-500 mt-0.5">{selectedCard.deskripsi}</p>
                 </div>
               </div>
-              <button
-                onClick={handleCloseDetail}
-                className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Sprint 003 FASE 4 (US-26): pill Panduan sadar-state di 4 menu LPJ */}
+                {isSpecial && (
+                  <MenuGuide
+                    menuId={selectedCard.id}
+                    ctx={{
+                      subId: selectedSubKategori?.id,
+                      rowsCount: (formData.rows || []).length,
+                      hasNomor: formData.nomor || formData.nomorSpt || formData.nomorSurat || formData.nomorUndangan || sppdData.nomorSurat,
+                      hasAcara: formData.acara,
+                      hasDetail: sppdData.tujuan || sppdData.tanggal,
+                      viewedSummary: viewMode === 'preview',
+                    }}
+                  />
+                )}
+                <button
+                  onClick={handleCloseDetail}
+                  className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
+                </button>
+              </div>
             </div>
 
             {/* Sub-Kategori Tabs (non-special cards) */}
