@@ -1442,6 +1442,27 @@ export default function DokumenFormPreview({
       rows,
     }
 
+    // ─── Sprint 003 FASE 2: seksi ringkasan Mamin (layar-only, 0 kop 0 TTD) ───
+    const HADIR_COLS = [
+      { key: 'no', label: 'No' },
+      { key: 'nama', label: 'Nama' },
+      { key: 'jabatan', label: 'Jabatan' },
+    ]
+    const maminAcaraSections = () => ([
+      { title: 'Detail Acara', fields: [
+        { label: 'Nomor Surat', value: formData.nomor },
+        { label: 'Tanggal', value: formData.tanggal },
+        { label: 'Waktu', value: formData.waktu },
+        { label: 'Tempat', value: formData.tempat },
+        { label: 'Acara', value: formData.acara },
+        { label: 'Resume', value: formData.resume },
+      ] },
+      { title: `Daftar Hadir (${rows.length})`, table: {
+        columns: HADIR_COLS,
+        rows: rows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', jabatan: r.jabatan || '' })),
+      } },
+    ])
+
     const handlePrint = () => {
       const printContainer = document.querySelector('.print-container')
       if (printContainer) {
@@ -1478,89 +1499,112 @@ export default function DokumenFormPreview({
           </div>
         </div>
 
+        {/* Sprint 003 FASE 2: layar = kartu ringkasan (0 kop, 0 TTD).
+            Dokumen formal hanya di area cetak Fase 3 di bawah. */}
+        <PeringatanData />
+        <SummaryCard title="Ringkasan Makan & Minum" icon="list_alt" sections={maminAcaraSections()} />
+
         {/* Dokumen 1: Buku Tamu Kedinasan (hanya jika diisi) */}
         {hasBukuTamu && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-primary mb-3">
-              <span className="material-symbols-outlined">import_contacts</span>
-              <span className="text-sm font-bold">Buku Tamu Kedinasan</span>
-            </div>
-            <TemplateEngine templateConfig={bukuTamuCfg} data={bukuTamuData} mode="print" />
-          </div>
+          <SummaryCard title="Buku Tamu Kedinasan" icon="import_contacts" sections={[
+            { title: 'Kunjungan', fields: [
+              { label: 'No Urut', value: bukuTamuData.noUrut },
+              { label: 'Tanggal', value: bukuTamuData.tanggal },
+              { label: 'Bertemu', value: bukuTamuData.bertemu },
+              { label: 'Tiba', value: bukuTamuData.tiba },
+              { label: 'Kembali', value: bukuTamuData.kembali },
+              { label: 'Diterima', value: bukuTamuData.diterima },
+              { label: 'Tujuan', value: bukuTamuData.tujuan },
+            ] },
+            { title: `Tamu (${btRows.length})`, table: {
+              columns: HADIR_COLS,
+              rows: btRows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', jabatan: r.jabatan || '' })),
+            } },
+          ]} />
         )}
 
         {/* Dokumen 2: Notulen / Resume */}
-        <div className="bg-white rounded-2xl border border-blue-200 shadow-sm p-4 overflow-auto">
-          <div className="flex items-center gap-2 text-blue-700 mb-3">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Notulen / Resume</span>
-          </div>
-          <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
-        </div>
+        <SummaryCard title="Notulen / Resume" icon="description" sections={[
+          { title: 'Rapat', fields: [
+            { label: 'Nomor', value: notulenData.nomor },
+            { label: 'Tanggal', value: notulenData.tanggal },
+            { label: 'Waktu', value: notulenData.waktu },
+            { label: 'Tempat', value: notulenData.tempat },
+            { label: 'Acara', value: notulenData.acara },
+            { label: 'Pimpinan', value: notulenData.pimpinan },
+            { label: 'Peserta', value: notulenData.peserta },
+            { label: 'Poin', value: notulenData.poinPembahasan },
+          ] },
+        ]} />
 
-        {/* Dokumen 2b: Daftar Hadir (dari data Guru/Tendik) */}
-        {rows.length > 0 && (
-          <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-amber-700 mb-3">
-              <span className="material-symbols-outlined">badge</span>
-              <span className="text-sm font-bold">Daftar Hadir</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.daftar_hadir}
-              data={{
-                ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
-                judulAcara: formData.judulDaftarHadir || formData.acara || '',
-                rows,
-              }}
-              mode="print"
-            />
-          </div>
-        )}
+        {/* Dokumen 2b: Daftar Hadir (sudah tercakup di kartu utama) */}
 
         {/* Dokumen 3: Surat Undangan */}
         {(formData.nomorUndangan || formData.kepadaUndangan || formData.isiUndangan) && (
-          <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-emerald-700 mb-3">
-              <span className="material-symbols-outlined">mail</span>
-              <span className="text-sm font-bold">Surat Undangan</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.undangan_mamin}
-              data={{
-                ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
-                ...formData,
-                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-                hariUndangan: formData.hariUndangan || formData.hari || '',
-                tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
-                tempatAcara: formData.tempatAcara || formData.tempat || '',
-                waktuAcara: formData.waktuAcara || formData.waktu || '',
-                kegiatan: formData.isiUndangan || formData.acara || '',
-              }}
-              mode="print"
-            />
-          </div>
+          <SummaryCard title="Surat Undangan" icon="mail" sections={[
+            { title: 'Undangan', fields: [
+              { label: 'Nomor', value: formData.nomorUndangan },
+              { label: 'Kepada', value: formData.kepadaUndangan },
+              { label: 'Tanggal Acara', value: formData.tanggalAcara || formData.tanggal },
+              { label: 'Tempat Acara', value: formData.tempatAcara || formData.tempat },
+              { label: 'Isi', value: formData.isiUndangan || formData.acara },
+            ] },
+          ]} />
         )}
 
         {/* Dokumen 4: Surat Pesanan */}
         {(formData.nomorPesanan || formData.kepadaPesanan || (formData.pesananRows || []).length > 0) && (
-          <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-violet-700 mb-3">
-              <span className="material-symbols-outlined">shopping_cart</span>
-              <span className="text-sm font-bold">Surat Pesanan</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.pesanan_mamin}
-              data={{
-                ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
-                ...formData,
-                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-                kegiatan: formData.isiPesanan || formData.acara || '',
-                rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
-              }}
-              mode="print"
-            />
-          </div>
+          <SummaryCard title="Surat Pesanan" icon="shopping_cart" sections={[
+            { title: 'Pesanan', fields: [
+              { label: 'Nomor', value: formData.nomorPesanan },
+              { label: 'Kepada', value: formData.kepadaPesanan },
+              { label: 'Kegiatan', value: formData.isiPesanan || formData.acara },
+              { label: 'Item', value: (formData.pesananRows || []).length },
+            ] },
+          ]} />
         )}
+
+        {/* ─── Sprint 003 FASE 3: area cetak Mamin = 5 dokumen formal kop→TTD.
+            .sk-print-area: hidden di layar, block saat print; tiap .sk-doc-print
+            ganti halaman (anti-terpotong). Builder data dipakai ulang apa adanya. */}
+        <div className="sk-print-area">
+          <div className="sk-doc-print">
+            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.undangan_mamin} data={{
+              ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
+              ...formData,
+              tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
+              hariUndangan: formData.hariUndangan || formData.hari || '',
+              tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
+              tempatAcara: formData.tempatAcara || formData.tempat || '',
+              waktuAcara: formData.waktuAcara || formData.waktu || '',
+              kegiatan: formData.isiUndangan || formData.acara || '',
+            }} mode="print" />
+          </div>
+          <div className="sk-doc-print">
+            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.pesanan_mamin} data={{
+              ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
+              ...formData,
+              tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
+              kegiatan: formData.isiPesanan || formData.acara || '',
+              rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
+            }} mode="print" />
+          </div>
+          <div className="sk-doc-print">
+            <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
+          </div>
+          <div className="sk-doc-print">
+            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.daftar_hadir} data={{
+              ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
+              judulAcara: formData.judulDaftarHadir || formData.acara || '',
+              rows,
+            }} mode="print" />
+          </div>
+          {hasBukuTamu && (
+            <div className="sk-doc-print">
+              <TemplateEngine templateConfig={bukuTamuCfg} data={bukuTamuData} mode="print" />
+            </div>
+          )}
+        </div>
       </div>
     )
   }
@@ -1966,9 +2010,10 @@ export default function DokumenFormPreview({
           </>
         )}
 
-        {/* Sprint 003 FASE 2 (US-20): preview Mamin/Pemeliharaan = kartu ringkasan.
+        {/* Sprint 003 FASE 2 (US-20): preview Pemeliharaan = kartu ringkasan.
+            (Mamin punya renderMaminPreview sendiri di atas.)
             Jalur Honor (sk) di bawah TIDAK diubah (US-25). */}
-        {(isMamin || isPemeliharaan) && (
+        {isPemeliharaan && (
           <>
             <PeringatanData />
             <SummaryCard title={`Ringkasan — ${card.nama} — ${selectedSub?.label || ''}`} icon="list_alt" sections={maminSections()} />
@@ -2001,6 +2046,49 @@ export default function DokumenFormPreview({
 
         {/* Non-transport: Tab Content SK Honorer */}
         {showTabs && previewTab === 'sk' && !isTransport && renderSkHonorer()}
+
+        {/* ─── Sprint 003 FASE 3 (US-22): area cetak Perjalanan Dinas = 5 dokumen
+            formal kop→TTD berurutan: penerima → undangan → SPT → SPD → resume.
+            Builder data dipakai ulang apa adanya; tiap .sk-doc-print ganti
+            halaman (anti-terpotong, task 3.2). Layar: hidden. */}
+        {isTransport && (
+          <div className="sk-print-area">
+            <div className="sk-doc-print">
+              <TemplateEngine templateConfig={config} data={previewData} mode="print" />
+            </div>
+            {getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
+              <div className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.undangan_gugus} data={undanganData} mode="print" />
+              </div>
+            )}
+            {tRows.map((row) => (
+              <div key={`print-spt-${row.id}`} className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.spt} data={buildSptData(row)} mode="print" />
+              </div>
+            ))}
+            {tRows.map((row) => (
+              <div key={`print-sppd-${row.id}`} className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.sppd} data={buildSppdData(row)} mode="print" />
+              </div>
+            ))}
+            {getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
+              <div className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.notulen} data={resumeData} mode="print" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── Sprint 003 FASE 3: area cetak Pemeliharaan = dokumen formal penuh.
+            (Fase 2 mengganti layar jadi SummaryCard yang tidak ikut cetak —
+            tanpa ini cetakan Pemeliharaan kosong.) */}
+        {isPemeliharaan && (
+          <div className="sk-print-area">
+            <div className="sk-doc-print">
+              <TemplateEngine templateConfig={config} data={previewData} mode="print" />
+            </div>
+          </div>
+        )}
       </div>
     )
   }
