@@ -69,6 +69,23 @@ export function getPenjagaStaff() {
 }
 
 /**
+ * Semua pegawai semua status (PNS/PPPK/Honorer: guru + tendik + perpus + penjaga).
+ * Untuk daftar penerima Perjalanan Dinas & daftar hadir Mamin (US-24).
+ * Honorarium tetap honorer-only via helper lama — JANGAN pakai fungsi ini di jalur honor.
+ * Dedupe O(n) by nip/nuptk/nama via Set (lihat BLUEPRINT DSA 1.1).
+ */
+export function getSemuaPegawai() {
+  const all = [...(storageHelper.get('data_guru', []) || []), ...(storageHelper.get('data_tendik', []) || [])]
+  const seen = new Set()
+  return all.filter((p) => {
+    const k = p.nip || p.nuptk || p.nama || ''
+    if (!k || seen.has(k)) return false
+    seen.add(k)
+    return true
+  })
+}
+
+/**
  * Map guru/tendik data to honor table row format
  * @param {Object} item - Guru/tendik data
  * @param {number} no - Nomor urut
@@ -181,6 +198,7 @@ export function debugStorageInfo() {
 export default {
   getGuruHonorer,
   getTendikHonorer,
+  getSemuaPegawai,
   getPerpustakaanStaff,
   getPenjagaStaff,
   mapToHonorRow,

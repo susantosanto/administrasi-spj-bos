@@ -23,6 +23,7 @@ import {
   getTendikHonorer,
   getPerpustakaanStaff,
   getPenjagaStaff,
+  getSemuaPegawai,
 } from '../../utils/honorHelper'
 import { findBkuNominal } from '../../utils/bkuHelper'
 import { generateRingkasanNotulen } from '../../utils/aiHelper'
@@ -89,11 +90,12 @@ function getRecipientsFor(cardId, subId) {
     }
   }
   if (cardId === 'perjalanan_dinas') {
-    return [...g, ...t, ...p, ...j]
+    // Sprint 003 (US-24): semua pegawai semua status — honor tetap honorer-only di cabang atas
+    return getSemuaPegawai()
   }
   // Makan & Minum (Daftar Hadir) & Pemeliharaan (Daftar Penerima Upah)
   if (cardId === 'mamin' || cardId === 'pemeliharaan') {
-    return [...g, ...t, ...p, ...j]
+    return getSemuaPegawai()
   }
   return []
 }
@@ -1336,8 +1338,8 @@ export default function DokumenFormPreview({
             }}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-95"
           >
-            <span className="material-symbols-outlined text-lg">visibility</span>
-            Preview Dokumen
+            <span className="material-symbols-outlined text-lg">list_alt</span>
+            Lihat Ringkasan
           </button>
         </div>
 
