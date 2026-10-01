@@ -30,13 +30,18 @@
 
 ```
 data/guideConfig.js (BARU) ──── langkah per menu + predikat state
-        │                        { [menuId]: { title, steps: [{id,label,done(ctx),active(ctx)}] } }
+        │                        { [menuId]: { title, steps: [{id,label,when(ctx)?,done(ctx)}] } }
+        │                        (REVISI 2026-10-01: langkah = tab nyata; langkah
+        │                         aktif = yang pertama belum-selesai, bukan predikat manual)
         ▼
 components/guide/MenuGuide.jsx (BARU) ── pill `? Panduan` + popover checklist
         │                                 non-modal · print:hidden · storage spj_guide_*
+        │                                 (REVISI: state machine auto-open/trigger/switch)
         ▼
-pages/dashboard/DokumenSPJPage.jsx ── pasang <MenuGuide menuId=.../> di 4 menu
-                                      + label tombol baru (rename)
+pages/dashboard/DokumenSPJPage.jsx ── pasang <MenuGuide key={menuId} menuId=.../> di 4 menu
+        │                             + ctx kaya (activeTab, visited, field per tab)
+        │                             + state formTab/previewTab DIANGKAT dari DokumenFormPreview
+        │                             + label tombol baru (rename)
 
 components/templates/DokumenFormPreview.jsx
         ├── viewMode 'form'    → form isian (TIDAK diubah)
@@ -79,8 +84,8 @@ utils/honorHelper.js → tambah getSemuaPegawai() (guru+tendik+perpus+penjaga,
 | File | Fase | Sifat perubahan |
 |---|---|---|
 | `spj-frontend/src/utils/honorHelper.js` | 1 | +`getSemuaPegawai()` (semua status); helper honorer tidak diubah |
-| `spj-frontend/src/components/templates/DokumenFormPreview.jsx` | 1, 2, 3 | sumber penerima (transport/mamin) · jalur preview → SummaryCard · handlePrint cetak 5-doc & mamin-full · rename tombol |
-| `spj-frontend/src/pages/dashboard/DokumenSPJPage.jsx` | 4 | pasang `<MenuGuide>` ×4 · label tombol di level halaman (bila ada) |
+| `spj-frontend/src/components/templates/DokumenFormPreview.jsx` | 1, 2, 3, R | sumber penerima (transport/mamin) · jalur preview → SummaryCard · handlePrint cetak 5-doc & mamin-full · rename tombol · **R: terima `formTab`/`previewTab` sebagai props (bukan useState lokal)** |
+| `spj-frontend/src/pages/dashboard/DokumenSPJPage.jsx` | 4, R | pasang `<MenuGuide>` ×4 · label tombol di level halaman (bila ada) · **R: state `formTab`/`previewTab` diangkat, `visitedTabs` (session Set), `activeTab` terhitung, ctx kaya MenuGuide, `key={selectedCard.id}` pada mount** |
 | `spj-frontend/src/data/templateConfig.js` | 3 | (hanya bila dry run menemukan gap) lengkapi config mamin yang kurang |
 
 > **DILARANG** menyentuh file di luar daftar ini (AGENTS.MD). Khususnya **DILARANG**
@@ -176,6 +181,49 @@ autoprefixer: 10.5.2
 ```
 FASE 1 → FASE 2 → FASE 3 → FASE 4 → FASE 5
 ```
+
+## ADDENDUM — Revisi Panduan (keputusan user 2026-10-01)
+
+> Revisi konten & perilaku MenuGuide setelah Fase 1–4 selesai. Sumber: 4 keputusan
+> user sesi 2026-10-01 (konten per tab · auto-open setiap masuk menu · trigger
+> "selesai isi tab" selalu muncul · cakupan per tab form). TIDAK mengubah Fitur A.
+
+### Storage keys
+
+| Key | Fungsi |
+|---|---|
+| `spj_guide_dismissed_<menu>` | permanen per menu — mematikan auto-open masuk menu + pindah konteks (TETAP) |
+| ~~`spj_guide_tabseen_<menu>_<tab>`~~ | **DIHAPUS (ronde-2 SUPERSEDED)** — aturan "1× per tab" diganti "selalu tampil setiap pindah konteks" |
+| ~~`spj_guide_visited_<menu>`~~ | **dihapus** — digantikan aturan masuk-menu-setiap-kali |
+
+### Task Revisi (R1…R7) — DoD: `npm run build` exit 0 tiap task
+
+| ID | Task | File | DoD (machine-checked) |
+|---|---|---|---|
+| R1 | Angkat `formTab`/`previewTab` jadi props (useState → DokumenSPJPage); reset tab tetap di DokumenFormPreview via efek card/sub | `DokumenSPJPage.jsx` + `DokumenFormPreview.jsx` | build exit 0 · grep `useState('daftar')` untuk dua tab = 0 di DokumenFormPreview |
+| R2 | `visitedTabs` (Set session, kunci `"<menu>:<activeTab>"` + `<menu>:preview`) + komputasi `activeTab` (form: formTab utk transport / `form` utk lainnya; preview: previewTab / `ringkasan` utk mamin-pemeliharaan) | `DokumenSPJPage.jsx` | build exit 0 |
+| R3 | Tulis ulang `guideConfig.js`: langkah per tab nyata + `when(ctx)` utk langkah sub-spesifik; **tanpa properti `active`** (aktif = langkah pertama belum-selesai) | `guideConfig.js` | build exit 0 · ≤150 baris |
+| R4 | MenuGuide state machine: (a) mount (key=menuId) → auto-open bila belum dismiss; (b) `activeTab` berubah → tutup + auto-open 1× per tab (tabseen); (c) timer 600ms dibatalkan saat ganti tab; (d) trigger transisi done → `setOpen(true)` meski dismissed; (e) tombol dismiss → "Selesai — jangan buka otomatis lagi" | `MenuGuide.jsx` | build exit 0 · `print:hidden` tetap · ≤300 baris |
+| R5 | ctx kaya MenuGuide: `activeTab`, `visited` (Set utk menu aktif), `rowsCount`, `nomor`, `nomorSpt`, `nomorSppd`, `sppdTanggal`, `resume`, `nomorUndangan`, `isiUndangan`, `acara`, `tanggal`, `btFilled`, `subId` | `DokumenSPJPage.jsx` | build exit 0 |
+| R6 | GATE: build + grep warisan (15 pola = 0, 3 blok 0 `<input>`, blue-only 0, `<MenuGuide` tetap terpasang, `key={selectedCard.id}` ada) | — | semua exit 0 / 0 hit |
+| R7 | Update pack (REQUIREMENTS/BLUEPRINT/ACCEPTANCE/HANDOFF) + STATE + BUILD-REPORT | — | dokumen ter-update |
+
+### Task Revisi RONDE-2 (keputusan user lanjutan 2026-10-01)
+
+| ID | Task | File | DoD (machine-checked) |
+|---|---|---|---|
+| R8 | Efek MenuGuide pakai `contextKey` = menu × subId × activeTab → popover **selalu tampil saat pindah konteks** (bila belum dismiss; terbuka → tetap); hapus logika tabseen + tutup-otomatis | `MenuGuide.jsx` | build exit 0 · grep `tabseen` = 0 |
+| R9 | Langkah jadi `<button>` + ikon chevron; `jump {mode,tab?}` di 21 langkah config; `onJump` → `handleGuideJump` (setViewMode/setTab + `scrollToDetail`) popover tidak ditutup | `guideConfig.js` · `MenuGuide.jsx` · `DokumenSPJPage.jsx` | build exit 0 · grep `jump:` = 21 · grep `onJump` ≥ 2 file |
+
+### DSA (addendum)
+
+- **R2/R5:** Set lookup `visited` — filter per render O(k) dengan k kecil (<10 kunci
+  per menu); badge & predikat dievaluasi ulang tiap render form → wajib murah,
+  tanpa storage read per langkah (storage hanya dibaca saat efek mount/ganti tab).
+- **R4d:** deteksi transisi via string gabungan done-flags (O(N), N≤6) — edge-triggered,
+  bukan polling; timer 600ms dibersihkan saat ganti tab/unmount (hindari buka-buka
+  ganda).
+
 
 ## DSA (27.4c ATURAN 3) — task hot path
 

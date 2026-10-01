@@ -45,3 +45,55 @@
   T-07 honor-only, T-09 (config-driven via revert-test), E-2, dismiss permanen,
   print-hidden saat cetak → menunggu /acceptance-runner (klik tidak tersedia
   di pencil browser; playwright MCP mati).
+
+## ADDENDUM — Revisi Panduan (keputusan user, sesi 2026-10-01)
+
+4 keputusan user: (1) konten langkah = tab nyata tiap menu; (2) auto-open
+SETIAP masuk menu; (3) trigger "selesai isi tab" selalu muncul — lewati dismiss;
+(4) popover tutup saat ganti tab (tidak kebawa). Pack direvisi: REQUIREMENTS
+poin 8–9 + tabel US · BLUEPRINT §ADDENDUM task R1…R7 + DSA + storage keys ·
+ACCEPTANCE T-08 REVISI + catatan checklist + T-09 `when` · HANDOFF 2 baris.
+
+### Kode revisi (4 file — BELUM di-commit)
+| File | Perubahan |
+|---|---|
+| `data/guideConfig.js` | tulis ulang: 4 menu · langkah per tab (honor 5, transport 6/5, mamin 6, pemeliharaan 4) · `when(ctx)` utk langkah sub-spesifik · tanpa properti `active` · 68/150 baris |
+| `components/guide/MenuGuide.jsx` | state machine: mount→auto-open · 1× per tab (`spj_guide_tabseen_`) · ganti tab→tutup+batalkan timer · transisi done→open 600ms (lewati dismiss) · StrictMode-safe · label dismiss baru · 232/300 baris |
+| `pages/dashboard/DokumenSPJPage.jsx` | `formTab`/`previewTab` diangkat · `visitedTabs` Set (reset bersama formData) · `activeTab` namespace `f:`/`p:` · `guideCtx` kaya · `key={selectedCard.id}` pada MenuGuide |
+| `templates/DokumenFormPreview.jsx` | terima 4 props tab · `useState('daftar')` utk 2 tab = 0 |
+
+### Gate revisi (bukti output asli sesi 2026-10-01)
+- **T-01 build: exit 0** — `✓ built in 4.73s` (Node v24.19.0); chunk warning pre-existing
+- 15 pola anti-hardcode = **0** · 3 blok `<input|<textarea` = **0**
+- `Preview Dokumen` di DokumenFormPreview = **0** · `Lihat Ringkasan` = **1**
+- `print:hidden` = 2 · `key={selectedCard.id}` = 1 · `spj_guide_tabseen_` = 2
+- `useState('daftar')` di DokumenFormPreview = **0** (state terangkat penuh)
+- blue-only: **0 baris baru** — 14 hit amber/emerald di DokumenSPJPage = warisan
+  (indikator status Lengkap/Draft; `git diff` = 0 baris tambahan)
+- `git diff` blok warisan (blocks/ + sekolahData + signatureRoles) = **kosong**
+- Batas file: MenuGuide 232/300 · guideConfig 68/150
+- Smoke runtime pencil browser: `/dashboard/dokumen-lpj` render normal, 4 kartu
+  menu tampil, tanpa crash (dev :5174)
+
+### UNTESTED revisi → /acceptance-runner (pakai T-08 REVISI 2026-10-01)
+- auto-open setiap masuk menu · popover **selalu tampil saat pindah konteks**
+  (jenis/tab/mode) · **klik langkah → jump + popover tetap** · trigger
+  selesai-isi-tab (termasuk sesudah dismiss) · badge sub Koordinasi/Bank tanpa
+  langkah Resume/Undangan · T-09 revert-test
+- Alasan: pencil browser tanpa aksi klik (detail view = klik kartu);
+  playwright MCP mati. Sisa lama T-04/T-05/T-06/T-07/E-2/print-hidden tetap.
+
+### RONDE-2 (2026-10-01, temuan uji manual user)
+Keluhan: (1) pindah jenis (sub-kategori) popover tidak muncul; (2) list langkah
+ingin bisa diklik → fokus ke langkah. Keputusan user: (1) popover **selalu tampil
+setiap pindah konteks** (SUPERSEDE "1× per tab" + "tutup saat ganti tab");
+(2) klik langkah → pindah tab/mode + **scroll** (tanpa fokus field), popover tetap.
+
+- Kode: `guideConfig` +`jump {mode,tab}` ×21 langkah · `MenuGuide` efek
+  `contextKey` (menu×jenis×tab), hapus tabseen, langkah jadi `<button>` + chevron ·
+  `DokumenSPJPage` +`handleGuideJump` +`onJump`
+- Gate: **build exit 0** `✓ built in 5.83s` · `tabseen`=0 · `jump:`=21 ·
+  `onJump` di 2 file · `contextKey`=2 · 15 pola=0 · MenuGuide 225/300 ·
+  guideConfig 69/150
+- Pack: REQUIREMENTS poin 9/10 · BLUEPRINT task R8/R9 + storage table ·
+  ACCEPTANCE T-08 (c)/(h) + grep `jump:`=21 · HANDOFF baris ronde-2

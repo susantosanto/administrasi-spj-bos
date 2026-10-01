@@ -38,6 +38,14 @@ Sprint ini **SELESAI** jika seluruh checklist tercentang **dan** seluruh test ca
 - [x] C-11 Build sukses (T-01) — builder 2026-10-01: exit 0 ×5 (BUILD-REPORT.MD)
 - [x] C-12 `STATE.MD` + pack sprint diperbarui (task 5.4) — status & bukti tercatat
 
+> **REVISI 2026-10-01 (keputusan user):** C-01…C-10 kembali kosong untuk bagian yang
+> berubah (panduan) — dijalankan ulang setelah addendum kode selesai. C-07 kini
+> mencakup: konten langkah = tab nyata per menu, auto-open setiap masuk menu,
+> popover **selalu tampil setiap pindah konteks** (jenis/tab/mode — ronde-2),
+> **langkah bisa diklik → jump + scroll** (ronde-2), trigger "selesai isi tab"
+> (termasuk sesudah dismiss). C-03/C-05 sudah terbukti parsial (Fase 2–3)
+> tetap menunggu T-04…T-06 runtime.
+
 ---
 
 ## Test Cases
@@ -95,23 +103,42 @@ Sprint ini **SELESAI** jika seluruh checklist tercentang **dan** seluruh test ca
 - **When** buka tab Daftar Penerima Perjalanan Dinas & Daftar Hadir Mamin
 - **Then** ketiga status muncul di daftar pilihan; dan pada Menu Honorarium daftar
   tetap hanya honorer (screenshot 3 lokasi)
-- **Bukti** screenshot + `grep -n "getSemuaPegawai" spj-frontend/src/components/templates/DokumenFormPreview.jsx` ≥ 2 cabang (transport, mamin/pemeliharaan)
-
-### T-08 — Panduan hidup & tidak bocor cetak
-- **Given** 4 menu terpasang MenuGuide
-- **When** (a) buka tiap menu pertama kali → popover auto-terbuka berisi langkah;
-  (b) ubah state (pilih penerima) → langkah terkait tercentang, aktif pindah;
-  (c) klik "Selesai — jangan tampilkan lagi" → reload → tidak auto-open, ikon `?` tetap ada;
-  (d) jalankan print preview dokumen apa pun dengan popover TERBUKA
-- **Then** (a–c) perilaku sesuai + badge progres akurat; (d) popover & pill TIDAK
-  ikut tercetak
-- **Bukti** screenshot tiap perilaku + `grep -n "print:hidden" spj-frontend/src/components/guide/MenuGuide.jsx spj-frontend/src/data/guideConfig.js` ≥ 1 di komponen
+- **Bukti** screenshot + `grep -n "getSemuaPegawai" spj-frontend/src/components/templates/DokumenFormPreview.jsx` ≥ 2 cabang (transport, mamin/pemeliharaan)### T-08 — Panduan hidup, sadar-konteks & tidak bocor cetak (⚠️ REVISI 2026-10-01)
+- **Given** 4 menu terpasang MenuGuide (`key={selectedCard.id}`); storage panduan
+  bersih (`spj_guide_*` dihapus) untuk langkah a–d; Data Guru berisi pegawai untuk uji isi
+- **When**
+  (a) buka detail menu manapun → popover **auto-terbuka SETIAP KALI masuk menu**;
+  (b) isi satu langkah sampai selesai (mis. pilih penerima + isi nomor) → popover
+      **muncul sendiri** (transisi belum→selesai, jeda ≤ 1 detik) — bahkan **setelah**
+      pernah klik "Selesai — jangan buka otomatis lagi";
+  (c) berpindah **jenis/sub-kategori** (Guru→Tendik, Rapat→Koordinasi, dst.),
+      **tab form** (Daftar Penerima→SPT→…), ATAU **mode form/preview** → popover
+      **SELALU tampil** dengan langkah konteks baru (bila belum dismiss); popover
+      yang sedang terbuka TIDAK ikut ditutup — SUPERSEDES "1× per tab";
+  (d) berpindah **menu utama** (Honorarium → Perjalanan Dinas → …) → popover
+      menampilkan panduan menu BARU (key per menu — tidak pernah sisa konteks lama);
+  (e) klik "Selesai — jangan buka otomatis lagi" → tutup & buka lagi menu → (a) & (c)
+      **tidak** memunculkan popover; pill menyusut jadi ikon `?` pasif (bisa diklik);
+  (f) isi langkah sampai selesai → **(b) tetap memunculkan popover**;
+  (g) jalankan print preview dokumen apa pun dengan popover TERBUKA;
+  (h) **klik 1 langkah** di popover (mis. "Tab SPT") → UI berpindah ke tab/mode
+      langkah tsb + scroll ke area detail; **popover TETAP terbuka**;
+      klik "Lihat Ringkasan" → mode ringkasan; di sub Koordinasi/Bank langkah
+      Resume/Undangan TIDAK ada di list
+- **Then** (a–h) perilaku persis aturan prioritas REQUIREMENTS poin 9 (ronde-2); badge
+  progres `n/N` akurat mengikuti langkah nyata; (g) popover & pill TIDAK ikut tercetak
+- **Bukti** screenshot tiap perilaku (a–h) +
+  `grep -n "print:hidden\|contextKey" spj-frontend/src/components/guide/MenuGuide.jsx` ≥ 1 +
+  `grep -n "jump:" spj-frontend/src/data/guideConfig.js` = 21 +
+  `grep -n "key={selectedCard.id}" spj-frontend/src/pages/dashboard/DokumenSPJPage.jsx` = 1
 
 ### T-09 — Config-driven terbukti
-- **Given** `guideConfig.js` berisi panduan 4 menu
+- **Given** `guideConfig.js` berisi panduan 4 menu (langkah per tab + klausul `when`)
 - **When** tambah 1 entri panduan menu LAIN via config saja (uji sementara, di-revert setelah terbukti)
 - **Then** pill+popover muncul di menu itu tanpa perubahan satu baris pun di
   `MenuGuide.jsx` (`git diff --stat components/guide/` kosong saat uji)
+- **And** menyembunyikan 1 langkah (via `when`) di sub Koordinasi/Bank tidak
+  membutuhkan perubahan kode — badge menyesuaikan (mis. 4/5, bukan 4/7)
 - **Bukti** screenshot + `git diff --stat`
 
 ### T-10 — Regresi & gate warisan

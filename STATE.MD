@@ -9,6 +9,21 @@
   (dry run disetujui user; komit `17a266d`→`45129a9`; build exit 0 ×5;
   runtime sebagian via pencil browser — pill+popover+rename terbukti, cetak/T-09/E-2 UNTESTED).
   Menunggu: FASE 5 gate akhir + /acceptance-runner konteks segar.**
+  **REVISI PANDUAN (keputusan user 2026-10-01 sesi 2) — kode selesai, gate statik lulus,
+  BELUM di-commit:** (1) konten langkah = tab nyata tiap menu (`when(ctx)` utk sub
+  Koordinasi/Bank) · (2) auto-open SETIAP masuk menu · (3) trigger "selesai isi tab"
+  selalu muncul (lewati dismiss) · (4) popover tutup saat ganti tab/menu
+  (`key={menuId}`, `spj_guide_tabseen_*`). File: guideConfig + MenuGuide ditulis ulang,
+  formTab/previewTab diangkat ke DokumenSPJPage, 4 pack + BUILD-REPORT direvisi
+  (T-08 REVISI 2026-10-01). Gate: build exit 0 · 15 pola 0 · blue-only 0 baru ·
+  MenuGuide 232/300 · guideConfig 68/150. UNTESTED: interaksi popover (pencil browser
+  tanpa klik) → acceptance-runner.
+  **RONDE-2 (temuan uji manual user 2026-10-01):** (1) pindah jenis/sub popover tidak
+  muncul → aturan baru **selalu tampil setiap pindah konteks** (jenis/tab/mode;
+  SUPERSEDE "1× per tab" + "tutup saat ganti tab", `spj_guide_tabseen_` DIHAPUS);
+  (2) list langkah **bisa diklik** → jump ke tab/mode + scroll, popover tetap
+  (task R8/R9). Kode+pack selesai, gate: build exit 0 `5.83s` · jump=21 · 15 pola=0 ·
+  MenuGuide 225/300 · guideConfig 69/150. **Belum di-commit.**
   Pack 4 dokumen (Bab 8.4): `planning/sprints/sprint-003/` REQUIREMENTS · BLUEPRINT ·
   ACCEPTANCE · HANDOFF-PROMPT. PRD: `planning/sprints/sprint-003/PRD.md` (US-19…US-30).
   Salinan audit: `architect-packs/architect-pack-003-rework-preview-dan-panduan.md`
@@ -373,7 +388,8 @@
   Gate: build exit 0 ×6 · 15 pola 0 · 3 blok 0 input · blue-only 0 · diff warisan kosong.
   Runtime pencil browser: pill+popover+rename terbukti (R-1/R-2), cetak/T-09/E-2 UNTESTED.
   Detail: `planning/sprints/sprint-003/BUILD-REPORT.MD`. **Belum di-push** (branch kini ahead ±24).
-- Terakhir Diperbarui: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
+- Terakhir Diperbarui: 2026-10-01 (revisi panduan addendum — kode+pack selesai gate statik, belum di-commit; BUILD-REPORT §ADDENDUM)
+- Terakhir Diperbarui sebelumnya: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
   ledger komit `17a266d`…`e8af618`; risiko cetak-fisik UNTESTED; ARCHITECTURE.MD stale
   bertambah: SummaryCard/MenuGuide/guideConfig/print-area)
 - Terakhir Diperbarui sebelumnya: 2026-09-30 (pack Sprint 003 jadi + cross-artifact check lulus;

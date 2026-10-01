@@ -86,6 +86,8 @@ SETUJU:
 | Jalur kritis | FASE 1 → 2 → 3 → 4 → 5 |
 | Perkiraan urutan commit | 1) penerima+rename 2) kartu ringkasan 3) set cetak 4) panduan 5) regresi+gate |
 | Keputusan user (PUTUS 2026-09-30) | nama tombol = **"Lihat Ringkasan"** · Pemeliharaan = **pola saja** · sisa dry run: pemetaan Mamin (task 1.3) |
+| Keputusan user (PUTUS 2026-10-01) | **Revisi panduan** — konten langkah = tab nyata tiap menu · auto-open **setiap masuk menu** · auto-open **1× per tab form** · trigger **"selesai isi tab" selalu muncul** (termasuk sesudah dismiss) · popover **tidak kebawa** antar tab (lihat BLUEPRINT §ADDENDUM task R1…R7 + REQUIREMENTS poin 9) |
+| Keputusan user (PUTUS 2026-10-01 ronde-2) | **SUPERSEDE** "1× per tab" & "tutup saat ganti tab" → popover **selalu tampil setiap pindah konteks** (jenis/tab/mode, selama belum dismiss) · **langkah bisa diklik** → jump ke tab/mode + scroll, popover tetap terbuka (task R8/R9) |
 
 ## Setelah Sprint Selesai
 
@@ -111,3 +113,9 @@ menu — muncul terus setelah dismiss = gagal US-28.
 
 ⚠️ **DRY RUN MAMIN (task 1.3) menentukan Fase 3.** Tanpa pemetaan docx↔config yang
 disetujui user, set cetak Mamin tidak boleh dikodekan — gap diimprovisasi = pelanggaran.
+
+⚠️ **ADDENDUM 2026-10-01 (setelah Fase 1–4):** revisi perilaku & konten panduan
+(4 keputusan user) dikerjakan sebagai task R1…R7 di `BLUEPRINT.MD` §ADDENDUM.
+Aturan lama "auto-open hanya kunjungan pertama" **SUPERSEDED** — lihat
+REQUIREMENTS poin 9 (aturan prioritas a–e). ACCEPTANCE T-08 sudah direvisi —
+runner WAJIB memakai versi T-08 REVISI 2026-10-01.

@@ -45,18 +45,35 @@ utama pernah tertutup.
 6. **Menu Honorarium tidak berubah perilaku** (tetap honorer-only — memang sifatnya);
    hanya dapat label tombol baru + pemasangan Panduan.
 
-**Fitur B — Panduan langkah (MenuGuide)**
-
-7. **Pill `? Panduan` + badge progres** (mis. `3/5`) di baris judul 4 menu:
+**Fitur B — Panduan langkah (MenuGuide)**7. **Pill `? Panduan` + badge progres** (mis. `3/5`) di baris judul 4 menu:
    Honorarium, Perjalanan Dinas, Makan & Minum, Pemeliharaan.
-8. **Popover checklist ber-progres** (~360px, non-blocking, BUKAN modal): 4–6 langkah
-   khas menu, tiap langkah punya predikat state (✓ selesai / aktif "SEKARANG" / ○
-   belum) dihitung dari data form & pilihan user yang NYATA.
-9. **Auto-open hanya kunjungan pertama** per menu; tombol "Selesai — jangan tampilkan
-   lagi" mematikan auto-open permanen; pill menyusut jadi ikon `?` pasif yang tetap
-   bisa dibuka manual. Disimpan localStorage prefix `spj_`.
-10. **Config-driven & reusable**: komponen generik + config langkah per menu — menambah
-    panduan menu baru nanti = edit config saja (kebutuhan eksplisit user).
+8. **⚠️ REVISI 2026-10-01 (permintaan user) — konten langkah AKURAT per tab:**
+   tiap langkah mewakili SATU tab/konteks nyata yang harus diselesaikan di menu itu
+   (Daftar Penerima, SPT, SPPD, Resume, Undangan, SK Honorer, detail acara, dst.),
+   memakai nama tab persis seperti di UI. Langkah untuk tab yang TIDAK ADA pada
+   sub-kategori aktif (mis. Resume & Undangan di sub Koordinasi/Bank) TIDAK ditampilkan.
+   Predikat ✓ / aktif "SEKARANG" / ○ dihitung dari field form & state NYATA
+   (jumlah penerima, nomor per jenis dokumen, field tiap tab, riwayat tab dikunjungi) —
+   bukan angka agregat kasar. Popover tetap ~360px, non-blocking, BUKAN modal.
+9. **⚠️ REVISI 2026-10-01 ronde-2 — aturan tampil popover (urut prioritas):**
+   a. belum pernah dismiss → **auto-open SETIAP KALI menu detail dibuka**;
+   b. setiap **PERPINDAHAN KONTEKS** — jenis/sub-kategori ATAU tab form ATAU
+      mode form/preview — popover **selalu tampil** dengan langkah konteks baru;
+      popover yang sedang terbuka (mis. setelah klik langkah) **tidak ikut ditutup**.
+      SUPERSEDES aturan lama "1× per tab" & "tutup saat ganti tab";
+   c. tiap langkah **BISA DIKLIK** → berpindah ke tab/mode langkah tsb + scroll ke
+      area detail; popover tetap terbuka (target = tab/konteks + scroll, BUKAN
+      fokus ke field input — PUTUSAN 2026-10-01 ronde-2);
+   d. ada langkah/tab yang baru **SELESAI diisi** (transisi belum→selesai) → popover
+      **selalu muncul** (edge-triggered + jeda singkat), **termasuk sesudah dismiss**;
+   e. tombol "Selesai — jangan buka otomatis lagi" mematikan (a)+(b) permanen per menu;
+      pill lalu menyusut jadi ikon `?` pasif yang tetap bisa dibuka manual.
+   Semua state di localStorage prefix `spj_`.
+10. **Config-driven & reusable**: komponen generik + config langkah per menu —
+    menambah panduan menu baru nanti = edit config saja (kebutuhan eksplisit user).
+    Langkah dapat memuat klausul `when(ctx)` agar daftar langkah mengikuti
+    sub-kategori/tab yang aktif, dan `jump {mode,tab}` sebagai target klik langkah,
+    tanpa mengubah komponen.
 
 ## Mengapa
 
@@ -103,8 +120,8 @@ utama pernah tertutup.
 | US-24 | Penerima semua status (transport & mamin) | Fase 1 |
 | US-25 | Regresi Honorarium (alur tidak berubah) | Fase 5 |
 | US-26 | Pill Panduan + popover di 4 menu | Fase 4 |
-| US-27 | Langkah aktif sadar-state | Fase 4 |
-| US-28 | Auto-open 1× & "jangan tampilkan lagi" | Fase 4 |
+| US-27 | Langkah aktif sadar-state (konten per tab — direvisi 2026-10-01) | Fase 4 |
+| US-28 | Auto-open & dismiss (aturan baru — direvisi 2026-10-01, lihat poin 9) | Fase 4 |
 | US-29 | MenuGuide config-driven reusable | Fase 4 |
 | US-30 | Panduan tidak bocor ke cetak | Fase 4 |
 
