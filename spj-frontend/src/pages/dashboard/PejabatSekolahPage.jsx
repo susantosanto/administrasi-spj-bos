@@ -7,6 +7,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
+import { loadRiwayat, tambahPeriode } from '../../utils/bkuKategori'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -35,6 +36,13 @@ export default function PejabatSekolahPage() {
   const [hasChanges, setHasChanges] = useState(false)
   const toast = useToast()
 
+  // ─── Sprint 004 C.2: riwayat multi-periode ──────────────────────────
+  const [riwayat, setRiwayat] = useState([])
+  const [rpPeran, setRpPeran] = useState('ks')
+  const [rpNama, setRpNama] = useState('')
+  const [rpNip, setRpNip] = useState('')
+  const [rpDari, setRpDari] = useState('')
+
   useEffect(() => {
     const stored = storageHelper.get('data_sekolah', null)
     if (stored) {
@@ -42,7 +50,21 @@ export default function PejabatSekolahPage() {
       // Deep-merge: data LAMA tanpa ketuaGugus/notulen tetap aman.
       setPejabat(mergePejabat(stored.pejabat))
     }
+    setRiwayat(loadRiwayat())
   }, [])
+
+  const handleTambahPeriode = () => {
+    if (!rpNama.trim() || !rpDari) {
+      toast.info('Isi nama dan tanggal berlaku periode')
+      return
+    }
+    if (!tambahPeriode({ peran: rpPeran, nama: rpNama.trim(), nip: rpNip.trim(), berlaku_dari: rpDari })) return
+    setRiwayat(loadRiwayat())
+    setRpNama('')
+    setRpNip('')
+    setRpDari('')
+    toast.success('Periode pejabat ditambahkan — dokumen lama tidak berubah')
+  }
 
   // ─── Update Field ────────────────────────────────────────────────
   // Guard optional-chaining: peran baru dari data lama selalu ada via merge.
@@ -201,6 +223,35 @@ export default function PejabatSekolahPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* RIWAYAT PERIODE (Sprint 004 C.2) — dokumen mengunci pejabat     */}
+        {/* per tanggal BKU; daftar ini tidak mengubah dokumen lama.       */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <h3 className="text-base font-bold text-slate-900">Riwayat Pejabat</h3>
+          <p className="text-xs text-slate-500 mt-0.5 mb-4">Periode per tanggal — dokumen LPJ dari BKU mengunci pejabat sesuai tanggal transaksi.</p>
+          {riwayat.length > 0 && (
+            <ul className="divide-y divide-slate-100 mb-4">
+              {riwayat.map((r) => (
+                <li key={r.id} className="py-2 flex items-center gap-2 text-sm">
+                  <span className="font-semibold text-slate-800">{r.nama}</span>
+                  <span className="text-xs text-slate-500">{r.peran} · {r.nip || '-'}</span>
+                  <span className="ml-auto text-xs font-mono text-slate-500">sejak {r.berlaku_dari}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+            <select value={rpPeran} onChange={(e) => setRpPeran(e.target.value)} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none">
+              {PEJABAT_ROLES.map((r) => (<option key={r.key} value={r.key}>{r.label}</option>))}
+            </select>
+            <input value={rpNama} onChange={(e) => setRpNama(e.target.value)} placeholder="Nama" className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
+            <input value={rpNip} onChange={(e) => setRpNip(e.target.value)} placeholder="NIP" className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
+            <input type="date" value={rpDari} onChange={(e) => setRpDari(e.target.value)} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
+            <button onClick={handleTambahPeriode} className="px-3 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all">Tambah</button>
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════ */}

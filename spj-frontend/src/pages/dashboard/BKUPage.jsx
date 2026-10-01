@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
+import { kategoriDariRekening, kategoriDenganKoreksi, kelompokATK, loadAtkFlag, simpanAtkFlag } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
+
+// Label badge kategori BKU → LPJ (Sprint 004 A.2)
+const KATEGORI_BADGE_LABEL = {
+  honor: 'Honor',
+  perjalanan_dinas: 'Perj. Dinas',
+  mamin: 'Mamin',
+  atk: 'ATK',
+  pemeliharaan: 'Pemeliharaan',
+}
 
 // ─── CHECKLIST LPJ ─────────────────────────────────────────────
 const CHECKLIST_KEY = 'bku_lpj_checklist'
@@ -49,6 +60,12 @@ export default function BKUPage() {
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
   const [selectedRowKey, setSelectedRowKey] = useState(null)
   const [lpjChecklist, setLpjChecklist] = useState({})
+  const [hanyaBelumDipetakan, setHanyaBelumDipetakan] = useState(false)
+  // Sprint 004 D.1 — kelompok ATK: flag SIPLAH/Non + gabung beda nomor
+  const [atkTick, setAtkTick] = useState(0)
+  const [gabungPilih, setGabungPilih] = useState({})
+  const navigate = useNavigate()
+  void atkTick
   const toast = useToast()
   const fileInputRef = useRef(null)
 
@@ -251,7 +268,28 @@ export default function BKUPage() {
 
   // ─── Filter ───────────────────────────────────────────────────
 
-  const filteredItems = filterByMonth(items, filterBulan)
+  const filteredItems = hanyaBelumDipetakan
+    ? filterByMonth(items, filterBulan).filter((i) => i.tipe === 'PEMBAYARAN' && !kategoriDenganKoreksi(i.kodeRekening, i.noBukti))
+    : filterByMonth(items, filterBulan)
+
+  // Kelompok ATK se-Nomor BKU (Sprint 004 D.1)
+  const atkGroups = kelompokATK(items.filter((i) => {
+    const kat = kategoriDenganKoreksi(i.kodeRekening, i.noBukti)
+    return i.tipe === 'PEMBAYARAN' && kat?.kategori === 'atk'
+  }))
+  const atkFlags = loadAtkFlag()
+  const toggleGabung = (key) => setGabungPilih((p) => ({ ...p, [key]: !p[key] }))
+  const gabungTerpilih = atkGroups.filter((g) => gabungPilih[g.key])
+  const bukaKelengkapan = (groups) => {
+    const nos = groups.map((g) => g.noBukti).filter(Boolean)
+    const total = groups.reduce((s, g) => s + g.total, 0)
+    const count = groups.reduce((s, g) => s + g.rows.length, 0)
+    navigate('/dashboard/dokumen-kelengkapan', {
+      state: { fromBKU: true, ts: Date.now(), kategori: 'atk', menu: 'kelengkapan', kelompok: { nos, total, count, flags: groups.map((g) => atkFlags[String(g.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')] || null) } },
+    })
+  }
+  // Count baris belanja belum dipetakan (Sprint 004 A.2)
+  const belumDipetakanCount = items.filter((i) => i.tipe === 'PEMBAYARAN' && !kategoriDenganKoreksi(i.kodeRekening, i.noBukti)).length
 
   // Compute totals — pakai real totals dari summary (bukan termasuk transaksi internal)
   const isOverall = filterBulan === 'Semua'
@@ -462,6 +500,19 @@ export default function BKUPage() {
               {/* Action buttons */}
               {items.length > 0 && (
                 <>
+                  {/* Filter belum dipetakan (Sprint 004 A.2) */}
+                  <button
+                    onClick={() => setHanyaBelumDipetakan((v) => !v)}
+                    className={`flex items-center gap-1 px-lg py-2 rounded-lg transition-all text-label-md font-medium border ${
+                      hanyaBelumDipetakan
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                    }`}
+                    title="Tampilkan hanya baris belanja yang belum dipetakan"
+                  >
+                    <span className="material-symbols-outlined text-lg">filter_alt</span>
+                    {belumDipetakanCount} belum dipetakan
+                  </button>
                   <button
                     onClick={handleRefresh}
                     className="flex items-center gap-1 px-lg py-2 bg-primary-fixed/30 text-primary border border-primary/30 rounded-lg hover:bg-primary-fixed/50 transition-all text-label-md font-medium"
@@ -497,6 +548,33 @@ export default function BKUPage() {
             </div>
           ) : (
             <div className="min-w-0">
+            {/* ── Kelompok ATK se-Nomor BKU (Sprint 004 D.1) ── */}
+            {atkGroups.length > 0 && (
+              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/60 space-y-2">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelompok ATK ({atkGroups.length})</p>
+                {atkGroups.map((g) => {
+                  const flagKey = String(g.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')
+                  const flag = atkFlags[flagKey] || null
+                  return (
+                    <div key={g.key} className="flex items-center gap-2 text-xs bg-white border border-slate-200 rounded-xl px-3 py-2">
+                      <input type="checkbox" checked={!!gabungPilih[g.key]} onChange={() => toggleGabung(g.key)} onClick={(e) => e.stopPropagation()} title="Gabung ke satu dokumen" />
+                      <span className="font-mono font-semibold text-slate-800">{g.noBukti || '(tanpa nomor)'}</span>
+                      <span className="text-slate-500">↳ {g.rows.length} baris · Rp {fmt(g.total)}</span>
+                      <span className="ml-auto flex items-center gap-1">
+                        <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'siplah'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>SIPLAH</button>
+                        <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'non'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'}`}>Non</button>
+                        <button onClick={(e) => { e.stopPropagation(); bukaKelengkapan([g]) }} className="px-2 py-0.5 rounded-lg font-semibold bg-primary/10 text-primary">Buka →</button>
+                      </span>
+                    </div>
+                  )
+                })}
+                {gabungTerpilih.length > 1 && (
+                  <button onClick={() => bukaKelengkapan(gabungTerpilih)} className="w-full py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90">
+                    Gabung {gabungTerpilih.length} kelompok ke satu dokumen Kelengkapan
+                  </button>
+                )}
+              </div>
+            )}
               <table className="w-full text-left table-fixed">
                 <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
                   <tr>
@@ -572,6 +650,18 @@ export default function BKUPage() {
                           <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
                             {badge.label}
                           </span>
+                          {isLpjRelevant && (() => {
+                            const kat = kategoriDenganKoreksi(item.kodeRekening, item.noBukti)
+                            return kat ? (
+                              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
+                                {KATEGORI_BADGE_LABEL[kat.kategori] || kat.kategori}
+                              </span>
+                            ) : (
+                              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
+                                Belum dipetakan
+                              </span>
+                            )
+                          })()}
                         </td>
                         <td className="px-2 py-2 text-right text-green-700 font-medium text-[11px] truncate" title={fmt(item.debet)}>
                           {item.debet > 0 ? fmt(item.debet) : '-'}

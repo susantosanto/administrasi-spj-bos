@@ -9,6 +9,12 @@
 
 ## Daftar Keputusan
 
+[2026-10-01] Keputusan: Setiap uji browser wajib tawarkan 2 mode — otomatis (agent) atau manual (user checklist)
+  Status: accepted
+  Alasan: perintah user langsung; backend browser agent tidak stabil (mati tengah sesi Sprint 003); uji manual user terbukti jadi jaring pengaman (001/002/003)
+  Dibuat oleh: user
+  Dampak: /acceptance-runner selalu tanya dulu mode uji sebelum eksekusi; mode manual = agent terbitkan langkah klik + output harapan, user kembalikan bukti, agent hakimi PASS/FAIL
+
 [2026-10-01] Keputusan: 8 gap runtime Sprint 003 DITERIMA sebagai risiko (ronde-2 dibatalkan) — Sprint 003 DITUTUP
   Status: accepted
   Alasan: perintah user langsung 2026-10-01; preseden Sprint 001/002 (risiko UI runtime diterima 2026-09-30); 0 FAIL di ronde-1, gap = keterbatasan tooling bukan bug

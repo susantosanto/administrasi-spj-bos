@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 /**
  * BKU Premium Sidebar
@@ -10,6 +11,7 @@ import { useState, useEffect, useRef } from 'react'
  * Efek glassmorphism dipertahankan pada panel & header.
  */
 import { detectTemplate } from '../../utils/templateDetector'
+import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag } from '../../utils/bkuKategori'
 import { buildSpjChecklist, isBpuBnu } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
@@ -51,6 +53,7 @@ function getSaldoAwal(items) {
 // ─── Component ─────────────────────────────────────────────────
 
 export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin, isLpjChecked, onToggleLpj }) {
+  const navigate = useNavigate()
   const sidebarRef = useRef(null)
   const fileInputRef = useRef(null)
   const [activeTab, setActiveTab] = useState('detail')
@@ -89,7 +92,45 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const hasNext = currentIdx < allTransactions.length - 1
   const saldoAwal = getSaldoAwal(allTransactions)
 
-  // Auto-detect template
+  // Sprint 004 B.1 — kategori rekening otoritatif + koreksi manual
+  const katRekening = kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti)
+  const [koreksiTick, setKoreksiTick] = useState(0)
+  void koreksiTick
+  const handleKoreksi = (idx) => {
+    if (idx === '' || idx == null) return
+    const entri = REKENING_KE_MENU[Number(idx)]
+    if (!entri) return
+    simpanKoreksi(transaction.kodeRekening, entri, transaction.noBukti)
+    setKoreksiTick((t) => t + 1)
+    if (showToast) showToast('Koreksi kategori tersimpan permanen')
+  }
+
+  // Sprint 004 D.1 — info kelompok ATK transaksi ini
+  const atkGroup = katRekening?.kategori === 'atk'
+    ? kelompokATK(allTransactions || []).find((g) => g.rows.some((r) => r.row === transaction.row)) || null
+    : null
+  const atkFlagKey = String(transaction.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')
+  const atkFlag = atkFlagKey ? (loadAtkFlag()[atkFlagKey] || null) : null
+
+  // Sprint 004 C.1 — grup konsumsi untuk transaksi ini (bila ada)
+  const grupSaya = katRekening?.kategori === 'mamin'
+    ? gabungKonsumsi(allTransactions || []).grup.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
+    : null
+
+  // Sprint 004 B.2 — deep-link ke menu LPJ tepat (prefill dikonsumsi B.3)
+  const handleDeepLink = () => {
+    if (!katRekening) return
+    const nominal = transaction.pengeluaran || transaction.kredit || 0
+    const tujuan = katRekening.route === 'dokumen-kelengkapan'
+      ? '/dashboard/dokumen-kelengkapan'
+      : '/dashboard/dokumen-lpj'
+    navigate(tujuan, {
+      state: { fromBKU: true, ts: Date.now(), kategori: katRekening.kategori, menu: katRekening.menu, bku: { uraian: transaction.uraian, nominal, tanggal: transaction.tanggalStr, noBukti: transaction.noBukti, kegiatan: transaction.kodeKegiatan, kodeRekening: transaction.kodeRekening, grupCount: grupSaya ? grupSaya.rows.length : 1, grupTotal: grupSaya ? grupSaya.total : nominal } },
+    })
+    if (onClose) onClose()
+  }
+
+  // Auto-detect template (warisan — read-only)
   const detectedTemplate = detectTemplate(transaction.kodeRekening)
   const rowKey = transaction.row
   const isChecked = isLpjChecked ? isLpjChecked[rowKey] : false
@@ -363,7 +404,62 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </dl>
           </div>
 
-          {/* ── Kategori Belanja ── */}
+          {/* ── Kategori Belanja (Sprint 004: sumber rekening) ── */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
+              </span>
+              Kategori Belanja
+            </h4>
+            {katRekening ? (
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10">
+                  <span className="material-symbols-outlined text-primary text-xl">folder_open</span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{katRekening.menu}</p>
+                  <p className="text-[11px] text-slate-400 font-mono">Kode: {transaction.kodeRekening}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-slate-500">Belum dipetakan</p>
+                <label className="text-[11px] text-slate-500">Koreksi manual (tersimpan permanen):</label>
+                <select
+                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"
+                  defaultValue=""
+                  onChange={(e) => handleKoreksi(e.target.value)}
+                >
+                  <option value="" disabled>Pilih kategori…</option>
+                  {REKENING_KE_MENU.map((m, i) => (
+                    <option key={m.prefix} value={String(i)}>{m.kategori} → {m.menu}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+          {/* ── Deep-link ke menu LPJ (Sprint 004 B.2) ── */}
+          {katRekening && (
+            <button
+              onClick={handleDeepLink}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+            >
+              <span className="material-symbols-outlined text-lg">open_in_new</span>
+              {grupSaya ? `Buka gabungan di mamin (${grupSaya.rows.length} rincian)` : `Buka di ${katRekening.menu} + isi otomatis`}
+            </button>
+          )}
+          {/* ── Kelompok ATK (Sprint 004 D.1) ── */}
+          {atkGroup && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Kelompok ATK</h4>
+              <p className="text-sm text-slate-800">↳ {atkGroup.rows.length} baris se-Nomor <span className="font-mono font-semibold">{atkGroup.noBukti || '-'}</span> · Rp {fmt(atkGroup.total)}</p>
+              <div className="flex items-center gap-1.5 mt-2.5">
+                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'siplah'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>SIPLAH</button>
+                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'non'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'}`}>Non-SIPLAH</button>
+              </div>
+            </div>
+          )}
           {kategoriInfo && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">

@@ -5,6 +5,14 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- Sprint 004 — BKU → LPJ Smart Bridge — 🟡 **BUILDER SELESAI (STATIK) 2026-10-01, belum di-commit, belum acceptance.**
+  Dry run disetujui ("setuju"); eksekusi A.1→D.2 (13 task). 1 baru `bkuKategori.js` (199/200) + 5 ubah
+  (BKUPage badge/filter/panel ATK, BKUSidebar detail/koreksi/deep-link/grup, DokumenSPJPage prefill/badge/undo/kunci,
+  PejabatSekolahPage riwayat, DokumenKelengkapanPage terima kelompok). 0 dependency.
+  Gate: build exit 0 ×10+ · 15 pola 0 · diff warisan kosong · blue-only 0 baru ·
+  logika node 28/28 (kategori/koreksi/merge/flag/pejabat/prefill).
+  UNTESTED runtime (T-03…T-07, E-1, C.3 manual) → /acceptance-runner konteks segar.
+  Laporan: `planning/sprints/sprint-004/BUILD-REPORT.MD` + `DRYRUN-REPORT.MD`.
 - Sprint Aktif: **Sprint 003 — ✅ DITUTUP 2026-10-01 (risiko diterima user;
   ronde-2 dibatalkan).** /acceptance-runner RONDE-1: 12 PASS / 0 FAIL /
   8 UNTESTED (gap = browser mati, 0 bug). Question ronde-2 vs risiko → CLOSED

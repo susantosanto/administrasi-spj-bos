@@ -8,7 +8,9 @@
  * - Animasi: fade-in, slide-up, scale, glow effects
  */
 import { useState, useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
+import { prefillDariBKU, pejabatPada } from '../../utils/bkuKategori'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
@@ -143,6 +145,70 @@ export default function DokumenSPJPage() {
   const [visitedTabs, setVisitedTabs] = useState(() => new Set())
   const detailRef = useRef(null)
   const toast = useToast()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // ─── Sprint 004 B.3: prefill dari BKU (deep-link) ─────────────────────
+  // Konsumsi location.state SEKALI saat mount: buka menu tujuan, isi field
+  // kosong saja, tampilkan badge + undo. State history dibersihkan.
+  const [prefillBadge, setPrefillBadge] = useState(null)
+  const [prefillSnapshot, setPrefillSnapshot] = useState(null)
+  const prefillDone = useRef(false)
+  useEffect(() => {
+    if (prefillDone.current) return
+    const st = location.state
+    if (!st?.fromBKU || !st?.menu) return
+    // Abaikan state basi (mis. HMR remount membaca history lama) — maks 10 menit.
+    if (!st.ts || Date.now() - st.ts > 10 * 60 * 1000) {
+      navigate(location.pathname, { replace: true })
+      return
+    }
+    prefillDone.current = true
+    const card = CARDS.find((c) => c.id === st.menu)
+    if (!card) return
+    const firstValidSub = card.subKategori?.find((s) => !s.comingSoon) || null
+    const { tambahan, diisi, dilewati } = prefillDariBKU(st.bku || {}, st.menu, {})
+    // Sprint 004 C.2 — kunci pejabat per tanggal BKU: nilai riwayat ditulis
+    // ke field TTD (prioritas formData-first di DokumenFormPreview membuat
+    // periode baru TIDAK mengubah dokumen ini). Hanya nilai tak-kosong.
+    const tglBku = st.bku?.tanggal || ''
+    const kunci = {}
+    const ks = pejabatPada(tglBku, 'ks')
+    const kg = pejabatPada(tglBku, 'ketuaGugus')
+    const nl = pejabatPada(tglBku, 'notulen')
+    const pasang = (field, v) => { if (v && tambahan[field] == null) { tambahan[field] = v; diisi.push(field) } }
+    pasang('namaPenandatangan', ks.nama)
+    pasang('nipPenandatangan', ks.nip)
+    pasang('namaMengetahui', kg.nama)
+    pasang('nipMengetahui', kg.nip)
+    pasang('namaKetuaGugus', kg.nama)
+    pasang('nipKetuaGugus', kg.nip)
+    pasang('ttd_pimpinan_nama', ks.nama)
+    pasang('ttd_pimpinan_nip', ks.nip)
+    pasang('ttd_notulen_nama', nl.nama)
+    pasang('ttd_notulen_nip', nl.nip)
+    if (tglBku) kunci.tanggal = tglBku
+    tambahan.kunciPejabat = kunci
+    setPrefillSnapshot({})
+    setSelectedCard(card)
+    setSelectedSubKategori(firstValidSub)
+    setFormData(tambahan)
+    setViewMode('form')
+    setFormTab('daftar')
+    setPreviewTab('daftar')
+    setPrefillBadge({ menu: st.menu, diisi, dilewati, bku: st.bku || {} })
+    if (dilewati.length > 0) toast.info(`${dilewati.length} field sudah terisi — tidak ditimpa`)
+    else toast.success(`Form terisi dari BKU (${diisi.length} field)`)
+    navigate(location.pathname, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleUndoPrefill = () => {
+    if (prefillSnapshot) setFormData(prefillSnapshot)
+    setPrefillSnapshot(null)
+    setPrefillBadge(null)
+    toast.info('Isian dari BKU dibatalkan')
+  }
 
   // Konteks tab aktif (untuk panduan):
   //   form    → transport: f:<tab form> · menu lain: f:form
@@ -220,6 +286,8 @@ export default function DokumenSPJPage() {
     setSelectedCard(null)
     setSelectedSubKategori(null)
     setFormData({})
+    setPrefillBadge(null)
+    setPrefillSnapshot(null)
     setSppdData({})
     setViewMode('form')
     setFormTab('daftar')
@@ -281,6 +349,8 @@ export default function DokumenSPJPage() {
       setSelectedCard(null)
       setSelectedSubKategori(null)
       setFormData({})
+      setPrefillBadge(null)
+      setPrefillSnapshot(null)
       setViewMode('form')
       setFormTab('daftar')
       setPreviewTab('daftar')
@@ -543,6 +613,23 @@ export default function DokumenSPJPage() {
                 </button>
               </div>
             </div>
+
+            {/* Badge prefill BKU (Sprint 004 B.3) */}
+            {prefillBadge && (
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
+                <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
+                <span className="font-semibold text-slate-800" title={prefillBadge.bku?.tanggal ? `Pejabat dikunci per tanggal ${prefillBadge.bku.tanggal} — periode baru tidak mengubah dokumen ini` : 'Isian dari BKU'}>
+                  dari BKU{prefillBadge.bku?.noBukti ? ` ${prefillBadge.bku.noBukti}` : ''}{prefillBadge.bku?.grupCount > 1 ? ` · ${prefillBadge.bku.grupCount} rincian` : ''}{prefillBadge.bku?.tanggal ? ` · pejabat per ${prefillBadge.bku.tanggal}` : ''}{prefillBadge.diisi.length > 0 ? ` · ${prefillBadge.diisi.length} field terisi` : ''}
+                  {prefillBadge.dilewati.length > 0 ? ` · ${prefillBadge.dilewati.length} sudah ada (tidak ditimpa)` : ''}
+                </span>
+                <button
+                  onClick={handleUndoPrefill}
+                  className="ml-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold hover:border-slate-300"
+                >
+                  Urungkan
+                </button>
+              </div>
+            )}
 
             {/* Sub-Kategori Tabs (non-special cards) */}
             {!isSpecial && selectedCard.subKategori && (

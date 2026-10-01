@@ -2,6 +2,7 @@
  * Dokumen Kelengkapan Page — Premium Compact Design
  */
 import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -237,6 +238,28 @@ export default function DokumenKelengkapanPage() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [formData, setFormData] = useState({})
   const toast = useToast()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // ─── Sprint 004 D.2: terima kelompok ATK dari BKU ────────────────────
+  // Preselect toggle SIPLAH bila flag kelompok bulat; tampilkan badge.
+  const [bkuKelompok, setBkuKelompok] = useState(null)
+  useEffect(() => {
+    const st = location.state
+    if (!st?.fromBKU || !st?.kelompok) return
+    // Abaikan state basi (HMR remount) — maks 10 menit.
+    if (!st.ts || Date.now() - st.ts > 10 * 60 * 1000) {
+      navigate(location.pathname, { replace: true })
+      return
+    }
+    setBkuKelompok(st.kelompok)
+    const flags = (st.kelompok.flags || []).filter(Boolean)
+    if (flags.length > 0 && flags.every((f) => f === 'siplah')) setSiplah(true)
+    if (flags.length > 0 && flags.every((f) => f === 'non')) setSiplah(false)
+    toast.success(`Kelompok ATK dari BKU: ${st.kelompok.count} baris`)
+    navigate(location.pathname, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const stored = storageHelper.get('dokumen_kelengkapan_status', {})
@@ -289,6 +312,16 @@ export default function DokumenKelengkapanPage() {
       <Topbar title="Dokumen Kelengkapan" subtitle="Dokumen di luar ARKAS yang harus dilampirkan" />
 
       <div className="p-lg space-y-lg flex-1 max-w-7xl mx-auto w-full">
+        {/* ─── Badge kelompok BKU (Sprint 004 D.2) ─── */}
+        {bkuKelompok && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
+            <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
+            <span className="font-semibold text-slate-800">
+              dari BKU · {bkuKelompok.count} baris{(bkuKelompok.nos || []).length > 0 ? ` (${(bkuKelompok.nos || []).join(', ')})` : ''} · Rp {(bkuKelompok.total || 0).toLocaleString('id-ID')}
+            </span>
+            <button onClick={() => setBkuKelompok(null)} className="ml-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold">Tutup</button>
+          </div>
+        )}
         {/* ─── Header Section ───────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           {/* SIPLAH Toggle */}
