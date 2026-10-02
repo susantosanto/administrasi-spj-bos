@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
-import { kategoriDariRekening, kategoriDenganKoreksi, kelompokATK, loadAtkFlag, simpanAtkFlag, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
+import { kategoriDenganKoreksi, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
 
 // Label badge kategori BKU (Sprint 004 A.2)
@@ -49,14 +48,9 @@ export default function BKUPage() {
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
   const [selectedRowKey, setSelectedRowKey] = useState(null)
   const [hanyaBelumDipetakan, setHanyaBelumDipetakan] = useState(false)
-  // Sprint 004 D.1 — kelompok ATK: flag SIPLAH/Non + gabung beda nomor
-  const [atkTick, setAtkTick] = useState(0)
-  const [gabungPilih, setGabungPilih] = useState({})
   // T2 — satu NoBukti satu grup expandable (dominan dari kode rekening)
   const [grupExpand, setGrupExpand] = useState({})
   const toggleGrup = (key) => setGrupExpand((prev) => ({ ...prev, [key]: !prev[key] }))
-  const navigate = useNavigate()
-  void atkTick
   const toast = useToast()
   const fileInputRef = useRef(null)
 
@@ -241,22 +235,6 @@ export default function BKUPage() {
   const tampilGrup = hanyaBelumDipetakan ? saringGrupBermasalah(semuaGrup) : semuaGrup
   const filteredItems = tampilGrup.flatMap((g) => g.rows)
 
-  // Kelompok ATK se-Nomor BKU (Sprint 004 D.1)
-  const atkGroups = kelompokATK(items.filter((i) => {
-    const kat = kategoriDenganKoreksi(i.kodeRekening, i.noBukti)
-    return i.tipe === 'PEMBAYARAN' && kat?.kategori === 'atk'
-  }))
-  const atkFlags = loadAtkFlag()
-  const toggleGabung = (key) => setGabungPilih((p) => ({ ...p, [key]: !p[key] }))
-  const gabungTerpilih = atkGroups.filter((g) => gabungPilih[g.key])
-  const bukaKelengkapan = (groups) => {
-    const nos = groups.map((g) => g.noBukti).filter(Boolean)
-    const total = groups.reduce((s, g) => s + g.total, 0)
-    const count = groups.reduce((s, g) => s + g.rows.length, 0)
-    navigate('/dashboard/dokumen-kelengkapan', {
-      state: { fromBKU: true, ts: Date.now(), kategori: 'atk', menu: 'kelengkapan', kelompok: { nos, total, count, flags: groups.map((g) => atkFlags[String(g.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')] || null) } },
-    })
-  }
   // Count grup bermasalah (T2 revisi): hitung grup bukan baris, se-bulan aktif
   const belumDipetakanCount = saringGrupBermasalah(semuaGrup).length
 
@@ -570,33 +548,6 @@ export default function BKUPage() {
             </div>
           ) : (
             <div className="min-w-0">
-            {/* ── Kelompok ATK se-Nomor BKU (Sprint 004 D.1) ── */}
-            {atkGroups.length > 0 && (
-              <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/60 space-y-2">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kelompok ATK ({atkGroups.length})</p>
-                {atkGroups.map((g) => {
-                  const flagKey = String(g.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')
-                  const flag = atkFlags[flagKey] || null
-                  return (
-                    <div key={g.key} className="flex items-center gap-2 text-xs bg-white border border-slate-200 rounded-xl px-3 py-2">
-                      <input type="checkbox" checked={!!gabungPilih[g.key]} onChange={() => toggleGabung(g.key)} onClick={(e) => e.stopPropagation()} title="Gabung ke satu dokumen" />
-                      <span className="font-mono font-semibold text-slate-800">{g.noBukti || '(tanpa nomor)'}</span>
-                      <span className="text-slate-500">↳ {g.rows.length} baris · Rp {fmt(g.total)}</span>
-                      <span className="ml-auto flex items-center gap-1">
-                        <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'siplah'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>SIPLAH</button>
-                        <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'non'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'}`}>Non</button>
-                        <button onClick={(e) => { e.stopPropagation(); bukaKelengkapan([g]) }} className="px-2 py-0.5 rounded-lg font-semibold bg-primary/10 text-primary">Buka</button>
-                      </span>
-                    </div>
-                  )
-                })}
-                {gabungTerpilih.length > 1 && (
-                  <button onClick={() => bukaKelengkapan(gabungTerpilih)} className="w-full py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90">
-                    Gabung {gabungTerpilih.length} kelompok ke satu dokumen Kelengkapan
-                  </button>
-                )}
-              </div>
-            )}
               <table className="w-full text-left table-fixed">
                 <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
                   <tr>
