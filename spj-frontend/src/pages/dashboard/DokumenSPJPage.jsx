@@ -10,7 +10,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
-import { prefillDariBKU, pejabatPada } from '../../utils/bkuKategori'
+import { prefillDariBKU, pejabatPada, parseMamin } from '../../utils/bkuKategori'
+import { getNamaKegiatan } from '../../data/kodeReferensi'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
@@ -167,7 +168,22 @@ export default function DokumenSPJPage() {
     const card = CARDS.find((c) => c.id === st.menu)
     if (!card) return
     const firstValidSub = card.subKategori?.find((s) => !s.comingSoon) || null
-    const { tambahan, diisi, dilewati } = prefillDariBKU(st.bku || {}, st.menu, {})
+    // T3: kegiatan kode → nama untuk parser Mamin (fallback bila kegiatanNama kosong).
+    const bkuIn = { ...(st.bku || {}) }
+    if (!String(bkuIn.kegiatanNama || '').trim() && bkuIn.kegiatan) {
+      const nm = getNamaKegiatan(bkuIn.kegiatan)
+      const normal = String(bkuIn.kegiatan).replace(/\.$/, '')
+      if (nm && nm !== normal && nm !== '-') bkuIn.kegiatanNama = nm
+    }
+    const { tambahan, diisi, dilewati } = prefillDariBKU(bkuIn, st.menu, {})
+    // T3: pilih sub-jenis Mamin dari parser (rapat/kegiatan); fallback jujur = default.
+    let subPilih = firstValidSub
+    if (st.menu === 'mamin') {
+      const jenis = tambahan.maminJenis || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
+      const cocok = card.subKategori?.find((s) => !s.comingSoon && s.id === jenis)
+      if (cocok) subPilih = cocok
+      delete tambahan.maminJenis
+    }
     // Sprint 004 C.2 — kunci pejabat per tanggal BKU: nilai riwayat ditulis
     // ke field TTD (prioritas formData-first di DokumenFormPreview membuat
     // periode baru TIDAK mengubah dokumen ini). Hanya nilai tak-kosong.
@@ -191,7 +207,7 @@ export default function DokumenSPJPage() {
     tambahan.kunciPejabat = kunci
     setPrefillSnapshot({})
     setSelectedCard(card)
-    setSelectedSubKategori(firstValidSub)
+    setSelectedSubKategori(subPilih)
     setFormData(tambahan)
     setViewMode('form')
     setFormTab('daftar')

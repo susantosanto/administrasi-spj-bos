@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
  * Efek glassmorphism dipertahankan pada panel & header.
  */
 import { detectTemplate } from '../../utils/templateDetector'
-import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag } from '../../utils/bkuKategori'
+import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan } from '../../utils/bkuKategori'
 import { buildSpjChecklist, isBpuBnu } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
@@ -33,16 +33,6 @@ const TYPE_BADGES = {
 
 const fmt = (n) => (n ?? 0).toLocaleString('id-ID')
 
-const KATEGORI_LABELS = {
-  HONOR: { label: 'Honor/Gaji', icon: 'badge', color: 'text-purple-600' },
-  LISTRIK: { label: 'Listrik', icon: 'bolt', color: 'text-orange-600' },
-  ATK: { label: 'ATK', icon: 'draw', color: 'text-blue-600' },
-  MAMIN: { label: 'Makan/Minuman', icon: 'restaurant', color: 'text-green-600' },
-  CETAK: { label: 'Cetak/Penggandaan', icon: 'print', color: 'text-teal-600' },
-  INTERNET: { label: 'Pulsa/Internet', icon: 'wifi', color: 'text-cyan-600' },
-  PERPUS: { label: 'Perpustakaan', icon: 'menu_book', color: 'text-indigo-600' },
-}
-
 // ─── Helper: extract Saldo Awal ────────────────────────────────
 
 function getSaldoAwal(items) {
@@ -52,7 +42,7 @@ function getSaldoAwal(items) {
 
 // ─── Component ─────────────────────────────────────────────────
 
-export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin, isLpjChecked, onToggleLpj }) {
+export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin }) {
   const navigate = useNavigate()
   const sidebarRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -86,7 +76,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   if (!transaction) return null
 
   const badge = TYPE_BADGES[transaction.tipe] || TYPE_BADGES.LAINNYA
-  const kategoriInfo = transaction.kategori ? KATEGORI_LABELS[transaction.kategori.key] : null
   const currentIdx = allTransactions.findIndex(t => t.row === transaction.row)
   const hasPrev = currentIdx > 0
   const hasNext = currentIdx < allTransactions.length - 1
@@ -117,23 +106,41 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
     ? gabungKonsumsi(allTransactions || []).grup.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
     : null
 
-  // Sprint 004 B.2 — deep-link ke menu LPJ tepat (prefill dikonsumsi B.3)
+  // T2 — grup se-NoBukti + dominan (satu bukti satu kelompok, label/header/deep-link pakai dominan)
+  const grupSeBukti = (() => {
+    try {
+      const semua = grupDenganDominan(allTransactions || [])
+      return semua.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
+    } catch { return null }
+  })()
+  const katEfektif = (grupSeBukti && grupSeBukti.dominan) || katRekening
+
+  // Sprint 004 B.2 — deep-link ke menu dokumen tepat (prefill dikonsumsi B.3)
+  // T3: pratinjau + prefill Mamin cerdas via parseMamin terpusat.
+  const namaKegiatanSaya = (() => {
+    if (!transaction.kodeKegiatan) return transaction.kegiatan || ''
+    const nama = getNamaKegiatan(transaction.kodeKegiatan)
+    const normal = String(transaction.kodeKegiatan).replace(/\.$/, '')
+    if (!nama || nama === normal || nama === '-') return transaction.kegiatan || ''
+    return nama
+  })()
+  const maminParsed = katEfektif?.kategori === 'mamin'
+    ? parseMamin(transaction.uraian || '', namaKegiatanSaya)
+    : null
   const handleDeepLink = () => {
-    if (!katRekening) return
+    if (!katEfektif) return
     const nominal = transaction.pengeluaran || transaction.kredit || 0
-    const tujuan = katRekening.route === 'dokumen-kelengkapan'
+    const tujuan = katEfektif.route === 'dokumen-kelengkapan'
       ? '/dashboard/dokumen-kelengkapan'
       : '/dashboard/dokumen-lpj'
     navigate(tujuan, {
-      state: { fromBKU: true, ts: Date.now(), kategori: katRekening.kategori, menu: katRekening.menu, bku: { uraian: transaction.uraian, nominal, tanggal: transaction.tanggalStr, noBukti: transaction.noBukti, kegiatan: transaction.kodeKegiatan, kodeRekening: transaction.kodeRekening, grupCount: grupSaya ? grupSaya.rows.length : 1, grupTotal: grupSaya ? grupSaya.total : nominal } },
+      state: { fromBKU: true, ts: Date.now(), kategori: katEfektif.kategori, menu: katEfektif.menu, bku: { uraian: transaction.uraian, nominal, tanggal: transaction.tanggalStr, noBukti: transaction.noBukti, kegiatan: transaction.kodeKegiatan, kegiatanNama: namaKegiatanSaya, maminJenis: maminParsed?.jenis || '', kodeRekening: transaction.kodeRekening, grupCount: grupSeBukti ? grupSeBukti.rows.length : (grupSaya ? grupSaya.rows.length : 1), grupTotal: grupSeBukti ? grupSeBukti.total : (grupSaya ? grupSaya.total : nominal) } },
     })
     if (onClose) onClose()
   }
 
   // Auto-detect template (warisan — read-only)
   const detectedTemplate = detectTemplate(transaction.kodeRekening)
-  const rowKey = transaction.row
-  const isChecked = isLpjChecked ? isLpjChecked[rowKey] : false
 
   // ── SPJ checklist (khusus BPU / BNU) ──
   const spjApplicable = isBpuBnu(transaction)
@@ -278,7 +285,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
           <div className="px-5 flex gap-1">
             {[
               { id: 'detail', label: 'Detail', icon: 'info' },
-              { id: 'dokumentasi', label: 'Dokumentasi LPJ', icon: 'description' },
+              { id: 'dokumentasi', label: 'Dokumentasi', icon: 'description' },
             ].map((t) => (
               <button
                 key={t.id}
@@ -439,15 +446,66 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               </div>
             )}
           </div>
-          {/* ── Deep-link ke menu LPJ (Sprint 004 B.2) ── */}
-          {katRekening && (
-            <button
-              onClick={handleDeepLink}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-            >
-              <span className="material-symbols-outlined text-lg">open_in_new</span>
-              {grupSaya ? `Buka gabungan di mamin (${grupSaya.rows.length} rincian)` : `Buka di ${katRekening.menu} + isi otomatis`}
-            </button>
+          {/* ── Deep-link ke menu dokumen (Sprint 004 B.2, T2: pakai dominan grup) ── */}
+          {katEfektif && (
+            <div className="space-y-2">
+              {maminParsed && (
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Rincian Mamin</p>
+                  <p className="text-sm text-slate-800">Acara: <span className="font-semibold text-slate-900">{maminParsed.acara || '-'}</span></p>
+                  <p className="text-xs text-slate-500 mt-0.5">Jenis: {maminParsed.jenis === 'rapat' ? 'Rapat' : maminParsed.jenis === 'kegiatan' ? 'Kegiatan' : '—'}</p>
+                </div>
+              )}
+              <button
+                onClick={handleDeepLink}
+                title={`Buka di ${katEfektif.menu}`}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+              >
+                <span className="material-symbols-outlined text-lg">open_in_new</span>
+                {grupSeBukti && grupSeBukti.rows.length > 1 ? `Buka di ${katEfektif.menu} (${grupSeBukti.rows.length} rincian se-Bukti)` : `Buka di ${katEfektif.menu}`}
+              </button>
+            </div>
+          )}
+          {/* ── T2: Anggota grup se-NoBukti (satu bukti satu kelompok) ── */}
+          {grupSeBukti && grupSeBukti.rows.length > 1 && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-slate-600 text-[18px]">folder_open</span>
+                </span>
+                Rincian se-Bukti {grupSeBukti.noBukti || '-'} ({grupSeBukti.rows.length})
+              </h4>
+              <p className="text-[11px] text-slate-500 mb-3">
+                Kategori: <span className="font-semibold text-primary">{grupSeBukti.dominan ? grupSeBukti.dominan.kategori : 'Belum dipetakan'}</span>
+                <span className="font-mono"> &#183; Kode: {(grupSeBukti.kodeList || []).join(', ') || '-'}</span>
+              </p>
+              <ul className="divide-y divide-slate-100">
+                {grupSeBukti.rows.map((r) => {
+                  const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti)
+                  const aktif = r.row === transaction.row
+                  return (
+                    <li key={r.row}>
+                      <button
+                        onClick={() => { if (onNavigate && !aktif) onNavigate(r) }}
+                        className={`w-full text-left py-2 flex items-center gap-2 ${aktif ? '' : 'hover:bg-slate-50'} rounded-lg px-1`}
+                        title={r.uraian || ''}
+                      >
+                        <span className={`w-1.5 self-stretch rounded-full ${aktif ? 'bg-primary' : 'bg-slate-200'}`} />
+                        <span className="flex-1 min-w-0">
+                          <span className={`block text-xs truncate ${aktif ? 'font-bold text-slate-900' : 'text-slate-700'}`}>{r.uraian || '-'}</span>
+                          <span className="block font-mono text-[10px] text-slate-400 truncate">{r.kodeRekening || '-'} &#183; Rp {fmt(r.pengeluaran || r.kredit || 0)}</span>
+                        </span>
+                        {kat ? (
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary flex-shrink-0">{kat.kategori}</span>
+                        ) : (
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500 flex-shrink-0">Belum</span>
+                        )}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
           )}
           {/* ── Kelompok ATK (Sprint 004 D.1) ── */}
           {atkGroup && (
@@ -460,26 +518,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               </div>
             </div>
           )}
-          {kategoriInfo && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
-                </span>
-                Kategori Belanja
-              </h4>
-              <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center bg-slate-100`}>
-                  <span className={`material-symbols-outlined ${kategoriInfo.color} text-xl`}>{kategoriInfo.icon}</span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{kategoriInfo.label}</p>
-                  <p className="text-[11px] text-slate-400 font-mono">Kode: {transaction.kodeRekening}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* ── Dokumen SPJ (khusus BPU / BNU) ── */}
           {spjApplicable && spj && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -548,40 +586,9 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
         ) : (
           <>
           {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB: DOKUMENTASI LPJ                                        */}
+          {/* TAB: DOKUMENTASI                                        */}
           {/* ════════════════════════════════════════════════════════════ */}
           <div className="space-y-4">
-            {/* Status Kelengkapan */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <div className="flex items-start gap-3">
-                <div className="w-11 h-11 rounded-xl bg-blue-600 shadow-md shadow-blue-600/30 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>checklist</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 mb-1">Status Kelengkapan</p>
-                  <div className="flex items-center gap-2">
-                    <span className={`material-symbols-outlined text-xl ${isChecked ? 'text-emerald-500' : 'text-slate-300'}`}>
-                      {isChecked ? 'check_circle' : 'radio_button_unchecked'}
-                    </span>
-                    <span className={`text-sm font-bold ${isChecked ? 'text-emerald-700' : 'text-slate-600'}`}>
-                      {isChecked ? 'Dokumen LPJ Lengkap' : 'Dokumen LPJ Belum Lengkap'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => onToggleLpj?.(rowKey)}
-                    className={`mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                      isChecked
-                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                        : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-sm">{isChecked ? 'undo' : 'check'}</span>
-                    {isChecked ? 'Tandai Belum Lengkap' : 'Tandai Sudah Lengkap'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* Template Terdeteksi */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
@@ -607,7 +614,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-700">Tidak ada template spesifik</p>
-                    <p className="text-[11px] text-slate-400">Transaksi ini tidak memerlukan template LPJ</p>
+                    <p className="text-[11px] text-slate-400">Transaksi ini tidak perlu dokumen tambahan</p>
                   </div>
                 </div>
               )}
@@ -683,14 +690,14 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
 
             {/* Quick Actions */}
             <button
-              onClick={() => showToast?.('Buka halaman Dokumen LPJ untuk cetak template ini')}
+              onClick={() => showToast?.('Buka halaman Dokumen untuk mencetak')}
               className="w-full flex items-center gap-3 px-5 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:scale-110 transition-all">
                 <span className="material-symbols-outlined text-blue-600 group-hover:text-white text-lg transition-colors">print</span>
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-slate-900">Cetak Dokumen LPJ</p>
+                <p className="text-sm font-semibold text-slate-900">Cetak Dokumen</p>
                 <p className="text-[11px] text-slate-400">Buka halaman Cetak Dokumen</p>
               </div>
               <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>

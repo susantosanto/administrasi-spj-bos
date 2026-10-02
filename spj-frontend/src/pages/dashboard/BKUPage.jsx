@@ -5,27 +5,16 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
-import { kategoriDariRekening, kategoriDenganKoreksi, kelompokATK, loadAtkFlag, simpanAtkFlag } from '../../utils/bkuKategori'
+import { kategoriDariRekening, kategoriDenganKoreksi, kelompokATK, loadAtkFlag, simpanAtkFlag, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
 
-// Label badge kategori BKU → LPJ (Sprint 004 A.2)
+// Label badge kategori BKU (Sprint 004 A.2)
 const KATEGORI_BADGE_LABEL = {
   honor: 'Honor',
   perjalanan_dinas: 'Perj. Dinas',
   mamin: 'Mamin',
   atk: 'ATK',
   pemeliharaan: 'Pemeliharaan',
-}
-
-// ─── CHECKLIST LPJ ─────────────────────────────────────────────
-const CHECKLIST_KEY = 'bku_lpj_checklist'
-
-function loadChecklist() {
-  return storageHelper.get(CHECKLIST_KEY, {})
-}
-
-function saveChecklist(checklist) {
-  storageHelper.set(CHECKLIST_KEY, checklist)
 }
 
 // ─── Helpers ───────────────────────────────────────────────────
@@ -59,11 +48,13 @@ export default function BKUPage() {
   const [availableMonths, setAvailableMonths] = useState([])
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
   const [selectedRowKey, setSelectedRowKey] = useState(null)
-  const [lpjChecklist, setLpjChecklist] = useState({})
   const [hanyaBelumDipetakan, setHanyaBelumDipetakan] = useState(false)
   // Sprint 004 D.1 — kelompok ATK: flag SIPLAH/Non + gabung beda nomor
   const [atkTick, setAtkTick] = useState(0)
   const [gabungPilih, setGabungPilih] = useState({})
+  // T2 — satu NoBukti satu grup expandable (dominan dari kode rekening)
+  const [grupExpand, setGrupExpand] = useState({})
+  const toggleGrup = (key) => setGrupExpand((prev) => ({ ...prev, [key]: !prev[key] }))
   const navigate = useNavigate()
   void atkTick
   const toast = useToast()
@@ -159,8 +150,6 @@ export default function BKUPage() {
     if (result) {
       setShowUploadForm(false)
     }
-    // Load LPJ checklist
-    setLpjChecklist(loadChecklist())
   }, [])
 
   // ─── Keyboard shortcut: Escape closes sidebar ────────────
@@ -238,28 +227,6 @@ export default function BKUPage() {
     }
   }
 
-  // ─── LPJ Checklist Handler ──────────────────────────────────────
-
-  const toggleLpjCheck = (rowKey) => {
-    const key = String(rowKey)
-    // Cari transaksi dari state untuk cek tipe — hanya PEMBAYARAN yang boleh di-ceklis
-    const tx = items.find(i => String(i.row) === key)
-    if (!tx || tx.tipe !== 'PEMBAYARAN') return
-    const updated = { ...lpjChecklist, [key]: !lpjChecklist[key] }
-    setLpjChecklist(updated)
-    saveChecklist(updated)
-    const status = updated[key] ? '✅ Dokumen LPJ lengkap' : '⬜ Dokumen LPJ belum'
-    toast.info(`${status} (Row ${rowKey})`)
-  }
-
-  // ─── LPJ Progress ─────────────────────────────────────────────
-
-  // Hanya hitung baris PEMBAYARAN untuk LPJ
-  const lpjRelevantRows = items.filter(i => i.tipe === 'PEMBAYARAN')
-  const lpjTotalCount = lpjRelevantRows.length
-  const lpjCheckedCount = lpjRelevantRows.filter(i => lpjChecklist[i.row]).length
-  const lpjProgress = lpjTotalCount > 0 ? Math.round((lpjCheckedCount / lpjTotalCount) * 100) : 0
-
   // ─── Refresh Handler ──────────────────────────────────────────
 
   const handleRefresh = () => {
@@ -268,9 +235,11 @@ export default function BKUPage() {
 
   // ─── Filter ───────────────────────────────────────────────────
 
-  const filteredItems = hanyaBelumDipetakan
-    ? filterByMonth(items, filterBulan).filter((i) => i.tipe === 'PEMBAYARAN' && !kategoriDenganKoreksi(i.kodeRekening, i.noBukti))
-    : filterByMonth(items, filterBulan)
+  // T2 — satu NoBukti satu grup + dominan dari kode rekening + filter cerdas per grup
+  const baseItems = filterByMonth(items, filterBulan)
+  const semuaGrup = grupDenganDominan(baseItems)
+  const tampilGrup = hanyaBelumDipetakan ? saringGrupBermasalah(semuaGrup) : semuaGrup
+  const filteredItems = tampilGrup.flatMap((g) => g.rows)
 
   // Kelompok ATK se-Nomor BKU (Sprint 004 D.1)
   const atkGroups = kelompokATK(items.filter((i) => {
@@ -288,8 +257,8 @@ export default function BKUPage() {
       state: { fromBKU: true, ts: Date.now(), kategori: 'atk', menu: 'kelengkapan', kelompok: { nos, total, count, flags: groups.map((g) => atkFlags[String(g.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')] || null) } },
     })
   }
-  // Count baris belanja belum dipetakan (Sprint 004 A.2)
-  const belumDipetakanCount = items.filter((i) => i.tipe === 'PEMBAYARAN' && !kategoriDenganKoreksi(i.kodeRekening, i.noBukti)).length
+  // Count grup bermasalah (T2 revisi): hitung grup bukan baris, se-bulan aktif
+  const belumDipetakanCount = saringGrupBermasalah(semuaGrup).length
 
   // Compute totals — pakai real totals dari summary (bukan termasuk transaksi internal)
   const isOverall = filterBulan === 'Semua'
@@ -315,6 +284,79 @@ export default function BKUPage() {
 
   const sidebarToast = (msg) => {
     toast.info(msg)
+  }
+
+  // T2 — satu baris BKU (dipakai baris tunggal maupun anggota grup saat expand)
+  const renderBaris = (item, idx, prefix = '') => {
+    const badge = TYPE_BADGES[item.tipe] || TYPE_BADGES.LAINNYA
+    const rowKey = item.row || idx
+    const isSelected = selectedRowKey === rowKey
+    return (
+      <tr
+        key={`${item.row}-${idx}`}
+        onClick={() => openSidebar(item)}
+        className={`cursor-pointer transition-all duration-150 group border-l-2 ${
+          isSelected
+            ? 'bg-primary-fixed/30 border-primary shadow-sm'
+            : 'border-transparent hover:bg-slate-50'
+        }`}
+      >
+        <td className="px-2 py-2 text-text-low text-[11px]">{prefix}{String(idx + 1).padStart(2, '0')}</td>
+        <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
+        <td className="px-2 py-2 text-[11px]" title={item.uraian}>
+          <span className="text-text-high">{item.uraian}</span>
+          {item.kodeKegiatan && (() => {
+            const namaKeg = getNamaKegiatan(item.kodeKegiatan)
+            return namaKeg !== (item.kodeKegiatan?.replace(/\.$/, '')) ? (
+              <div className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[200px]" title={namaKeg}>
+                &#128203; {namaKeg}
+              </div>
+            ) : null
+          })()}
+        </td>
+        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.noBukti || '-'}>
+          {item.noBukti || '-'}
+        </td>
+        <td className="px-2 py-2 text-[10px] text-text-low">
+          <span className="font-mono">{item.kodeRekening || '-'}</span>
+          {item.kodeKegiatan && (() => {
+            const namaKeg = getNamaKegiatan(item.kodeKegiatan) || item.kodeKegiatan
+            return (
+              <>
+                <br />
+                <span className="font-mono text-[8px] opacity-70 truncate block max-w-[120px]" title={namaKeg}>{namaKeg}</span>
+              </>
+            )
+          })()}
+        </td>
+        <td className="px-2 py-2 truncate">
+          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
+            {badge.label}
+          </span>
+          {item.tipe === 'PEMBAYARAN' && (() => {
+            const kat = kategoriDenganKoreksi(item.kodeRekening, item.noBukti)
+            return kat ? (
+              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
+                {KATEGORI_BADGE_LABEL[kat.kategori] || kat.kategori}
+              </span>
+            ) : (
+              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
+                Belum dipetakan
+              </span>
+            )
+          })()}
+        </td>
+        <td className="px-2 py-2 text-right text-green-700 font-medium text-[11px] truncate" title={fmt(item.debet)}>
+          {item.debet > 0 ? fmt(item.debet) : '-'}
+        </td>
+        <td className="px-2 py-2 text-right text-red-700 font-medium text-[11px] truncate" title={fmt(item.kredit)}>
+          {item.kredit > 0 ? fmt(item.kredit) : '-'}
+        </td>
+        <td className="px-2 py-2 text-right font-bold text-[11px] truncate" title={fmt(item.saldo)}>
+          {fmt(item.saldo)}
+        </td>
+      </tr>
+    )
   }
 
   // ─── Render ───────────────────────────────────────────────────
@@ -398,26 +440,6 @@ export default function BKUPage() {
                   {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
                 </p>
               </div>
-            </div>
-
-            {/* ═══ PROGRESS KELENGKAPAN LPJ ═══ */}
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-lg">checklist</span>
-                  <span className="text-sm font-bold text-slate-800">Progress Kelengkapan LPJ</span>
-                </div>
-                <span className="text-xs font-bold text-primary">{lpjCheckedCount}/{lpjTotalCount} ({lpjProgress}%)</span>
-              </div>
-              <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
-                  style={{ width: `${lpjProgress}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-slate-400 mt-1.5">
-                Centang ✓ pada kolom LPJ di tabel untuk menandai dokumen sudah lengkap
-              </p>
             </div>
           </div>
         )}
@@ -508,15 +530,15 @@ export default function BKUPage() {
                         ? 'bg-primary text-white border-primary'
                         : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                     }`}
-                    title="Tampilkan hanya baris belanja yang belum dipetakan"
+                    title="Saring grup yang belum dipetakan"
                   >
                     <span className="material-symbols-outlined text-lg">filter_alt</span>
-                    {belumDipetakanCount} belum dipetakan
+                    Saring belum dipetakan ({belumDipetakanCount})
                   </button>
                   <button
                     onClick={handleRefresh}
                     className="flex items-center gap-1 px-lg py-2 bg-primary-fixed/30 text-primary border border-primary/30 rounded-lg hover:bg-primary-fixed/50 transition-all text-label-md font-medium"
-                    title="Refresh data dari localStorage"
+                    title="Muat ulang data tersimpan"
                   >
                     <span className="material-symbols-outlined text-lg">refresh</span>
                     Refresh
@@ -563,7 +585,7 @@ export default function BKUPage() {
                       <span className="ml-auto flex items-center gap-1">
                         <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'siplah'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>SIPLAH</button>
                         <button onClick={(e) => { e.stopPropagation(); simpanAtkFlag(g.noBukti, 'non'); setAtkTick((t) => t + 1) }} className={`px-2 py-0.5 rounded-lg font-semibold ${flag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'}`}>Non</button>
-                        <button onClick={(e) => { e.stopPropagation(); bukaKelengkapan([g]) }} className="px-2 py-0.5 rounded-lg font-semibold bg-primary/10 text-primary">Buka →</button>
+                        <button onClick={(e) => { e.stopPropagation(); bukaKelengkapan([g]) }} className="px-2 py-0.5 rounded-lg font-semibold bg-primary/10 text-primary">Buka</button>
                       </span>
                     </div>
                   )
@@ -580,146 +602,72 @@ export default function BKUPage() {
                   <tr>
                     <th className="px-2 py-2 font-bold text-[10px] w-[3%]">No</th>
                     <th className="px-2 py-2 font-bold text-[10px] w-[11%]">Tanggal</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[21%]">Uraian</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[27%]">Uraian</th>
                     <th className="px-2 py-2 font-bold text-[10px] w-[9%]">No. Bukti</th>
                     <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Kode</th>
                     <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Tipe</th>
                     <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Debet</th>
                     <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Kredit</th>
                     <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Saldo</th>
-                    <th className="px-2 py-2 text-center w-[6%] bg-gradient-to-b from-primary/10 to-primary/5">
-                      <div className="inline-flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-primary text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>assignment_turned_in</span>
-                        <span className="font-bold text-[9px] text-primary uppercase tracking-[0.08em]">LPJ</span>
-                      </div>
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {filteredItems.map((item, idx) => {
-                    const badge = TYPE_BADGES[item.tipe] || TYPE_BADGES.LAINNYA
-
-                    const rowKey = item.row || idx
-                    const isSelected = selectedRowKey === rowKey
-                    const isChecked = lpjChecklist[rowKey]
-                    const isLpjRelevant = item.tipe === 'PEMBAYARAN'
-
-                    return (
-                      <tr
-                        key={`${item.row}-${idx}`}
-                        onClick={() => openSidebar(item)}
-                        className={`cursor-pointer transition-all duration-150 group border-l-2 ${
-                          isSelected
-                            ? 'bg-primary-fixed/30 border-primary shadow-sm'
-                            : isChecked && isLpjRelevant
-                              ? 'bg-emerald-50/60 border-emerald-400 hover:bg-emerald-100/60'
-                              : isLpjRelevant
-                                ? 'bg-red-100/80 border-red-400 hover:bg-red-100 shadow-[inset_0_0_0_1px_rgba(239,68,68,0.08)]'
-                                : 'border-transparent hover:bg-slate-50'
-                        }`}
-                      >
-                        <td className="px-2 py-2 text-text-low text-[11px]">{String(idx + 1).padStart(2, '0')}</td>
-                        <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
-                        <td className="px-2 py-2 text-[11px]" title={item.uraian}>
-                          <span className="text-text-high">{item.uraian}</span>
-                          {item.kodeKegiatan && (() => {
-                            const namaKeg = getNamaKegiatan(item.kodeKegiatan)
-                            return namaKeg !== (item.kodeKegiatan?.replace(/\.$/, '')) ? (
-                              <div className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[200px]" title={namaKeg}>
-                                📋 {namaKeg}
-                              </div>
-                            ) : null
-                          })()}
-                        </td>
-                        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.noBukti || '-'}>
-                          {item.noBukti || '-'}
-                        </td>
-                        <td className="px-2 py-2 text-[10px] text-text-low">
-                          <span className="font-mono">{item.kodeRekening || '-'}</span>
-                          {item.kodeKegiatan && (() => {
-                            const namaKeg = getNamaKegiatan(item.kodeKegiatan) || item.kodeKegiatan
-                            return (
-                              <>
-                                <br />
-                                <span className="font-mono text-[8px] opacity-70 truncate block max-w-[120px]" title={namaKeg}>{namaKeg}</span>
-                              </>
-                            )
-                          })()}
-                        </td>
-                        <td className="px-2 py-2 truncate">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
-                            {badge.label}
-                          </span>
-                          {isLpjRelevant && (() => {
-                            const kat = kategoriDenganKoreksi(item.kodeRekening, item.noBukti)
-                            return kat ? (
-                              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
-                                {KATEGORI_BADGE_LABEL[kat.kategori] || kat.kategori}
-                              </span>
-                            ) : (
-                              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
-                                Belum dipetakan
-                              </span>
-                            )
-                          })()}
-                        </td>
-                        <td className="px-2 py-2 text-right text-green-700 font-medium text-[11px] truncate" title={fmt(item.debet)}>
-                          {item.debet > 0 ? fmt(item.debet) : '-'}
-                        </td>
-                        <td className="px-2 py-2 text-right text-red-700 font-medium text-[11px] truncate" title={fmt(item.kredit)}>
-                          {item.kredit > 0 ? fmt(item.kredit) : '-'}
-                        </td>
-                        <td className="px-2 py-2 text-right font-bold text-[11px] truncate" title={fmt(item.saldo)}>
-                          {fmt(item.saldo)}
-                        </td>
-                        <td className="px-2 py-2 text-center bg-gradient-to-b from-primary/[0.04] to-primary/[0.01]">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); toggleLpjCheck(rowKey); }}
-                            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 mx-auto ${
-                              isChecked && isLpjRelevant
-                                ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-300/50'
-                                : isLpjRelevant
-                                  ? 'bg-white text-slate-300 border border-slate-200 hover:border-emerald-300 hover:text-emerald-500 hover:shadow-sm hover:shadow-emerald-200/30'
-                                  : 'bg-slate-50 text-slate-200 border border-slate-100 cursor-not-allowed opacity-50'
-                            }`}
-                            title={isChecked && isLpjRelevant ? 'Tandai belum lengkap' : isLpjRelevant ? 'Tandai dokumen LPJ sudah lengkap' : 'Tidak memerlukan LPJ'}
+                  {(() => {
+                    let nomor = 0
+                    const keluar = []
+                    for (const grup of tampilGrup) {
+                      if (grup.rows.length < 2) {
+                        keluar.push(renderBaris(grup.rows[0], nomor++, ''))
+                      } else {
+                        const dibuka = !!grupExpand[grup.key]
+                        keluar.push(
+                          <tr
+                            key={`g-${grup.key}`}
+                            onClick={() => toggleGrup(grup.key)}
+                            title="Lihat rincian se-Bukti"
+                            className="cursor-pointer bg-slate-50 hover:bg-slate-100 border-l-2 border-primary"
                           >
-                            <span className="material-symbols-outlined text-lg">
-                              {isChecked && isLpjRelevant
-                                ? 'check_circle'
-                                : isLpjRelevant
-                                  ? 'radio_button_unchecked'
-                                  : 'remove_circle_outline'}
-                            </span>
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                            <td colSpan="9" className="px-2 py-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="material-symbols-outlined text-base text-primary">{dibuka ? 'expand_more' : 'chevron_right'}</span>
+                                <span className="font-mono font-bold text-[11px] text-slate-900">{grup.noBukti}</span>
+                                {grup.dominan ? (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
+                                    {KATEGORI_BADGE_LABEL[grup.dominan.kategori] || grup.dominan.kategori}
+                                  </span>
+                                ) : (
+                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
+                                    Belum dipetakan
+                                  </span>
+                                )}
+                                <span className="text-[11px] text-slate-500">{grup.rows.length} rincian se-Bukti &#183; Rp {fmt(grup.total)}</span>
+                                <span className="text-[10px] font-semibold text-primary">Lihat rincian</span>
+                                <span className="font-mono text-[9px] text-slate-400 truncate max-w-[280px]" title={(grup.kodeList || []).join(', ')}>
+                                  Kode: {(grup.kodeList || []).join(', ') || '-'}
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                        if (dibuka) {
+                          for (const item of grup.rows) keluar.push(renderBaris(item, nomor++, '\u21B3 '))
+                        }
+                      }
+                    }
+                    return keluar
+                  })()}
                 </tbody>
                 <tfoot className="bg-surface-container-low font-bold">
                   <tr>
                     <td className="px-2 py-2" colSpan="6">
                       <span className="text-text-high text-[11px]">TOTAL</span>
                       <span className="text-text-low text-[9px] ml-1">
-                        ({filteredItems.length})
+                        ({tampilGrup.length} grup &#183; {filteredItems.length} rincian)
                       </span>
                     </td>
                     <td className="px-2 py-2 text-right text-green-700 text-[11px]">{fmt(totalDebet)}</td>
                     <td className="px-2 py-2 text-right text-red-700 text-[11px]">{fmt(totalKredit)}</td>
                     <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(lastSaldo)}</td>
-                    <td className="px-2 py-2 text-center bg-gradient-to-b from-primary/[0.06] to-primary/[0.02]">
-                      <div className="inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[11px] text-primary">assignment_turned_in</span>
-                        <span className={`text-[10px] font-bold ${
-                          lpjCheckedCount === lpjTotalCount && lpjTotalCount > 0
-                            ? 'text-emerald-600'
-                            : 'text-primary'
-                        }`}>
-                          {lpjCheckedCount}/{lpjTotalCount}
-                        </span>
-                      </div>
-                    </td>
                   </tr>
                 </tfoot>
               </table>
@@ -739,8 +687,6 @@ export default function BKUPage() {
           onOpenMamin={(tx) => {
             toast.info('Dokumen khusus Mamin: ' + (tx.uraian || ''))
           }}
-          isLpjChecked={lpjChecklist}
-          onToggleLpj={toggleLpjCheck}
         />
       )}
 
