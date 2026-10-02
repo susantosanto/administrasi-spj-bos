@@ -69,3 +69,19 @@ Hasil runtime teramati (0 console error di BKU/LPJ/Kelengkapan/Pejabat; 0 reques
 T-03 sidebar ≤1 detik · T-04 badge/undo · T-05 gabungan 2 rincian · T-06 2 screenshot ·
 T-07 kelompok + flag + gabung · E-1 koreksi permanen · C.3 manual · print-hidden.
 Alasan: klik/navigasi butuh browser (tidak ada di sesi builder).
+
+## ADDENDUM REVISI — T1-T7 grup+Mamin+hapus LPJ+hapus panel ATK (2026-10-02, docs-only, tanpa sentuh kode sesi ini)
+
+- HEAD `cc2456e` ahead 3 dari `origin/main` (`08e4078` parsial warisan + `a53fd61` T1-T4 + `cc2456e` T6-T7). T1-T7 done, tidak merge, tidak push.
+- T1 hapus kolom ceklis LPJ + progress mati (BKUPage, BKUSidebar) — build exit 0, 183 modul, 5.58s; grep LPJ-mati 0 hit.
+- T2 grup se-NoBukti satu bukti satu kelompok, dominan kode rekening + auto filter cerdas (bkuKategori.js, BKUPage, BKUSidebar) — build exit 0, 183 modul, 8.21s; non-blue tambah 0.
+- T3 prefill Mamin cerdas Acara dari kegiatan + jenis Rapat/Kegiatan, parser ketat Q3 (bkuKategori.js, BKUSidebar, DokumenSPJPage) — parser 6/6 PASS; build exit 0, 183 modul.
+- T4 sederhanakan bahasa alur BKU tanpa ubah cetak (BKUPage + BKUSidebar, teks saja) — build exit 0, 183 modul, 7.71s; non-blue tambah 0.
+- T5 commit + merge `a53fd61` → main fast-forward (4 file, 370 ins 277 del) — build di main exit 0, 183 modul, 7.36s.
+- T6 hapus section Kelompok ATK di BKU (BKUPage saja, 1 ins 50 del; grup dominan/filter/parser/cetak utuh) — build exit 0, 183 modul, 8.34s.
+- T7 merge `cc2456e` → main fast-forward — build di main exit 0, 183 modul, 7.72s.
+- Verifier FINAL: **APPROVED Medium** — T1 PASS · T2 PASS statis · T3 PASS (6/6 wave-1) · T4 PASS tanpa ubah logika cetak.
+  Gates: build exit 0 · non-blue tambah 0 · package 0 · 4 file non-cetak (lalu 1 file T6) · cetak tak tersentuh · prefix spj utuh.
+  Batas: live klik + screenshot belum jalan.
+- Sisa: acceptance-runner fresh (seed 1 grup 2 baris BNU sama + 1 Mamin Rapat + 1 snack; klik filter/expand; screenshot BKU tanpa panel ATK) + push.
+- Konteks PR per task: lihat note `PR Context — fix/bku-revisi-grup-mamin` (§T1–T7).

@@ -5,6 +5,13 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **REVISI BKU grup+Mamin+hapus LPJ+hapus panel ATK — ✅ T1-T7 DONE di main lokal 2026-10-02, belum push, belum acceptance fresh.**
+  HEAD `cc2456e` ahead 3 dari `origin/main` (`08e4078` parsial warisan + `a53fd61` revisi T1-T4 + `cc2456e` hapus panel ATK T6-T7).
+  T1 hapus kolom LPJ · T2 grup dominan kode rekening + auto filter cerdas · T3 parser Mamin ketat Q3 ·
+  T4 bahasa tanpa ubah cetak · T5 merge a53fd61 · T6 hapus panel ATK (BKUPage 1 ins 50 del) · T7 merge cc2456e.
+  Verifier FINAL **APPROVED Medium** — batas: live klik + screenshot belum jalan → ke acceptance-runner fresh.
+  Sisa: acceptance-runner fresh (seed grup 2 baris BNU sama, 1 Mamin Rapat, 1 snack, klik filter/expand, screenshot BKU tanpa panel ATK) + push.
+  Laporan: `planning/sprints/sprint-004/BUILD-REPORT.MD` (§ADDENDUM REVISI 2026-10-02).
 - Sprint 004 — BKU → LPJ Smart Bridge — 🟡 **BUILDER SELESAI (STATIK) 2026-10-01, belum di-commit, belum acceptance.**
   Dry run disetujui ("setuju"); eksekusi A.1→D.2 (13 task). 1 baru `bkuKategori.js` (199/200) + 5 ubah
   (BKUPage badge/filter/panel ATK, BKUSidebar detail/koreksi/deep-link/grup, DokumenSPJPage prefill/badge/undo/kunci,
@@ -414,7 +421,12 @@
   Gate: build exit 0 ×6 · 15 pola 0 · 3 blok 0 input · blue-only 0 · diff warisan kosong.
   Runtime pencil browser: pill+popover+rename terbukti (R-1/R-2), cetak/T-09/E-2 UNTESTED.
   Detail: `planning/sprints/sprint-003/BUILD-REPORT.MD`. **Belum di-push** (branch kini ahead ±24).
-- Terakhir Diperbarui: 2026-10-01 (revisi panduan addendum — kode+pack selesai gate statik, belum di-commit; BUILD-REPORT §ADDENDUM)
+- Ledger: **REVISI BKU T1-T7 (2026-10-02)** — `a53fd61` (T1-T4: 4 file, 370 ins 277 del) · `cc2456e` (T6 panel ATK: BKUPage 1 ins 50 del).
+  Merge fast-forward tanpa konflik (T5, T7). Gate: build exit 0 tiap task (183 modul, 5.58s–15.85s) ·
+  LPJ-mati 0 hit · non-blue tambah 0 · package 0 · cetak tak tersentuh · prefix spj utuh.
+  Verifier FINAL APPROVED Medium (batas live klik+screenshot). **Belum push** (ahead 3), **belum acceptance fresh**.
+  Detail: `planning/sprints/sprint-004/BUILD-REPORT.MD` §ADDENDUM REVISI 2026-10-02.
+- Terakhir Diperbarui: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
   ledger komit `17a266d`…`e8af618`; risiko cetak-fisik UNTESTED; ARCHITECTURE.MD stale
   bertambah: SummaryCard/MenuGuide/guideConfig/print-area)
