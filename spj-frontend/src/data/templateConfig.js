@@ -356,9 +356,13 @@ export const TEMPLATE_CONFIGS = {
 
   // ─── LAMPIRAN DAFTAR PENERIMA TUGAS ───
   // Lampiran untuk Surat Tugas (opsional)
+  // Audit gugus task 41 (G16, P2): NON-BAKU — tak ada di docx sumber gugus.
+  // Tidak dirender di alur cetak Perjalanan Dinas; dipertahankan sbg template
+  // opsional. Jangan jadikan baku tanpa persetujuan.
   lampiran_daftar_tugas: {
     id: 'lampiran_daftar_tugas',
     label: 'Lampiran Daftar Penerima Tugas',
+    nonBaku: true, // penanda non-baku (bukan bagian docx sumber)
     card: 'perjalanan_dinas',
     sub_kategori: null,
     orientation: 'portrait',

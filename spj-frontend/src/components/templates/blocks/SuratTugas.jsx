@@ -12,6 +12,10 @@
  *   Untuk / Hari / tanggal / Tempat
  *   Demikian surat tugas ini dibuat ...
  *   Mengetahui/Mengesahkan + Cikalongwetan, ... Kepala Sekolah, [TTD]
+ *
+ * Revisi audit gugus task 41 (G7, P1): label signature ditegaskan —
+ * kiri 'Ketua Gugus,' (pengesah gugus) + kanan 'Kepala Sekolah,' (pemberi
+ * tugas). Judul memakai kelas spt-judul (underline khusus print, index.css).
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
 import { getSchoolData } from '../../../utils/sekolahData'
@@ -21,14 +25,15 @@ export default function SuratTugas({ blockConfig, data = {} }) {
   const judul = blockConfig.judul || 'SURAT PERINTAH TUGAS'
   const showNomor = blockConfig.nomor !== false
 
-  const F = (label, key, indent = false) => {
+  const F = (label, key, indent = false, miring = false) => {
     const value = data[key] || ''
+    const isi = <span>{value || <PlaceholderText label={label.toLowerCase()} />}</span>
     return (
-      <tr className="border-b border-dashed border-outline-variant">
+      <tr>
         <td className={`w-40 py-1.5 font-medium text-gray-700 ${indent ? 'pl-8' : ''}`}>{label}</td>
         <td className="w-3 py-1.5 text-center">:</td>
         <td className="py-1.5">
-          <span>{value || <PlaceholderText label={label.toLowerCase()} />}</span>
+          {miring ? <em>{isi}</em> : isi}
         </td>
       </tr>
     )
@@ -38,7 +43,7 @@ export default function SuratTugas({ blockConfig, data = {} }) {
     <div className="mb-4">
       {/* Judul + Nomor */}
       <div className="text-center mb-1">
-        <h2 className="text-sm font-bold uppercase tracking-wide">{judul}</h2>
+        <h2 className="spt-judul text-sm font-bold uppercase tracking-wide">{judul}</h2>
       </div>
       {showNomor && (
         <div className="text-center text-xs mb-3">
@@ -51,7 +56,7 @@ export default function SuratTugas({ blockConfig, data = {} }) {
 
       {/* Yang bertandatangan */}
       <p className="text-xs font-medium text-gray-700 mb-2">Yang bertandatangan di bawah ini :</p>
-      <table className="w-full text-xs mb-3 border-collapse">
+      <table className="surat-polos w-full text-xs mb-3 border-collapse">
         <tbody>
           {F('Nama', 'namaPenandatangan')}
           {F('Jabatan', 'jabatanPenandatangan')}
@@ -62,7 +67,7 @@ export default function SuratTugas({ blockConfig, data = {} }) {
       <div className="text-center text-xs font-bold tracking-widest mb-3">M E N U G A S K A N</div>
 
       <p className="text-xs font-medium text-gray-700 mb-2">Kepada :</p>
-      <table className="w-full text-xs mb-3 border-collapse">
+      <table className="surat-polos w-full text-xs mb-3 border-collapse">
         <tbody>
           {F('Nama', 'nama')}
           {F('NIP', 'sptNip', true)}
@@ -72,9 +77,9 @@ export default function SuratTugas({ blockConfig, data = {} }) {
       </table>
 
       {/* Untuk + detail */}
-      <table className="w-full text-xs mb-3 border-collapse">
+      <table className="surat-polos w-full text-xs mb-3 border-collapse">
         <tbody>
-          {F('Untuk', 'sptUntuk')}
+          {F('Untuk', 'sptUntuk', false, true)}
           {F('Hari', 'sptHari')}
           {F('Tanggal', 'sptTanggal')}
           {F('Tempat', 'sptTempat')}
@@ -89,15 +94,15 @@ export default function SuratTugas({ blockConfig, data = {} }) {
       <div className="text-xs font-medium text-gray-700 mb-4">Mengetahui/Mengesahkan</div>
       <div className="flex justify-between">
         <div className="text-center w-56">
-          <div className="text-xs font-medium mb-1">Kepala,</div>
+          <div className="text-xs font-medium mb-1">Ketua Gugus,</div>
           <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaMengetahui}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
         </div>
         <div className="text-center w-56">
           <div className="text-xs text-gray-600 mb-1">{data.tanggalSpt || ''}</div>
-          {/* TTD 4 baris: Kepala / nama SD / [SPASI 64px] / nama orang / NIP */}
-          <div className="text-xs font-medium">Kepala</div>
+          {/* TTD 4 baris: Kepala Sekolah / nama SD / [SPASI 64px] / nama orang / NIP */}
+          <div className="text-xs font-medium">Kepala Sekolah,</div>
           <div className="text-xs font-medium mb-1">{sekolah ? `${sekolah},` : ''}</div>
           <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaPenandatangan}</div>

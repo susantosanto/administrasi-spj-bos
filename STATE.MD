@@ -5,6 +5,21 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **Kertas A4/F4 + SPD meniru docx — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-06, belum di-commit (kuasa user).**
+  Perintah user: (1) kertas opsional A4/F4 utk semua dokumen, (2) lengkapi format + SPD ulang meniru tabel docx.
+  2 baru (`paperSize.js` 70/200: spj_kertas default A4 + event + suntik @page; `PaperSizeSelector.jsx` 49/300)
+  + 8 ubah (TemplateEngine paper-aware; PanelPreview selector+lebar F4; index.css F4/kop-ganda/spd-tabel/surat-polos;
+  SPDForm 232→269/300: TABLE3 berbingkai 1–10 + TABLE4 kotak berdampingan; SuratTugas polos+Untuk italic;
+  SuratUndangan polos+detail 4 baris+TTD kanan; KopSurat/KopGugus garis ganda; main.js init; DokumenSPJPage selector;
+  SkHonorerEditor selector+paper class).
+  Gate: build exit 0 (7.35s, 191 modul, warning xlsx pre-existing) · browser :5173 console 0 errors ·
+  F4→spj_kertas tersimpan + panel 215.9mm + @page 215.9x330.2 · SPD berbingkai ter-render (screenshot).
+  ADR baru 2 di DECISIONS.MD (kertas opsional, SPD tabel). UNTESTED: cetak fisik F4 + acceptance-runner fresh.
+  **FIX 09:55Z (panel potong kertas):** akar = CSS F4 memaksa `.print-container` 215,9mm JUGA di layar
+  (kontainer itu wajib isi kertas induk) + skala ukur pakai clientWidth termasuk padding (meluber 16px).
+  Perbaikan: aturan F4 layar hanya `.preview-container`, cetak via `@media print`; measure pakai
+  content-box + margin aman 2px. Gate ulang: build exit 0 (9.42s) · console 0 errors ·
+  TemplateEngine 627px pas isi kertas + scrollWidth bersih + TTD utuh di dalam kertas (screenshot F4).
 - Sprint 009 Fase A — Pecah Surat Pesanan 2 Dokumen — 🟢 **BUILDER SELESAI (STATIK+RUNTIME) 2026-10-06 di branch `feat/sprint-009-pecah-pesanan` (dari ec2eb85, working tree src hanya 3M+1U milik 009), belum di-commit (kuasa user), Fase B sticky menunggu.**
   Keputusan user/koordinator 04:34Z: (1) PECAH FILE DULU, (2) branch 009 dari 008 yg di-commit, (3) uji OTOMATIS. 1 baru `MaminPreview.jsx` 237/300 (ekstraksi murni renderMaminPreview; DokumenFormPreview 2370→~2162) + 3 ubah (aturanMamin.js 185/200: `bagiPesananPerSeksi` 1 logika utk A1/A2/A3; MaminPreview A1 2 kartu + A2 2x .sk-doc-print; previewDocs.js 189/200: docs pesanan-nasi/snack mirror 1:1). Nomor SAMA, perihal suffix display-only, warisan ikut Nasi, seksi mati di-skip, kedua mati pesan jujur (legacy).
   Gate: build exit 0 ×2 (pecah `8.63s` 189 modul, Fase A `7.72s`) · browser :5173 console 0 errors · panel 5 docs (Undangan+Nasi+Snack+Notulen+Hadir) · Nasi 6 (no 1-6) + Snack 4 (no 1-4) · nomor "800/TEST/2026" sama + perihal "Surat Pesanan — Nasi/Snack Box" · snack-off→hanya Nasi · both-off→panel tanpa pesanan · node unit warisan snippet/kustom→Nasi renumber · T-06 diff cetak kosong + larangan 0 + print:hidden ada · T-08 package.json utuh + blue-only 0. Screenshot 3 viewport. Batasan sadar: nomor berbeda per surat = ubah manual antar cetak (bukan FAIL).

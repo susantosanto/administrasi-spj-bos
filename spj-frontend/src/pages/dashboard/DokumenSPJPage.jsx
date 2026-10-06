@@ -20,6 +20,7 @@ import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
+import PaperSizeSelector from '../../components/templates/PaperSizeSelector'
 import { readinessCheck, sorotPelanggaran } from '../../components/templates/SummaryCard'
 import { buildPreviewDocs } from '../../utils/previewDocs'
 import MenuGuide from '../../components/guide/MenuGuide'
@@ -881,6 +882,9 @@ export default function DokumenSPJPage() {
                 // Info Only with Sub-Kategori (Tagihan)
                 selectedSubKategori?.templateId ? (
                   <div className="p-6">
+                    <div className="mb-3 flex justify-end print:hidden">
+                      <PaperSizeSelector ringkas />
+                    </div>
                     <TemplateEngine
                       templateConfig={getTemplateConfig()}
                       data={formData}
@@ -916,6 +920,11 @@ export default function DokumenSPJPage() {
                       templateId={selectedSubKategori?.templateId}
                       onAutoFill={handleAutoFill}
                     />
+                  </div>
+
+                  {/* Kertas cetak A4/F4 — satu pengaturan global semua dokumen */}
+                  <div className="flex justify-end print:hidden">
+                    <PaperSizeSelector ringkas />
                   </div>
 
                   {/* Transport: Show Transport Template */}

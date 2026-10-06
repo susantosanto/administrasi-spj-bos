@@ -341,6 +341,16 @@ export default function DokumenFormPreview({
     setSppdData({ ...sppdData, pengikutRows: [...(sppdData.pengikutRows || []), { nama: '', tanggalLahir: '', keterangan: '' }] })
   const removePengikut = (i) =>
     setSppdData({ ...sppdData, pengikutRows: (sppdData.pengikutRows || []).filter((_, idx) => idx !== i) })
+  // ─── Audit gugus task 41 (G9, P1): baris transit SPD (default 0) ───
+  const updateTransit = (i, key, value) => {
+    const rows = [...(sppdData.transitRows || [])]
+    rows[i] = { ...(rows[i] || {}), [key]: value }
+    setSppdData({ ...sppdData, transitRows: rows })
+  }
+  const addTransit = () =>
+    setSppdData({ ...sppdData, transitRows: [...(sppdData.transitRows || []), { tibaDi: '', tibaTanggal: '', berangkatTanggal: '', namaPengesah: '', nipPengesah: '' }] })
+  const removeTransit = (i) =>
+    setSppdData({ ...sppdData, transitRows: (sppdData.transitRows || []).filter((_, idx) => idx !== i) })
   const updateTembusan = (i, value) => {
     const items = [...(formData.tembusanItems || [])]
     items[i] = value
@@ -498,8 +508,10 @@ export default function DokumenFormPreview({
             {/* Nomor Surat (honor selalu / transport di tab Daftar) */}
             {(!isTransport || formTab === 'daftar') && (
             <div>
+              {/* Audit gugus task 41 (G12, P1): label tegas — ini nomor arsip
+                  internal daftar, bedakan dari Nomor SPD dokumen resmi. */}
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                Nomor Surat {isTransport ? 'Transport' : ''}
+                {isTransport ? 'Nomor Daftar (arsip internal)' : 'Nomor Surat'}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -566,6 +578,9 @@ export default function DokumenFormPreview({
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Nama" value={formData.namaPenandatangan} onChange={(e) => setFormData({ ...formData, namaPenandatangan: e.target.value })} placeholder="Nama penandatangan" />
                   <Field label="Jabatan" value={formData.jabatanPenandatangan} onChange={(e) => setFormData({ ...formData, jabatanPenandatangan: e.target.value })} placeholder="Kepala Sekolah" />
+                  {/* Audit gugus task 41 (G2, P0): NIP penandatangan bisa diisi dari
+                      form; fallback tetap signatureRoles bila kosong (lihat builder). */}
+                  <Field label="NIP Penandatangan" value={formData.nipPenandatangan} onChange={(e) => setFormData({ ...formData, nipPenandatangan: e.target.value })} placeholder="NIP penandatangan" />
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Menugaskan Kepada</div>
                 {!selRow ? (
@@ -612,7 +627,9 @@ export default function DokumenFormPreview({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor SPPD</label>
+                      {/* Audit gugus task 41 (G12, P1): label tegas — ini Nomor SPD
+                          dokumen resmi, bedakan dari Nomor Daftar (tab Daftar). */}
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor SPD (dokumen resmi)</label>
                       <button type="button" onClick={() => setShowSppdNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
                         <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                       </button>
@@ -620,8 +637,10 @@ export default function DokumenFormPreview({
                     <input type="text" value={sppdData.nomorSurat || ''} onChange={(e) => setSppdData({ ...sppdData, nomorSurat: e.target.value })} placeholder="427/SPD-001/SDN-PSR/VII/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <Field label="Untuk Keperluan" value={sppdData.tujuan} onChange={(e) => setSppdData({ ...sppdData, tujuan: e.target.value })} placeholder="Rapat Kerja Teknis Operator..." />
-                  <Field label="Tempat" value={sppdData.tempat} onChange={(e) => setSppdData({ ...sppdData, tempat: e.target.value })} placeholder="SD Negeri Cipada" />
-                  <Field label="Tanggal" type="date" value={sppdData.tanggal} onChange={(e) => setSppdData({ ...sppdData, tanggal: e.target.value })} />
+                  {/* Audit gugus task 41 (G11, P1): field generik Tempat/Tanggal
+                      DIHAPUS dari form — sumber tunggal = Tempat Berangkat/Tujuan
+                      + Tgl Berangkat/Kembali di bawah (builder tetap fallback ke
+                      nilai lama bila sudah tersimpan). */}
                   <Field label="Lama Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">1. Pengguna Anggaran / Kuasa Pengguna Anggaran</div>
@@ -658,6 +677,34 @@ export default function DokumenFormPreview({
                       <Field label="Lamanya Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
                       <Field label="Tanggal Berangkat" type="date" value={sppdData.tanggalBerangkat} onChange={(e) => setSppdData({ ...sppdData, tanggalBerangkat: e.target.value })} />
                       <Field label="Tanggal Kembali" type="date" value={sppdData.tanggalKembali} onChange={(e) => setSppdData({ ...sppdData, tanggalKembali: e.target.value })} />
+                    </div>
+                    {/* Audit gugus task 41 (G9, P1): baris transit/persinggahan
+                        opsional — docx punya 5 pasang Tiba/Berangkat, aplikasi
+                        default 0 baris (tanpa transit tak ada baris kosong). */}
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Transit / Persinggahan (opsional)</div>
+                    <div className="space-y-2">
+                      {(sppdData.transitRows || []).map((r, i) => (
+                        <div key={i} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Transit {i + 1}</span>
+                            <button type="button" onClick={() => removeTransit(i)} className="px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 transition-colors" title="Hapus transit">
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Field label="Tiba di" value={r.tibaDi} onChange={(e) => updateTransit(i, 'tibaDi', e.target.value)} placeholder="Tempat transit" />
+                            <Field label="Tiba tanggal" value={r.tibaTanggal} onChange={(e) => updateTransit(i, 'tibaTanggal', e.target.value)} placeholder="8 Mei 2026" />
+                            <Field label="Berangkat tanggal" value={r.berangkatTanggal} onChange={(e) => updateTransit(i, 'berangkatTanggal', e.target.value)} placeholder="8 Mei 2026" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Field label="Pengesah (nama)" value={r.namaPengesah} onChange={(e) => updateTransit(i, 'namaPengesah', e.target.value)} placeholder="Nama pengesah transit" />
+                            <Field label="Pengesah (NIP)" value={r.nipPengesah} onChange={(e) => updateTransit(i, 'nipPengesah', e.target.value)} placeholder="NIP pengesah" />
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={addTransit} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-sm">add</span> Tambah Transit
+                      </button>
                     </div>
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">8. Pengikut</div>
                     <div className="space-y-2">
@@ -772,7 +819,11 @@ export default function DokumenFormPreview({
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Kepada Yth" value={formData.kepadaUndangan} onChange={(e) => setFormData({ ...formData, kepadaUndangan: e.target.value })} placeholder="Kepala Sekolah SD" />
-                  <Field label="Alamat / Instansi" value={formData.alamatUndangan} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="se-gugus K.H Dewantara" />
+                  {/* Audit gugus task 41 (G4, P1): field pecah Alamat/Instansi
+                      sesuai baris docx (Yth / alamat / instansi / di / Tempat).
+                      Baris 'di' + 'Tempat' tetap baku di blok SuratUndangan. */}
+                  <Field label="Alamat" value={formData.alamatUndangan} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="se-gugus K.H Dewantara" />
+                  <Field label="Instansi" value={formData.instansiUndangan} onChange={(e) => setFormData({ ...formData, instansiUndangan: e.target.value })} placeholder="cth: SDN Cipada (mohon izin tempat)" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="Hari" value={formData.hariUndangan} onChange={(e) => setFormData({ ...formData, hariUndangan: e.target.value })} placeholder="Jumat" />
@@ -1832,7 +1883,9 @@ export default function DokumenFormPreview({
       tanggalAcara: formData.tanggalAcara || sppdData.tanggal || '',
       tempatAcara: formData.tempatAcara || sppdData.tempat || '',
       isiUndangan: formData.isiUndangan || '',
-      // ADR 2026-09-14: field "Sifat" dipertahankan, default '-' ikut tercetak
+      // Audit gugus task 41 (G3, P0 — ganti ADR 2026-09-14): '-' TIDAK ikut
+      // tercetak untuk undangan_gugus (blok sembunyikan bila '-'); nilai tetap
+      // dipertahankan di data agar undangan_mamin tak terpengaruh.
       sifatUndangan: formData.sifatUndangan || '-',
     }
 
@@ -1964,7 +2017,10 @@ export default function DokumenFormPreview({
         {/* â”€â”€â”€ Sprint 003 FASE 3 (US-22): area cetak Perjalanan Dinas = 5 dokumen
             formal kopâ†’TTD berurutan: penerima â†’ undangan â†’ SPT â†’ SPD â†’ resume.
             Builder data dipakai ulang apa adanya; tiap .sk-doc-print ganti
-            halaman (anti-terpotong, task 3.2). Layar: hidden. */}
+            halaman (anti-terpotong, task 3.2). Layar: hidden.
+            Keputusan audit gugus task 41 (G13, P1): Daftar Penerima + Resume
+            DIPERTAHANKAN di cakupan cetak walau tak ada di docx sumber gugus
+            (kebutuhan arsip LPJ). */}
         {isTransport && (
           <div className="sk-print-area">
             <div className="sk-doc-print">

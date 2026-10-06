@@ -12,6 +12,11 @@
  *   Paragraf penutup 1 & 2
  *   Ketua Gugus, [TTD] ... NIP. ...
  *   Tembusan : list bernomor
+ *
+ * Revisi audit gugus task 41 (G3, P0): baris Sifat DISEMBUNYIKAN bila nilai
+ * '-' / kosong — docx gugus tak punya kolom Sifat. Blok ini eksklusif dipakai
+ * template undangan_gugus, jadi kondisional aman tanpa flag template.
+ * Revisi task 41 (G4, P1): baris Instansi opsional (form pecah Alamat/Instansi).
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
 
@@ -19,7 +24,21 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
   const F = (label, key) => {
     const value = data[key] || ''
     return (
-      <tr className="border-b border-dashed border-outline-variant">
+      <tr>
+        <td className="w-36 py-1.5 font-medium text-gray-700">{label}</td>
+        <td className="w-3 py-1.5 text-center">:</td>
+        <td className="py-1.5">
+          <span>{value || <PlaceholderText label={label.toLowerCase()} />}</span>
+        </td>
+      </tr>
+    )
+  }
+
+  // Detail acara 4 baris bertumpuk meniru P13–P16 docx.
+  const D = (label, key) => {
+    const value = data[key] || ''
+    return (
+      <tr>
         <td className="w-36 py-1.5 font-medium text-gray-700">{label}</td>
         <td className="w-3 py-1.5 text-center">:</td>
         <td className="py-1.5">
@@ -34,9 +53,9 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
   return (
     <div className="mb-4">
       {/* Nomor / Sifat / Lampiran / Perihal + kepada */}
-      <table className="w-full text-xs mb-4 border-collapse">
+      <table className="surat-polos w-full text-xs mb-4 border-collapse">
         <tbody>
-          <tr className="border-b border-dashed border-outline-variant">
+          <tr>
             <td className="w-36 py-1.5 font-medium text-gray-700">Nomor</td>
             <td className="w-3 py-1.5 text-center">:</td>
             <td className="py-1.5">
@@ -46,7 +65,7 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
               <span>{data.tanggalSurat || <PlaceholderText label="tanggal" />}</span>
             </td>
           </tr>
-          {F('Sifat', 'sifatUndangan')}
+          {data.sifatUndangan && data.sifatUndangan !== '-' ? F('Sifat', 'sifatUndangan') : null}
           {F('Lampiran', 'lampiranUndangan')}
           {F('Perihal', 'perihalUndangan')}
           <tr>
@@ -61,6 +80,14 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
               {data.alamatUndangan || <PlaceholderText label="Alamat" />}
             </td>
           </tr>
+          {data.instansiUndangan ? (
+            <tr>
+              <td colSpan={3} />
+              <td colSpan={2} className="py-1.5 text-right">
+                {data.instansiUndangan}
+              </td>
+            </tr>
+          ) : null}
           <tr>
             <td colSpan={3} />
             <td colSpan={2} className="py-1.5 text-right font-medium text-gray-700">di</td>
@@ -81,33 +108,13 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
         </span>
       </p>
 
-      {/* Detail Acara */}
-      <table className="w-full text-xs mb-4 border-collapse">
+      {/* Detail Acara — 4 baris bertumpuk (Hari/Tanggal/Pukul/Tempat) */}
+      <table className="surat-polos w-full text-xs mb-4 border-collapse">
         <tbody>
-          <tr className="border-b border-dashed border-outline-variant">
-            <td className="w-36 py-1.5 font-medium text-gray-700">Hari</td>
-            <td className="w-3 py-1.5 text-center">:</td>
-            <td className="py-1.5 pr-6">
-              <span>{data.hariUndangan || <PlaceholderText label="hari" />}</span>
-            </td>
-            <td className="w-36 py-1.5 font-medium text-gray-700">Tanggal</td>
-            <td className="w-3 py-1.5 text-center">:</td>
-            <td className="py-1.5 pr-6">
-              <span>{data.tanggalAcara || <PlaceholderText label="tanggal" />}</span>
-            </td>
-          </tr>
-          <tr className="border-b border-dashed border-outline-variant">
-            <td className="w-36 py-1.5 font-medium text-gray-700">Pukul</td>
-            <td className="w-3 py-1.5 text-center">:</td>
-            <td className="py-1.5 pr-6">
-              <span>{data.pukulUndangan || <PlaceholderText label="pukul" />}</span>
-            </td>
-            <td className="w-36 py-1.5 font-medium text-gray-700">Tempat</td>
-            <td className="w-3 py-1.5 text-center">:</td>
-            <td className="py-1.5">
-              <span>{data.tempatAcara || <PlaceholderText label="tempat" />}</span>
-            </td>
-          </tr>
+          {D('Hari', 'hariUndangan')}
+          {D('Tanggal', 'tanggalAcara')}
+          {D('Pukul', 'pukulUndangan')}
+          {D('Tempat', 'tempatAcara')}
         </tbody>
       </table>
 
@@ -119,8 +126,8 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
         {data.penutupUndangan2 || 'Demikian undangan ini kami sampaikan, atas perhatian dan kehadirannya kami ucapkan terima kasih.'}
       </p>
 
-      {/* Ketua Gugus — [SPASI 64px] di bawah jabatan untuk TTD basah */}
-      <div className="text-center w-56 mx-auto">
+      {/* Ketua Gugus — kanan seperti TABLE1 docx, [SPASI 64px] u/ TTD basah */}
+      <div className="text-center w-56 ml-auto mr-0">
         <div className="text-xs font-medium mb-4">Ketua Gugus,</div>
         <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
         <div className="text-xs font-bold">{data.namaKetuaGugus}</div>

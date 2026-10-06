@@ -754,3 +754,23 @@
   Dibuat oleh: user (task 29, 2026-10-06)
   Dampak: DokumenSPJPage Zona B + PanelPreviewDocument.jsx + previewDocs.js;
     larangan TTD digital / KIRIM server / QR / warna navy TETAP berlaku
+
+[2026-10-06] Keputusan: kertas cetak opsional A4 / F4 (Folio 8,5x13") pilihan user
+  Status: accepted
+  Alasan: dokumen sumber gugus memakai Folio; user minta bisa pilih kertas
+    untuk semua dokumen. Aturan lama "A4 wajib" (AGENTS.MD/CONSTITUTION) jadi
+    "default A4, opsional F4".
+  Dibuat oleh: user (2026-10-06)
+  Dampak: util paperSize.js (spj_kertas, default A4) + PaperSizeSelector di
+    Panel Preview, form Template/Tagihan, toolbar SK Honorer; TemplateEngine +
+    panel + @page ikut tanpa reload; F4 = 215,9x330,2mm
+
+[2026-10-06] Keputusan: SPD dirender ulang meniru tabel docx sumber
+  Status: accepted
+  Alasan: perintah user — butir 1–10 wajib tabel berbingkai + kotak
+    Berangkat/Tiba berdampingan seperti TABLE3/TABLE4 docx
+  Dibuat oleh: user (2026-10-06)
+  Dampak: SPDForm.jsx ditulis ulang (spd-tabel + spd-kotak, 269/300 baris);
+    kolom-4 duplikat docx tetap dibuang (G8); Tiba-kembali pakai TTD Kepala
+    Sekolah sesuai R5 docx; SPT/Undangan polos tanpa garis + Untuk/Maksud
+    italic + TTD undangan kanan + detail acara 4 baris + kop garis ganda

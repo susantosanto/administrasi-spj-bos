@@ -8,15 +8,28 @@
  * - gugusNama (baris 12) + gugusAlamat (baris 15): tanpa fallback literal.
  * - baris kabupaten (baris 9): dari kabupaten/provinsi lewat prop `data`.
  * - logo gugus dari prop `data.logoGugus` (pemanggil yang membaca spj_logo_gugus).
+ *
+ * Revisi audit gugus task 41 (G1, P0): fallback literal docx bila prop kosong
+ * agar kop tak pernah blank di cetak. Prioritas: prop `data` dulu, literal
+ * docx sebagai cadangan tampilan saja (bukan sumber data).
  */
+const FALLBACK_KOP_GUGUS = {
+  kabupaten: 'PEMERINTAH KABUPATEN BANDUNG BARAT',
+  gugusNama: 'GUGUS KI HAJAR DEWANTARA',
+  // Verifikasi docx 2026-10-06 (P3): teks sekretariat persis dokumen sumber.
+  gugusAlamat: 'Sekretariat : Kp. Lembang Dano Desa Cipada Kecamatan Cikalongwetan Kode Pos 40556 Kabupaten Bandung Barat',
+}
+
 export default function KopGugus({ data = {} }) {
   // Baris 9 (task 3.6): kabupaten/provinsi lewat prop data, bukan literal.
   const barisPemerintah = data.kabupaten
     ? `PEMERINTAH ${data.kabupaten}`.toUpperCase()
-    : ''
+    : FALLBACK_KOP_GUGUS.kabupaten
+  const namaGugus = data.gugusNama || FALLBACK_KOP_GUGUS.gugusNama
+  const alamatGugus = data.gugusAlamat || FALLBACK_KOP_GUGUS.gugusAlamat
 
   return (
-    <div className="text-center border-b-2 border-black pb-2 mb-4">
+    <div className="text-center kop-ganda pb-2 mb-4">
       <div className="relative">
         {data.logoGugus && (
           <img
@@ -29,10 +42,10 @@ export default function KopGugus({ data = {} }) {
           {barisPemerintah}
         </div>
         <div className="text-sm font-bold mt-1">
-          {data.gugusNama || ''}
+          {namaGugus}
         </div>
         <div className="text-[8px] text-gray-600">
-          {data.gugusAlamat || ''}
+          {alamatGugus}
         </div>
       </div>
     </div>
