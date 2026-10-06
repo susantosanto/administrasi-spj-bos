@@ -28,17 +28,17 @@ export default function KopSurat({ data = {} }) {
   return (
     <div className="text-center border-b-2 border-black pb-2 mb-4">
       <div className="relative">
-        {logoSekolah && (
-          <img
-            src={logoSekolah}
-            alt="Logo Sekolah"
-            className="absolute left-0 top-0 w-14 h-14 object-contain"
-          />
-        )}
         {logoDinas && (
           <img
             src={logoDinas}
             alt="Logo Dinas"
+            className="absolute left-0 top-0 w-14 h-14 object-contain"
+          />
+        )}
+        {logoSekolah && (
+          <img
+            src={logoSekolah}
+            alt="Logo Sekolah"
             className="absolute right-0 top-0 w-14 h-14 object-contain"
           />
         )}

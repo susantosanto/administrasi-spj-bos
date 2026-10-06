@@ -49,6 +49,7 @@ export default function SkHonorerEditor({
   onUpdateRow,
   onRemoveRow,
   onUpdateForm,
+  hidePrint = false,
 }) {
   const [printIdx, setPrintIdx] = useState('all') // 'all' | index dokumen
 
@@ -452,6 +453,9 @@ export default function SkHonorerEditor({
       </div>
 
       {/* ═══ AREA CETAK (hanya terlihat saat print) ═══ */}
+      {/* hidePrint=true (embed di form Zona A): editor saja, tanpa area cetak
+          ganda — cetak formal tetap satu-satunya di tab preview SK. */}
+      {!hidePrint && (
       <div className="sk-print-area">
         <div className="print-container portrait">
           {printDocs.map((s, i) => (
@@ -461,6 +465,7 @@ export default function SkHonorerEditor({
           ))}
         </div>
       </div>
+      )}
     </div>
   )
 }

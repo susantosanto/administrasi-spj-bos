@@ -19,6 +19,10 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
+import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
+import { readinessCheck, sorotPelanggaran } from '../../components/templates/SummaryCard'
+import { buildPreviewDocs } from '../../utils/previewDocs'
+import PeringatanData from '../../components/templates/blocks/PeringatanData'
 import MenuGuide from '../../components/guide/MenuGuide'
 import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
@@ -481,6 +485,47 @@ export default function DokumenSPJPage() {
     return TEMPLATE_CONFIGS[selectedSubKategori.templateId]
   }
 
+  // ─── Sprint 008: Panel Preview Document + Gate Pra-Cetak (rakitan 3 zona di parent, R1) ───
+  // Satu sumber: formData turun ke Zona B (panel) + Zona C (gate); tiap onChange
+  // re-render panel + badge otomatis. Cetak formal tak tersentuh (sk-print-area
+  // di dalam DokumenFormPreview mode preview; gate hanya window.print + snapshot).
+  // Revisi 2026-10-06 (task 29): label Cermin-* diganti Panel Preview Document;
+  // isi panel = render A4 penuh persis dokumen cetak (batas lama "formal hanya
+  // di print-area" DICABUT user).
+  const panelPelanggaran = readinessCheck(formData)
+  const previewDocs = buildPreviewDocs({
+    cardId: selectedCard?.id,
+    templateId: selectedSubKategori?.templateId,
+    subId: selectedSubKategori?.id,
+    formData,
+    sppdData,
+  })
+  const handleCekPanel = () => {
+    const pertama = panelPelanggaran[0]
+    if (!pertama) { toast.success('Lengkap — siap cetak'); return }
+    if (!sorotPelanggaran(pertama)) toast.info(pertama.label)
+  }
+  const handleCetakGate = () => {
+    // Tulis snapshot 1 slot terakhir (spj_otomatis_snapshot) lalu cetak.
+    snapshotSebelumTimpa(
+      { ...formData, sppdData: { ...sppdData } },
+      [...new Set(Object.keys(formData))],
+      formData.bkuSumber?.noBukti || '',
+    )
+    const doPrint = () => {
+      // Scope ke area cetak formal — panel preview (Zona B) screen-only, tak ikut cetak.
+      const printContainer = document.querySelector('.sk-print-area .print-container')
+      if (printContainer) {
+        printContainer.classList.remove('portrait', 'landscape')
+        printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
+      }
+      window.print()
+    }
+    // Area cetak formal hanya render di mode preview — pindah dulu bila di form.
+    if (viewMode !== 'preview') { setViewMode('preview'); window.setTimeout(doPrint, 300) }
+    else doPrint()
+  }
+
   // ─── Print Handler ───────────────────────────────────────────────────────
   const handlePrint = () => {
     const config = getTemplateConfig()
@@ -489,7 +534,7 @@ export default function DokumenSPJPage() {
       return
     }
     
-    const printContainer = document.querySelector('.print-container')
+    const printContainer = document.querySelector('.sk-print-area .print-container')
     if (printContainer) {
       printContainer.classList.remove('portrait', 'landscape')
       printContainer.classList.add(config.orientation || 'portrait')
@@ -759,22 +804,52 @@ export default function DokumenSPJPage() {
 
             {/* Content Area */}
             {isSpecial ? (
-              <DokumenFormPreview
-                card={selectedCard}
-                selectedSub={selectedSubKategori}
-                onSubChange={handleSubKategoriChange}
-                formData={formData}
-                setFormData={setFormData}
-                sppdData={sppdData}
-                setSppdData={setSppdData}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                formTab={formTab}
-                setFormTab={setFormTab}
-                previewTab={previewTab}
-                setPreviewTab={setPreviewTab}
-                onClose={handleCloseDetail}
-              />
+            <div className="space-y-4">
+              {/* Sprint 008: split-view — form kiri + Panel Preview Document kanan (desktop);
+                  mobile menumpuk (panel di bawah form, sticky mati). */}
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
+                <section aria-label="Zona A — Form dokumen">
+                  <DokumenFormPreview
+                    card={selectedCard}
+                    selectedSub={selectedSubKategori}
+                    onSubChange={handleSubKategoriChange}
+                    formData={formData}
+                    setFormData={setFormData}
+                    sppdData={sppdData}
+                    setSppdData={setSppdData}
+                    viewMode={viewMode}
+                    setViewMode={setViewMode}
+                    formTab={formTab}
+                    setFormTab={setFormTab}
+                    previewTab={previewTab}
+                    setPreviewTab={setPreviewTab}
+                    onClose={handleCloseDetail}
+                  />
+                </section>
+                <aside className="print:hidden min-w-0">
+                  <section aria-label="Zona B — Panel Preview Document">
+                    <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h2>
+                    <PanelPreviewDocument
+                      title={`Panel Preview Document — ${selectedCard?.nama || ''}${selectedSubKategori?.label ? ` — ${selectedSubKategori.label}` : ''}`}
+                      docs={previewDocs}
+                      status={{ perlu: panelPelanggaran.length, violations: panelPelanggaran }}
+                      onCek={handleCekPanel}
+                    />
+                  </section>
+                </aside>
+              </div>
+              {/* Sprint 008 Zona C: gate pra-cetak di bawah form (screen-only). */}
+              <section aria-label="Zona C — Gate pra-cetak">
+                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Siap Cetak</h2>
+                <PeringatanData
+                  cetakGate={{
+                    siap: panelPelanggaran.length === 0,
+                    pelanggaran: panelPelanggaran.map((v) => v.label),
+                    onCetak: handleCetakGate,
+                  }}
+                />
+              </section>
+            </div>
             ) : (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               {selectedCard.infoOnly && !selectedCard.subKategori ? (
@@ -958,11 +1033,14 @@ export default function DokumenSPJPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
-      <div className="p-lg space-y-6 flex-1 max-w-7xl mx-auto w-full">
+      {/* Lebar penuh (revisi 2026-10-06 task 34): grid kategori + panel detail
+          sama-sama full width selebar card detail (tanpa max-w-7xl) agar
+          konsisten di semua viewport. */}
+      <div className="p-lg space-y-6 flex-1 w-full max-w-none mx-auto">
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* BKU UTAMA SECTION                                                  */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">BKU Utama</h3>
@@ -988,7 +1066,7 @@ export default function DokumenSPJPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN PENDUKUNG SECTION                                          */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-gradient-to-b from-slate-400 to-slate-500 rounded-full" />
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Dokumen Pendukung</h3>

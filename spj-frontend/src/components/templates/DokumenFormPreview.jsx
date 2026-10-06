@@ -504,6 +504,7 @@ export default function DokumenFormPreview({
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -519,6 +520,27 @@ export default function DokumenFormPreview({
                   <span className="material-symbols-outlined">auto_awesome</span>
                 </button>
               </div>
+            </div>
+            )}
+
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Ditulis ke formData yang sama; dibaca Panel Preview Document Zona B + gate Zona C. */}
+            {(!isTransport || formTab === 'daftar') && (
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat — perhatikan Panel Preview Document kanan.
+              </p>
             </div>
             )}
 
@@ -905,6 +927,50 @@ export default function DokumenFormPreview({
               )}
             </div>
             )}
+
+            {/* ═══ SK HONORER + PASAL (kartu honor, form Zona A) ═══ */}
+            {/* Regresi Sprint 008: editor SK hanya hidup di tab preview 'sk'
+                sehingga form Zona A tak pernah menampilkan form SK + pasal.
+                Kembalikan di sini (hidePrint: cetak formal tetap satu-satunya
+                di tab preview SK; panel kanan baca formData.pasal yg sama). */}
+            {!isTransport && (() => {
+              const skConfig = TEMPLATE_CONFIGS.sk_honorer
+              if (!skConfig) return null
+              const skPasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
+              const setSkPasal = (p) => {
+                setFormData({ ...formData, pasal: p })
+                saveSkPasal(p)
+              }
+              const buildSkData = (row) => ({
+                ...skConfig.defaults,
+                ...formData,
+                pasal: skPasal,
+                nomorSurat: formData.nomor || '',
+                namaPihakKedua: row.nama || '',
+                ttlPihakKedua: row.ttl || row.tempatLahir || '',
+                pendidikanPihakKedua: row.pendidikan || '',
+                alamatPihakKedua: row.alamat || '',
+                kelasGuru: row.kelasGuru || '',
+                namaPihakKesatu: formData.namaPihakKesatu || skConfig.defaults.namaPihakKesatu,
+                nipPihakKesatu: formData.nipPihakKesatu || skConfig.defaults.nipPihakKesatu,
+                jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
+                tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
+                tanggalTtd: formData.tanggalTtd || '',
+              })
+              const skList = (formData.rows || []).map((row) => ({ row, skData: buildSkData(row) }))
+              return (
+                <SkHonorerEditor
+                  skList={skList}
+                  pasal={skPasal}
+                  onPasalChange={setSkPasal}
+                  onResetPasal={() => setSkPasal(cloneDefaultPasal())}
+                  onUpdateRow={updateRow}
+                  onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
+                  onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
+                  hidePrint
+                />
+              )
+            })()}
           </>
         ) : isMaminOrUpah ? (
           <>
@@ -942,6 +1008,7 @@ export default function DokumenFormPreview({
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -957,6 +1024,26 @@ export default function DokumenFormPreview({
                   <span className="material-symbols-outlined">auto_awesome</span>
                 </button>
               </div>
+            </div>
+
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Cabang Mamin/Upah — sama seperti cabang recipient-based di atas;
+                tanpa ini gate Zona C tak pernah lolos untuk Mamin/Upah. */}
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat — perhatikan Panel Preview Document kanan.
+              </p>
             </div>
 
             {/* Detail Acara (khusus Makan & Minum) */}
@@ -1513,15 +1600,13 @@ export default function DokumenFormPreview({
           )
         )}
 
-        {/* Preview button (always) */}
+        {/* Preview button (always) — Sprint 008: panel SELALU render walau
+            field kosong ('—' jujur ala SummaryCard); hanya Cetak yg digate
+            di Zona C, bukan navigasi preview. */}
         <div className="flex items-center justify-end pt-2">
           <button
             type="button"
             onClick={() => {
-              if ((isRecipientBased || isMaminOrUpah) && (formData.rows || []).length === 0) {
-                toast.error('Pilih minimal 1 penerima terlebih dahulu.')
-                return
-              }
               setViewMode('preview')
             }}
             className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-95"
@@ -1624,7 +1709,9 @@ export default function DokumenFormPreview({
       pembuka: formData.pembuka,
       notulen: formData.notulen,
       peserta: formData.peserta || pesertaNames,
-      poinPembahasan: formData.resume || formData.poinPembahasan,
+      poinPembahasan: Array.isArray(formData.poinPembahasan)
+        ? formData.poinPembahasan
+        : (formData.resume ? [{ id: 'resume-1', text: formData.resume }] : []),
       rows,
     }
 
@@ -1650,7 +1737,7 @@ export default function DokumenFormPreview({
     ])
 
     const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
+      const printContainer = document.querySelector('.sk-print-area .print-container')
       if (printContainer) {
         printContainer.classList.remove('portrait', 'landscape')
         printContainer.classList.add('portrait')
@@ -2070,7 +2157,7 @@ export default function DokumenFormPreview({
     ])
 
     const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
+      const printContainer = document.querySelector('.sk-print-area .print-container')
       if (printContainer) {
         printContainer.classList.remove('portrait', 'landscape')
         printContainer.classList.add(config.orientation || 'portrait')
