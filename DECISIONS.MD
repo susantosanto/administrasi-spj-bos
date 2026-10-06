@@ -723,6 +723,12 @@
   Dibuat oleh: builder (eksekusi Fase 4)
   Dampak: `DokumenSPJPage.jsx` 1 mount; /acceptance-runner mengadili T-08 final
 
+[2026-10-03] Keputusan: Autogenerate SELALU TIMPA saat buka dari BKU dengan pengaman snapshot+undo wajib
+  Status: accepted
+  Alasan: SELALU TIMPA berisiko hapus ketikan user; snapshot+badge+Urungkan perluas pola undo Sprint 004; disetujui user 2026-10-03 atas rekomendasi brief
+  Dibuat oleh: user (persetujuan 2026-10-03)
+  Dampak: Sprint 005 wajib snapshot sebelum timpa + badge dari BKU + tombol Urungkan; edit manual kekal kecuali buka-ulang dari BKU
+
 ## Catatan audit trail
 
 - ADR 2026-09-17 F-1c "5 NIP hardcoded (15 kemunculan di 6 file) — satu grep 11 pola"

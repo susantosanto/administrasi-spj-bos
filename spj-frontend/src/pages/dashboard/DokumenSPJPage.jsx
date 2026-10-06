@@ -10,7 +10,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
-import { prefillDariBKU, pejabatPada, parseMamin } from '../../utils/bkuKategori'
+import { prefillDariBKU, pejabatPada, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir } from '../../utils/bkuKategori'
+import { templateUndanganMamin, templateUndanganPerjDinas, drafNotulen, snapshotSebelumTimpa, urungkanTimpa, hariDariISO, tanggalPanjang, keISO } from '../../utils/aturanUndangan'
+import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen } from '../../utils/aturanMamin'
+import { getSchoolData } from '../../utils/sekolahData'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -149,22 +152,25 @@ export default function DokumenSPJPage() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // ─── Sprint 004 B.3: prefill dari BKU (deep-link) ─────────────────────
-  // Konsumsi location.state SEKALI saat mount: buka menu tujuan, isi field
-  // kosong saja, tampilkan badge + undo. State history dibersihkan.
+  // ─── Sprint 005: prefill OTOMATIS dari BKU (deep-link) ────────────────────
+  // SELALU TIMPA khusus jalur BKU: snapshot dulu (storage spj_otomatis_snapshot),
+  // terapkan template aturan (undangan + notulen), tampilkan badge + Urungkan.
+  // Dijalankan ulang tiap ada navigasi BKU baru (location.state.ts berubah)
+  // agar buka-ulang baris lain menimpa tapi snapshot menyelamatkan edit manual.
   const [prefillBadge, setPrefillBadge] = useState(null)
   const [prefillSnapshot, setPrefillSnapshot] = useState(null)
-  const prefillDone = useRef(false)
+  const prefillTs = useRef(0)
+  const bkuTs = location.state?.ts
   useEffect(() => {
-    if (prefillDone.current) return
     const st = location.state
-    if (!st?.fromBKU || !st?.menu) return
+    if (!st?.fromBKU || !st?.menu || !st?.ts) return
+    if (prefillTs.current === st.ts) return
     // Abaikan state basi (mis. HMR remount membaca history lama) — maks 10 menit.
-    if (!st.ts || Date.now() - st.ts > 10 * 60 * 1000) {
+    if (Date.now() - st.ts > 10 * 60 * 1000) {
       navigate(location.pathname, { replace: true })
       return
     }
-    prefillDone.current = true
+    prefillTs.current = st.ts
     const card = CARDS.find((c) => c.id === st.menu)
     if (!card) return
     const firstValidSub = card.subKategori?.find((s) => !s.comingSoon) || null
@@ -175,7 +181,7 @@ export default function DokumenSPJPage() {
       const normal = String(bkuIn.kegiatan).replace(/\.$/, '')
       if (nm && nm !== normal && nm !== '-') bkuIn.kegiatanNama = nm
     }
-    const { tambahan, diisi, dilewati } = prefillDariBKU(bkuIn, st.menu, {})
+    const { tambahan, diisi, dilewati, tertimpa } = prefillDariBKU(bkuIn, st.menu, formData, st.subId || '')
     // T3: pilih sub-jenis Mamin dari parser (rapat/kegiatan); fallback jujur = default.
     let subPilih = firstValidSub
     if (st.menu === 'mamin') {
@@ -183,6 +189,37 @@ export default function DokumenSPJPage() {
       const cocok = card.subKategori?.find((s) => !s.comingSoon && s.id === jenis)
       if (cocok) subPilih = cocok
       delete tambahan.maminJenis
+    }
+    // Sprint 005 B/C: template aturan per kategori (hasil editable di form).
+    const isoTgl = keISO(bkuIn.tanggal || '')
+    const hari = hariDariISO(isoTgl)
+    const tglPanjang = tanggalPanjang(bkuIn.tanggal || '')
+    let sppdTambahan = null
+    if (st.menu === 'mamin') {
+      const jenis = (st.subId === 'kegiatan' ? 'kegiatan' : '') || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
+      const bersihMentah = kupasPrefiksKonsumsi(tambahan.acara || bkuIn.uraian || '')
+      const bersih = jenis === 'kegiatan' ? bersihMentah.replace(/^rapat\s+/i, '').trim() : bersihMentah
+      const acara = bersih && jenis === 'kegiatan' ? denganKegiatan(bersih) : (tambahan.acara && jenis !== 'kegiatan' ? tambahan.acara : bersih)
+      Object.assign(tambahan, templateUndanganMamin({ acara, hari, tanggal: tglPanjang, tempat: '', waktu: '', jenis }))
+      Object.assign(tambahan, drafNotulen({ acara, jenis, tanggal: bkuIn.tanggal || '' }))
+    } else if (st.menu === 'perjalanan_dinas') {
+      const maksud = tambahan.sptUntuk || ''
+      const tpl = templateUndanganPerjDinas({ maksud, hari, tanggal: tglPanjang, tempat: '' })
+      tambahan.sptUntuk = tpl.sptUntuk
+      tambahan.kepadaUndangan = tpl.kepadaUndangan
+      tambahan.perihalUndangan = tpl.perihalUndangan
+      tambahan.isiUndangan = tpl.isiUndangan
+      tambahan.hariUndangan = hari
+      tambahan.tanggalAcara = tglPanjang
+      tambahan.penutupUndangan1 = tpl.penutupUndangan1
+      tambahan.penutupUndangan2 = tpl.penutupUndangan2
+      Object.assign(tambahan, drafNotulen({ acara: maksud, jenis: 'perjalanan dinas', tanggal: bkuIn.tanggal || '' }))
+      sppdTambahan = {
+        maksud: tpl.sppdMaksud, tujuan: tpl.sppdTujuan, alat: tpl.sppdAlat,
+        lama: tpl.sppdLama, tanggal: isoTgl, tanggalBerangkat: tpl.sppdTanggalBerangkat,
+        tanggalKembali: tpl.sppdTanggalKembali, tempatTujuan: tpl.sppdTempatTujuan,
+        skpd: tpl.sppdSkpd, akun: tpl.sppdAkun, keterangan: tpl.sppdKeterangan,
+      }
     }
     // Sprint 004 C.2 — kunci pejabat per tanggal BKU: nilai riwayat ditulis
     // ke field TTD (prioritas formData-first di DokumenFormPreview membuat
@@ -203,24 +240,66 @@ export default function DokumenSPJPage() {
     pasang('ttd_pimpinan_nip', ks.nip)
     pasang('ttd_notulen_nama', nl.nama)
     pasang('ttd_notulen_nip', nl.nip)
+    // Sprint 006: template semua tab Mamin (hasil editable di form).
+    // Dijalankan SEBELUM snapshot agar field baru A–D ikut snapshot + Urungkan.
+    // drafNotulen 005 di atas TIDAK diubah (pembuka kalimat baku + resume, T-06).
+    if (st.menu === 'mamin') {
+      const jenis006 = (st.subId === 'kegiatan' ? 'kegiatan' : '') || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
+      const bersihMentah006 = kupasPrefiksKonsumsi(tambahan.acara || bkuIn.uraian || '')
+      const bersih006 = jenis006 === 'kegiatan' ? bersihMentah006.replace(/^rapat\s+/i, '').trim() : bersihMentah006
+      const acara006 = bersih006 && jenis006 === 'kegiatan' ? denganKegiatan(bersih006) : (tambahan.acara && jenis006 !== 'kegiatan' ? tambahan.acara : bersih006)
+      tambahan.acara = acara006
+      const tglBku006 = bkuIn.tanggal || ''
+      Object.assign(tambahan, templatePesananMamin({ acara: acara006, tanggal: tglBku006, uraian: '', jenis: jenis006 }))
+      // Sprint 007 B.1: rows hadir dari storage Guru→Tendik (bacaGTKUntukHadir);
+      // kosong → rows[] jujur (0 karangan), TTD kosong via templateDaftarHadir.
+      const gtk006 = bacaGTKUntukHadir()
+      const hadir006 = templateDaftarHadir({ acara: acara006, orang: gtk006, jenis: jenis006 })
+      // Rework-8 (3)(4): judul SELALU acara bersih walau rows kosong jujur.
+      tambahan.judulDaftarHadir = hadir006.judulDaftarHadir
+      if (hadir006.rows.length > 0) tambahan.rows = hadir006.rows
+      tambahan.bukuTamu = templateBukuTamu({ tanggal: tglBku006, uraian: acara006, jenis: jenis006 }).bukuTamu
+      let tempat006 = ''
+      try { tempat006 = getSchoolData()?.namaSekolah || '' } catch { /* tanpa data sekolah = jujur kosong */ }
+      const namaHadir006 = hadir006.rows.map((r) => r.nama).filter(Boolean).join(', ')
+      Object.assign(tambahan, lengkapiNotulen({
+        acara: acara006, tanggal: tglBku006, tempat: tempat006,
+        pimpinanNama: ks.nama, notulenNama: nl.nama,
+        pesertaNama: namaHadir006, pesertaJumlah: hadir006.rows.length > 0 ? String(hadir006.rows.length) : '',
+        jenis: jenis006,
+      }))
+    }
     if (tglBku) kunci.tanggal = tglBku
     tambahan.kunciPejabat = kunci
-    setPrefillSnapshot({})
+    // Sprint 005 D.1: snapshot SELURUH form + sppd SEBELUM timpa (1 slot terakhir).
+    const snap = snapshotSebelumTimpa(
+      { ...formData, sppdData: { ...sppdData } },
+      [...new Set([...Object.keys(formData), ...Object.keys(tambahan), ...(sppdTambahan ? ['sppdData'] : [])])],
+      st.bku?.noBukti || '',
+    )
+    setPrefillSnapshot(snap)
     setSelectedCard(card)
     setSelectedSubKategori(subPilih)
     setFormData(tambahan)
+    if (sppdTambahan) setSppdData(sppdTambahan)
     setViewMode('form')
     setFormTab('daftar')
     setPreviewTab('daftar')
-    setPrefillBadge({ menu: st.menu, diisi, dilewati, bku: st.bku || {} })
-    if (dilewati.length > 0) toast.info(`${dilewati.length} field sudah terisi — tidak ditimpa`)
+    setPrefillBadge({ menu: st.menu, diisi, dilewati, tertimpa, bku: st.bku || {} })
+    if (tertimpa.length > 0) toast.info(`${tertimpa.length} field ditimpa dari BKU — bisa Urungkan`)
     else toast.success(`Form terisi dari BKU (${diisi.length} field)`)
     navigate(location.pathname, { replace: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [bkuTs])
 
   const handleUndoPrefill = () => {
-    if (prefillSnapshot) setFormData(prefillSnapshot)
+    // Sprint 005 D.1: kembalikan dari storage spj_otomatis_snapshot.
+    const { nilai } = urungkanTimpa()
+    if (nilai) {
+      const { sppdData: s, ...f } = nilai
+      setFormData(f)
+      if (s && typeof s === 'object') setSppdData(s)
+    } else if (prefillSnapshot) setFormData(prefillSnapshot)
     setPrefillSnapshot(null)
     setPrefillBadge(null)
     toast.info('Isian dari BKU dibatalkan')
@@ -636,7 +715,7 @@ export default function DokumenSPJPage() {
                 <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
                 <span className="font-semibold text-slate-800" title={prefillBadge.bku?.tanggal ? `Pejabat dikunci per tanggal ${prefillBadge.bku.tanggal} — periode baru tidak mengubah dokumen ini` : 'Isian dari BKU'}>
                   dari BKU{prefillBadge.bku?.noBukti ? ` ${prefillBadge.bku.noBukti}` : ''}{prefillBadge.bku?.grupCount > 1 ? ` · ${prefillBadge.bku.grupCount} rincian` : ''}{prefillBadge.bku?.tanggal ? ` · pejabat per ${prefillBadge.bku.tanggal}` : ''}{prefillBadge.diisi.length > 0 ? ` · ${prefillBadge.diisi.length} field terisi` : ''}
-                  {prefillBadge.dilewati.length > 0 ? ` · ${prefillBadge.dilewati.length} sudah ada (tidak ditimpa)` : ''}
+                  {(prefillBadge.tertimpa?.length || 0) > 0 ? ` · ${prefillBadge.tertimpa.length} ditimpa (bisa Urungkan)` : ''}
                 </span>
                 <button
                   onClick={handleUndoPrefill}

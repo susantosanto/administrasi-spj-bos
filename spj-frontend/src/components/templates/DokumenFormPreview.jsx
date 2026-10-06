@@ -33,6 +33,7 @@ import storageHelper from '../../utils/storageHelper'
 import { getSchoolData } from '../../utils/sekolahData'
 import { getSignatureRoles } from '../../utils/signatureRoles'
 import PeringatanData from './blocks/PeringatanData'
+import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen, rincianMenu, bangunPesananDuaSeksi, MENU_PESANAN } from '../../utils/aturanMamin'
 
 // ─── Auto-calc helper (mirip TabelDinamis) ────────────────────────────────
 function computeAutoValue(row, auto) {
@@ -314,7 +315,11 @@ export default function DokumenFormPreview({
     } else {
       let newRow
       if (isTransport) newRow = buildTransportRow(item, rows.length + 1, formData.bulan)
-      else if (isMaminOrUpah) newRow = buildParticipantRow(item, rows.length + 1)
+      else if (isMamin) {
+        // Sprint 006 B.2: baris hadir dibentuk templateDaftarHadir (kolom TTD/TTD2 kosong).
+        const shaped = templateDaftarHadir({ orang: [item] }).rows[0]
+        newRow = shaped ? { ...shaped, no: rows.length + 1 } : buildParticipantRow(item, rows.length + 1)
+      } else if (isMaminOrUpah) newRow = buildParticipantRow(item, rows.length + 1)
       else newRow = buildHonorRow(item, rows.length + 1, formData.bulan)
       setFormData({ ...formData, rows: renumber([...rows, newRow]) })
     }
@@ -349,6 +354,12 @@ export default function DokumenFormPreview({
 
   // ─── Buku Tamu Kedinasan (Mamin) ─────────────────────────────────────
   const bt = formData.bukuTamu || {}
+  // Sprint 006: petunjuk baku template Mamin (placeholder abu-abu, non-destruktif) —
+  // hanya dihitung saat dokumen dibuka dari BKU; tak mengubah nilai, manual, atau cetak.
+  const bkuCtx006 = formData.bkuSumber || null
+  const bakuPesanan006 = bkuCtx006 ? templatePesananMamin({ acara: formData.acara || '', tanggal: bkuCtx006.tanggal || '', uraian: bkuCtx006.uraian || '' }) : null
+  const bakuTamu006 = bkuCtx006 ? templateBukuTamu({ tanggal: bkuCtx006.tanggal || '', uraian: formData.acara || bkuCtx006.uraian || '' }) : null
+  const bakuNotulen006 = bkuCtx006 ? lengkapiNotulen({ acara: formData.acara || '', tanggal: bkuCtx006.tanggal || '' }) : null
   const setBt = (key, value) => {
     setFormData({ ...formData, bukuTamu: { ...bt, [key]: value } })
   }
@@ -394,6 +405,17 @@ export default function DokumenFormPreview({
 
     return (
       <div className="space-y-5">
+        {/* Sprint 005 B.3/C.2: penanda isian aturan dari BKU (nilai diisi
+            templateUndanganMamin/templateUndanganPerjDinas + drafNotulen via
+            prefill di DokumenSPJPage; semua field di bawah tetap editable). */}
+        {formData.bkuSumber && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[11px]">
+            <span className="material-symbols-outlined text-primary text-sm">move_to_inbox</span>
+            <span className="font-semibold text-slate-700">
+              dari BKU{formData.bkuSumber?.noBukti ? ` ${formData.bkuSumber.noBukti}` : ''} · draf aturan — silakan edit
+            </span>
+          </div>
+        )}
         {/* Sub-kategori (all cards) */}
         {hasSubTabs && (
           <div>
@@ -966,6 +988,7 @@ export default function DokumenFormPreview({
                       type="text"
                       value={formData.tempat || ''}
                       onChange={(e) => setFormData({ ...formData, tempat: e.target.value })}
+                      placeholder={bakuNotulen006?.tempat || 'Aula / Ruang rapat ...'}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                     />
                   </div>
@@ -1138,26 +1161,109 @@ export default function DokumenFormPreview({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
-                    <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder="Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Perihal</label>
+                    <input type="text" value={formData.perihalPesanan || ''} onChange={(e) => setFormData({ ...formData, perihalPesanan: e.target.value })} placeholder={bakuPesanan006?.perihalPesanan || 'Surat Pesanan'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                   </div>
-                  {/* Rincian Pesanan */}
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
+                    <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder={bakuPesanan006?.isiPesanan?.slice(0, 90) || 'Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan...'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
+                  </div>
+                  {/* Rincian Pesanan — Rework-8 (5): 2 seksi (Nasi 6 + Snack 4), tiap seksi bisa disable */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-[10px] font-semibold text-slate-500 uppercase">Rincian Pesanan</label>
                       <button type="button" onClick={() => {
                         const rows = formData.pesananRows || []
-                        setFormData({ ...formData, pesananRows: [...rows, { id: Date.now(), no: rows.length + 1, uraian: '', satuan: '', jumlah: '' }] })
+                        const seksiDef = (formData.seksiPesanan?.nasi ?? true) ? 'Nasi Box' : ((formData.seksiPesanan?.snack ?? true) ? 'Snack Box' : '')
+                        setFormData({ ...formData, pesananRows: [...rows, { id: Date.now(), no: rows.length + 1, seksi: seksiDef, uraian: '', satuan: '', jumlah: '' }] })
                       }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
                         <span className="material-symbols-outlined text-xs">add</span> Tambah Item
                       </button>
                     </div>
+                    {/* Toggle seksi — sumber tunggal MENU_PESANAN */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {[
+                        { id: 'nasi', label: `Seksi Nasi Box (${(MENU_PESANAN['nasi box'] || []).length})` },
+                        { id: 'snack', label: `Seksi Snack Box (${(MENU_PESANAN['snack box'] || []).length})` },
+                      ].map((s) => {
+                        const aktif = formData.seksiPesanan ? (formData.seksiPesanan[s.id] ?? true) : true
+                        return (
+                          <label key={s.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-semibold cursor-pointer transition-all ${aktif ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                            <input
+                              type="checkbox"
+                              checked={aktif}
+                              onChange={() => {
+                                const next = { nasi: formData.seksiPesanan?.nasi ?? true, snack: formData.seksiPesanan?.snack ?? true, [s.id]: !aktif }
+                                let rows = [...(formData.pesananRows || [])]
+                                const seksiNama = s.id === 'nasi' ? 'Nasi Box' : 'Snack Box'
+                                if (!aktif) {
+                                  // Nyalakan lagi: tambah menu baku seksi itu yg belum ada
+                                  const ada = new Set(rows.filter((r) => (r.seksi || '') === seksiNama).map((r) => (r.uraian || '').toLowerCase()))
+                                  const kunci = s.id === 'nasi' ? 'nasi box' : 'snack box'
+                                  const satuanDef = rows[0]?.satuan || bakuPesanan006?.pesananRows?.[0]?.satuan || 'Box'
+                                  const jumlahDef = formData.jumlahPesanan || bakuPesanan006?.jumlahPesanan || rows[0]?.jumlah || ''
+                                  for (const nama of (MENU_PESANAN[kunci] || [])) {
+                                    if (!ada.has(nama.toLowerCase())) rows.push({ id: Date.now() + Math.random(), no: 0, seksi: seksiNama, uraian: nama, satuan: satuanDef, jumlah: jumlahDef })
+                                  }
+                                  rows = rows.map((r, i) => ({ ...r, no: i + 1 }))
+                                } else {
+                                  rows = rows.filter((r) => (r.seksi || seksiNama) !== seksiNama).map((r, i) => ({ ...r, no: i + 1 }))
+                                }
+                                setFormData({ ...formData, seksiPesanan: next, pesananRows: rows })
+                              }}
+                              className="w-3 h-3 accent-primary"
+                            />
+                            {s.label}
+                          </label>
+                        )
+                      })}
+                    </div>
                     {(formData.pesananRows || []).length === 0 && (
-                      <p className="text-[10px] text-slate-400 italic">Belum ada item pesanan.</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[10px] text-slate-400 italic flex-1">Belum ada item pesanan.</p>
+                        <button type="button" onClick={() => {
+                          const satuanDef = bakuPesanan006?.pesananRows?.[0]?.satuan || 'Box'
+                          const jumlahDef = formData.jumlahPesanan || bakuPesanan006?.jumlahPesanan || ''
+                          setFormData({ ...formData, seksiPesanan: { nasi: true, snack: true }, pesananRows: bangunPesananDuaSeksi({ jumlah: jumlahDef, satuan: satuanDef }) })
+                        }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                          <span className="material-symbols-outlined text-xs">restaurant_menu</span> Isi menu baku
+                        </button>
+                      </div>
                     )}
-                    {(formData.pesananRows || []).map((row, idx) => (
+                    {['Nasi Box', 'Snack Box'].map((seksiNama) => {
+                      const daftar = (formData.pesananRows || []).map((r, i) => ({ ...r, _idx: i })).filter((r) => (r.seksi || seksiNama) === seksiNama)
+                      if (daftar.length === 0) return null
+                      return (
+                        <div key={seksiNama} className="mb-2">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{seksiNama} ({daftar.length})</p>
+                          {daftar.map((row) => (
+                            <div key={row.id} className="flex items-center gap-2 mb-2">
+                              <span className="text-[10px] font-bold text-slate-400 w-4">{row._idx + 1}</span>
+                              <input type="text" value={row.uraian} onChange={(e) => {
+                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
+                                setFormData({ ...formData, pesananRows: rows })
+                              }} placeholder="Uraian" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                              <input type="text" value={row.satuan} onChange={(e) => {
+                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, satuan: e.target.value } : r)
+                                setFormData({ ...formData, pesananRows: rows })
+                              }} placeholder="Satuan" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                              <input type="text" value={row.jumlah} onChange={(e) => {
+                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, jumlah: e.target.value } : r)
+                                setFormData({ ...formData, pesananRows: rows })
+                              }} placeholder="Jumlah" className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                              <button type="button" onClick={() => {
+                                const rows = formData.pesananRows.filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
+                                setFormData({ ...formData, pesananRows: rows })
+                              }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })}
+                    {/* Rows tanpa seksi (warisan) tetap tampil editable */}
+                    {(formData.pesananRows || []).filter((r) => r.seksi && r.seksi !== 'Nasi Box' && r.seksi !== 'Snack Box').map((row, idx) => (
                       <div key={row.id} className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 w-4">{idx + 1}</span>
+                        <span className="text-[10px] font-bold text-slate-400 w-4">•</span>
                         <input type="text" value={row.uraian} onChange={(e) => {
                           const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
                           setFormData({ ...formData, pesananRows: rows })
@@ -1215,7 +1321,7 @@ export default function DokumenFormPreview({
                   <Field label="Kembali Pukul" value={bt.kembali} onChange={(e) => setBt('kembali', e.target.value)} placeholder="11.00" />
                   <Field label="Diterima oleh" options={['Kepala Sekolah', 'Guru', 'Tendik']} value={bt.diterima} onChange={(e) => setBt('diterima', e.target.value)} />
                 </div>
-                <Field label="Tujuan" value={bt.tujuan} onChange={(e) => setBt('tujuan', e.target.value)} placeholder="Rapat koordinasi ..." />
+                <Field label="Tujuan" value={bt.tujuan} onChange={(e) => setBt('tujuan', e.target.value)} placeholder={bakuTamu006?.bukuTamu?.tujuan || 'Rapat koordinasi ...'} />
                 {/* Identitas Tamu */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -1304,15 +1410,93 @@ export default function DokumenFormPreview({
                 </div>
               )}
 
-              {(formData.rows || []).length > 0 && (
+              {/* Rework-8 (1): Daftar Hadir editor afectada — NO/NAMA/JABATAN/TTD + kolom opsional dinamis.
+                  Tanpa kolom Alamat Kantor (warisan buku_tamu tidak dipakai untuk hadir). */}
+              {isMamin ? (
                 <div className="mt-3 bg-white border border-slate-200 rounded-2xl p-4 overflow-auto">
-                  <TabelDinamis
-                    blockConfig={getParticipantTableBlock(card.id)}
-                    data={formData}
-                    onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
-                    mode="edit"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Tabel Hadir ({(formData.rows || []).length}) — NO / NAMA / JABATAN / TTD
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => {
+                        const cols = [...(formData.hadirKolomOpsional || [])]
+                        const n = cols.length + 1
+                        const key = `ops${Date.now()}`
+                        setFormData({ ...formData, hadirKolomOpsional: [...cols, { key, label: `Kolom ${n}` }] })
+                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-xs">add</span> Tambah Kolom
+                      </button>
+                      <button type="button" onClick={() => {
+                        const rows = [...(formData.rows || [])]
+                        rows.push({ id: Date.now(), no: rows.length + 1, nama: '', jabatan: '', ttd: '' })
+                        setFormData({ ...formData, rows })
+                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-xs">add</span> Tambah Baris
+                      </button>
+                    </div>
+                  </div>
+                  {/* Header kolom opsional (rename + hapus per kolom) */}
+                  {(formData.hadirKolomOpsional || []).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {(formData.hadirKolomOpsional || []).map((c) => (
+                        <span key={c.key} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[10px]">
+                          <input type="text" value={c.label} onChange={(e) => {
+                            const cols = (formData.hadirKolomOpsional || []).map((x) => x.key === c.key ? { ...x, label: e.target.value } : x)
+                            setFormData({ ...formData, hadirKolomOpsional: cols })
+                          }} className="w-20 px-1 py-0.5 bg-white border border-slate-200 rounded text-[10px] outline-none focus:ring-1 focus:ring-primary" />
+                          <button type="button" onClick={() => {
+                            const cols = (formData.hadirKolomOpsional || []).filter((x) => x.key !== c.key)
+                            const rows = (formData.rows || []).map((r) => { const nr = { ...r }; delete nr[c.key]; return nr })
+                            setFormData({ ...formData, hadirKolomOpsional: cols, rows })
+                          }} className="text-red-500 hover:text-red-700 font-bold" title="Hapus kolom">×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {(formData.rows || []).length === 0 ? (
+                    <p className="text-[10px] text-slate-400 italic">Belum ada peserta — pilih dari daftar di atas atau Tambah Baris manual.</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 uppercase">
+                        <span className="w-5">No</span>
+                        <span className="flex-1">Nama</span>
+                        <span className="w-28">Jabatan</span>
+                        <span className="w-16">TTD</span>
+                        {(formData.hadirKolomOpsional || []).map((c) => (
+                          <span key={c.key} className="w-20 truncate">{c.label}</span>
+                        ))}
+                        <span className="w-6" />
+                      </div>
+                      {(formData.rows || []).map((row) => (
+                        <div key={row.id} className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-400 w-5">{row.no}</span>
+                          <input type="text" value={row.nama || ''} onChange={(e) => updateRow(row.id, 'nama', e.target.value)} placeholder="Nama" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          <input type="text" value={row.jabatan || ''} onChange={(e) => updateRow(row.id, 'jabatan', e.target.value)} placeholder="Jabatan" className="w-28 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          <input type="text" value={row.ttd || ''} onChange={(e) => updateRow(row.id, 'ttd', e.target.value)} placeholder="—" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          {(formData.hadirKolomOpsional || []).map((c) => (
+                            <input key={c.key} type="text" value={row[c.key] || ''} onChange={(e) => updateRow(row.id, c.key, e.target.value)} placeholder={c.label} className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          ))}
+                          <button type="button" onClick={() => {
+                            const rows = (formData.rows || []).filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
+                            setFormData({ ...formData, rows })
+                          }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg" title="Hapus baris"><span className="material-symbols-outlined text-xs">delete</span></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                (formData.rows || []).length > 0 && (
+                  <div className="mt-3 bg-white border border-slate-200 rounded-2xl p-4 overflow-auto">
+                    <TabelDinamis
+                      blockConfig={getParticipantTableBlock(card.id)}
+                      data={formData}
+                      onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+                      mode="edit"
+                    />
+                  </div>
+                )
               )}
             </div>
           </>

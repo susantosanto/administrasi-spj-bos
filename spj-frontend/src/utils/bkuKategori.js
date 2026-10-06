@@ -34,7 +34,10 @@ export function kategoriDariRekening(kode, koreksi = null) {
   return best
 }
 
-import storageHelper from './storageHelper'
+import storageHelper from './storageHelper.js'
+import { parsePerjalanan } from './aturanUndangan.js'
+import { normalisasiUraian, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, kelompokSeNoBukti, dominanKategoriGrup, DOMINAN_PRIORITAS } from './aturanPesanan.js'
+export { normalisasiUraian, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, kelompokSeNoBukti, dominanKategoriGrup, DOMINAN_PRIORITAS } from './aturanPesanan.js'
 
 // Koreksi manual kategori (Sprint 004 A.3) — key = kode normalisasi.
 const KOREKSI_KEY = 'bku_koreksi'
@@ -61,49 +64,8 @@ export function kategoriDenganKoreksi(kode, noBukti = '') {
   return kategoriDariRekening(kode)
 }
 
-// ─── Prefill Mamin cerdas (T3, revisi ketat 2026-10-02) ────────────────────
-// Wajib persis uraian user, tanpa tebakan tambahan. Normalisasi:
-// case-insensitive + spasi ganda dilipat. Aturan:
-//  - diawali "beban makanan dan minuman" → jenis "rapat",
-//    acara dari baris kegiatan di bawahnya (contoh: Penyusunan Silabus).
-//  - mengandung "konsumsi makan" (dalam kurung) / "dan konsumsi snack" /
-//    "konsumsi snack" → jenis "kegiatan", acara tetap dari nama kegiatan.
-//  - tak cocok → fallback uraian penuh, jenis "" (jujur dikosongkan).
-export function normalisasiUraian(s) {
-  return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ')
-}
-
-function ambilBarisKedua(uraian) {
-  const baris = String(uraian || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-  if (baris.length >= 2) return baris.slice(1).join(' ').replace(/\s+/g, ' ').trim()
-  return ''
-}
-
-function kupasPrefiksSatuBaris(uraian) {
-  return String(uraian || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^beban makanan dan minuman/i, '')
-    .trim()
-    .replace(/^rapat\s*[-–—:.]?\s*/i, '')
-    .trim()
-}
-
-export function parseMamin(uraian, kegiatanNama = '') {
-  const norm = normalisasiUraian(uraian)
-  const keg = String(kegiatanNama || '').replace(/\s+/g, ' ').trim()
-  if (norm.startsWith('beban makanan dan minuman')) {
-    const dariBaris = ambilBarisKedua(uraian)
-    const acara = dariBaris || keg || kupasPrefiksSatuBaris(uraian)
-    return { jenis: 'rapat', acara, cocok: true }
-  }
-  if (norm.includes('konsumsi makan') || norm.includes('konsumsi snack')) {
-    const dariBaris = ambilBarisKedua(uraian)
-    const acara = keg || dariBaris || String(uraian || '').replace(/\s+/g, ' ').trim()
-    return { jenis: 'kegiatan', acara, cocok: true }
-  }
-  return { jenis: '', acara: String(uraian || '').replace(/\s+/g, ' ').trim(), cocok: false }
-}
+// ─── Parser Mamin + Hadir GTK + konsumsi/pesanan → aturanPesanan.js ───
+// (Sprint 007 rework: pindahan byte-identical, diimpor ulang di atas.)
 
 // Prefill BKU → form (B.3): hanya field KOSONG + bkuSumber referensi.
 const PREFILL_PETA = {
@@ -113,10 +75,7 @@ const PREFILL_PETA = {
   pemeliharaan: [['uraian', 'uraian'], ['tanggal', 'tanggal:iso']],
 }
 
-// Gabung snack+makan (C.1): AND ketat no_bukti + kegiatan (normalisasi).
-// Return { grup (≥2 baris sama persis), saran (beda tipis → manual) }.
-const normKunci = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ')
-const nominalTx = (t) => t.pengeluaran || t.kredit || 0
+// (normKunci/nominalTx ikut pindah ke aturanPesanan.js.)
 // Riwayat pejabat (C.2) → spj_pejabat_riwayat. Entri {id,peran,nama,nip,berlaku_dari}.
 const RIWAYAT_KEY = 'pejabat_riwayat'
 
@@ -155,115 +114,14 @@ export function pejabatPada(tanggal, peran) {
   return { nama: pilih.nama || '', nip: pilih.nip || '', warning: '' }
 }
 
-// Kelompok ATK (Sprint 004 D.1) — grup by no_bukti; nomor kosong =
-// kelompok sendiri (key row unik). Flag per kelompok: spj_atk_flag.
-export function kelompokATK(rows = []) {
-  const m = new Map()
-  for (const r of rows) {
-    const nb = normKunci(r.noBukti)
-    const k = nb || `row:${r.row ?? Math.random()}`
-    if (!m.has(k)) m.set(k, [])
-    m.get(k).push(r)
-  }
-  const out = []
-  for (const [k, list] of m) out.push({ key: k, noBukti: list[0].noBukti || '', rows: list, total: list.reduce((s, r) => s + nominalTx(r), 0) })
-  return out
-}
-const ATK_KEY = 'atk_flag'
-export const loadAtkFlag = () => storageHelper.get(ATK_KEY, {})
-export function simpanAtkFlag(noBukti, v) {
-  const nb = normKunci(noBukti)
-  if (!nb || (v !== 'siplah' && v !== 'non')) return false
-  const s = loadAtkFlag()
-  s[nb] = v
-  return storageHelper.set(ATK_KEY, s)
-}
+// (kelompokATK + flag ATK pindah ke aturanPesanan.js.)
 
 const isKosong = (v) => v == null || (typeof v === 'string' && v.trim() === '')
 
-export function gabungKonsumsi(rows = []) {
-  const perKunci = new Map()
-  for (const r of rows) {
-    const k = `${normKunci(r.noBukti)}||${normKunci(r.kodeKegiatan || r.kegiatan)}`
-    if (!perKunci.has(k)) perKunci.set(k, [])
-    perKunci.get(k).push(r)
-  }
-  const grup = []
-  for (const [k, list] of perKunci) {
-    if (list.length < 2 || normKunci(list[0].noBukti) === '') continue
-    grup.push({ key: k, noBukti: list[0].noBukti, kegiatan: list[0].kodeKegiatan || list[0].kegiatan || '', rows: list, total: list.reduce((s, r) => s + nominalTx(r), 0) })
-  }
-  // Saran: no_bukti sama, kegiatan nyaris-sama (satu memuat lainnya / beda 1 kata).
-  const perBukti = new Map()
-  for (const r of rows) {
-    const nb = normKunci(r.noBukti)
-    if (!nb) continue
-    if (!perBukti.has(nb)) perBukti.set(nb, [])
-    perBukti.get(nb).push(r)
-  }
-  const saran = []
-  for (const [nb, list] of perBukti) {
-    if (list.length < 2) continue
-    const keg = [...new Set(list.map((r) => normKunci(r.kodeKegiatan || r.kegiatan)))]
-    if (keg.length < 2 || keg.includes('')) continue
-    const nyaris = keg.some((a, i) => keg.some((b, j) => i !== j && (a.includes(b) || b.includes(a))))
-    if (nyaris) saran.push({ noBukti: list[0].noBukti, kegiatans: keg, rows: list })
-  }
-  return { grup, saran }
-}
+// (gabungKonsumsi pindah ke aturanPesanan.js.)
 
-// --- Grup se-NoBukti satu bukti satu kelompok (T2, revisi dominan 2026-10-02) ---
-// Aturan dominan dari kode rekening via kategoriDenganKoreksi:
-// suara terbanyak menang; seri -> Mamin > ATK > Honor > Perjalanan Dinas >
-// Pemeliharaan > Belum dipetakan. Nomor kosong tetap baris sendiri.
-export const DOMINAN_PRIORITAS = ['mamin', 'atk', 'honor', 'perjalanan_dinas', 'pemeliharaan', 'belum'];
-
-export function kelompokSeNoBukti(rows) {
-  rows = rows || [];
-  const m = new Map();
-  for (const r of rows) {
-    const nb = normKunci(r.noBukti);
-    const k = nb || ('row:' + (r.row != null ? r.row : Math.random()));
-    if (!m.has(k)) m.set(k, []);
-    m.get(k).push(r);
-  }
-  const out = [];
-  for (const entry of m) {
-    const k = entry[0]; const list = entry[1];
-    let total = 0;
-    for (const r of list) total += nominalTx(r);
-    out.push({ key: k, noBukti: list[0].noBukti || '', rows: list, total: total });
-  }
-  return out;
-}
-
-// Dominan satu grup: bila ada anggota belanja (tipe PEMBAYARAN) hanya suara
-// belanja yang dihitung, agar penerimaan/internal tak menggeser hasil.
-export function dominanKategoriGrup(rows) {
-  rows = rows || [];
-  const adaBelanja = rows.some(function (r) { return r.tipe === 'PEMBAYARAN'; });
-  const pemilih = adaBelanja ? rows.filter(function (r) { return r.tipe === 'PEMBAYARAN'; }) : rows;
-  const suara = {};
-  const contoh = {};
-  const kodeSet = new Set();
-  for (const r of pemilih) {
-    const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti);
-    const kunci = (kat && kat.kategori) || 'belum';
-    suara[kunci] = (suara[kunci] || 0) + 1;
-    if (!contoh[kunci] && kat) contoh[kunci] = kat;
-    if (r.kodeRekening) kodeSet.add(String(r.kodeRekening).trim());
-  }
-  let menang = 'belum';
-  let skorMenang = -1;
-  for (const k of Object.keys(suara)) {
-    const skor = suara[k];
-    if (skor > skorMenang || (skor === skorMenang && DOMINAN_PRIORITAS.indexOf(k) < DOMINAN_PRIORITAS.indexOf(menang))) {
-      menang = k;
-      skorMenang = skor;
-    }
-  }
-  return { dominan: contoh[menang] || null, dominanKategori: menang, suara: suara, kodeList: Array.from(kodeSet) };
-}
+// (DOMINAN_PRIORITAS + kelompokSeNoBukti + dominanKategoriGrup pindah ke
+// aturanPesanan.js; grupDenganDominan/saring di bawah pakai impor ulang.)
 
 export function grupDenganDominan(rows) {
   rows = rows || [];
@@ -279,42 +137,58 @@ export function saringGrupBermasalah(groups) {
   return groups.filter(function (g) { return g.hasBelanja && g.dominanKategori === 'belum'; });
 }
 
-export function prefillDariBKU(bku, menu, formData = {}) {
+// ─── Prefill BKU → form (Sprint 005 A.3): SELALU TIMPA khusus jalur BKU ───
+// Nilai BKU selalu ditulis ke `tambahan`; field yang sebelumnya berisi
+// dicatat di `tertimpa` agar snapshot/Urungkan bisa mengembalikan.
+export function prefillDariBKU(bku, menu, formData = {}, subId = '') {
   const tambahan = {}
   const diisi = []
   const dilewati = []
+  const tertimpa = []
+  const timpa = (field, nilai) => {
+    if (nilai == null || String(nilai).trim() === '') {
+      dilewati.push(field)
+      return
+    }
+    tambahan[field] = nilai
+    if (isKosong(formData[field])) diisi.push(field)
+    else tertimpa.push(field)
+  }
   // Mamin cerdas: acara + jenis dari parser terpusat (bukan uraian mentah).
+  // parseMamin TIDAK diubah Sprint 005 (A.2 = verified-existing 6/6 T3).
   if (menu === 'mamin') {
     const mentah = String(bku?.kegiatanNama || bku?.kegiatan || '').replace(/\s+/g, ' ').trim()
     const namaKeg = /^[\d.\s-]+$/.test(mentah) ? '' : mentah
     const hasil = parseMamin(bku?.uraian || '', namaKeg)
-    if (hasil.acara && isKosong(formData.acara)) {
-      tambahan.acara = hasil.acara
-      diisi.push('acara')
-    } else if (hasil.acara) {
-      dilewati.push('acara')
-    }
+    if (hasil.acara) timpa('acara', hasil.acara)
     if (hasil.jenis) tambahan.maminJenis = hasil.jenis
+    // Sprint 006 A.2 — routing sub-kategori mamin: subId eksplisit dari
+    // deep-link tab Kegiatan menang atas parser, agar jalur pesanan selalu
+    // membawa uraian/kegiatan/tanggal/noBukti mentah ke templatePesananMamin.
+    if (subId === 'kegiatan') tambahan.maminJenis = 'kegiatan'
+  }
+  // Perjalanan dinas: maksud (sptUntuk) dari parsePerjalanan terpusat.
+  if (menu === 'perjalanan_dinas') {
+    const pj = parsePerjalanan(bku?.uraian || '', bku?.kegiatanNama || bku?.kegiatan || '')
+    if (pj.maksud) timpa('sptUntuk', pj.maksud)
   }
   const peta = PREFILL_PETA[menu] || [['uraian', 'uraian']]
   for (const [field, sumber] of peta) {
     const iso = sumber.endsWith(':iso')
     const kunci = iso ? sumber.slice(0, -4) : sumber
     let nilai = bku?.[kunci]
-    if (nilai == null || String(nilai).trim() === '') continue
-    if (iso) nilai = keISO(nilai)
-    if (isKosong(formData[field])) {
-      tambahan[field] = nilai
-      diisi.push(field)
-    } else {
+    if (nilai == null || String(nilai).trim() === '') {
       dilewati.push(field)
+      continue
     }
+    if (iso) nilai = keISO(nilai)
+    timpa(field, nilai)
   }
   // Referensi BKU selalu dibawa (tidak menimpa apa pun — key namespaced).
   if (formData.bkuSumber == null && bku) {
     tambahan.bkuSumber = { uraian: bku.uraian || '', nominal: bku.nominal || 0, tanggal: bku.tanggal || '', noBukti: bku.noBukti || '', kegiatan: bku.kegiatan || '' }
   }
-  return { tambahan, diisi, dilewati }
+  return { tambahan, diisi, dilewati, tertimpa }
 }
 
-export default { REKENING_KE_MENU, normalisasiRekening, kategoriDariRekening, loadKoreksi, simpanKoreksi, kategoriDenganKoreksi, prefillDariBKU, parseMamin, normalisasiUraian, gabungKonsumsi, loadRiwayat, tambahPeriode, pejabatPada, kelompokATK, loadAtkFlag, simpanAtkFlag, kelompokSeNoBukti, dominanKategoriGrup, grupDenganDominan, saringGrupBermasalah, DOMINAN_PRIORITAS }
+export default { REKENING_KE_MENU, normalisasiRekening, kategoriDariRekening, loadKoreksi, simpanKoreksi, kategoriDenganKoreksi, prefillDariBKU, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir, parsePerjalanan, normalisasiUraian, gabungKonsumsi, loadRiwayat, tambahPeriode, pejabatPada, kelompokATK, loadAtkFlag, simpanAtkFlag, kelompokSeNoBukti, dominanKategoriGrup, grupDenganDominan, saringGrupBermasalah, DOMINAN_PRIORITAS }
