@@ -127,6 +127,19 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   })()
   const katEfektif = (grupSeBukti && grupSeBukti.dominan) || katRekening
 
+  // Tab Pajak/setor: baris SETOR pajak tidak punya dokumen LPJ — tombol aksi
+  // mengarah ke pembayaran Coretax, bukan ke halaman dokumen LPJ.
+  // Deteksi selaras BKUPage.isPajak, dipersempit ke SETOR (bukan pungut).
+  const CORETAX_URL = 'https://coretaxdjp.pajak.go.id/'
+  const isSetorPajak = (() => {
+    if (transaction.tipe === 'SETOR_PAJAK' || transaction.tipe === 'PAJAK_BUNGA') return true
+    if (transaction.tipe === 'PUNGUT_PPH') return false
+    const u = String(transaction.uraian || '').toLowerCase()
+    if (u.includes('pungut')) return false
+    return u.includes('setor') || u.includes('pajak') || u.includes('pph')
+      || u.includes('ppn') || u.includes('ntpn') || u.includes('billing') || u.includes('coretax')
+  })()
+
   // Sprint 004 B.2 — deep-link ke menu dokumen tepat (prefill dikonsumsi B.3)
   // T3: pratinjau + prefill Mamin cerdas via parseMamin terpusat.
   const namaKegiatanSaya = (() => {
@@ -387,7 +400,18 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               </div>
             </dl>
             <div className="grid grid-cols-2 gap-2.5 mt-3">
-              {katEfektif ? (
+              {isSetorPajak ? (
+                <a
+                  href={CORETAX_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Bayar pajak via Coretax DJP (tab baru)"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+                >
+                  <span className="material-symbols-outlined text-lg">open_in_new</span>
+                  Bayar via Coretax
+                </a>
+              ) : katEfektif ? (
                 <button
                   onClick={handleDeepLink}
                   title={`Buka di ${katEfektif.menu}`}
