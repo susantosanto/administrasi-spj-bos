@@ -774,3 +774,39 @@
     kolom-4 duplikat docx tetap dibuang (G8); Tiba-kembali pakai TTD Kepala
     Sekolah sesuai R5 docx; SPT/Undangan polos tanpa garis + Untuk/Maksud
     italic + TTD undangan kanan + detail acara 4 baris + kop garis ganda
+
+[2026-10-06] Keputusan: nilai Acara kegiatan dinormalisasi berawalan "Kegiatan"
+  Status: accepted
+  Alasan: perintah user (task 24) — konsistensi penamaan acara di Mamin/pesanan
+  Dibuat oleh: user (2026-10-06)
+  Dampak: prefill Acara cerdas dari kegiatan + jenis Rapat/Kegiatan; format cetak tak berubah
+
+[2026-10-06] Keputusan: Panel Preview Document A4 ala SIMENULIS menggantikan Cermin
+  Status: accepted
+  Alasan: perintah user (task 29); melengkapi ADR cabut-batas formal-hanya-print di atas
+  Dibuat oleh: user (2026-10-06)
+  Dampak: PanelPreviewDocument.jsx + previewDocs.js; panel screen-only, cetak steril tetap
+
+[2026-10-06] Keputusan: hapus Lihat Ringkasan, logika pindah ke Panel Preview satu alur
+  Status: accepted
+  Alasan: perintah user (task 37) — satu alur preview tanpa tombol ringkasan terpisah
+  Dibuat oleh: user (2026-10-06)
+  Dampak: DokumenSPJPage Zona B + PanelPreviewDocument.jsx; merge 9659372
+
+[2026-10-06] Keputusan: format TTD 4 baris Kepala/Sekolah/Nama/NIP
+  Status: accepted
+  Alasan: perintah user (task 39) — samakan blok TTD seluruh dokumen
+  Dibuat oleh: user (2026-10-06)
+  Dampak: blok TTD TemplateEngine + preview; larangan TTD digital tetap
+
+[2026-10-06] Keputusan: audit SPT+SPPD disamakan vs docx gugus, font dikecualikan
+  Status: accepted
+  Alasan: hasil audit user (task 40) + fix (task 41) — font aplikasi dipertahankan
+  Dibuat oleh: user (2026-10-06)
+  Dampak: SPT/SPPD/Undangan/SPD; merge 32c5b7e (lihat ADR SPD di atas)
+
+[2026-10-06] Keputusan: tab Detail BKU informatif + Dokumen dinamis ikut kategori; Dokumentasi steril
+  Status: accepted
+  Alasan: perintah user (task 42, user-verified) — Detail = ringkasan+aksi, Dokumen dinamis ikut kategori
+  Dibuat oleh: user (2026-10-06)
+  Dampak: BKUPage tab Detail + card Dokumen; merge 0ae1638 (user-verified, Dokumentasi steril)

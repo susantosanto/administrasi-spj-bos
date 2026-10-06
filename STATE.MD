@@ -5,6 +5,15 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **TUTUP SESI 2026-10-06 — main sinkron origin (`0ae1638`), blockers nihil, acceptance runtime terbuka.**
+  Merge ke main: `9659372` (sprint-008-009: preview A4 + pecah pesanan + sticky + ringkasan satu alur) +
+  `32c5b7e` (audit SPT+SPPD + kertas A4/F4) + `0ae1638` (BKU-detail: tab Detail ringkasan+aksi + Dokumen dinamis).
+  `git status -sb`: main == origin/main tanpa ahead/behind (hanya file untracked artefak lokal).
+  Sprint aktif: **009** (Fase B sticky SELESAI; Fase A pecah pesanan in-progress) + Sprint 007 eksekusi menunggu +
+  dev server :5173 menyala untuk uji manual. ADR baru 6 di DECISIONS.MD (prefix Kegiatan, Panel A4 ganti Cermin,
+  hapus Ringkasan satu alur, TTD 4 baris, audit font dikecualikan, Dokumentasi steril;
+  kertas A4/F4 + SPD + cabut-batas sudah tercatat sebelumnya).
+  UNTESTED: acceptance-runner fresh Sprint 005/007/008 + cetak fisik F4.
 - **Kertas A4/F4 + SPD meniru docx — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-06, belum di-commit (kuasa user).**
   Perintah user: (1) kertas opsional A4/F4 utk semua dokumen, (2) lengkapi format + SPD ulang meniru tabel docx.
   2 baru (`paperSize.js` 70/200: spj_kertas default A4 + event + suntik @page; `PaperSizeSelector.jsx` 49/300)
@@ -491,7 +500,8 @@
   LPJ-mati 0 hit · non-blue tambah 0 · package 0 · cetak tak tersentuh · prefix spj utuh.
   Verifier FINAL APPROVED Medium (batas live klik+screenshot). **Belum push** (ahead 3), **belum acceptance fresh**.
   Detail: `planning/sprints/sprint-004/BUILD-REPORT.MD` §ADDENDUM REVISI 2026-10-02.
-- Terakhir Diperbarui: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
+- Terakhir Diperbarui: 2026-10-06 (state-keeper tutup sesi — merge 9659372/32c5b7e/0ae1638 masuk STATE + 6 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
   ledger komit `17a266d`…`e8af618`; risiko cetak-fisik UNTESTED; ARCHITECTURE.MD stale
   bertambah: SummaryCard/MenuGuide/guideConfig/print-area)
@@ -509,7 +519,13 @@
 | 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 + revisi R1…R9 `17a266d`→`414b53d`; acceptance ronde-1 12 PASS/0 FAIL/8 UNTESTED → **✅ DITUTUP 2026-10-01, risiko diterima user**, ronde-2 dibatalkan) | ✅ Selesai | 2026-10-01 |
 | 005 | Autogenerate Undangan + Resume — builder statik selesai (1 baru + 3 ubah, gate hijau, runtime UNTESTED → acceptance-runner) | 🟡 Builder selesai | 2026-10-03 |
 
+| 008 | Panel Preview Document A4 ala SIMENULIS + SK Honor + fixes blank/logo (merge `9659372`; acceptance manual runtime TERBUKA) | U0001F7E1 Menunggu acceptance | 2026-10-06 |
+| 009 | Pecah pesanan Nasi/Snack + sticky preview + hapus Ringkasan + logo/TTD preview + TTD 4 baris (merge `9659372`; Fase A in-progress, Fase B selesai) | U0001F7E1 Berjalan | 2026-10-06 |
 ## Langkah Selanjutnya
+- **Tutup sesi 2026-10-06. Berikutnya (acceptance runtime TERBUKA):**
+  1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
+  2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
+  3. Cetak fisik F4 + print-preview live (UNTESTED, printer-gated).
 - **Sprint 003 SELESAI (risiko diterima). Berikutnya:**
   1. **Push ke origin** — branch ahead ±24+ commit (pelajaran insiden #3).
   (aturan AGENTS.MD) — wajib membuktikan runtime T-04/T-05 (cetak 5-doc fisik),
@@ -564,6 +580,7 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
+- **2026-10-06: TIDAK ADA blocker.** Main sinkron origin/main (`0ae1638`); baris push-tertunda di bawah SUPERSEDED.
 - **TIDAK ADA blocker sprint.** Pencatatan risiko (non-blocking, diterima user
   2026-09-30): kriteria UI runtime Sprint 001+002 tetap UNTESTED — uji manual
   operator sekolah adalah jaring pengamat; temuan masuk Sprint 003.
