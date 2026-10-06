@@ -36,6 +36,28 @@ const TYPE_BADGES = {
 // Month names — sync with bkuParser.js
 const MONTH_NAMES = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
 
+// Tab Pajak: tipe transaksi pajak (satu sumber, view filter)
+// Catatan parser: BPU/BNU + pengeluaran selalu jadi PEMBAYARAN (aturan user),
+// jadi deteksi pajak juga lewat kata kunci uraian agar baris pungut/setor
+// yang tercatat sebagai PEMBAYARAN tetap masuk tab Pajak.
+const PAJAK_TYPES = ['PUNGUT_PPH', 'SETOR_PAJAK', 'PAJAK_BUNGA']
+const PAJAK_KEYWORDS = ['pungut', 'setor pph', 'setor pajak', 'pajak bunga', 'pph 21', 'pph 22', 'pph 23', 'ppn', 'ntpn', 'billing', 'coretax']
+const isPajak = (t) => {
+  if (PAJAK_TYPES.includes(t?.tipe)) return true
+  const u = String(t?.uraian || '').toLowerCase()
+  return PAJAK_KEYWORDS.some((k) => u.includes(k))
+}
+// Badge tab Pajak: pakai badge tipe bila sudah pajak, else infer dari uraian (reuse label Pungut/Setor)
+const pajakBadge = (t) => {
+  if (PAJAK_TYPES.includes(t?.tipe)) return TYPE_BADGES[t.tipe] || TYPE_BADGES.LAINNYA
+  const u = String(t?.uraian || '').toLowerCase()
+  if (u.includes('pungut')) return TYPE_BADGES.PUNGUT_PPH
+  return TYPE_BADGES.SETOR_PAJAK
+}
+
+// Coretax — billing pajak dibuat di Coretax DJP
+const CORETAX_URL = 'https://coretaxdjp.pajak.go.id/'
+
 // ─── Component ─────────────────────────────────────────────────
 
 export default function BKUPage() {
@@ -48,6 +70,10 @@ export default function BKUPage() {
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
   const [selectedRowKey, setSelectedRowKey] = useState(null)
   const [hanyaBelumDipetakan, setHanyaBelumDipetakan] = useState(false)
+  // Tab Belanja (default) + Pajak — satu sumber transaksi, view filter
+  const [activeTab, setActiveTab] = useState('belanja')
+  const [filterBulanPajak, setFilterBulanPajak] = useState('Semua')
+  const [sortPajak, setSortPajak] = useState('tanggal-asc')
   // T2 — satu NoBukti satu grup expandable (dominan dari kode rekening)
   const [grupExpand, setGrupExpand] = useState({})
   const toggleGrup = (key) => setGrupExpand((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -230,7 +256,10 @@ export default function BKUPage() {
   // ─── Filter ───────────────────────────────────────────────────
 
   // T2 — satu NoBukti satu grup + dominan dari kode rekening + filter cerdas per grup
-  const baseItems = filterByMonth(items, filterBulan)
+  // SATU sumber transaksi (items); tab hanya view filter
+  const itemsBelanja = items.filter((t) => !isPajak(t))
+  const itemsPajakAll = items.filter(isPajak)
+  const baseItems = filterByMonth(itemsBelanja, filterBulan)
   const semuaGrup = grupDenganDominan(baseItems)
   const tampilGrup = hanyaBelumDipetakan ? saringGrupBermasalah(semuaGrup) : semuaGrup
   const filteredItems = tampilGrup.flatMap((g) => g.rows)
@@ -238,7 +267,19 @@ export default function BKUPage() {
   // Count grup bermasalah (T2 revisi): hitung grup bukan baris, se-bulan aktif
   const belumDipetakanCount = saringGrupBermasalah(semuaGrup).length
 
+  // ─── Tab Pajak: filter bulan + sort tanggal/nominal, nominal lengkap ──
+  const nominalPajak = (t) => (t.pengeluaran || t.kredit || 0) + (t.penerimaan || t.debet || 0)
+  const pajakFiltered = filterByMonth(itemsPajakAll, filterBulanPajak)
+  const pajakItems = [...pajakFiltered].sort((a, b) => {
+    if (sortPajak === 'nominal-desc') return nominalPajak(b) - nominalPajak(a)
+    if (sortPajak === 'nominal-asc') return nominalPajak(a) - nominalPajak(b)
+    if (sortPajak === 'tanggal-desc') return String(b.tanggalISO || b.tanggalStr || '').localeCompare(String(a.tanggalISO || a.tanggalStr || ''))
+    return String(a.tanggalISO || a.tanggalStr || '').localeCompare(String(b.tanggalISO || b.tanggalStr || ''))
+  })
+  const totalPajak = pajakItems.reduce((s, t) => s + nominalPajak(t), 0)
+
   // Compute totals — pakai real totals dari summary (bukan termasuk transaksi internal)
+  // Kartu ringkasan di atas tab tetap overall (regresi aman).
   const isOverall = filterBulan === 'Semua'
   const totalDebet = isOverall && uploadedInfo
     ? uploadedInfo.summary.totalPenerimaan  // Real: hanya Dana BOSP
@@ -247,6 +288,10 @@ export default function BKUPage() {
     ? uploadedInfo.summary.totalPengeluaran  // Real: BNU + BPU (PEMBAYARAN)
     : filteredItems.reduce((s, i) => s + i.kredit, 0)
   const lastSaldo = filteredItems.length > 0 ? filteredItems[filteredItems.length - 1].saldo : 0
+  // Footer tabel Belanja: khusus view belanja (tanpa pajak) agar TOTAL tidak ikut pajak.
+  const totalDebetBelanja = filteredItems.reduce((s, i) => s + (i.debet || 0), 0)
+  const totalKreditBelanja = filteredItems.reduce((s, i) => s + (i.kredit || 0), 0)
+  const lastSaldoBelanja = filteredItems.length > 0 ? filteredItems[filteredItems.length - 1].saldo : 0
 
   // ─── Sidebar Helper ───────────────────────────────────────────
 
@@ -432,7 +477,7 @@ export default function BKUPage() {
             <h3 className="font-headline-md text-headline-md font-bold text-green-700">Rp {fmt(totalDebet)}</h3>
             {uploadedInfo && (
               <p className="text-xs text-text-low mt-1">
-                {filteredItems.filter(i => i.penerimaan > 0).length} transaksi penerimaan
+                {items.filter(i => i.penerimaan > 0).length} transaksi penerimaan
               </p>
             )}
           </div>
@@ -444,7 +489,7 @@ export default function BKUPage() {
             <h3 className="font-headline-md text-headline-md font-bold text-red-700">Rp {fmt(totalKredit)}</h3>
             {uploadedInfo && (
               <p className="text-xs text-text-low mt-1">
-                {filteredItems.filter(i => i.pengeluaran > 0).length} transaksi pengeluaran
+                {items.filter(i => i.pengeluaran > 0).length} transaksi pengeluaran
               </p>
             )}
           </div>
@@ -464,7 +509,158 @@ export default function BKUPage() {
           </div>
         </div>
 
+        {/* ── Tab Belanja / Pajak — satu sumber transaksi, view filter ── */}
+        <div className="flex gap-2" role="tablist" aria-label="Tab BKU">
+          <button
+            role="tab"
+            aria-selected={activeTab === 'belanja'}
+            onClick={() => setActiveTab('belanja')}
+            className={`flex-1 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+              activeTab === 'belanja'
+                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Belanja ({itemsBelanja.length})
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'pajak'}
+            onClick={() => setActiveTab('pajak')}
+            className={`flex-1 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+              activeTab === 'pajak'
+                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Pajak ({itemsPajakAll.length})
+          </button>
+        </div>
+
         {/* ── Reference Table ── */}
+        {activeTab === 'pajak' ? (
+        <div className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant overflow-hidden">
+          <div className="p-lg border-b border-outline-variant flex flex-wrap items-center justify-between gap-md bg-surface-container-low">
+            <div>
+              <h4 className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                Pajak
+                <span className="text-text-low text-label-md font-normal ml-2">
+                  ({pajakItems.length} transaksi pungut/setor)
+                </span>
+              </h4>
+              <p className="text-text-low text-sm">
+                Kode billing / NTPN dibuat di Coretax — pembayaran disetor via Coretax DJP.
+              </p>
+            </div>
+            <div className="flex items-center gap-md flex-wrap">
+              {availableMonths.length > 0 && (
+                <select
+                  className="bg-surface border border-outline-variant rounded-lg px-md py-2 text-label-md outline-none"
+                  value={filterBulanPajak}
+                  onChange={(e) => setFilterBulanPajak(e.target.value)}
+                  aria-label="Filter bulan pajak"
+                >
+                  <option value="Semua">Semua Bulan</option>
+                  {availableMonths.map(m => (
+                    <option key={m} value={m}>{MONTH_NAMES[m - 1]}</option>
+                  ))}
+                </select>
+              )}
+              <select
+                className="bg-surface border border-outline-variant rounded-lg px-md py-2 text-label-md outline-none"
+                value={sortPajak}
+                onChange={(e) => setSortPajak(e.target.value)}
+                aria-label="Urutkan pajak"
+              >
+                <option value="tanggal-asc">Tanggal ↑</option>
+                <option value="tanggal-desc">Tanggal ↓</option>
+                <option value="nominal-desc">Nominal terbesar</option>
+                <option value="nominal-asc">Nominal terkecil</option>
+              </select>
+              <a
+                href={CORETAX_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-lg py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-label-md font-medium shadow-lg shadow-primary/20"
+              >
+                Bayar via Coretax
+                <span className="material-symbols-outlined text-lg">open_in_new</span>
+              </a>
+            </div>
+          </div>
+
+          {itemsPajakAll.length === 0 ? (
+            <div className="p-xl text-center">
+              <span className="material-symbols-outlined text-5xl text-outline mb-4 block">receipt_long</span>
+              <p className="text-text-low">Belum ada transaksi pajak (Pungut / Setor). Upload file BKU untuk memulai.</p>
+            </div>
+          ) : pajakItems.length === 0 ? (
+            <div className="p-xl text-center">
+              <span className="material-symbols-outlined text-5xl text-outline mb-4 block">search_off</span>
+              <p className="text-text-low">Tidak ada transaksi pajak pada bulan ini.</p>
+            </div>
+          ) : (
+            <div className="min-w-0 overflow-x-auto">
+              <table className="w-full text-left table-fixed">
+                <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
+                  <tr>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[3%]">No</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[11%]">Tanggal</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[27%]">Uraian</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">No. Bukti</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Kategori</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[13%]">Pungut (Rp)</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[13%]">Setor (Rp)</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[14%]">Nominal (Rp)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant">
+                  {pajakItems.map((item, idx) => {
+                    const badge = pajakBadge(item)
+                    const isPungut = badge === TYPE_BADGES.PUNGUT_PPH
+                    const pungut = isPungut ? (item.pengeluaran || item.kredit || item.penerimaan || item.debet || 0) : 0
+                    const setor = !isPungut ? (item.pengeluaran || item.kredit || item.penerimaan || item.debet || 0) : 0
+                    const nominal = nominalPajak(item)
+                    const isSelected = selectedRowKey === (item.row || idx)
+                    return (
+                      <tr
+                        key={`${item.row}-${idx}`}
+                        onClick={isPungut ? undefined : () => openSidebar(item)}
+                        title={isPungut ? 'Pungut pajak — detail nonaktif' : undefined}
+                        className={`transition-all duration-150 border-l-2 ${isPungut ? 'border-transparent' : `cursor-pointer ${isSelected ? 'bg-primary-fixed/30 border-primary shadow-sm' : 'border-transparent hover:bg-slate-50'}`}`}
+                      >
+                        <td className="px-2 py-2 text-text-low text-[11px]">{String(idx + 1).padStart(2, '0')}</td>
+                        <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium" title={item.tanggalStr}>{item.tanggalStr}</td>
+                        <td className="px-2 py-2 text-[11px]" title={item.uraian}>
+                          <span className="text-text-high">{item.uraian}</span>
+                        </td>
+                        <td className="px-2 py-2 font-mono text-[10px] text-text-low" title={item.noBukti || '-'}>{item.noBukti || '-'}</td>
+                        <td className="px-2 py-2">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
+                            {badge.label}
+                          </span>
+                        </td>
+                        <td className="px-2 py-2 text-right text-[11px] font-medium" title={fmt(pungut)}>{pungut > 0 ? fmt(pungut) : '-'}</td>
+                        <td className="px-2 py-2 text-right text-[11px] font-medium" title={fmt(setor)}>{setor > 0 ? fmt(setor) : '-'}</td>
+                        <td className="px-2 py-2 text-right font-bold text-[11px]" title={fmt(nominal)}>{fmt(nominal)}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot className="bg-surface-container-low font-bold">
+                  <tr>
+                    <td className="px-2 py-2" colSpan="7">
+                      <span className="text-text-high text-[11px]">TOTAL PAJAK</span>
+                      <span className="text-text-low text-[9px] ml-1">({pajakItems.length} transaksi)</span>
+                    </td>
+                    <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(totalPajak)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+        </div>
+        ) : (
         <div className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant overflow-hidden">
           <div className="p-lg border-b border-outline-variant flex flex-wrap items-center justify-between gap-md bg-surface-container-low">
             <div>
@@ -472,7 +668,7 @@ export default function BKUPage() {
                 Referensi BKU
                 {uploadedInfo && (
                   <span className="text-text-low text-label-md font-normal ml-2">
-                    ({uploadedInfo.summary.totalTransactions} transaksi)
+                    ({filteredItems.length} transaksi belanja)
                   </span>
                 )}
               </h4>
@@ -528,6 +724,7 @@ export default function BKUPage() {
                       setUploadedInfo(null)
                       setAvailableMonths([])
                       setFilterBulan('Semua')
+                      setFilterBulanPajak('Semua')
                       closeSidebar()
                       toast.info('Data BKU berhasil dihapus')
                     }}
@@ -616,15 +813,16 @@ export default function BKUPage() {
                         ({tampilGrup.length} grup &#183; {filteredItems.length} rincian)
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-right text-green-700 text-[11px]">{fmt(totalDebet)}</td>
-                    <td className="px-2 py-2 text-right text-red-700 text-[11px]">{fmt(totalKredit)}</td>
-                    <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(lastSaldo)}</td>
+                    <td className="px-2 py-2 text-right text-green-700 text-[11px]">{fmt(totalDebetBelanja)}</td>
+                    <td className="px-2 py-2 text-right text-red-700 text-[11px]">{fmt(totalKreditBelanja)}</td>
+                    <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(lastSaldoBelanja)}</td>
                   </tr>
                 </tfoot>
               </table>
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* ── Premium BKU Sidebar ── */}
