@@ -5,6 +5,10 @@
  * (murni props, tanpa state ganda). Skala-agar-muat + zoom 50-150% / Reset /
  * fullscreen hanya ubah tampilan layar. Root print:hidden + CSS print khusus
  * memastikan panel TAK PERNAH ikut tercetak; hasil cetak tak berubah.
+ *
+ * Revisi 2026-10-06 (task 37): satu alur lengkapi-cek-cetak di panel —
+ * badge readiness (LENGKAP/N-PERLU-DIISI) di header, tombol Cek + Cetak
+ * di bar status. Cetak terhalang (disabled) selama belum LENGKAP.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TemplateEngine from './TemplateEngine'
@@ -78,7 +82,7 @@ function ScaledPaper({ doc, zoom }) {
   )
 }
 
-export default function PanelPreviewDocument({ title, docs = [], status = null, onCek = null }) {
+export default function PanelPreviewDocument({ title, docs = [], status = null, onCek = null, onCetak = null }) {
   const [zoom, setZoom] = useState(1)
   const [fsGagal, setFsGagal] = useState(false)
   const [isFs, setIsFs] = useState(false)
@@ -115,10 +119,15 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
     const pertama = (status?.violations || [])[0]
     if (pertama) sorotPelanggaran(pertama)
   }
+  const handleCetak = () => {
+    if (!lengkap) return
+    if (onCetak) { onCetak(); return }
+    window.print()
+  }
   const lengkap = status ? status.perlu === 0 : null
 
   return (
-    <div ref={panelRef} className="panel-preview-root print:hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
+    <div ref={panelRef} className="panel-preview-root print:hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
       <style>{`.panel-preview-root .template-engine input,.panel-preview-root .template-engine textarea,.panel-preview-root .template-engine select{pointer-events:none}
 .sprint008-dot{width:8px;height:8px;border-radius:9999px;background-color:#004ac6;animation:sprint008-pulse 1.6s ease-in-out infinite}
 @keyframes sprint008-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
@@ -129,6 +138,12 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
         <div className="flex items-center gap-2 px-4 py-3 bg-primary/5 border-b border-slate-200">
           <span className="material-symbols-outlined text-primary">preview</span>
           <span className="text-sm font-bold text-slate-800 flex-1">{title}</span>
+          {status && (
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-700'}`} aria-live="polite">
+              <span className="material-symbols-outlined text-sm">{lengkap ? 'check_circle' : 'pending'}</span>
+              {lengkap ? 'LENGKAP' : `${status.perlu}-PERLU-DIISI`}
+            </span>
+          )}
           {isFs && (
             <button
               type="button"
@@ -159,10 +174,6 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
       {status && (
         <div className="px-4 py-3 border-b border-slate-100 space-y-2 bg-white">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold min-h-[44px] sm:min-h-0 ${lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-700'}`}>
-              <span className="material-symbols-outlined text-sm">{lengkap ? 'check_circle' : 'pending'}</span>
-              {lengkap ? 'LENGKAP' : `${status.perlu}-PERLU-DIISI`}
-            </span>
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500" aria-live="polite">
               <span className="sprint008-dot" aria-hidden="true" />
               DIPERBARUI OTOMATIS
@@ -176,6 +187,16 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
             >
               <span className="material-symbols-outlined text-base">fact_check</span>
               Cek
+            </button>
+            <button
+              type="button"
+              onClick={handleCetak}
+              disabled={!lengkap}
+              title={lengkap ? 'Cetak dokumen' : 'Lengkapi dulu — tekan Cek untuk melompat ke field yang kurang'}
+              className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-xl text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              <span className="material-symbols-outlined text-base">print</span>
+              Cetak
             </button>
             <div className="inline-flex items-center gap-1" role="group" aria-label="Kontrol zoom panel">
               <button type="button" onClick={zoomOut} disabled={zoom <= 0.5} aria-label="Perkecil panel" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors focus-visible:outline-2 focus-visible:outline-primary">

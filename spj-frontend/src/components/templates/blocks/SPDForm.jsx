@@ -8,8 +8,11 @@
  * + surat berangkat/tiba.
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
+import { getSchoolData } from '../../../utils/sekolahData'
 
 export default function SPDForm({ blockConfig, data = {} }) {
+  // TTD 4 baris (Kepala / nama SD / nama / NIP) — dibaca live saat render.
+  const sekolah = getSchoolData().namaSekolah || ''
   const val = (key, ph) => {
     const value = data[key] || ''
     return <span>{value || <PlaceholderText label={ph || key} />}</span>
@@ -133,8 +136,10 @@ export default function SPDForm({ blockConfig, data = {} }) {
         </div>
       </div>
       <div className="text-center w-56 mx-auto mt-2">
-        <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
-        <div className="h-16" />
+        {/* TTD 4 baris: Kepala / nama SD / [SPASI 64px] / nama orang / NIP */}
+        <div className="text-xs font-medium">Kepala</div>
+        <div className="text-xs font-medium mb-4">{sekolah ? `${sekolah},` : ''}</div>
+        <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
         <div className="text-xs font-bold">{data.namaPenandatangan}</div>
         <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
       </div>
@@ -156,8 +161,10 @@ export default function SPDForm({ blockConfig, data = {} }) {
           Pada tanggal : {val('tanggalBerangkat', 'Tanggal berangkat')}
         </div>
         <div className="text-center w-56 mx-auto mt-2 break-inside-avoid">
-          <div className="text-xs font-medium mb-4">Kepala Sekolah,</div>
-          <div className="h-16" />
+          {/* TTD 4 baris: Kepala / nama SD / [SPASI 64px] / nama orang / NIP */}
+          <div className="text-xs font-medium">Kepala</div>
+          <div className="text-xs font-medium mb-4">{sekolah ? `${sekolah},` : ''}</div>
+          <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaPenandatangan}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
         </div>
@@ -170,7 +177,7 @@ export default function SPDForm({ blockConfig, data = {} }) {
         </div>
         <div className="text-center w-56 mx-auto mt-2 break-inside-avoid">
           <div className="text-xs font-medium mb-4">Kepala,</div>
-          <div className="h-16" />
+          <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaMengetahui}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
         </div>

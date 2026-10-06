@@ -10,6 +10,7 @@ import { getSignatureRoles } from './signatureRoles'
 import { getSchoolData } from './sekolahData'
 import storageHelper from './storageHelper'
 import { loadSkPasal, cloneDefaultPasal } from '../data/skPasal'
+import { bagiPesananPerSeksi } from './aturanMamin'
 
 const HONOR_REK = '5.1.02.02.01'
 const TRANSPORT_REK = '5.1.02.04'
@@ -80,8 +81,14 @@ const sppdDataOf = (formData, sppdData, sig, row) => ({
   lama: sppdData.lama || '1 (satu) hari', maksud: sppdData.maksud || sppdData.tujuan || '',
 })
 
-function maminDocs(formData) {
+function maminDocs(formData, sig) {
   const rows = (formData.rows || []).map((r, i) => ({ ...r, no: i + 1 }))
+  // Sprint 009 Fase A: 1 doc pesanan → 2 docs (mirror 1:1 area cetak via helper sama)
+  const pesanan = bagiPesananPerSeksi(formData)
+  const perihalSeksi = (seksi) => (formData.perihalPesanan ? `${formData.perihalPesanan} — ${seksi}` : seksi)
+  const dataPesanan = (seksi, rowsSeksi) => ({ ...TEMPLATE_CONFIGS.pesanan_mamin.defaults, ...formData,
+    tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...', perihalPesanan: perihalSeksi(seksi),
+    jenisPesanan: seksi, kegiatan: formData.isiPesanan || formData.acara || '', rows: rowsSeksi })
   const bt = formData.bukuTamu || {}
   const btRows = (bt.rows || []).map((r, i) => ({ ...r, no: i + 1 }))
   const notulenData = {
@@ -89,6 +96,11 @@ function maminDocs(formData) {
     tanggal: formData.tanggal, waktu: formData.waktu, tempat: formData.tempat, acara: formData.acara,
     pimpinan: formData.pimpinan, pembuka: formData.pembuka, notulen: formData.notulen,
     peserta: formData.peserta || rows.map((r) => r.nama).filter(Boolean).join(', '),
+    // TTD notulen: ketikan user → Data Sekolah (live) → '' (mirror area cetak).
+    ttd_pimpinan_nama: formData.ttd_pimpinan_nama || sig['pimpinan']?.nama || '',
+    ttd_pimpinan_nip: formData.ttd_pimpinan_nip || sig['pimpinan']?.nip || '',
+    ttd_notulen_nama: formData.ttd_notulen_nama || sig['notulen']?.nama || '',
+    ttd_notulen_nip: formData.ttd_notulen_nip || sig['notulen']?.nip || '',
     poinPembahasan: Array.isArray(formData.poinPembahasan)
       ? formData.poinPembahasan
       : (formData.resume ? [{ id: 'resume-1', text: formData.resume }] : []),
@@ -103,11 +115,8 @@ function maminDocs(formData) {
       tempatAcara: formData.tempatAcara || formData.tempat || '',
       waktuAcara: formData.waktuAcara || formData.waktu || '',
       kegiatan: formData.isiUndangan || formData.acara || '' } },
-    { key: 'pesanan', label: 'Surat Pesanan', templateConfig: TEMPLATE_CONFIGS.pesanan_mamin, data: {
-      ...TEMPLATE_CONFIGS.pesanan_mamin.defaults, ...formData,
-      tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-      kegiatan: formData.isiPesanan || formData.acara || '',
-      rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })) } },
+    ...(pesanan.nasi.length > 0 ? [{ key: 'pesanan-nasi', label: 'Surat Pesanan — Nasi Box', templateConfig: TEMPLATE_CONFIGS.pesanan_mamin, data: dataPesanan('Nasi Box', pesanan.nasi) }] : []),
+    ...(pesanan.snack.length > 0 ? [{ key: 'pesanan-snack', label: 'Surat Pesanan — Snack Box', templateConfig: TEMPLATE_CONFIGS.pesanan_mamin, data: dataPesanan('Snack Box', pesanan.snack) }] : []),
     { key: 'notulen', label: 'Notulen / Resume', templateConfig: TEMPLATE_CONFIGS.notulen, data: notulenData },
     { key: 'hadir', label: 'Daftar Hadir', templateConfig: TEMPLATE_CONFIGS.daftar_hadir, data: {
       ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
@@ -167,7 +176,7 @@ function transportDocs(templateId, subId, formData, sppdData, sig) {
  */
 export function buildPreviewDocs({ cardId, templateId, subId, formData = {}, sppdData = {} }) {
   const sig = getSignatureRoles()
-  if (cardId === 'mamin') return maminDocs(formData)
+  if (cardId === 'mamin') return maminDocs(formData, sig)
   if (cardId === 'perjalanan_dinas') {
     if (!TEMPLATE_CONFIGS[templateId]) return []
     return transportDocs(templateId, subId, formData, sppdData, sig)
@@ -181,6 +190,9 @@ export function buildPreviewDocs({ cardId, templateId, subId, formData = {}, spp
     ;(formData.rows || []).forEach((row) => docs.push({ key: `sk-${row.id}`, label: `SK — ${row.nama || 'Tanpa nama'}`,
       kind: 'sk', templateConfig: TEMPLATE_CONFIGS.sk_honorer, data: {
         ...TEMPLATE_CONFIGS.sk_honorer.defaults, ...formData, pasal, nomorSurat: formData.nomor || '',
+        // PIHAK KESATU: ketikan user → Data Sekolah (live) → '' (mirror area cetak).
+        namaPihakKesatu: formData.namaPihakKesatu || sig['kepala-sekolah']?.nama || '',
+        nipPihakKesatu: formData.nipPihakKesatu || sig['kepala-sekolah']?.nip || '',
         namaPihakKedua: row.nama || '', ttlPihakKedua: row.ttl || row.tempatLahir || '',
         pendidikanPihakKedua: row.pendidikan || '', alamatPihakKedua: row.alamat || '',
         kelasGuru: row.kelasGuru || '' } }))

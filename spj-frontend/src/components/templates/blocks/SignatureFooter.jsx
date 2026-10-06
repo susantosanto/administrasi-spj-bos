@@ -4,13 +4,73 @@
  *
  * Format Excel:
  *   Mengetahui/Menyetujui  |  Dibayar Lunas Tgl.
- *   Kepala Sekolah,         |  Bendahara BOS,
- *   [spasi TTD]            |  [spasi TTD]
+ *   Kepala                 |  Bendahara BOS,
+ *   SDN Pasirhalang,       |  [spasi TTD]
  *   [nama dari Data Sekolah] | [nama dari Data Sekolah]
  *   NIP. ...               |  NIP. ...
+ *
+ * Format TTD 4 baris (keputusan user 2026-10-06) khusus peran Kepala
+ * Sekolah (kepala-sekolah, pimpinan): baris 1 "Kepala", baris 2 nama SD,
+ * baris 3 nama orang, baris 4 NIP. Peran lain tetap label/nama/NIP.
+ * Preview + cetak memakai komponen yang sama → selalu konsisten.
  */
-import { getSignatureRoles } from '../../../utils/signatureRoles'
+import { getSignatureRoles, KS_ROLES } from '../../../utils/signatureRoles'
 import { formatDate } from '../../../utils/templateHelpers'
+
+/**
+ * Identitas penandatangan: 4 baris utk peran KS, 3 baris utk peran lain.
+ * Urutan KS: Kepala / nama SD / [SPASI TTD 64px] / nama orang / NIP.
+ * SPASI WAJIB di bawah nama sekolah di semua format — satu-satunya spacer
+ * ada di sini (TtdIdentitas), pemanggil TIDAK boleh menambah spacer lagi
+ * agar tidak ganda / tidak hilang saat cetak. Pakai inline style agar
+ * print-safe meski Tailwind purge.
+ * Nilai: ketikan user (data) → Data Sekolah (roleConfig) → '' jujur-kosong.
+ */
+function TtdIdentitas({ role, roleConfig, data, onChange, mode }) {
+  const nama = data[`ttd_${role}_nama`] || roleConfig.nama || ''
+  const nip = data[`ttd_${role}_nip`] || roleConfig.nip || ''
+  const isKS = KS_ROLES.includes(role)
+  if (mode === 'edit') {
+    return (
+      <>
+        {isKS ? (
+          <>
+            <div className="text-xs font-medium">Kepala</div>
+            <div className="text-xs font-medium">{roleConfig.sekolah}</div>
+          </>
+        ) : null}
+        {/* SPASI TTD di bawah nama sekolah — JANGAN dihapus/duplikat di pemanggil */}
+        <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
+        <input
+          className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none font-bold"
+          value={nama}
+          placeholder="Nama penandatangan"
+          onChange={(e) => onChange(`ttd_${role}_nama`, e.target.value)}
+        />
+        <input
+          className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none text-gray-500"
+          value={nip}
+          placeholder="NIP"
+          onChange={(e) => onChange(`ttd_${role}_nip`, e.target.value)}
+        />
+      </>
+    )
+  }
+  return (
+    <>
+      {isKS ? (
+        <>
+          <div className="text-xs font-medium">Kepala</div>
+          <div className="text-xs font-medium">{roleConfig.sekolah ? `${roleConfig.sekolah},` : ''}</div>
+        </>
+      ) : null}
+      {/* SPASI TTD di bawah nama sekolah — JANGAN dihapus/duplikat di pemanggil */}
+      <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
+      <div className="text-xs font-bold">{nama}</div>
+      <div className="text-[10px] text-gray-500">{nip}</div>
+    </>
+  )
+}
 
 export default function SignatureFooter({ blockConfig, data = {}, onChange, mode }) {
   const roles = blockConfig.roles || ['kepala-sekolah']
@@ -85,34 +145,14 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
 
               return (
                 <div key={role} className="text-center w-48">
-                  <div className="text-xs font-medium mb-4">{roleConfig.label}</div>
-
-                  {/* Space for signature */}
-                  <div className="h-16" />
-
-                  {mode === 'edit' ? (
-                    <>
-                      <input
-                        className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none font-bold"
-                        value={data[`ttd_${role}_nama`] || roleConfig.nama}
-                        onChange={(e) => onChange(`ttd_${role}_nama`, e.target.value)}
-                      />
-                      <input
-                        className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none text-gray-500"
-                        value={data[`ttd_${role}_nip`] || roleConfig.nip}
-                        onChange={(e) => onChange(`ttd_${role}_nip`, e.target.value)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-xs font-bold">
-                        {data[`ttd_${role}_nama`] || roleConfig.nama}
-                      </div>
-                      <div className="text-[10px] text-gray-500">
-                        {data[`ttd_${role}_nip`] || roleConfig.nip}
-                      </div>
-                    </>
+                  {!KS_ROLES.includes(role) && (
+                    <div className="text-xs font-medium mb-4">{roleConfig.label}</div>
                   )}
+                  {KS_ROLES.includes(role) && <div className="mb-1" />}
+
+                  {/* Spacer TTD dirender di dalam TtdIdentitas (di bawah
+                      nama sekolah) — pemanggil tidak menambah spacer. */}
+                  <TtdIdentitas role={role} roleConfig={roleConfig} data={data} onChange={onChange} mode={mode} />
                 </div>
               )
             })}
@@ -128,34 +168,13 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
             return (
               <div key={role} className="text-center w-48">
                 <div className="text-[10px] text-gray-500 mb-1">Mengetahui/Menyetujui</div>
-                <div className="text-xs font-medium">{roleConfig.label}</div>
-
-                {/* Space for signature */}
-                <div className="h-16" />
-
-                {mode === 'edit' ? (
-                  <>
-                    <input
-                      className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none font-bold"
-                      value={data[`ttd_${role}_nama`] || roleConfig.nama}
-                      onChange={(e) => onChange(`ttd_${role}_nama`, e.target.value)}
-                    />
-                    <input
-                      className="text-xs text-center w-full border-b border-dashed border-primary/30 outline-none text-gray-500"
-                      value={data[`ttd_${role}_nip`] || roleConfig.nip}
-                      onChange={(e) => onChange(`ttd_${role}_nip`, e.target.value)}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <div className="text-xs font-bold">
-                      {data[`ttd_${role}_nama`] || roleConfig.nama}
-                    </div>
-                    <div className="text-[10px] text-gray-500">
-                      {data[`ttd_${role}_nip`] || roleConfig.nip}
-                    </div>
-                  </>
+                {!KS_ROLES.includes(role) && (
+                  <div className="text-xs font-medium">{roleConfig.label}</div>
                 )}
+
+                {/* Spacer TTD dirender di dalam TtdIdentitas (di bawah
+                    nama sekolah) — pemanggil tidak menambah spacer. */}
+                <TtdIdentitas role={role} roleConfig={roleConfig} data={data} onChange={onChange} mode={mode} />
               </div>
             )
           })}

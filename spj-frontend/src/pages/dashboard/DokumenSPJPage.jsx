@@ -13,7 +13,7 @@ import storageHelper from '../../utils/storageHelper'
 import { prefillDariBKU, pejabatPada, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir } from '../../utils/bkuKategori'
 import { templateUndanganMamin, templateUndanganPerjDinas, drafNotulen, snapshotSebelumTimpa, urungkanTimpa, hariDariISO, tanggalPanjang, keISO } from '../../utils/aturanUndangan'
 import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen } from '../../utils/aturanMamin'
-import { getSchoolData } from '../../utils/sekolahData'
+import { getSchoolData, getPejabat } from '../../utils/sekolahData'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -22,7 +22,6 @@ import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import { readinessCheck, sorotPelanggaran } from '../../components/templates/SummaryCard'
 import { buildPreviewDocs } from '../../utils/previewDocs'
-import PeringatanData from '../../components/templates/blocks/PeringatanData'
 import MenuGuide from '../../components/guide/MenuGuide'
 import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
@@ -228,14 +227,23 @@ export default function DokumenSPJPage() {
     // Sprint 004 C.2 — kunci pejabat per tanggal BKU: nilai riwayat ditulis
     // ke field TTD (prioritas formData-first di DokumenFormPreview membuat
     // periode baru TIDAK mengubah dokumen ini). Hanya nilai tak-kosong.
+    // Revisi 2026-10-06 (task 39): '' dihitung kosong (dulu `== null` saja,
+    // sehingga field bawaan template '' tidak pernah terisi prefill);
+    // bila riwayat kosong, jatuh ke Data Sekolah saat ini agar TTD terisi.
     const tglBku = st.bku?.tanggal || ''
     const kunci = {}
-    const ks = pejabatPada(tglBku, 'ks')
-    const kg = pejabatPada(tglBku, 'ketuaGugus')
-    const nl = pejabatPada(tglBku, 'notulen')
-    const pasang = (field, v) => { if (v && tambahan[field] == null) { tambahan[field] = v; diisi.push(field) } }
+    const ksRw = pejabatPada(tglBku, 'ks')
+    const kgRw = pejabatPada(tglBku, 'ketuaGugus')
+    const nlRw = pejabatPada(tglBku, 'notulen')
+    const ks = ksRw.nama ? ksRw : getPejabat('ks')
+    const kg = kgRw.nama ? kgRw : getPejabat('ketuaGugus')
+    const nl = nlRw.nama ? nlRw : getPejabat('notulen')
+    const kosong = (v) => v == null || (typeof v === 'string' && v.trim() === '')
+    const pasang = (field, v) => { if (v && kosong(tambahan[field])) { tambahan[field] = v; diisi.push(field) } }
     pasang('namaPenandatangan', ks.nama)
     pasang('nipPenandatangan', ks.nip)
+    pasang('namaPihakKesatu', ks.nama)
+    pasang('nipPihakKesatu', ks.nip)
     pasang('namaMengetahui', kg.nama)
     pasang('nipMengetahui', kg.nip)
     pasang('namaKetuaGugus', kg.nama)
@@ -468,11 +476,21 @@ export default function DokumenSPJPage() {
 
   // Revisi panduan ronde-2 (2026-10-01): klik langkah di popover → lompat ke
   // tab/mode langkah tsb + scroll ke area detail. Popover TIDAK ditutup.
+  // Revisi 2026-10-06 (task 37): tak ada lagi mode preview terpisah — panel
+  // selalu terlihat di samping form. Lompatan preview = tandai sudah-periksa
+  // (agar langkah panduan selesai) + scroll ke panel.
   const handleGuideJump = (jump) => {
     if (!jump) return
     if (jump.mode === 'preview') {
       if (jump.tab) setPreviewTab(jump.tab)
-      setViewMode('preview')
+      if (selectedCard) {
+        setVisitedTabs((prev) => {
+          const next = new Set(prev)
+          next.add(`${selectedCard.id}:preview`)
+          if (jump.tab) next.add(`${selectedCard.id}:p:${jump.tab}`)
+          return next
+        })
+      }
     } else {
       setViewMode('form')
       if (jump.tab) setFormTab(jump.tab)
@@ -485,10 +503,10 @@ export default function DokumenSPJPage() {
     return TEMPLATE_CONFIGS[selectedSubKategori.templateId]
   }
 
-  // ─── Sprint 008: Panel Preview Document + Gate Pra-Cetak (rakitan 3 zona di parent, R1) ───
-  // Satu sumber: formData turun ke Zona B (panel) + Zona C (gate); tiap onChange
-  // re-render panel + badge otomatis. Cetak formal tak tersentuh (sk-print-area
-  // di dalam DokumenFormPreview mode preview; gate hanya window.print + snapshot).
+  // ─── Revisi 2026-10-06 (task 37): satu alur lengkapi-cek-cetak di panel ───
+  // Satu sumber: formData turun ke panel (Zona B); tiap onChange re-render
+  // panel + badge otomatis. Cetak formal tak tersentuh (sk-print-area selalu
+  // dirender di form DokumenFormPreview, display:none di layar).
   // Revisi 2026-10-06 (task 29): label Cermin-* diganti Panel Preview Document;
   // isi panel = render A4 penuh persis dokumen cetak (batas lama "formal hanya
   // di print-area" DICABUT user).
@@ -507,23 +525,19 @@ export default function DokumenSPJPage() {
   }
   const handleCetakGate = () => {
     // Tulis snapshot 1 slot terakhir (spj_otomatis_snapshot) lalu cetak.
+    // Revisi task 37: area cetak selalu render di form — cetak langsung,
+    // tanpa pindah mode preview dulu.
     snapshotSebelumTimpa(
       { ...formData, sppdData: { ...sppdData } },
       [...new Set(Object.keys(formData))],
       formData.bkuSumber?.noBukti || '',
     )
-    const doPrint = () => {
-      // Scope ke area cetak formal — panel preview (Zona B) screen-only, tak ikut cetak.
-      const printContainer = document.querySelector('.sk-print-area .print-container')
-      if (printContainer) {
-        printContainer.classList.remove('portrait', 'landscape')
-        printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
-      }
-      window.print()
+    const printContainer = document.querySelector('.sk-print-area .print-container')
+    if (printContainer) {
+      printContainer.classList.remove('portrait', 'landscape')
+      printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
     }
-    // Area cetak formal hanya render di mode preview — pindah dulu bila di form.
-    if (viewMode !== 'preview') { setViewMode('preview'); window.setTimeout(doPrint, 300) }
-    else doPrint()
+    window.print()
   }
 
   // ─── Print Handler ───────────────────────────────────────────────────────
@@ -710,7 +724,7 @@ export default function DokumenSPJPage() {
             : 'opacity-100 translate-y-0 scale-100'
         }`}
       >
-        <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
           {/* Premium Decorative Elements */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
@@ -806,7 +820,10 @@ export default function DokumenSPJPage() {
             {isSpecial ? (
             <div className="space-y-4">
               {/* Sprint 008: split-view — form kiri + Panel Preview Document kanan (desktop);
-                  mobile menumpuk (panel di bawah form, sticky mati). */}
+                  mobile menumpuk (panel di bawah form, sticky mati).
+                  Sprint 009 Fase B: sticky di ASIDE (grid child) agar panel tetap
+                  terlihat saat form panjang di-scroll; panel-root scroll internal
+                  sendiri via max-h + overflow-y-auto. <lg static menumpuk. */}
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
                 <section aria-label="Zona A — Form dokumen">
                   <DokumenFormPreview
@@ -826,7 +843,7 @@ export default function DokumenSPJPage() {
                     onClose={handleCloseDetail}
                   />
                 </section>
-                <aside className="print:hidden min-w-0">
+                <aside className="print:hidden min-w-0 lg:sticky lg:top-[88px] self-start">
                   <section aria-label="Zona B — Panel Preview Document">
                     <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h2>
                     <PanelPreviewDocument
@@ -834,21 +851,14 @@ export default function DokumenSPJPage() {
                       docs={previewDocs}
                       status={{ perlu: panelPelanggaran.length, violations: panelPelanggaran }}
                       onCek={handleCekPanel}
+                      onCetak={handleCetakGate}
                     />
                   </section>
                 </aside>
               </div>
-              {/* Sprint 008 Zona C: gate pra-cetak di bawah form (screen-only). */}
-              <section aria-label="Zona C — Gate pra-cetak">
-                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Siap Cetak</h2>
-                <PeringatanData
-                  cetakGate={{
-                    siap: panelPelanggaran.length === 0,
-                    pelanggaran: panelPelanggaran.map((v) => v.label),
-                    onCetak: handleCetakGate,
-                  }}
-                />
-              </section>
+              {/* Revisi 2026-10-06 (task 37): Zona C (gate pra-cetak) DIHAPUS —
+                  satu alur lengkapi-cek-cetak langsung di panel (Zona B),
+                  tanpa duplikasi tombol Cetak. */}
             </div>
             ) : (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

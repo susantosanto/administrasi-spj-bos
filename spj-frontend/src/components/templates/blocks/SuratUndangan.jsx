@@ -119,10 +119,10 @@ export default function SuratUndangan({ blockConfig, data = {} }) {
         {data.penutupUndangan2 || 'Demikian undangan ini kami sampaikan, atas perhatian dan kehadirannya kami ucapkan terima kasih.'}
       </p>
 
-      {/* Ketua Gugus */}
+      {/* Ketua Gugus — [SPASI 64px] di bawah jabatan untuk TTD basah */}
       <div className="text-center w-56 mx-auto">
         <div className="text-xs font-medium mb-4">Ketua Gugus,</div>
-        <div className="h-16" />
+        <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
         <div className="text-xs font-bold">{data.namaKetuaGugus}</div>
         <div className="text-[10px] text-gray-500">NIP. {data.nipKetuaGugus}</div>
       </div>

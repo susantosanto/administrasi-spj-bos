@@ -187,4 +187,13 @@ export function lengkapiNotulen({
   }
 }
 
-export default { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen, rincianMenu, bangunPesananDuaSeksi, MENU_PESANAN }
+// ─── Sprint 009 Fase A: bagi rows pesanan per seksi (1 logika utk A1/A2/A3) ───
+export function bagiPesananPerSeksi(formData) {
+  const all = formData.pesananRows || []
+  const warisan = (r) => !r.seksi || (r.seksi !== 'Nasi Box' && r.seksi !== 'Snack Box')
+  const ambil = (seksi, plusWarisan) => all.filter((r) => r.seksi === seksi || (plusWarisan && warisan(r))).map((r, i) => ({ ...r, no: i + 1 }))
+  const nyala = (id) => (formData.seksiPesanan ? (formData.seksiPesanan[id] ?? true) : true)
+  return { nasi: nyala('nasi') ? ambil('Nasi Box', true) : [], snack: nyala('snack') ? ambil('Snack Box', false) : [] }
+}
+
+export default { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen, rincianMenu, bangunPesananDuaSeksi, bagiPesananPerSeksi, MENU_PESANAN }

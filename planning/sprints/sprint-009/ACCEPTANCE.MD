@@ -13,14 +13,14 @@ Sprint SELESAI bila checklist C-01-C-08 centang + T-01-T-08 lulus + E-1/E-2 lulu
 
 ## Checklist
 
-- [ ] C-01 Form tetap: 1 input nomor/perihal + editor rows + toggle 2 seksi, tambah/ubah/hapus jalan (T-02)
-- [ ] C-02 Pecah tampil: 2 kartu preview + 2 halaman cetak + 2 doc panel (Nasi 6 + Snack 4 default), no ulang 1..N per surat (T-03)
-- [ ] C-03 Nomor/perihal per surat sesuai Keputusan pack: nomor SAMA, perihal + suffix seksi display-only (T-04)
-- [ ] C-04 Saklar + fallback jujur: seksi mati di-skip, kedua mati pesan jujur, rows warisan ikut Nasi tak hilang (T-05)
-- [ ] C-05 Cetak steril selain pecahan: dokumen lain identik, tiap surat ganti halaman, panel tak ikut cetak (T-06)
-- [ ] C-06 Sticky panel: desktop menempel saat scroll, mobile menumpuk tak sticky, tanpa ubah cetak (T-07)
-- [ ] C-07 Larangan: tanpa TTD digital, tanpa KIRIM, tanpa QR, tanpa navy, 0 lib baru, prefix spj_ utuh (T-06/T-08)
-- [ ] C-08 Build sukses + STATE.MD/pack updated (T-01)
+- [x] C-01 Form tetap: 1 input nomor/perihal + editor rows + toggle 2 seksi, tambah/ubah/hapus jalan (T-02) — 2026-10-06 builder: editor 1263-1368 tak tersentuh, toggle/menu baku jalan di browser
+- [x] C-02 Pecah tampil: 2 kartu preview + 2 halaman cetak + 2 doc panel (Nasi 6 + Snack 4 default), no ulang 1..N per surat (T-03) — 2026-10-06 builder: panel 5 docs, Nasi 1-6 + Snack 1-4, screenshot
+- [x] C-03 Nomor/perihal per surat sesuai Keputusan pack: nomor SAMA, perihal + suffix seksi display-only (T-04) — 2026-10-06 builder: "800/TEST/2026" sama + "Surat Pesanan — Nasi/Snack Box", DOM terkonfirmasi
+- [x] C-04 Saklar + fallback jujur: seksi mati di-skip, kedua mati pesan jujur, rows warisan ikut Nasi tak hilang (T-05) — 2026-10-06 builder: snack-off→hanya Nasi, both-off→panel tanpa pesanan + pesan jujur legacy, node unit warisan→Nasi
+- [x] C-05 Cetak steril selain pecahan: dokumen lain identik, tiap surat ganti halaman, panel tak ikut cetak (T-06) — 2026-10-06 builder: diff templateConfig/TemplateEngine/blocks kosong, 2x sk-doc-print pesanan, larangan 0, print:hidden ada
+- [x] C-06 Sticky panel: desktop menempel saat scroll, mobile menumpuk tak sticky, tanpa ubah cetak (T-07) — 2026-10-06 builder Fase B: aside lg:sticky top-88 + panel max-h internal scroll; desktop asideTop=88 panel terlihat, mobile 390px static menumpuk, print:hidden + @media print utuh; screenshot 2
+- [x] C-07 Larangan: tanpa TTD digital, tanpa KIRIM, tanpa QR, tanpa navy, 0 lib baru, prefix spj_ utuh (T-06/T-08) — 2026-10-06 builder: grep larangan 0, package.json utuh, blue-only 0 di file tersentuh
+- [x] C-08 Build sukses + STATE.MD/pack updated (T-01) — 2026-10-06 builder: exit 0 ×2 (8.63s + 7.72s), STATE.MD + pack updated, tanpa commit (kuasa user)
 
 ## Test Cases
 
