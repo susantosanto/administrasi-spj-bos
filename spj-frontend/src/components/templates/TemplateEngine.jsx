@@ -10,6 +10,7 @@
  *   mode="edit" | "print"
  * />
  */
+import { useEffect, useState } from 'react'
 import {
   KopSurat,
   HeaderDokumen,
@@ -27,6 +28,7 @@ import {
   SPDForm,
   PeringatanData,
 } from './blocks'
+import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 
 // Block type → Component mapping
 const BLOCK_RENDERERS = {
@@ -71,11 +73,21 @@ export default function TemplateEngine({
     }
   }
 
+  // Kertas A4/F4 pilihan user (spj_kertas) — ikut tanpa reload.
+  const [kertas, setKertas] = useState(getPaperSize())
+  useEffect(() => {
+    const sinkron = (e) => {
+      if (e?.detail?.paper) setKertas(e.detail.paper)
+    }
+    window.addEventListener(PAPER_EVENT, sinkron)
+    return () => window.removeEventListener(PAPER_EVENT, sinkron)
+  }, [])
+
   return (
     <div
       className={`template-engine ${
         mode === 'print' ? 'print-container' : 'preview-container'
-      } ${templateConfig.orientation || 'portrait'}`}
+      } ${templateConfig.orientation || 'portrait'} paper-${kertas.toLowerCase()}`}
     >
       {/* Sprint 001 FASE 5 (task 5.2): peringatan data kosong — tampil di SEMUA
           form template (mode edit). Varian pesan + tautan aksi ada di komponen. */}

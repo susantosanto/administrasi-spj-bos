@@ -26,7 +26,7 @@ export default function KopSurat({ data = {} }) {
     : 'DINAS PENDIDIKAN'
 
   return (
-    <div className="text-center border-b-2 border-black pb-2 mb-4">
+    <div className="text-center kop-ganda pb-2 mb-4">
       <div className="relative">
         {logoDinas && (
           <img

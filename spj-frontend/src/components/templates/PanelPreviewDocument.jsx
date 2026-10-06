@@ -13,12 +13,26 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TemplateEngine from './TemplateEngine'
 import { SKHonorer } from './blocks'
+import PaperSizeSelector from './PaperSizeSelector'
+import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 import { sorotPelanggaran } from './SummaryCard'
 
 function ScaledPaper({ doc, zoom }) {
   const wrapRef = useRef(null)
   const paperRef = useRef(null)
   const landscape = doc.templateConfig?.orientation === 'landscape'
+  const [kertas, setKertas] = useState(getPaperSize())
+
+  // Ikut pilihan kertas user (A4/F4) tanpa reload.
+  useEffect(() => {
+    const sinkron = (e) => {
+      if (e?.detail?.paper) setKertas(e.detail.paper)
+    }
+    window.addEventListener(PAPER_EVENT, sinkron)
+    return () => window.removeEventListener(PAPER_EVENT, sinkron)
+  }, [])
+  const lebar = landscape ? '297mm' : (kertas === 'F4' ? '215.9mm' : '210mm')
+  const tinggi = landscape ? '210mm' : (kertas === 'F4' ? '330mm' : '297mm')
 
   // Skala-agar-muat via mutasi DOM langsung (tanpa React state) — anti-loop
   // by design: tak ada setState sehingga tak mungkin nested-update storm.
@@ -28,11 +42,16 @@ function ScaledPaper({ doc, zoom }) {
     const paper = paperRef.current
     if (!wrap || !paper) return
     const measure = () => {
-      const avail = wrap.clientWidth || 1
+      // Lebar muat = content-box wrap (clientWidth termasuk padding p-2;
+      // tanpa koreksi ini kertas meluber 16px lalu terpotong overflow-hidden).
+      const cs = window.getComputedStyle(wrap)
+      const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0)
+      const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0)
+      const avail = Math.max(1, wrap.clientWidth - padX - 2)
       const natural = paper.offsetWidth || 1
       const scale = +(Math.min(1, avail / natural) * zoom).toFixed(4)
       paper.style.transform = `scale(${scale})`
-      wrap.style.height = `${Math.round(paper.offsetHeight * scale) + 16}px`
+      wrap.style.height = `${Math.round(paper.offsetHeight * scale) + Math.round(padY)}px`
     }
     measure()
     let ro = null
@@ -65,8 +84,8 @@ function ScaledPaper({ doc, zoom }) {
           ref={paperRef}
           className="panel-a4-paper bg-white shadow-md"
           style={{
-            width: landscape ? '297mm' : '210mm',
-            minHeight: landscape ? '210mm' : '297mm',
+            width: lebar,
+            minHeight: tinggi,
             padding: landscape ? '15mm 20mm' : '20mm 25mm',
             transformOrigin: 'top left',
           }}
@@ -180,6 +199,7 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <PaperSizeSelector ringkas />
             <button
               type="button"
               onClick={handleCek}

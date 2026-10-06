@@ -490,6 +490,123 @@ body {
   }
 }
 
+/* Audit gugus task 41 (P1 print-hitam, tanpa ubah font-family/size):
+   area cetak formal (.sk-print-area) WAJIB hitam polos — dekorasi layar
+   (abu, dashed, bg thead) tidak ikut cetak. Scope ketat ke .sk-print-area
+   agar Panel Preview Document (layar) tak berubah. */
+@media print {
+  .sk-print-area,
+  .sk-print-area * {
+    color: #000 !important;
+    background: transparent !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .sk-print-area thead,
+  .sk-print-area th {
+    background: transparent !important;
+  }
+
+  .sk-print-area table,
+  .sk-print-area th,
+  .sk-print-area td {
+    border-color: #000 !important;
+  }
+
+  /* Garis tab putus-putus (border-dashed) jadi garis polos di cetak */
+  .sk-print-area .border-dashed,
+  .sk-print-area tr[class*="border-dashed"],
+  .sk-print-area td[class*="border-dashed"] {
+    border-bottom-style: solid !important;
+  }
+
+  .sk-print-area .border-t[class*="border-dashed"] {
+    border-top-style: solid !important;
+  }
+
+  /* Judul SPT bold + underline seperti docx (khusus print) */
+  .sk-print-area .spt-judul {
+    text-decoration: underline !important;
+  }
+}
+
+/* ============================================
+   Kertas cetak — A4 vs F4 (Folio 8,5x13")
+   Pilihan user (spj_kertas) via kelas paper-a4/paper-f4.
+   @page dinamis disuntik paperSize.js (#spj-paper-page);
+   blok di bawah fallback statis.
+   ============================================ */
+/* F4 portrait: 215,9mm x 330mm.
+   CATATAN: .print-container (dipakai TemplateEngine mode=print, termasuk di
+   dalam panel layar) WAJIB width:auto di layar — ia mengisi kertas induk
+   (.panel-a4-paper / .sk-print-area) yang sudah berukuran mm persis. Paksa
+   lebar di sini hanya untuk .preview-container (mode edit, kertas mandiri).
+   Ukuran cetak F4 diatur di @media print bawah + #spj-paper-page dinamis. */
+.preview-container.paper-f4.portrait {
+  width: 215.9mm;
+  min-height: 330mm;
+}
+/* F4 landscape: tinggi ikut folio */
+.preview-container.paper-f4.landscape {
+  width: 330mm;
+  min-height: 215.9mm;
+  padding: 15mm 20mm;
+}
+@media print {
+  .print-container.paper-f4.portrait {
+    width: 215.9mm;
+    min-height: 330mm;
+  }
+  .print-container.paper-f4.landscape {
+    width: 330mm;
+    min-height: 215.9mm;
+    padding: 15mm 20mm;
+  }
+}
+
+/* Kop garis ganda meniru docx (thinThickSmallGap bawah P3) */
+.kop-ganda {
+  border-bottom: 4px double #000 !important;
+}
+
+/* Tabel SPD meniru TABLE3 docx: bingkai penuh + nomor */
+.spd-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.spd-tabel > tbody > tr > td,
+.spd-tabel > tbody > tr > th {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  vertical-align: top;
+  text-align: left;
+}
+.spd-tabel .spd-no {
+  width: 28px;
+  text-align: center;
+  white-space: nowrap;
+}
+.spd-tabel .spd-label {
+  width: 32%;
+}
+
+/* Kotak berangkat/tiba meniru TABLE4 docx (pasangan 2 kolom) */
+.spd-kotak {
+  border: 1px solid #000;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* Baris surat (SPT/Undangan) polos seperti docx — tanpa garis */
+@media print {
+  .sk-print-area .surat-polos tr,
+  .sk-print-area .surat-polos td {
+    border: none !important;
+  }
+}
+
 /* ============================================
    SK Honorer — Review Premium
    ============================================ */

@@ -11,6 +11,8 @@
  */
 import { useState } from 'react'
 import SKHonorer from './SKHonorer'
+import PaperSizeSelector from '../PaperSizeSelector'
+import { getPaperSize } from '../../../utils/paperSize'
 import { cloneDefaultPasal } from '../../../data/skPasal'
 
 const uid = () => `id${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
@@ -132,6 +134,7 @@ export default function SkHonorerEditor({
         </div>
 
         <div className="flex items-center gap-2">
+          <PaperSizeSelector ringkas />
           <button
             type="button"
             onClick={onResetPasal}
@@ -457,7 +460,7 @@ export default function SkHonorerEditor({
           ganda — cetak formal tetap satu-satunya di tab preview SK. */}
       {!hidePrint && (
       <div className="sk-print-area">
-        <div className="print-container portrait">
+        <div className={`print-container portrait paper-${getPaperSize().toLowerCase()}`}>
           {printDocs.map((s, i) => (
             <div key={s.row.id || i} className="sk-doc-print">
               <SKHonorer data={s.skData} mode="preview" />
