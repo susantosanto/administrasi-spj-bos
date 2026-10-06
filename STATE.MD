@@ -5,6 +5,51 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- Sprint 007 — Revisi Parser + Hadir + Menu Pesanan — 🟡 **BUILDER SELESAI (STATIK) 2026-10-05 di branch `feat/sprint-005-autogen` (Pilihan B, 005+006 ikut kebawa), belum di-commit, belum acceptance.**
+  Dry run disetujui user/koordinator 2026-10-05; eksekusi A.1→E.2. 0 baru (`aturanMamin.js`
+  160/200: MENU_PESANAN Nasi-6/Snack-4 + rincianMenu + templatePesananMamin per-jenis + fallback konsumsi) + 3 ubah
+  (bkuKategori.js kupasEkorJamuan + kupasPrefiksKonsumsi + bacaGTKUntukHadir Guru→Tendik;
+  DokumenSPJPage.jsx hadir via bacaGTKUntukHadir; DokumenFormPreview.jsx tombol Isi menu baku).
+  B.2/D.1/D.2 reuse-006 verified-existing tanpa ubah logika; cetak formal tak tersentuh
+  (diff blocks/templateConfig/TemplateEngine kosong).
+  Gate: build exit 0 ×2 (baseline `5.03s`, final `4.99s`) · node oracle 18/18
+  (parser jamuan 3 + konsumsi 2 + fallback + multi-baris lama; hadir kosong/isi; menu 6/4/fallback) ✅ ·
+  T-08 15 pola = 0 · fetch/AI = 0 · blue-only tambah 0 · spj_otomatis_snapshot = 3 · Urungkan = 7 ·
+  grep Jamuan/parseMamin/data_tendik/templateDaftarHadir/templatePesananMamin/MENU_PESANAN semua ≥ DoD.
+  Catatan jujur: `bkuKategori.js` 382 baris = warisan 337 pra-007 (refactor luar cakupan, dilarang AGENTS.MD);
+  node `-e` langsung terhalang impor extensionless warisan → harness temp (logika byte-identical).
+  UNTESTED runtime (T-04/T-05 klik-baris + screenshot, T-06 screenshot 6/4, T-07 3 screenshot, E-1 buka-ulang) → /acceptance-runner konteks segar.
+  **REWORK ronde-1 2026-10-05 (verdict NOT APPROVED High, tanpa commit):**
+  `aturanPesanan.js` BARU 192/200 (parser 007 + bacaGTK + gabung/kelompok/dominan,
+  byte-identical, pola 006) + `bkuKategori.js` 382→194/200 (re-export 1 pintu,
+  API identik) + impor `.js` (node prescribed T-02/T-03/T-05/T-06 exit 0 TANPA
+  harness). Gate: build exit 0 `5.03s` (186 modul) · oracle 22/22 · util ≤200
+  semua · hardcode 0 · offline 0 · diff cetak kosong. → acceptance ulang.
+  Laporan: `planning/sprints/sprint-007/BUILD-REPORT.MD`.
+- Sprint 006 — Autogen Semua Tab Mamin — 🟡 **BUILDER SELESAI (STATIK) 2026-10-03 di branch `feat/sprint-005-autogen` (Pilihan B, 005 ikut kebawa), belum di-commit, belum acceptance.**
+  Dry run + pecah `aturanMamin.js` disetujui user/koordinator; eksekusi A.1→F.2. 1 baru `aturanMamin.js`
+  (132/200: templatePesananMamin + templateDaftarHadir + templateBukuTamu + lengkapiNotulen) + 4 ubah
+  (aturanUndangan.js re-export 4 fn, 148/200; bkuKategori.js subId routing kegiatan→pesanan;
+  DokumenSPJPage.jsx prefill per-sub + GTK rows + tempat default sekolah + snapshot otomatis;
+  DokumenFormPreview.jsx toggle hadir via template + input perihalPesanan + 3 baku-hint BKU-gated).
+  Cetak formal tak tersentuh (diff blocks/templateConfig/TemplateEngine kosong); E.1/E.2 reuse 005 tanpa ubah kode.
+  Gate: build exit 0 ×2 (final `7.89s`) · node 4 template (T-03 jujur "" + F1–F4 oracle) ✅ ·
+  T-08 15 pola = 0 · fetch/AI = 0 (komentar "fetch" dibuang) · blue-only tambah 0 ·
+  spj_otomatis_snapshot = 3 · Urungkan ≥ 6.
+  UNTESTED runtime (T-02/T-04/T-05/T-06/T-07 screenshot, E-1 buka-ulang) → /acceptance-runner konteks segar.
+  Deviasi tercatat: pembuka = kalimat baku 005 (T-06 menang atas nama pejabat); waktu = '' (tanpa sumber BKU);
+  node-test bkuKategori terhalang import extensionless warisan (build vite lolos).
+  Laporan: `planning/sprints/sprint-006/BUILD-REPORT.MD`.
+- Sprint 005 — Autogenerate Undangan + Resume — 🟡 **BUILDER SELESAI (STATIK) 2026-10-03 di branch `feat/sprint-005-autogen`, belum di-commit, belum acceptance.**
+  Dry run disetujui user; eksekusi A.1→E.2. 1 baru `aturanUndangan.js` (142/200) + 3 ubah
+  (bkuKategori SELALU TIMPA + parsePerjalanan, DokumenSPJPage template+snapshot+badge+Urungkan,
+  DokumenFormPreview chip "dari BKU"); BKUSidebar verified-existing tanpa diff; parseMamin
+  byte-identical (lindungi T3 6/6).
+  Gate: build exit 0 ×3 (final `4.92s`) · node import 11 exports + 7 kasus parser ✅ ·
+  5 pola T-08 = 0 · added-lines 15 pola + fetch/AI = 0 · diff warisan kosong ·
+  E-2 = 0 · spj_otomatis_snapshot = 3 · Urungkan = 6.
+  UNTESTED runtime (T-03…T-07 screenshot, E-1 buka-ulang) → /acceptance-runner konteks segar.
+  Laporan: `planning/sprints/sprint-005/BUILD-REPORT.MD`.
 - **REVISI BKU grup+Mamin+hapus LPJ+hapus panel ATK — ✅ T1-T7 DONE di main lokal 2026-10-02, belum push, belum acceptance fresh.**
   HEAD `cc2456e` ahead 3 dari `origin/main` (`08e4078` parsial warisan + `a53fd61` revisi T1-T4 + `cc2456e` hapus panel ATK T6-T7).
   T1 hapus kolom LPJ · T2 grup dominan kode rekening + auto filter cerdas · T3 parser Mamin ketat Q3 ·
@@ -442,6 +487,7 @@
 | 001 | Fondasi Data Sekolah & Pejabat — US-13…US-18 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `8398fe1` + `73174c0` + `2e23441`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-17 |
 | 002 | Rework Modul Perjalanan Dinas — US-01…US-12 (**APPROVED 2026-09-30** acceptance-runner konteks segar; commit `36b408f`→`5b11f10` + `c955019`; UI runtime UNTESTED — risiko diterima user) | ✅ Selesai | 2026-09-19 |
 | 003 | Rework Lapisan Preview & Panduan Langkah — US-19…US-30 (FASE 1–4 + revisi R1…R9 `17a266d`→`414b53d`; acceptance ronde-1 12 PASS/0 FAIL/8 UNTESTED → **✅ DITUTUP 2026-10-01, risiko diterima user**, ronde-2 dibatalkan) | ✅ Selesai | 2026-10-01 |
+| 005 | Autogenerate Undangan + Resume — builder statik selesai (1 baru + 3 ubah, gate hijau, runtime UNTESTED → acceptance-runner) | 🟡 Builder selesai | 2026-10-03 |
 
 ## Langkah Selanjutnya
 - **Sprint 003 SELESAI (risiko diterima). Berikutnya:**
