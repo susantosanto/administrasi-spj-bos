@@ -14,8 +14,10 @@
  *   Mengetahui/Mengesahkan + Cikalongwetan, ... Kepala Sekolah, [TTD]
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
+import { getSchoolData } from '../../../utils/sekolahData'
 
 export default function SuratTugas({ blockConfig, data = {} }) {
+  const sekolah = getSchoolData().namaSekolah || ''
   const judul = blockConfig.judul || 'SURAT PERINTAH TUGAS'
   const showNomor = blockConfig.nomor !== false
 
@@ -88,14 +90,16 @@ export default function SuratTugas({ blockConfig, data = {} }) {
       <div className="flex justify-between">
         <div className="text-center w-56">
           <div className="text-xs font-medium mb-1">Kepala,</div>
-          <div className="h-16" />
+          <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaMengetahui}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipMengetahui}</div>
         </div>
         <div className="text-center w-56">
           <div className="text-xs text-gray-600 mb-1">{data.tanggalSpt || ''}</div>
-          <div className="text-xs font-medium mb-1">Kepala Sekolah,</div>
-          <div className="h-16" />
+          {/* TTD 4 baris: Kepala / nama SD / [SPASI 64px] / nama orang / NIP */}
+          <div className="text-xs font-medium">Kepala</div>
+          <div className="text-xs font-medium mb-1">{sekolah ? `${sekolah},` : ''}</div>
+          <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
           <div className="text-xs font-bold">{data.namaPenandatangan}</div>
           <div className="text-[10px] text-gray-500">NIP. {data.nipPenandatangan}</div>
         </div>

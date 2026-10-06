@@ -744,3 +744,13 @@
   **v22.22.2 / npm 10.9.7** (*managed*). Angka v24.19.0 tidak salah sebagai fakta
   (runtime itu memang ada di mesin), tetapi salah sebagai **runtime gate**. Dibiarkan
   di atas untuk audit trail.
+
+[2026-10-06] Keputusan: batas "dokumen formal penuh HANYA di print-area" DICABUT user
+  Status: accepted
+  Alasan: user perintahkan Panel Preview Document render A4 penuh persis dokumen
+    cetak di layar ala SIMENULIS (live-sync form → panel). Cetak tak berubah:
+    panel screen-only (print:hidden + display:none saat print), builder data
+    mirror 1:1 area cetak, querySelector cetak di-scope .sk-print-area.
+  Dibuat oleh: user (task 29, 2026-10-06)
+  Dampak: DokumenSPJPage Zona B + PanelPreviewDocument.jsx + previewDocs.js;
+    larangan TTD digital / KIRIM server / QR / warna navy TETAP berlaku

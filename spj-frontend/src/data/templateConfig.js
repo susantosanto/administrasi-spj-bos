@@ -71,6 +71,8 @@ export const TEMPLATE_CONFIGS = {
       {
         type: 'table-letter-header',
         dateField: 'tanggalSurat',
+        // DOCX: "Kepada Yth," sejajar "Perihal", alamat/di/tempat di bawahnya
+        rightAlignBottom: true,
         leftFields: [
           { key: 'nomorUndangan', label: 'Nomor', type: 'text' },
           { key: 'sifatUndangan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },

@@ -8,9 +8,10 @@
  * - PIHAK numbered 1. dan 2. dengan layout label : value
  * - Pasal heading center bold (uppercase)
  * - Item bernomor "1." dengan hanging indent; sub-item huruf "a."
- * - Tanda tangan di kanan info (mode print)
+ * - Tanda tangan di kanan info (mode print + preview)
  */
 import { getSchoolData, getKepalaSekolah } from '../../../utils/sekolahData'
+import storageHelper from '../../../utils/storageHelper'
 import { DEFAULT_PASAL, renderPasalText } from '../../../data/skPasal'
 
 // ─── Editable inline field ─────────────────────────────────────────────
@@ -37,6 +38,9 @@ function F({ value, onChange, placeholder, missing }) {
 export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty }) {
   const sekolah = getSchoolData()
   const ks = getKepalaSekolah()
+  // Logo KOP dibaca saat render ala KopSurat (spj_logo_dinas / spj_logo_sekolah)
+  // — langsung ganti setelah upload tanpa reload; kosong → placeholder SVG.
+  const logoKop = storageHelper.get('logo_dinas', null) || storageHelper.get('logo_sekolah', null)
   // Komponen field editable — dipanggil sebagai <E field="..." placeholder="..." />
   const E = ({ field, placeholder }) => {
     const val = data[field]
@@ -82,13 +86,17 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
       {/* KOP SURAT */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ flex: '0 0 64px', textAlign: 'center' }}>
-          {/* Placeholder logo — ganti dengan logo sekolah */}
+          {logoKop ? (
+            <img src={logoKop} alt="Logo" style={{ width: 60, height: 60, objectFit: 'contain' }} />
+          ) : (
+          /* Placeholder logo — tampil bila storage logo_dinas/logo_sekolah kosong */
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ width: 60, height: 60 }}>
             <path d="M50 4 L90 17 V50 C90 75 72 91 50 97 C28 91 10 75 10 50 V17 Z"
               fill="#fdfdfd" stroke="#333" strokeWidth="2.5" />
             <text x="50" y="55" textAnchor="middle" fontSize="14"
               fontFamily="Arial" fill="#555">LOGO</text>
           </svg>
+          )}
         </div>
         <div style={{ flex: 1, textAlign: 'center', lineHeight: '1.25' }}>
           <div style={{ fontSize: '12px', fontWeight: 'bold', letterSpacing: '.5px' }}>
@@ -224,9 +232,13 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
                   </tbody>
                 </table>
               </td>
-              {mode === 'print' && (
+              {(mode === 'print' || mode === 'preview') && (
                 <td style={{ verticalAlign: 'top', textAlign: 'center', width: '45%' }}>
-                  <div>Kepala {sekolah.namaSekolah || ''},</div>
+                  {/* TTD 4 baris: Kepala / nama SD / nama orang / NIP.
+                      nowrap + normalisasi spasi agar baris sekolah tidak pecah
+                      (nama import kadang membawa newline/spasi ganda) */}
+                  <div>Kepala</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>{(sekolah.namaSekolah || '').replace(/\s+/g, ' ').trim()}{sekolah.namaSekolah ? ',' : ''}</div>
                   <div style={{ height: '75px' }} />
                   <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
                     {data.namaPihakKesatu || ks.nama}

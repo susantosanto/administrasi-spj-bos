@@ -1,11 +1,11 @@
-/**
- * DokumenFormPreview — Konsep BARU Dokumen LPJ (Form Input → Preview → Revisi)
+﻿/**
+ * DokumenFormPreview — Form Input dokumen LPJ + area cetak formal.
  *
- * - Klik card → tampil FORM (input box + dropdown dari data tersimpan)
- * - Kepala Sekolah, Bendahara, Logo → otomatis dari data sekolah
- * - Tombol "Preview" → dokumen siap cetak (TemplateEngine mode=print)
- * - Tombol "Kembali ke Form" → revisi
- * - Generate nomor surat tetap ada di FORM
+ * Revisi 2026-10-06 (task 37): tampilan Ringkasan terpisah DIHAPUS.
+ * Satu alur: isi form (Zona A) → periksa Panel Preview Document (Zona B,
+ * badge LENGKAP + tombol Cek + Cetak) → cetak. Area cetak formal
+ * (.sk-print-area, display:none di layar) selalu dirender di form agar
+ * tombol Cetak panel selalu punya sumber cetak.
  *
  * Berlaku untuk semua dokumen template (Honor, Transport, Makan & Minum, Pemeliharaan).
  * Dokumen recipient-based (Honor/Transport) punya form pilih-penerima dari Data Guru/Tendik.
@@ -13,7 +13,7 @@
  */
 import { useState, useEffect } from 'react'
 import TemplateEngine from './TemplateEngine'
-import SummaryCard from './SummaryCard'
+import MaminPreview from './MaminPreview'
 import SkHonorerEditor from './blocks/SkHonorerEditor'
 import TabelDinamis from './blocks/TabelDinamis'
 import { loadSkPasal, saveSkPasal, cloneDefaultPasal } from '../../data/skPasal'
@@ -32,10 +32,9 @@ import { useToast } from '../ui/Toast'
 import storageHelper from '../../utils/storageHelper'
 import { getSchoolData } from '../../utils/sekolahData'
 import { getSignatureRoles } from '../../utils/signatureRoles'
-import PeringatanData from './blocks/PeringatanData'
 import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen, rincianMenu, bangunPesananDuaSeksi, MENU_PESANAN } from '../../utils/aturanMamin'
 
-// ─── Auto-calc helper (mirip TabelDinamis) ────────────────────────────────
+// â”€â”€â”€ Auto-calc helper (mirip TabelDinamis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function computeAutoValue(row, auto) {
   if (!auto || !auto.type) return ''
   const fields = auto.fields || []
@@ -76,7 +75,7 @@ function getParticipantTableBlock(cardId) {
   return cfg?.blocks?.find((b) => b.type === 'table-dinamis')
 }
 
-// ─── Recipient source (Honor / Transport) ────────────────────────────────
+// â”€â”€â”€ Recipient source (Honor / Transport) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getRecipientsFor(cardId, subId) {
   const g = getGuruHonorer()
   const t = getTendikHonorer()
@@ -92,7 +91,7 @@ function getRecipientsFor(cardId, subId) {
     }
   }
   if (cardId === 'perjalanan_dinas') {
-    // Sprint 003 (US-24): semua pegawai semua status — honor tetap honorer-only di cabang atas
+    // Sprint 003 (US-24): semua pegawai semua status â€” honor tetap honorer-only di cabang atas
     return getSemuaPegawai()
   }
   // Makan & Minum (Daftar Hadir) & Pemeliharaan (Daftar Penerima Upah)
@@ -115,7 +114,7 @@ const BULAN_TGL = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-// Format 'YYYY-MM-DD' → '14 Mei 1991'
+// Format 'YYYY-MM-DD' â†’ '14 Mei 1991'
 function fmtTglLahir(tgl) {
   if (!tgl) return ''
   const m = String(tgl).match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
@@ -144,7 +143,7 @@ function buildHonorRow(item, no, bulanName) {
     pph: '',
     diterima: '',
     ttd: '',
-    // Data SK — diambil dari Data Guru/Tendik
+    // Data SK â€” diambil dari Data Guru/Tendik
     tempatLahir,
     tanggalLahir,
     ttl: tempatLahir && tanggalLahir ? `${tempatLahir}, ${fmtTglLahir(tanggalLahir)}` : tempatLahir,
@@ -184,10 +183,10 @@ const BULAN_LIST = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-// ─── Tab dokumen Perjalanan Dinas ────────────────────────────────────────
+// â”€â”€â”€ Tab dokumen Perjalanan Dinas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Tab = data yang akan di-edit, bukan tampilan cetak.
 // Template cetak (persis dengan DOCX) dirender di Preview.
-// ADR 2026-09-14: tab "Surat Tugas" dihapus — satu dokumen = satu tab
+// ADR 2026-09-14: tab "Surat Tugas" dihapus â€” satu dokumen = satu tab
 // (dokumen sumber hanya memuat Undangan, SPT, SPD).
 const TRANSPORT_FORM_TABS = [
   { id: 'daftar', label: 'Daftar Penerima', icon: 'table_chart' },
@@ -211,7 +210,7 @@ function getTransportTabs(subId) {
   return TRANSPORT_FORM_TABS.filter((t) => ids.includes(t.id))
 }
 
-// ─── Field helper: labeled input/select/textarea compact ────────────────
+// â”€â”€â”€ Field helper: labeled input/select/textarea compact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Field({ label, value, onChange, placeholder, type = 'text', options, textarea = false, rows = 2, readOnly = false, className = '' }) {
   const base = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none'
   return (
@@ -232,7 +231,7 @@ function Field({ label, value, onChange, placeholder, type = 'text', options, te
   )
 }
 
-// ─── COMPONENT ───────────────────────────────────────────────────────────
+// â”€â”€â”€ COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function DokumenFormPreview({
   card,
   selectedSub,
@@ -243,7 +242,7 @@ export default function DokumenFormPreview({
   setSppdData,
   viewMode, // 'form' | 'preview'
   setViewMode,
-  formTab, // Sprint 003 ADDENDUM: state DIANGKAT ke DokumenSPJPage (R1) —
+  formTab, // Sprint 003 ADDENDUM: state DIANGKAT ke DokumenSPJPage (R1) â€”
   setFormTab, // MenuGuide perlu tahu tab aktif (ctx.activeTab)
   previewTab,
   setPreviewTab,
@@ -287,7 +286,7 @@ export default function DokumenFormPreview({
     const transportRows = formData.rows || []
     setSppdData((prev) => ({
       // Sprint 002: pertahankan field lain (maksud, pengikutRows, dst.) saat
-      // daftar penerima berubah — hanya `rows` yang di-sinkronkan ulang.
+      // daftar penerima berubah â€” hanya `rows` yang di-sinkronkan ulang.
       ...prev,
       nomorSurat: prev.nomorSurat || '',
       tujuan: prev.tujuan || (TEMPLATE_CONFIGS[selectedSub?.templateId]?.defaults?.kegiatan || 'Perjalanan Dinas'),
@@ -332,7 +331,7 @@ export default function DokumenFormPreview({
     setFormData({ ...formData, rows })
   }
 
-  // ─── Sprint 002 FASE 2: pengikut SPD (butir 8) & tembusan undangan ───
+  // â”€â”€â”€ Sprint 002 FASE 2: pengikut SPD (butir 8) & tembusan undangan â”€â”€â”€
   const updatePengikut = (i, key, value) => {
     const rows = [...(sppdData.pengikutRows || [])]
     rows[i] = { ...(rows[i] || {}), [key]: value }
@@ -352,9 +351,9 @@ export default function DokumenFormPreview({
   const removeTembusan = (i) =>
     setFormData({ ...formData, tembusanItems: (formData.tembusanItems || []).filter((_, idx) => idx !== i) })
 
-  // ─── Buku Tamu Kedinasan (Mamin) ─────────────────────────────────────
+  // â”€â”€â”€ Buku Tamu Kedinasan (Mamin) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const bt = formData.bukuTamu || {}
-  // Sprint 006: petunjuk baku template Mamin (placeholder abu-abu, non-destruktif) —
+  // Sprint 006: petunjuk baku template Mamin (placeholder abu-abu, non-destruktif) â€”
   // hanya dihitung saat dokumen dibuka dari BKU; tak mengubah nilai, manual, atau cetak.
   const bkuCtx006 = formData.bkuSumber || null
   const bakuPesanan006 = bkuCtx006 ? templatePesananMamin({ acara: formData.acara || '', tanggal: bkuCtx006.tanggal || '', uraian: bkuCtx006.uraian || '' }) : null
@@ -397,9 +396,9 @@ export default function DokumenFormPreview({
     return { ...data, rows: computeAutoRows(rows, columns) }
   }
 
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER: FORM
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const renderForm = () => {
     const config = TEMPLATE_CONFIGS[selectedSub?.templateId]
 
@@ -412,7 +411,7 @@ export default function DokumenFormPreview({
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[11px]">
             <span className="material-symbols-outlined text-primary text-sm">move_to_inbox</span>
             <span className="font-semibold text-slate-700">
-              dari BKU{formData.bkuSumber?.noBukti ? ` ${formData.bkuSumber.noBukti}` : ''} · draf aturan — silakan edit
+              dari BKU{formData.bkuSumber?.noBukti ? ` ${formData.bkuSumber.noBukti}` : ''} Â· draf aturan â€” silakan edit
             </span>
           </div>
         )}
@@ -504,6 +503,7 @@ export default function DokumenFormPreview({
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -522,7 +522,28 @@ export default function DokumenFormPreview({
             </div>
             )}
 
-            {/* ═══ TAB: SURAT PERINTAH TUGAS (transport) ═══ */}
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Ditulis ke formData yang sama; dibaca Panel Preview Document Zona B + gate Zona C. */}
+            {(!isTransport || formTab === 'daftar') && (
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat â€” perhatikan Panel Preview Document kanan.
+              </p>
+            </div>
+            )}
+
+            {/* â•â•â• TAB: SURAT PERINTAH TUGAS (transport) â•â•â• */}
             {isTransport && formTab === 'spt' && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary mb-2">
@@ -555,7 +576,7 @@ export default function DokumenFormPreview({
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
                       <select value={selRow.id} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
                         {tRows.map((r) => (
-                          <option key={r.id} value={r.id}>{r.no}. {r.nama} — {r.jabatan}</option>
+                          <option key={r.id} value={r.id}>{r.no}. {r.nama} â€” {r.jabatan}</option>
                         ))}
                       </select>
                     </div>
@@ -581,12 +602,12 @@ export default function DokumenFormPreview({
               </div>
             )}
 
-            {/* ═══ TAB: SPPD (transport) ═══ */}
+            {/* â•â•â• TAB: SPPD (transport) â•â•â• */}
             {isTransport && formTab === 'sppd' && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary mb-2">
                   <span className="material-symbols-outlined text-lg">directions_car</span>
-                  <span className="text-sm font-bold">SPPD — Surat Perjalanan Dinas</span>
+                  <span className="text-sm font-bold">SPPD â€” Surat Perjalanan Dinas</span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -617,7 +638,7 @@ export default function DokumenFormPreview({
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
                       <select value={selRow?.id || ''} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
                         {tRows.map((r) => (
-                          <option key={r.id} value={r.id}>{r.no}. {r.nama} — {r.jabatan}</option>
+                          <option key={r.id} value={r.id}>{r.no}. {r.nama} â€” {r.jabatan}</option>
                         ))}
                       </select>
                     </div>
@@ -670,7 +691,7 @@ export default function DokumenFormPreview({
               </div>
             )}
 
-            {/* ═══ TAB: RESUME (transport, rapat/pendamping only) ═══ */}
+            {/* â•â•â• TAB: RESUME (transport, rapat/pendamping only) â•â•â• */}
             {isTransport && formTab === 'resume' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary mb-2">
@@ -727,7 +748,7 @@ export default function DokumenFormPreview({
               </div>
             )}
 
-            {/* ═══ TAB: UNDANGAN (transport, rapat/pendamping only) ═══ */}
+            {/* â•â•â• TAB: UNDANGAN (transport, rapat/pendamping only) â•â•â• */}
             {isTransport && formTab === 'undangan' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary mb-2">
@@ -828,7 +849,7 @@ export default function DokumenFormPreview({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-800 truncate">{item.nama}</p>
                           <p className="text-[10px] text-slate-500">
-                            {item.jabatan || ''} {item.golongan ? `· ${item.golongan}` : ''}
+                            {item.jabatan || ''} {item.golongan ? `Â· ${item.golongan}` : ''}
                           </p>
                         </div>
                       </label>
@@ -905,6 +926,48 @@ export default function DokumenFormPreview({
               )}
             </div>
             )}
+
+            {/* â•â•â• SK HONORER + PASAL (kartu honor, form Zona A) â•â•â• */}
+            {/* Revisi 2026-10-06 (task 37): editor SK satu-satunya sumber
+                cetak SK (tab preview SK dihapus) sehingga area cetak editor
+                WAJIB ikut; panel kanan baca formData.pasal yg sama). */}
+            {!isTransport && (() => {
+              const skConfig = TEMPLATE_CONFIGS.sk_honorer
+              if (!skConfig) return null
+              const skPasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
+              const setSkPasal = (p) => {
+                setFormData({ ...formData, pasal: p })
+                saveSkPasal(p)
+              }
+              const buildSkData = (row) => ({
+                ...skConfig.defaults,
+                ...formData,
+                pasal: skPasal,
+                nomorSurat: formData.nomor || '',
+                namaPihakKedua: row.nama || '',
+                ttlPihakKedua: row.ttl || row.tempatLahir || '',
+                pendidikanPihakKedua: row.pendidikan || '',
+                alamatPihakKedua: row.alamat || '',
+                kelasGuru: row.kelasGuru || '',
+                namaPihakKesatu: formData.namaPihakKesatu || skConfig.defaults.namaPihakKesatu,
+                nipPihakKesatu: formData.nipPihakKesatu || skConfig.defaults.nipPihakKesatu,
+                jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
+                tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
+                tanggalTtd: formData.tanggalTtd || '',
+              })
+              const skList = (formData.rows || []).map((row) => ({ row, skData: buildSkData(row) }))
+              return (
+                <SkHonorerEditor
+                  skList={skList}
+                  pasal={skPasal}
+                  onPasalChange={setSkPasal}
+                  onResetPasal={() => setSkPasal(cloneDefaultPasal())}
+                  onUpdateRow={updateRow}
+                  onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
+                  onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
+                />
+              )
+            })()}
           </>
         ) : isMaminOrUpah ? (
           <>
@@ -942,6 +1005,7 @@ export default function DokumenFormPreview({
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -957,6 +1021,26 @@ export default function DokumenFormPreview({
                   <span className="material-symbols-outlined">auto_awesome</span>
                 </button>
               </div>
+            </div>
+
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Cabang Mamin/Upah â€” sama seperti cabang recipient-based di atas;
+                tanpa ini gate Zona C tak pernah lolos untuk Mamin/Upah. */}
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat â€” perhatikan Panel Preview Document kanan.
+              </p>
             </div>
 
             {/* Detail Acara (khusus Makan & Minum) */}
@@ -1049,7 +1133,7 @@ export default function DokumenFormPreview({
                   />
                 </div>
 
-                {/* ═══ SURAT UNDANGAN ═══ */}
+                {/* â•â•â• SURAT UNDANGAN â•â•â• */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-lg">mail</span>
@@ -1121,7 +1205,7 @@ export default function DokumenFormPreview({
                   </div>
                 </div>
 
-                {/* ═══ SURAT PESANAN ═══ */}
+                {/* â•â•â• SURAT PESANAN â•â•â• */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-lg">shopping_cart</span>
@@ -1168,7 +1252,7 @@ export default function DokumenFormPreview({
                     <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
                     <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder={bakuPesanan006?.isiPesanan?.slice(0, 90) || 'Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan...'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
                   </div>
-                  {/* Rincian Pesanan — Rework-8 (5): 2 seksi (Nasi 6 + Snack 4), tiap seksi bisa disable */}
+                  {/* Rincian Pesanan â€” Rework-8 (5): 2 seksi (Nasi 6 + Snack 4), tiap seksi bisa disable */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-[10px] font-semibold text-slate-500 uppercase">Rincian Pesanan</label>
@@ -1180,7 +1264,7 @@ export default function DokumenFormPreview({
                         <span className="material-symbols-outlined text-xs">add</span> Tambah Item
                       </button>
                     </div>
-                    {/* Toggle seksi — sumber tunggal MENU_PESANAN */}
+                    {/* Toggle seksi â€” sumber tunggal MENU_PESANAN */}
                     <div className="flex flex-wrap gap-2 mb-2">
                       {[
                         { id: 'nasi', label: `Seksi Nasi Box (${(MENU_PESANAN['nasi box'] || []).length})` },
@@ -1263,7 +1347,7 @@ export default function DokumenFormPreview({
                     {/* Rows tanpa seksi (warisan) tetap tampil editable */}
                     {(formData.pesananRows || []).filter((r) => r.seksi && r.seksi !== 'Nasi Box' && r.seksi !== 'Snack Box').map((row, idx) => (
                       <div key={row.id} className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 w-4">•</span>
+                        <span className="text-[10px] font-bold text-slate-400 w-4">â€¢</span>
                         <input type="text" value={row.uraian} onChange={(e) => {
                           const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
                           setFormData({ ...formData, pesananRows: rows })
@@ -1301,7 +1385,7 @@ export default function DokumenFormPreview({
               </>
             )}
 
-            {/* ═══ BUKU TAMU KEDINASAN ═══ */}
+            {/* â•â•â• BUKU TAMU KEDINASAN â•â•â• */}
             {isMamin && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                 <div className="flex items-center gap-2 text-primary mb-2">
@@ -1309,7 +1393,7 @@ export default function DokumenFormPreview({
                   <span className="text-sm font-bold">Buku Tamu Kedinasan</span>
                 </div>
                 <p className="text-[10px] text-slate-400 italic">
-                  Opsional — diisi jika ada tamu luar (bukan peserta rapat internal).
+                  Opsional â€” diisi jika ada tamu luar (bukan peserta rapat internal).
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="No. Urut" value={bt.noUrut} onChange={(e) => setBt('noUrut', e.target.value)} placeholder="1" />
@@ -1347,7 +1431,7 @@ export default function DokumenFormPreview({
               </div>
             )}
 
-            {/* ═══ DAFTAR HADIR ═══ */}
+            {/* â•â•â• DAFTAR HADIR â•â•â• */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
               <div className="flex items-center gap-2 text-primary mb-2">
                 <span className="material-symbols-outlined text-lg">badge</span>
@@ -1401,7 +1485,7 @@ export default function DokumenFormPreview({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-800 truncate">{item.nama}</p>
                           <p className="text-[10px] text-slate-500">
-                            {item.jabatan || ''} {item.golongan ? `· ${item.golongan}` : ''}
+                            {item.jabatan || ''} {item.golongan ? `Â· ${item.golongan}` : ''}
                           </p>
                         </div>
                       </label>
@@ -1410,13 +1494,13 @@ export default function DokumenFormPreview({
                 </div>
               )}
 
-              {/* Rework-8 (1): Daftar Hadir editor afectada — NO/NAMA/JABATAN/TTD + kolom opsional dinamis.
+              {/* Rework-8 (1): Daftar Hadir editor afectada â€” NO/NAMA/JABATAN/TTD + kolom opsional dinamis.
                   Tanpa kolom Alamat Kantor (warisan buku_tamu tidak dipakai untuk hadir). */}
               {isMamin ? (
                 <div className="mt-3 bg-white border border-slate-200 rounded-2xl p-4 overflow-auto">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      Tabel Hadir ({(formData.rows || []).length}) — NO / NAMA / JABATAN / TTD
+                      Tabel Hadir ({(formData.rows || []).length}) â€” NO / NAMA / JABATAN / TTD
                     </p>
                     <div className="flex items-center gap-1.5">
                       <button type="button" onClick={() => {
@@ -1449,13 +1533,13 @@ export default function DokumenFormPreview({
                             const cols = (formData.hadirKolomOpsional || []).filter((x) => x.key !== c.key)
                             const rows = (formData.rows || []).map((r) => { const nr = { ...r }; delete nr[c.key]; return nr })
                             setFormData({ ...formData, hadirKolomOpsional: cols, rows })
-                          }} className="text-red-500 hover:text-red-700 font-bold" title="Hapus kolom">×</button>
+                          }} className="text-red-500 hover:text-red-700 font-bold" title="Hapus kolom">Ã—</button>
                         </span>
                       ))}
                     </div>
                   )}
                   {(formData.rows || []).length === 0 ? (
-                    <p className="text-[10px] text-slate-400 italic">Belum ada peserta — pilih dari daftar di atas atau Tambah Baris manual.</p>
+                    <p className="text-[10px] text-slate-400 italic">Belum ada peserta â€” pilih dari daftar di atas atau Tambah Baris manual.</p>
                   ) : (
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 uppercase">
@@ -1473,7 +1557,7 @@ export default function DokumenFormPreview({
                           <span className="text-[10px] font-bold text-slate-400 w-5">{row.no}</span>
                           <input type="text" value={row.nama || ''} onChange={(e) => updateRow(row.id, 'nama', e.target.value)} placeholder="Nama" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
                           <input type="text" value={row.jabatan || ''} onChange={(e) => updateRow(row.id, 'jabatan', e.target.value)} placeholder="Jabatan" className="w-28 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                          <input type="text" value={row.ttd || ''} onChange={(e) => updateRow(row.id, 'ttd', e.target.value)} placeholder="—" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          <input type="text" value={row.ttd || ''} onChange={(e) => updateRow(row.id, 'ttd', e.target.value)} placeholder="â€”" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
                           {(formData.hadirKolomOpsional || []).map((c) => (
                             <input key={c.key} type="text" value={row[c.key] || ''} onChange={(e) => updateRow(row.id, c.key, e.target.value)} placeholder={c.label} className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
                           ))}
@@ -1513,23 +1597,12 @@ export default function DokumenFormPreview({
           )
         )}
 
-        {/* Preview button (always) */}
-        <div className="flex items-center justify-end pt-2">
-          <button
-            type="button"
-            onClick={() => {
-              if ((isRecipientBased || isMaminOrUpah) && (formData.rows || []).length === 0) {
-                toast.error('Pilih minimal 1 penerima terlebih dahulu.')
-                return
-              }
-              setViewMode('preview')
-            }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-95"
-          >
-            <span className="material-symbols-outlined text-lg">list_alt</span>
-            Lihat Ringkasan
-          </button>
-        </div>
+        {/* Revisi 2026-10-06 (task 37): tombol Lihat Ringkasan DIHAPUS.
+            Pratinjau = Panel Preview Document (Zona B, selalu terlihat);
+            tombol Cetak pindah ke panel. Area cetak formal (.sk-print-area,
+            display:none di layar) selalu dirender di sini agar Cetak panel
+            selalu punya sumber cetak. */}
+        {renderPrintArea()}
 
         {/* Nomor Popups */}
         {showNomorPopup && (
@@ -1586,218 +1659,11 @@ export default function DokumenFormPreview({
     )
   }
 
-  // ═════════════════════════════════════════════════════════════════════
-  // RENDER: PREVIEW MAKAN & MINUM (Daftar Hadir + Notulen/Resume)
-  // ═════════════════════════════════════════════════════════════════════
-  const renderMaminPreview = () => {
-    const bukuTamuCfg = TEMPLATE_CONFIGS.buku_tamu
-    const notulenCfg = TEMPLATE_CONFIGS.notulen
-    const rows = (formData.rows || []).map((r, i) => ({ ...r, no: i + 1 }))
-    const pesertaNames = rows.map((r) => r.nama).filter(Boolean).join(', ')
+  // Sprint 009: renderMaminPreview diekstrak ke MaminPreview.jsx (pecah file, tanpa ubah perilaku)
 
-    // Buku Tamu Kedinasan — dari form khusus (formData.bukuTamu)
-    const bt = formData.bukuTamu || {}
-    const btRows = (bt.rows || []).map((r, i) => ({ ...r, no: i + 1 }))
-    const hasBukuTamu = Boolean(bt.noUrut || bt.tanggal || bt.bertemu || btRows.length > 0)
-    const bukuTamuData = {
-      ...bukuTamuCfg.defaults,
-      ...formData,
-      noUrut: bt.noUrut || '',
-      tanggal: bt.tanggal || formData.tanggal,
-      bertemu: bt.bertemu || '',
-      tiba: bt.tiba || '',
-      kembali: bt.kembali || '',
-      diterima: bt.diterima || 'Kepala Sekolah',
-      tujuan: bt.tujuan || formData.acara || '',
-      uraianKegiatan: bt.uraian || '',
-      rows: btRows,
-    }
-    const notulenData = {
-      ...notulenCfg.defaults,
-      ...formData,
-      nomor: formData.nomor,
-      tanggal: formData.tanggal,
-      waktu: formData.waktu,
-      tempat: formData.tempat,
-      acara: formData.acara,
-      pimpinan: formData.pimpinan,
-      pembuka: formData.pembuka,
-      notulen: formData.notulen,
-      peserta: formData.peserta || pesertaNames,
-      poinPembahasan: formData.resume || formData.poinPembahasan,
-      rows,
-    }
-
-    // ─── Sprint 003 FASE 2: seksi ringkasan Mamin (layar-only, 0 kop 0 TTD) ───
-    const HADIR_COLS = [
-      { key: 'no', label: 'No' },
-      { key: 'nama', label: 'Nama' },
-      { key: 'jabatan', label: 'Jabatan' },
-    ]
-    const maminAcaraSections = () => ([
-      { title: 'Detail Acara', fields: [
-        { label: 'Nomor Surat', value: formData.nomor },
-        { label: 'Tanggal', value: formData.tanggal },
-        { label: 'Waktu', value: formData.waktu },
-        { label: 'Tempat', value: formData.tempat },
-        { label: 'Acara', value: formData.acara },
-        { label: 'Resume', value: formData.resume },
-      ] },
-      { title: `Daftar Hadir (${rows.length})`, table: {
-        columns: HADIR_COLS,
-        rows: rows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', jabatan: r.jabatan || '' })),
-      } },
-    ])
-
-    const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
-      if (printContainer) {
-        printContainer.classList.remove('portrait', 'landscape')
-        printContainer.classList.add('portrait')
-      }
-      window.print()
-    }
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Preview: Makan & Minum — {selectedSub?.label}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setViewMode('form')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">edit</span>
-              Kembali ke Form
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">print</span>
-              Cetak
-            </button>
-          </div>
-        </div>
-
-        {/* Sprint 003 FASE 2: layar = kartu ringkasan (0 kop, 0 TTD).
-            Dokumen formal hanya di area cetak Fase 3 di bawah. */}
-        <PeringatanData />
-        <SummaryCard title="Ringkasan Makan & Minum" icon="list_alt" sections={maminAcaraSections()} />
-
-        {/* Dokumen 1: Buku Tamu Kedinasan (hanya jika diisi) */}
-        {hasBukuTamu && (
-          <SummaryCard title="Buku Tamu Kedinasan" icon="import_contacts" sections={[
-            { title: 'Kunjungan', fields: [
-              { label: 'No Urut', value: bukuTamuData.noUrut },
-              { label: 'Tanggal', value: bukuTamuData.tanggal },
-              { label: 'Bertemu', value: bukuTamuData.bertemu },
-              { label: 'Tiba', value: bukuTamuData.tiba },
-              { label: 'Kembali', value: bukuTamuData.kembali },
-              { label: 'Diterima', value: bukuTamuData.diterima },
-              { label: 'Tujuan', value: bukuTamuData.tujuan },
-            ] },
-            { title: `Tamu (${btRows.length})`, table: {
-              columns: HADIR_COLS,
-              rows: btRows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', jabatan: r.jabatan || '' })),
-            } },
-          ]} />
-        )}
-
-        {/* Dokumen 2: Notulen / Resume */}
-        <SummaryCard title="Notulen / Resume" icon="description" sections={[
-          { title: 'Rapat', fields: [
-            { label: 'Nomor', value: notulenData.nomor },
-            { label: 'Tanggal', value: notulenData.tanggal },
-            { label: 'Waktu', value: notulenData.waktu },
-            { label: 'Tempat', value: notulenData.tempat },
-            { label: 'Acara', value: notulenData.acara },
-            { label: 'Pimpinan', value: notulenData.pimpinan },
-            { label: 'Peserta', value: notulenData.peserta },
-            { label: 'Poin', value: notulenData.poinPembahasan },
-          ] },
-        ]} />
-
-        {/* Dokumen 2b: Daftar Hadir (sudah tercakup di kartu utama) */}
-
-        {/* Dokumen 3: Surat Undangan */}
-        {(formData.nomorUndangan || formData.kepadaUndangan || formData.isiUndangan) && (
-          <SummaryCard title="Surat Undangan" icon="mail" sections={[
-            { title: 'Undangan', fields: [
-              { label: 'Nomor', value: formData.nomorUndangan },
-              { label: 'Kepada', value: formData.kepadaUndangan },
-              { label: 'Tanggal Acara', value: formData.tanggalAcara || formData.tanggal },
-              { label: 'Tempat Acara', value: formData.tempatAcara || formData.tempat },
-              { label: 'Isi', value: formData.isiUndangan || formData.acara },
-            ] },
-          ]} />
-        )}
-
-        {/* Dokumen 4: Surat Pesanan */}
-        {(formData.nomorPesanan || formData.kepadaPesanan || (formData.pesananRows || []).length > 0) && (
-          <SummaryCard title="Surat Pesanan" icon="shopping_cart" sections={[
-            { title: 'Pesanan', fields: [
-              { label: 'Nomor', value: formData.nomorPesanan },
-              { label: 'Kepada', value: formData.kepadaPesanan },
-              { label: 'Kegiatan', value: formData.isiPesanan || formData.acara },
-              { label: 'Item', value: (formData.pesananRows || []).length },
-            ] },
-          ]} />
-        )}
-
-        {/* ─── Sprint 003 FASE 3: area cetak Mamin = 5 dokumen formal kop→TTD.
-            .sk-print-area: hidden di layar, block saat print; tiap .sk-doc-print
-            ganti halaman (anti-terpotong). Builder data dipakai ulang apa adanya. */}
-        <div className="sk-print-area">
-          <div className="sk-doc-print">
-            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.undangan_mamin} data={{
-              ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
-              ...formData,
-              tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-              hariUndangan: formData.hariUndangan || formData.hari || '',
-              tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
-              tempatAcara: formData.tempatAcara || formData.tempat || '',
-              waktuAcara: formData.waktuAcara || formData.waktu || '',
-              kegiatan: formData.isiUndangan || formData.acara || '',
-            }} mode="print" />
-          </div>
-          <div className="sk-doc-print">
-            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.pesanan_mamin} data={{
-              ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
-              ...formData,
-              tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-              kegiatan: formData.isiPesanan || formData.acara || '',
-              rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
-            }} mode="print" />
-          </div>
-          <div className="sk-doc-print">
-            <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
-          </div>
-          <div className="sk-doc-print">
-            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.daftar_hadir} data={{
-              ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
-              judulAcara: formData.judulDaftarHadir || formData.acara || '',
-              rows,
-            }} mode="print" />
-          </div>
-          {hasBukuTamu && (
-            <div className="sk-doc-print">
-              <TemplateEngine templateConfig={bukuTamuCfg} data={bukuTamuData} mode="print" />
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER: SK HONORER (per-recipient)
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const renderSkHonorer = () => {
     const skConfig = TEMPLATE_CONFIGS.sk_honorer
     if (!skConfig) return null
@@ -1826,9 +1692,10 @@ export default function DokumenFormPreview({
       pendidikanPihakKedua: row.pendidikan || '',
       alamatPihakKedua: row.alamat || '',
       kelasGuru: row.kelasGuru || '',
-      // PIHAK KESATU — dari sekolah
-      namaPihakKesatu: formData.namaPihakKesatu || skConfig.defaults.namaPihakKesatu,
-      nipPihakKesatu: formData.nipPihakKesatu || skConfig.defaults.nipPihakKesatu,
+      // PIHAK KESATU — dari sekolah: ketikan user → Data Sekolah (live) → ''.
+      // Tanpa fallback live, TTD SK kosong walau pejabat sudah diisi.
+      namaPihakKesatu: formData.namaPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nama || '',
+      nipPihakKesatu: formData.nipPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nip || '',
       jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
       tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
       tanggalTtd: formData.tanggalTtd || '',
@@ -1847,14 +1714,14 @@ export default function DokumenFormPreview({
     )
   }
 
-  // ═════════════════════════════════════════════════════════════════════
-  // RENDER: PREVIEW
-  // ═════════════════════════════════════════════════════════════════════
-  const renderPreview = () => {
-    if (isMamin) return renderMaminPreview()
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // AREA CETAK (revisi 2026-10-06 task 37, dulu RENDER: PREVIEW)
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  const renderPrintArea = () => {
+    if (isMamin) return <MaminPreview formData={formData} setViewMode={setViewMode} selectedSub={selectedSub} printOnly />
     const config = TEMPLATE_CONFIGS[selectedSub?.templateId]
     if (!config) {
-      return <p className="text-sm text-slate-500 p-6">Template belum tersedia.</p>
+      return null
     }
     const previewData = buildPreviewData(config.id, {
       ...config.defaults,
@@ -1867,7 +1734,7 @@ export default function DokumenFormPreview({
       blocks: (config.blocks || []).filter((b) => b.type !== 'signature'),
     }
     // Tab Daftar Penerima: preview hanya menampilkan tabel (tanpa judul & info keuangan)
-    // Kolom TTD juga dihapus dari preview — tetap muncul saat cetak
+    // Kolom TTD juga dihapus dari preview â€” tetap muncul saat cetak
     const tableOnlyConfig = {
       ...config,
       blocks: (config.blocks || [])
@@ -1881,10 +1748,10 @@ export default function DokumenFormPreview({
     const showTabs = isRecipientBased && tRows.length > 0
     const isDaftarTab = showTabs && previewTab === 'daftar'
 
-    // ─── Data dokumen per penerima ───
+    // â”€â”€â”€ Data dokumen per penerima â”€â”€â”€
     // Sprint 001 FASE 4 task 4.1 (auto-fill + D-8): TTD diisi dari
-    // getSignatureRoles() — pengganti defaults yang dikosongkan 4.2–4.5.
-    // Prioritas: ketikan user (formData) → Data Sekolah → '' (jujur-kosong).
+    // getSignatureRoles() â€” pengganti defaults yang dikosongkan 4.2â€“4.5.
+    // Prioritas: ketikan user (formData) â†’ Data Sekolah â†’ '' (jujur-kosong).
     const sig = getSignatureRoles()
     const buildSptData = (row) => ({
       ...TEMPLATE_CONFIGS.spt.defaults,
@@ -1931,11 +1798,11 @@ export default function DokumenFormPreview({
     // Sprint 003 FASE 2: jalur LAYAR = kartu ringkasan (0 kop, 0 TTD).
     // Builder data dipakai seksi; dokumen formal hanya dirender jalur CETAK (Fase 3).
 
-    // ─── Data Resume / Undangan ───
+    // â”€â”€â”€ Data Resume / Undangan â”€â”€â”€
     const resumeData = {
       ...TEMPLATE_CONFIGS.notulen.defaults,
       ...formData,
-      // D-8: jalur notulen WAJIB diisi — SignatureFooter baca key ttd_${role}_nama
+      // D-8: jalur notulen WAJIB diisi â€” SignatureFooter baca key ttd_${role}_nama
       // (templateConfig signature ['pimpinan','notulen']); tanpa ini TTD kosong permanen.
       ttd_pimpinan_nama: formData.ttd_pimpinan_nama || sig['pimpinan']?.nama || '',
       ttd_pimpinan_nip: formData.ttd_pimpinan_nip || sig['pimpinan']?.nip || '',
@@ -1950,7 +1817,7 @@ export default function DokumenFormPreview({
     const undanganData = {
       ...TEMPLATE_CONFIGS.undangan_gugus.defaults,
       ...formData,
-      // Sprint 001 FASE 3 (task 3.4/3.5/3.6): KopGugus prop-driven — data gugus +
+      // Sprint 001 FASE 3 (task 3.4/3.5/3.6): KopGugus prop-driven â€” data gugus +
       // kabupaten + logo gugus diisi di sini dari Data Sekolah (blok TIDAK baca storage).
       gugusNama: formData.gugusNama || getSchoolData().gugusNama || '',
       gugusAlamat: formData.gugusAlamat || getSchoolData().gugusAlamat || '',
@@ -1969,8 +1836,8 @@ export default function DokumenFormPreview({
       sifatUndangan: formData.sifatUndangan || '-',
     }
 
-    // ─── Sprint 003 FASE 2: section builder kartu ringkasan (layar-only) ───
-    // 0 kop, 0 TTD: nama penandatangan/NIP/kop gugus SENGAJA tidak masuk seksi —
+    // â”€â”€â”€ Sprint 003 FASE 2: section builder kartu ringkasan (layar-only) â”€â”€â”€
+    // 0 kop, 0 TTD: nama penandatangan/NIP/kop gugus SENGAJA tidak masuk seksi â€”
     // mereka milik jalur CETAK (Fase 3) yang memakai builder di atas apa adanya.
     const RECIPIENT_COLS = [
       { key: 'no', label: 'No' },
@@ -2070,7 +1937,7 @@ export default function DokumenFormPreview({
     ])
 
     const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
+      const printContainer = document.querySelector('.sk-print-area .print-container')
       if (printContainer) {
         printContainer.classList.remove('portrait', 'landscape')
         printContainer.classList.add(config.orientation || 'portrait')
@@ -2078,150 +1945,11 @@ export default function DokumenFormPreview({
       window.print()
     }
 
+    // Revisi 2026-10-06 (task 37): hanya area cetak formal. Kartu
+    // ringkasan layar + tab preview + tombol Kembali/Cetak-Semua DIHAPUS —
+    // pratinjau tunggal = Panel Preview Document (Zona B).
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Preview: {card.nama} — {selectedSub?.label}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setViewMode('form')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">edit</span>
-              Kembali ke Form
-            </button>
-            {/* Di tab SK Honorer, tombol cetak ada di toolbar review (sk-print-area) */}
-            {!(showTabs && previewTab === 'sk') && (
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
-              >
-                <span className="material-symbols-outlined text-lg">print</span>
-                Cetak Semua
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Sprint 001 FASE 5 (task 5.3): peringatan data kosong di area Perjalanan
-            Dinas. Sprint 003: tab kini kartu ringkasan — banner tetap di sini
-            (di luar print-container, tidak ikut cetak). */}
-        {isTransport && <PeringatanData />}
-
-        {/* Tabs (recipient-based docs: Honor / Transport) */}
-        {showTabs && (
-          <div className="flex gap-2 border-b border-slate-200 pb-0">
-            {isTransport ? (
-              getTransportTabs(selectedSub?.id).map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setPreviewTab(t.id)}
-                  className={`px-5 py-2.5 rounded-t-xl text-sm font-semibold transition-all border-b-2 -mb-[1px] ${
-                    previewTab === t.id
-                      ? 'bg-white border-primary text-primary'
-                      : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm align-middle mr-1">{t.icon}</span>
-                  {t.label}
-                </button>
-              ))
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab('daftar')}
-                  className={`px-5 py-2.5 rounded-t-xl text-sm font-semibold transition-all border-b-2 -mb-[1px] ${
-                    previewTab === 'daftar'
-                      ? 'bg-white border-primary text-primary'
-                      : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm align-middle mr-1">table_chart</span>
-                  Daftar Penerima
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewTab('sk')}
-                  className={`px-5 py-2.5 rounded-t-xl text-sm font-semibold transition-all border-b-2 -mb-[1px] ${
-                    previewTab === 'sk'
-                      ? 'bg-white border-primary text-primary'
-                      : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm align-middle mr-1">gavel</span>
-                  SK Honorer ({(formData.rows || []).length})
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Transport: tab content — kartu ringkasan (layar), bukan dokumen formal */}
-        {isTransport && (
-          <>
-            {/* Tanpa penerima: ringkasan daftar saja */}
-            {!showTabs && (
-              <SummaryCard title={`Ringkasan — ${selectedSub?.label || ''}`} icon="table_chart" sections={daftarSections()} />
-            )}
-            {showTabs && previewTab === 'daftar' && (
-              <SummaryCard title="Ringkasan Daftar Penerima" icon="table_chart" sections={daftarSections()} />
-            )}
-            {showTabs && previewTab === 'spt' && (
-              <div className="space-y-4">
-                {tRows.map((row) => (
-                  <SummaryCard key={`spt-${row.id}`} title={`SPT — ${row.nama || 'Tanpa nama'}`} icon="assignment" sections={sptSections(row)} />
-                ))}
-              </div>
-            )}
-            {showTabs && previewTab === 'sppd' && (
-              <div className="space-y-4">
-                {tRows.map((row) => (
-                  <SummaryCard key={`sppd-${row.id}`} title={`SPPD — ${row.nama || 'Tanpa nama'}`} icon="directions_car" sections={sppdSections(row)} />
-                ))}
-              </div>
-            )}
-            {showTabs && previewTab === 'resume' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
-              <SummaryCard title="Resume / Notulen" icon="description" sections={resumeSections()} />
-            )}
-            {showTabs && previewTab === 'undangan' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
-              <SummaryCard title="Surat Undangan" icon="mail" sections={undanganSections()} />
-            )}
-          </>
-        )}
-
-        {/* Sprint 003 FASE 2 (US-20): preview Pemeliharaan = kartu ringkasan.
-            (Mamin punya renderMaminPreview sendiri di atas.)
-            Jalur Honor (sk) di bawah TIDAK diubah (US-25). */}
-        {isPemeliharaan && (
-          <>
-            <PeringatanData />
-            <SummaryCard title={`Ringkasan — ${card.nama} — ${selectedSub?.label || ''}`} icon="list_alt" sections={maminSections()} />
-          </>
-        )}
-
-        {/* Non-transport: Tab Content — Daftar Penerima + SK Honorer */}
-        {(!showTabs || previewTab === 'daftar') && !isTransport && !isMamin && !isPemeliharaan && (
-          <div
-            className={
-              isDaftarTab
-                ? 'sk-screen-only'
-                : 'bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto'
-            }
-          >
-            <TemplateEngine
-              templateConfig={isDaftarTab ? tableOnlyConfig : configWithoutSignature}
-              data={previewData}
-              mode="print"
-            />
-          </div>
-        )}
+      <>
 
         {/* Area cetak Daftar Penerima: dokumen lengkap (judul + info keuangan + tabel + ttd) */}
         {isDaftarTab && !isTransport && (
@@ -2230,11 +1958,11 @@ export default function DokumenFormPreview({
           </div>
         )}
 
-        {/* Non-transport: Tab Content SK Honorer */}
-        {showTabs && previewTab === 'sk' && !isTransport && renderSkHonorer()}
+        {/* Revisi 2026-10-06 (task 37): render tab SK dihapus — editor SK
+            + area cetaknya hidup di form Zona A (tanpa hidePrint). */}
 
-        {/* ─── Sprint 003 FASE 3 (US-22): area cetak Perjalanan Dinas = 5 dokumen
-            formal kop→TTD berurutan: penerima → undangan → SPT → SPD → resume.
+        {/* â”€â”€â”€ Sprint 003 FASE 3 (US-22): area cetak Perjalanan Dinas = 5 dokumen
+            formal kopâ†’TTD berurutan: penerima â†’ undangan â†’ SPT â†’ SPD â†’ resume.
             Builder data dipakai ulang apa adanya; tiap .sk-doc-print ganti
             halaman (anti-terpotong, task 3.2). Layar: hidden. */}
         {isTransport && (
@@ -2265,8 +1993,8 @@ export default function DokumenFormPreview({
           </div>
         )}
 
-        {/* ─── Sprint 003 FASE 3: area cetak Pemeliharaan = dokumen formal penuh.
-            (Fase 2 mengganti layar jadi SummaryCard yang tidak ikut cetak —
+        {/* â”€â”€â”€ Sprint 003 FASE 3: area cetak Pemeliharaan = dokumen formal penuh.
+            (Fase 2 mengganti layar jadi SummaryCard yang tidak ikut cetak â€”
             tanpa ini cetakan Pemeliharaan kosong.) */}
         {isPemeliharaan && (
           <div className="sk-print-area">
@@ -2275,9 +2003,11 @@ export default function DokumenFormPreview({
             </div>
           </div>
         )}
-      </div>
+      </>
     )
   }
 
-  return viewMode === 'preview' ? renderPreview() : renderForm()
+  // Revisi 2026-10-06 (task 37): satu-satunya tampilan = form + area cetak.
+  // viewMode/setViewMode dipertahankan di props demi kompatibilitas pemanggil.
+  return renderForm()
 }

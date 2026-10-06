@@ -14,7 +14,14 @@
  *   tidak pernah ikut cetak.
  * - Data dibaca SAAT RENDER (sekolahData.js membaca localStorage tiap panggilan)
  *   sehingga tidak basi setelah Data Sekolah diubah tanpa reload (T-07).
+ *
+ * Sprint 008 Zona C (opsional, R2-dikecualikan): gate pra-cetak screen-only.
+ * cetakGate = { pernyataan?: string[], siap?: boolean, pelanggaran?: string[],
+ *   onCetak?: fn }. Tanpa cetakGate = perilaku banner lama (pemanggil lama aman).
+ * Kontrak snapshot: onCetak dari pemanggil menulis spj_otomatis_snapshot
+ * lalu window.print(); default bila tanpa onCetak = window.print() langsung.
  */
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getPejabatStatus, isSchoolDataEmpty } from '../../../utils/sekolahData'
 
@@ -23,7 +30,61 @@ const bannerClass =
 const linkClass =
   'mt-2 inline-flex items-center gap-1 font-semibold text-red-700 underline underline-offset-2 hover:text-red-900'
 
-export default function PeringatanData() {
+const PERNYATAAN_DEFAULT = [
+  'Data sudah sesuai dokumen sumber',
+  'Nomor dan tanggal dana masuk sudah benar',
+  'Siap ditandatangani basah di atas materai',
+]
+
+export default function PeringatanData({ cetakGate = null }) {
+  // ─── Sprint 008 Zona C: gate pra-cetak (screen-only, print:hidden) ───
+  const [centang, setCentang] = useState([])
+  if (cetakGate) {
+    const pernyataan = cetakGate.pernyataan?.length ? cetakGate.pernyataan : PERNYATAAN_DEFAULT
+    const siap = cetakGate.siap === true
+    const semuaCentang = pernyataan.every((_, i) => centang[i])
+    const bolehCetak = siap && semuaCentang
+    const toggle = (i) => setCentang((prev) => pernyataan.map((_, k) => (k === i ? !prev[k] : !!prev[k])))
+    const handleCetak = () => {
+      if (!bolehCetak) return
+      if (typeof cetakGate.onCetak === 'function') { cetakGate.onCetak(); return }
+      window.print()
+    }
+    return (
+      <div className="print:hidden rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-3" role="group" aria-label="Gate pra-cetak">
+        <p className="text-sm font-bold text-slate-800">Siap cetak?</p>
+        {pernyataan.map((teks, i) => (
+          <label key={i} className="flex items-start gap-3 text-sm text-slate-700 cursor-pointer min-h-[44px]">
+            <input
+              type="checkbox"
+              checked={!!centang[i]}
+              onChange={() => toggle(i)}
+              className="mt-1 h-5 w-5 accent-[#004ac6]"
+            />
+            <span>{teks}</span>
+          </label>
+        ))}
+        {!siap && (
+          <p className="text-xs text-slate-600" role="alert">
+            Masih ada yang perlu diisi{cetakGate.pelanggaran?.length ? `: ${cetakGate.pelanggaran.join(', ')}` : ''} — tekan Cek di Panel Preview Document untuk melompat ke field-nya.
+          </p>
+        )}
+        {siap && !semuaCentang && (
+          <p className="text-xs text-slate-600">Centang semua pernyataan untuk membuka tombol Cetak.</p>
+        )}
+        <button
+          type="button"
+          onClick={handleCetak}
+          disabled={!bolehCetak}
+          title={bolehCetak ? 'Cetak dokumen' : 'Terhalang: lengkapi checklist dan data'}
+          className="inline-flex items-center gap-2 px-5 min-h-[44px] rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <span className="material-symbols-outlined text-lg">print</span>
+          Cetak
+        </button>
+      </div>
+    )
+  }
   // ─── Varian 1: identitas sekolah kosong (T-05, E-1) ───
   if (isSchoolDataEmpty()) {
     return (

@@ -5,7 +5,15 @@
 import { PlaceholderText } from '../../../utils/templateHelpers'
 
 export default function PoinPembahasan({ blockConfig, data = {}, onChange, mode }) {
-  const poin = data.poinPembahasan || []
+  // Guard anti-blank: resume prefill BKU berupa string multiline, sedangkan
+  // blok ini memakai array [{id,text}]. Normalisasi di sini agar string
+  // tak pernah meledakkan render (poin.map is not a function).
+  const raw = data.poinPembahasan
+  const poin = Array.isArray(raw)
+    ? raw.map((p, i) => (typeof p === 'string' ? { id: `poin-${i}`, text: p } : p))
+    : (typeof raw === 'string' && raw.trim()
+      ? [{ id: 'resume-1', text: raw }]
+      : [])
   const label = blockConfig.label || 'Rapat membahas dan menyimpulkan sebagai berikut:'
 
   const addPoin = () => {

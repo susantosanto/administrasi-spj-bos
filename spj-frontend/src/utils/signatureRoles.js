@@ -11,7 +11,7 @@
  * Tanpa fallback hardcoded: bila pejabat belum diisi, nilai kosong dan
  * `blocks/PeringatanData.jsx` yang memberi tahu pengguna.
  */
-import { getPejabat } from './sekolahData'
+import { getPejabat, getSchoolData } from './sekolahData'
 
 /**
  * Peta peran tanda tangan → sumber data pejabat.
@@ -31,9 +31,14 @@ const ROLE_SOURCES = {
 /**
  * Ambil konfigurasi tanda tangan untuk semua peran.
  *
- * @returns {Record<string, {label: string, nama: string, nip: string}>}
+ * Format TTD 4 baris (keputusan user 2026-10-06): Kepala / nama SD /
+ * nama orang / NIP. `sekolah` dibaca live dari Data Sekolah agar
+ * preview + cetak selalu sama tanpa reload.
+ *
+ * @returns {Record<string, {label: string, nama: string, nip: string, sekolah: string}>}
  */
 export function getSignatureRoles() {
+  const sekolah = getSchoolData().namaSekolah || ''
   const out = {}
   for (const [role, cfg] of Object.entries(ROLE_SOURCES)) {
     const pejabat = getPejabat(cfg.pejabat)
@@ -41,7 +46,11 @@ export function getSignatureRoles() {
       label: cfg.label,
       nama: pejabat.nama,
       nip: pejabat.nip,
+      sekolah,
     }
   }
   return out
 }
+
+/** Peran yang TTD-nya memakai format 4 baris (Kepala/SDL/Nama/NIP). */
+export const KS_ROLES = ['kepala-sekolah', 'pimpinan']
