@@ -40,7 +40,8 @@ export default function SPDForm({ blockConfig, data = {} }) {
   )
 
   const ttdKepala = (nama, nip, jabatan = 'Kepala') => (
-    <div className="text-center w-56 mx-auto mt-2 break-inside-avoid">
+    <div className="text-center w-56 ml-auto mr-0 mt-2 break-inside-avoid">
+      {/* TTD tunggal Kepala Sekolah → rata kanan (task 46) */}
       <div className="text-xs font-medium">{jabatan}</div>
       <div className="text-xs font-medium mb-4">{sekolah ? `${sekolah},` : ''}</div>
       <div className="h-16" style={{ height: '64px', minHeight: '64px' }} />
