@@ -810,3 +810,17 @@
   Alasan: perintah user (task 42, user-verified) — Detail = ringkasan+aksi, Dokumen dinamis ikut kategori
   Dibuat oleh: user (2026-10-06)
   Dampak: BKUPage tab Detail + card Dokumen; merge 0ae1638 (user-verified, Dokumentasi steril)
+
+[2026-10-06] Keputusan: tab Belanja/Pajak BKU terpisah, Belanja default + satu tombol Coretax tunggal untuk baris SETOR pajak
+  Status: accepted
+  Alasan: perintah user (task 44, user-verified) — pajak tak campur belanja; baris SETOR tak punya dokumen LPJ
+  Dibuat oleh: user (2026-10-06)
+  Dampak: BKUPage tab Belanja (default) + Pajak, satu sumber transaksi view-filter, TOTAL tab tetap overall;
+    BKUSidebar baris SETOR → satu tombol "Bayar via Coretax" (tab baru ke coretaxdjp.pajak.go.id),
+    pungut dikecualikan; merge 14e5077
+
+[2026-10-06] Keputusan: deteksi baris pajak via kata kunci uraian = risiko false-positive, diterima sadar
+  Status: accepted
+  Alasan: tipe transaksi tak selalu bertanda pajak; keyword setor/pajak/pph/ppn/ntpn/billing/coretax + pengecualian pungut = heuristik terbaik tanpa ubah skema data
+  Dibuat oleh: user (2026-10-06)
+  Dampak: uraian non-pajak yang mengandung kata kunci bisa salah masuk tab/tombol Coretax; mitigasi = tipe eksplisit SETOR_PAJAK/PAJAK_BUNGA menang atas keyword; temuan lapor jadi revisi

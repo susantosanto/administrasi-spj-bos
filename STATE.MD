@@ -5,6 +5,13 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **SINKRON 2026-10-06 — main sinkron origin (`14e5077`), blockers nihil, acceptance runtime terbuka.**
+  Merge ke main: `14e5077` (BKU-pajak: tab Belanja/Pajak terpisah + tombol Coretax tunggal; feat `9944828` user-verified).
+  Push sinkron origin `0ae1638..14e5077`; `git status -sb`: main == origin/main tanpa ahead/behind
+  (hanya file untracked artefak lokal). Tab Belanja = default, satu sumber transaksi view-filter;
+  baris SETOR pajak → satu tombol "Bayar via Coretax" (tab baru, bukan halaman dokumen LPJ).
+  ADR baru 2 di DECISIONS.MD (tab Belanja default + Coretax tunggal; risiko false-positive kata kunci).
+  UNTESTED: acceptance-runner fresh Sprint 005/007/008 + cetak fisik F4.
 - **TUTUP SESI 2026-10-06 — main sinkron origin (`0ae1638`), blockers nihil, acceptance runtime terbuka.**
   Merge ke main: `9659372` (sprint-008-009: preview A4 + pecah pesanan + sticky + ringkasan satu alur) +
   `32c5b7e` (audit SPT+SPPD + kertas A4/F4) + `0ae1638` (BKU-detail: tab Detail ringkasan+aksi + Dokumen dinamis).
@@ -500,7 +507,8 @@
   LPJ-mati 0 hit · non-blue tambah 0 · package 0 · cetak tak tersentuh · prefix spj utuh.
   Verifier FINAL APPROVED Medium (batas live klik+screenshot). **Belum push** (ahead 3), **belum acceptance fresh**.
   Detail: `planning/sprints/sprint-004/BUILD-REPORT.MD` §ADDENDUM REVISI 2026-10-02.
-- Terakhir Diperbarui: 2026-10-06 (state-keeper tutup sesi — merge 9659372/32c5b7e/0ae1638 masuk STATE + 6 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui: 2026-10-06 (state-keeper sinkron pasca-push tab pajak — merge 14e5077 + push 0ae1638..14e5077 masuk STATE + 2 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-06 (state-keeper tutup sesi — merge 9659372/32c5b7e/0ae1638 masuk STATE + 6 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
   ledger komit `17a266d`…`e8af618`; risiko cetak-fisik UNTESTED; ARCHITECTURE.MD stale
@@ -522,6 +530,10 @@
 | 008 | Panel Preview Document A4 ala SIMENULIS + SK Honor + fixes blank/logo (merge `9659372`; acceptance manual runtime TERBUKA) | U0001F7E1 Menunggu acceptance | 2026-10-06 |
 | 009 | Pecah pesanan Nasi/Snack + sticky preview + hapus Ringkasan + logo/TTD preview + TTD 4 baris (merge `9659372`; Fase A in-progress, Fase B selesai) | U0001F7E1 Berjalan | 2026-10-06 |
 ## Langkah Selanjutnya
+- **Sinkron pasca-push tab pajak 2026-10-06 (`14e5077`). Berikutnya (acceptance runtime TERBUKA):**
+  1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
+  2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
+  3. Cetak fisik F4 + print-preview live (UNTESTED, printer-gated).
 - **Tutup sesi 2026-10-06. Berikutnya (acceptance runtime TERBUKA):**
   1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
   2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
@@ -580,6 +592,7 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
+- **2026-10-06 (sinkron pajak): TIDAK ADA blocker.** Main sinkron origin/main (`14e5077`); baris push-tertunda di bawah SUPERSEDED.
 - **2026-10-06: TIDAK ADA blocker.** Main sinkron origin/main (`0ae1638`); baris push-tertunda di bawah SUPERSEDED.
 - **TIDAK ADA blocker sprint.** Pencatatan risiko (non-blocking, diterima user
   2026-09-30): kriteria UI runtime Sprint 001+002 tetap UNTESTED — uji manual

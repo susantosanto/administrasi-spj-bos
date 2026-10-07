@@ -159,8 +159,8 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
           </div>
         </div>
       ) : (
-        <div className="flex justify-between">
-          {/* ─── Format Single (SPPD, Notulen, Buku Tamu) ─── */}
+        <div className="flex justify-end">
+          {/* ─── Format Single (1 TTD Kepala Sekolah → rata kanan, task 46) ─── */}
           {roles.map((role) => {
             const roleConfig = signatureRoles[role]
             if (!roleConfig) return null
