@@ -824,3 +824,9 @@
   Alasan: tipe transaksi tak selalu bertanda pajak; keyword setor/pajak/pph/ppn/ntpn/billing/coretax + pengecualian pungut = heuristik terbaik tanpa ubah skema data
   Dibuat oleh: user (2026-10-06)
   Dampak: uraian non-pajak yang mengandung kata kunci bisa salah masuk tab/tombol Coretax; mitigasi = tipe eksplisit SETOR_PAJAK/PAJAK_BUNGA menang atas keyword; temuan lapor jadi revisi
+
+[2026-10-07] Keputusan: TTD tunggal Kepala Sekolah rata kanan (single-TTD ke kanan, multi-TTD tak berubah)
+  Status: accepted
+  Alasan: perintah user (task 46, user-verified) — TTD tunggal di kiri terlihat janggal; kanan = posisi formal dokumen
+  Dibuat oleh: user (2026-10-07)
+  Dampak: SignatureFooter cabang single-TTD `justify-between` → `justify-end` (undangan_mamin, pesanan_mamin, buku_tamu, daftar_hadir); SPDForm helper ttdKepala `mx-auto` → `ml-auto mr-0`; multi-TTD + format 4 baris task 39 tak tersentuh; merge 0c5d986 (feat da4c37a)

@@ -5,6 +5,22 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **PBJ konsisten LPJ + tabel sheet-data + card-flow — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-08, tanpa commit/push (kuasa user).**
+  Perintah user: (1) panel preview PBJ konsisten LPJ (split form + tombol lengkap), (2) tabel generate-PDF sama format `template/Dokumen PBJ_2026_Lbs.xlsx` sheet data, (3) card Kelengkapan PBJ tampil di bawah card Dokumen PBJ setelah diklik.
+  0 baru + 5 ubah (templateConfig: pesanan +kolom SATUAN header persis Excel + config baru `pbj_data` landscape 14 kolom persis header sheet data; aturanPbj 174→198/200: form `data` + prefill invoice/BKU + satuan rows + bulanDariISO; previewDocs: doc ke-7 `Data — Rekap Pengadaan`; PanelPreviewDocument: prop opsional `cetakAktif` backward-compatible; KelengkapanPage: section selalu-tampil DIHAPUS → accordion di bawah kategori SIPLAH via klik card, split-view LPJ `1fr_620px` + aside sticky, status/Cek/Cetak gate, tab ke-6 Data 13 field, tabel pesanan +kolom Satuan editable, modal skip PBJ, deep-link BKU auto-buka accordion).
+  Gate: build exit 0 (7.04s, 193 modul, warning xlsx pre-existing) · browser :5173 console 0 errors · klik card → detail di bawah SIPLAH tanpa modal · isi 2 field → panel live + badge 5-PERLU-DIISI + A4/F4 + Cek + Cetak + zoom + fullscreen · Cek lompat ke tab Surat Pesanan · tab Data 13 field · panel doc `Data — Rekap Pengadaan (landscape)` header 14 kolom = sheet data (node+browser) · pesanan header Excel 6 kolom (node).
+  UNTESTED: acceptance-runner fresh + cetak fisik + upload invoice ulang (kolom Satuan kosong jujur).
+- **Sprint 010 PBJ — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-08 di branch `feat/sprint-010-pbj` (@ec748c4), tanpa commit/push (kuasa user).**
+  Upload invoice TERBACA OTOMATIS (3 item + Rp 7.055.000 + Himalaya Store) + 5 dokumen PBJ + 6 halaman cetak + panel mirror + deep-link BKU. 1 baru (`aturanPbj.js` 174/200: parseInvoiceSIPLah 2 format + terapkanPrefillPbj user&gt;invoice&gt;BKU + pbjFormKosong) + 4 ubah (templateConfig +139/-0: 6 key PBJ portrait blocks-reuse; KelengkapanPage 595→895: section PBJ selalu tampil + upload pdfjs-local-worker + 5 tabs + ringkasan + .sk-print-area 6 docs + panel; previewDocs +42: pbjDocs() skip-jujur; BKUSidebar +18: tombol Lengkapi PBJ khusus PEMBAYARAN → ?dok=PBJ).
+  Gate: build exit 0 (6-7s) · browser :5173 console 0 errors · T-02 badge "Terbaca 3 item · Rp 7.055.000" (screenshot) · T-03 fallback jujur + arsip meta (bukti browser) · T-04 D2 3 rows qty=Terima + PRODUK II strip · T-05 panel 6 label F-PBJ6 + skip kosong (node) · T-06 prefill BKU mapping (node) + Urungkan restore (browser) · T-07 PBJ tampil off+on toggle (browser) · T-08 config existing +0/-0, TemplateEngine/blocks diff kosong, package.json utuh, larangan 0, print:hidden ada · T-09 spj_pbj_* via storageHelper, BLUE-ONLY, blob 0.
+  Catatan: templateConfig aktual 21 key existing (pack tulis 13 — existing tetap steril, tanpa keputusan baru). UNTESTED: acceptance-runner fresh + cetak fisik.
+- **SINKRON 2026-10-07 — main sinkron origin (`0c5d986`), blockers nihil, acceptance runtime terbuka.**
+  Merge ke main: `0c5d986` (TTD tunggal Kepala Sekolah rata kanan; feat `da4c37a` user-verified).
+  Push sinkron origin `14e5077..0c5d986`; `git status -sb`: main == origin/main tanpa ahead/behind
+  (hanya file untracked artefak lokal). TTD tunggal (undangan_mamin, pesanan_mamin, buku_tamu,
+  daftar_hadir) → kanan (`justify-end` / `ml-auto mr-0`); multi-TTD tak berubah; format 4 baris
+  task 39 tak tersentuh. ADR baru 1 di DECISIONS.MD (TTD tunggal rata kanan).
+  UNTESTED: acceptance-runner fresh Sprint 005/007/008 + cetak fisik F4.
 - **SINKRON 2026-10-06 — main sinkron origin (`14e5077`), blockers nihil, acceptance runtime terbuka.**
   Merge ke main: `14e5077` (BKU-pajak: tab Belanja/Pajak terpisah + tombol Coretax tunggal; feat `9944828` user-verified).
   Push sinkron origin `0ae1638..14e5077`; `git status -sb`: main == origin/main tanpa ahead/behind
@@ -507,7 +523,8 @@
   LPJ-mati 0 hit · non-blue tambah 0 · package 0 · cetak tak tersentuh · prefix spj utuh.
   Verifier FINAL APPROVED Medium (batas live klik+screenshot). **Belum push** (ahead 3), **belum acceptance fresh**.
   Detail: `planning/sprints/sprint-004/BUILD-REPORT.MD` §ADDENDUM REVISI 2026-10-02.
-- Terakhir Diperbarui: 2026-10-06 (state-keeper sinkron pasca-push tab pajak — merge 14e5077 + push 0ae1638..14e5077 masuk STATE + 2 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui: 2026-10-07 (state-keeper sinkron pasca-push TTD kanan — merge 0c5d986 + push 14e5077..0c5d986 masuk STATE + 1 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-06 (state-keeper sinkron pasca-push tab pajak — merge 14e5077 + push 0ae1638..14e5077 masuk STATE + 2 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-06 (state-keeper tutup sesi — merge 9659372/32c5b7e/0ae1638 masuk STATE + 6 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-01 (/state-keeper — Sprint 003 Fase 1–4 tutup builder;
@@ -530,6 +547,10 @@
 | 008 | Panel Preview Document A4 ala SIMENULIS + SK Honor + fixes blank/logo (merge `9659372`; acceptance manual runtime TERBUKA) | U0001F7E1 Menunggu acceptance | 2026-10-06 |
 | 009 | Pecah pesanan Nasi/Snack + sticky preview + hapus Ringkasan + logo/TTD preview + TTD 4 baris (merge `9659372`; Fase A in-progress, Fase B selesai) | U0001F7E1 Berjalan | 2026-10-06 |
 ## Langkah Selanjutnya
+- **Sinkron pasca-push TTD kanan 2026-10-07 (`0c5d986`). Berikutnya (acceptance runtime TERBUKA):**
+  1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
+  2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
+  3. Cetak fisik F4 + print-preview live (UNTESTED, printer-gated).
 - **Sinkron pasca-push tab pajak 2026-10-06 (`14e5077`). Berikutnya (acceptance runtime TERBUKA):**
   1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
   2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
@@ -592,6 +613,7 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
+- **2026-10-07 (sinkron TTD kanan): TIDAK ADA blocker.** Main sinkron origin/main (`0c5d986`); baris push-tertunda di bawah SUPERSEDED.
 - **2026-10-06 (sinkron pajak): TIDAK ADA blocker.** Main sinkron origin/main (`14e5077`); baris push-tertunda di bawah SUPERSEDED.
 - **2026-10-06: TIDAK ADA blocker.** Main sinkron origin/main (`0ae1638`); baris push-tertunda di bawah SUPERSEDED.
 - **TIDAK ADA blocker sprint.** Pencatatan risiko (non-blocking, diterima user

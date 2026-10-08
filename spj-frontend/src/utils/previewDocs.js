@@ -11,6 +11,10 @@ import { getSchoolData } from './sekolahData'
 import storageHelper from './storageHelper'
 import { loadSkPasal, cloneDefaultPasal } from '../data/skPasal'
 import { bagiPesananPerSeksi } from './aturanMamin'
+import { pbjFormKosong } from './aturanPbj'
+
+const isKosong = (v) => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0)
+const docPbjKosong = (d = {}) => Object.values(d).every(isKosong)
 
 const HONOR_REK = '5.1.02.02.01'
 const TRANSPORT_REK = '5.1.02.04'
@@ -167,6 +171,54 @@ function transportDocs(templateId, subId, formData, sppdData, sig) {
   if (hasTab(subId, 'resume')) {
     docs.push({ key: 'resume', label: 'Resume', templateConfig: TEMPLATE_CONFIGS.notulen, data: resumeData })
   }
+  return docs
+}
+
+/**
+ * pbjDocs — Sprint 010: 6 docs PBJ mirror 1:1 area cetak Kelengkapan PBJ.
+ * Dokumen yang datanya kosong total di-skip (panel tampil pesan jujur).
+ * Label persis F-PBJ6 REQUIREMENTS.
+ */
+export function pbjDocs(pbjForm = {}) {
+  const f = { ...pbjFormKosong(), ...pbjForm }
+  for (const k of Object.keys(f)) f[k] = { ...pbjFormKosong()[k], ...(pbjForm?.[k] || {}) }
+  // Revisi PBJ (7): KS dari data pejabat ala LPJ — ketikan user → Data Sekolah → ''.
+  // Prioritas sama seperti LPJ (DokumenFormPreview / maminDocs): formData dulu, baru pejabat.
+  const sig = getSignatureRoles()
+  const ksNama = sig['kepala-sekolah']?.nama || ''
+  const noRows = (rows = []) => (rows || []).map((r, i) => ({ id: `pbj-${i}`, ...r, no: i + 1 }))
+  const docs = []
+  if (!docPbjKosong(f.perencanaan)) docs.push({ key: 'pbj-perencanaan', label: 'Perencanaan',
+    templateConfig: TEMPLATE_CONFIGS.pbj_perencanaan,
+    data: { ...TEMPLATE_CONFIGS.pbj_perencanaan.defaults, ...f.perencanaan,
+      namaPelaksana: f.perencanaan.namaPelaksana || ksNama } })
+  if (!docPbjKosong(f.pesanan)) docs.push({ key: 'pbj-pesanan', label: 'Surat Pesanan',
+    templateConfig: TEMPLATE_CONFIGS.pbj_pesanan,
+    data: { ...TEMPLATE_CONFIGS.pbj_pesanan.defaults, ...f.pesanan, rows: noRows(f.pesanan.rows) } })
+  if (!docPbjKosong(f.bahp)) docs.push({ key: 'pbj-bahp', label: 'BAHP — Hasil Pemeriksaan',
+    templateConfig: TEMPLATE_CONFIGS.pbj_bahp,
+    data: { ...TEMPLATE_CONFIGS.pbj_bahp.defaults, ...f.bahp,
+      namaPemeriksa: f.bahp.namaPemeriksa || ksNama } })
+  if (!docPbjKosong(f.bast)) docs.push({ key: 'pbj-bast', label: 'BAST',
+    templateConfig: TEMPLATE_CONFIGS.pbj_bast,
+    data: { ...TEMPLATE_CONFIGS.pbj_bast.defaults, ...f.bast,
+      pihakKedua: f.bast.pihakKedua || ksNama,
+      kesesuaian: f.bast.kesesuaian ? `[X] ${f.bast.kesesuaian}` : '',
+      kondisi: f.bast.kondisi ? `[X] ${f.bast.kondisi}` : '' } })
+  if (!docPbjKosong(f.nego)) {
+    docs.push({ key: 'pbj-nego-banding', label: 'Negosiasi — Pembandingan',
+      templateConfig: TEMPLATE_CONFIGS.pbj_nego_banding,
+      data: { ...TEMPLATE_CONFIGS.pbj_nego_banding.defaults, nomorNego: f.nego.nomorNego || '',
+        tanggalNego: f.nego.tanggalNego || '', produkI: f.nego.produkI || '', produkII: f.nego.produkII || '',
+        rows: noRows((f.nego.rows || []).map((r) => ({ uraian: r.uraian, produkI: r.penawaran, produkII: '—' }))) } })
+    docs.push({ key: 'pbj-nego-hasil', label: 'Negosiasi — Hasil',
+      templateConfig: TEMPLATE_CONFIGS.pbj_nego_hasil,
+      data: { ...TEMPLATE_CONFIGS.pbj_nego_hasil.defaults, nomorNego: f.nego.nomorNego || '',
+        tanggalNego: f.nego.tanggalNego || '', rows: noRows(f.nego.rows) } })
+  }
+  if (!docPbjKosong(f.data)) docs.push({ key: 'pbj-data', label: 'Data — Rekap Pengadaan',
+    templateConfig: TEMPLATE_CONFIGS.pbj_data,
+    data: { ...TEMPLATE_CONFIGS.pbj_data.defaults, rows: [{ id: 'pbj-data-1', ...f.data }] } })
   return docs
 }
 

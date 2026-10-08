@@ -439,6 +439,24 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                 Lihat Dokumen
               </button>
             </div>
+            {/* Sprint 010: deep-link prefill PBJ khusus baris PEMBAYARAN */}
+            {transaction.tipe === 'PEMBAYARAN' && !isSetorPajak && (
+              <button
+                onClick={() => {
+                  navigate('/dashboard/dokumen-kelengkapan?dok=PBJ', {
+                    state: { fromBKU: true, dok: 'PBJ', ts: Date.now(),
+                      transaksi: { noBukti: transaction.noBukti || '', tanggal: transaction.tanggalStr || '',
+                        uraian: transaction.uraian || '', nominal: transaction.pengeluaran || transaction.kredit || 0 } },
+                  })
+                  if (onClose) onClose()
+                }}
+                title="Lengkapi 5 dokumen PBJ dari transaksi ini"
+                className="w-full mt-2.5 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-primary border border-primary/30 text-sm font-semibold hover:bg-primary-fixed/30 active:scale-[0.98] transition-all min-h-[44px]"
+              >
+                <span className="material-symbols-outlined text-lg">folder_shared</span>
+                Lengkapi PBJ
+              </button>
+            )}
           </div>
           {/* ── Hero Card: Uraian + Angka Kunci ── */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
