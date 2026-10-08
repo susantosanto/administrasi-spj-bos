@@ -5,6 +5,7 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **MERGE main 2026-10-08 (`1ff8e97`): feat/sprint-010-pbj → main, push sinkron origin (bypass rule PR tercatat remote).** Isi: 11 file tasks 51-58 (tabel 1-invoice-1-baris 15 kolom + card full-width premium + contain fix sidebar) + pack sprint-010 + architect-pack-010. Build di main exit 0 (6.40s). Junk/artefak lokal (template PDF/XLSX, screenshot, log) TIDAK ikut commit.
 - **PBJ konsisten LPJ + tabel sheet-data + card-flow — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-08, tanpa commit/push (kuasa user).**
   Perintah user: (1) panel preview PBJ konsisten LPJ (split form + tombol lengkap), (2) tabel generate-PDF sama format `template/Dokumen PBJ_2026_Lbs.xlsx` sheet data, (3) card Kelengkapan PBJ tampil di bawah card Dokumen PBJ setelah diklik.
   0 baru + 5 ubah (templateConfig: pesanan +kolom SATUAN header persis Excel + config baru `pbj_data` landscape 14 kolom persis header sheet data; aturanPbj 174→198/200: form `data` + prefill invoice/BKU + satuan rows + bulanDariISO; previewDocs: doc ke-7 `Data — Rekap Pengadaan`; PanelPreviewDocument: prop opsional `cetakAktif` backward-compatible; KelengkapanPage: section selalu-tampil DIHAPUS → accordion di bawah kategori SIPLAH via klik card, split-view LPJ `1fr_620px` + aside sticky, status/Cek/Cetak gate, tab ke-6 Data 13 field, tabel pesanan +kolom Satuan editable, modal skip PBJ, deep-link BKU auto-buka accordion).
