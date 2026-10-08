@@ -101,7 +101,7 @@ function ScaledPaper({ doc, zoom }) {
   )
 }
 
-export default function PanelPreviewDocument({ title, docs = [], status = null, onCek = null, onCetak = null }) {
+export default function PanelPreviewDocument({ title, docs = [], status = null, onCek = null, onCetak = null, cetakAktif = null }) {
   const [zoom, setZoom] = useState(1)
   const [fsGagal, setFsGagal] = useState(false)
   const [isFs, setIsFs] = useState(false)
@@ -139,11 +139,14 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
     if (pertama) sorotPelanggaran(pertama)
   }
   const handleCetak = () => {
-    if (!lengkap) return
+    if (!bisaCetak) return
     if (onCetak) { onCetak(); return }
     window.print()
   }
   const lengkap = status ? status.perlu === 0 : null
+  // cetakAktif = gate longgar opsional (mis. PBJ: boleh cetak parsial selama
+  // ≥1 dokumen ada). Null = perilaku lama (gate ketat LENGKAP).
+  const bisaCetak = cetakAktif ?? lengkap
 
   return (
     <div ref={panelRef} className="panel-preview-root print:hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
@@ -191,7 +194,7 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
         </div>
       )}
       {status && (
-        <div className="px-4 py-3 border-b border-slate-100 space-y-2 bg-white">
+        <div className="sticky top-0 z-10 px-4 py-3 border-b border-slate-100 space-y-2 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.02)]">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500" aria-live="polite">
               <span className="sprint008-dot" aria-hidden="true" />
@@ -211,8 +214,8 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
             <button
               type="button"
               onClick={handleCetak}
-              disabled={!lengkap}
-              title={lengkap ? 'Cetak dokumen' : 'Lengkapi dulu — tekan Cek untuk melompat ke field yang kurang'}
+              disabled={!bisaCetak}
+              title={bisaCetak ? 'Cetak dokumen' : 'Lengkapi dulu — tekan Cek untuk melompat ke field yang kurang'}
               className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-xl text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
             >
               <span className="material-symbols-outlined text-base">print</span>

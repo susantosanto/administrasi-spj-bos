@@ -13,14 +13,14 @@ Sprint SELESAI bila checklist C-01-C-08 centang + T-01-T-10 lulus + E-1/E-2 lulu
 
 ## Checklist
 
-- [ ] C-01 Upload invoice TERBACA OTOMATIS: INVOICE - Oktober.pdf menjadi 3 item + grand total Rp 7.055.000 + penyedia Himalaya Store terisi (T-02)
-- [ ] C-02 Fallback manual jujur: PDF non-SIPLah/scan buram menjadi pesan jujur + form manual penuh bisa isi + arsip meta tersimpan (T-03)
-- [ ] C-03 5 dokumen tampil: panel 6 docs + area cetak 6 halaman + ringkasan per dokumen (T-04, T-05)
-- [ ] C-04 Prefill BKU deep-link + snapshot/Urungkan: dari BKU menjadi auto-prefill + badge + Urungkan kembalikan (T-06)
-- [ ] C-05 PBJ selalu tampil: toggle SIPLAH on/off menjadi section PBJ tetap ada (T-07)
-- [ ] C-06 Cetak steril selain PBJ: dokumen existing identik, tiap dokumen PBJ ganti halaman, panel tak ikut cetak (T-08)
-- [ ] C-07 Larangan: tanpa TTD digital, tanpa KIRIM, tanpa QR, tanpa navy, 0 lib baru, prefix spj_ utuh, tanpa blob PDF (T-08/T-09)
-- [ ] C-08 Build sukses + STATE.MD/pack updated (T-01, T-10)
+- [x] C-01 Upload invoice TERBACA OTOMATIS: INVOICE - Oktober.pdf menjadi 3 item + grand total Rp 7.055.000 + penyedia Himalaya Store terisi (T-02)
+- [x] C-02 Fallback manual jujur: PDF non-SIPLah/scan buram menjadi pesan jujur + form manual penuh bisa isi + arsip meta tersimpan (T-03)
+- [x] C-03 5 dokumen tampil: panel 6 docs + area cetak 6 halaman + ringkasan per dokumen (T-04, T-05)
+- [x] C-04 Prefill BKU deep-link + snapshot/Urungkan: dari BKU menjadi auto-prefill + badge + Urungkan kembalikan (T-06)
+- [x] C-05 PBJ selalu tampil: toggle SIPLAH on/off menjadi section PBJ tetap ada (T-07)
+- [x] C-06 Cetak steril selain PBJ: dokumen existing identik, tiap dokumen PBJ ganti halaman, panel tak ikut cetak (T-08)
+- [x] C-07 Larangan: tanpa TTD digital, tanpa KIRIM, tanpa QR, tanpa navy, 0 lib baru, prefix spj_ utuh, tanpa blob PDF (T-08/T-09)
+- [x] C-08 Build sukses + STATE.MD/pack updated (T-01, T-10)
 
 ## Test Cases
 
