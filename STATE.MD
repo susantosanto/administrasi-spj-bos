@@ -5,6 +5,8 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **MERGE main 2026-10-10 (`e28e976`): feat/sprint-011-paket-sumber → main fast-forward, memuat tumpukan 010 (`1ff8e97`) + 011.** C-03/C-04 dicentang pack-keeper (verdict task 71: T-04'/T-05'/C-03/C-04 4/4 PASS). Isi: 10 file (pack sprint-011: ACCEPTANCE C-01..C-08 penuh + BLUEPRINT/REQUIREMENTS/HANDOFF selaras cari+centang + VERIFICATION-REPORT adendum; src: paketPbj.js baru + DokumenKelengkapanPage cari+centang + BKUPage + previewDocs). Build di main exit 0 (7.85s, 195 modul, warning xlsx pre-existing). Junk/artefak lokal TIDAK ikut commit. Main lokal ahead origin, tanpa push (kuasa user).
+
 - **Sprint 011 Paket Sumber Baris + Toggle SIPLAH — 🟡 BUILDER SELESAI (STATIK+NODE) 2026-10-10 di branch `feat/sprint-011-paket-sumber` (dari main @a176947, memuat kerja 010), tanpa commit/push (kuasa user).**
   1 baru (`paketPbj.js` ~130 baris: isSudahBerdokumen kunci A1 + kandidatKeranjang + bkuKePaketRow + manualKePaketRow subset A5 + arsipkanBaris/kembalikanBaris + terapkanMode; aturanPbj.js STERIL) + 3 ubah (previewDocs: pbjDocs(pbjForm, mode) gate SIPLAH=1 doc; DokumenKelengkapanPage: toggle SIPLAH/NON-SIPLAH persist spj_pbj_mode default non + gate tab/badge/cetak/panel ikut mode + command-bar Upload PDF/Dari BKU/Manual + keranjang Terima/Tolak tanpa auto-tambah + chips konfirmasi + edit inline expand + arsip halus Kembalikan/Kosongkan + form Manual A5; BKUPage: tombol "Kirim ke PBJ" → ?dok=PBJ).
   Gate: build exit 0 (5.81s, 195 modul, warning xlsx pre-existing) · node unit paketPbj (A1 case-insensitive, kandidat, arsip round-trip, mode 1 vs 6) · DoD grep B-01..B-07 hijau · T-09 diff templateConfig/TemplateEngine/blocks KOSONG + package.json KOSONG + larangan 0 + print:hidden 13 hit.
