@@ -5,6 +5,10 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **Sprint 011 Paket Sumber Baris + Toggle SIPLAH — 🟡 BUILDER SELESAI (STATIK+NODE) 2026-10-10 di branch `feat/sprint-011-paket-sumber` (dari main @a176947, memuat kerja 010), tanpa commit/push (kuasa user).**
+  1 baru (`paketPbj.js` ~130 baris: isSudahBerdokumen kunci A1 + kandidatKeranjang + bkuKePaketRow + manualKePaketRow subset A5 + arsipkanBaris/kembalikanBaris + terapkanMode; aturanPbj.js STERIL) + 3 ubah (previewDocs: pbjDocs(pbjForm, mode) gate SIPLAH=1 doc; DokumenKelengkapanPage: toggle SIPLAH/NON-SIPLAH persist spj_pbj_mode default non + gate tab/badge/cetak/panel ikut mode + command-bar Upload PDF/Dari BKU/Manual + keranjang Terima/Tolak tanpa auto-tambah + chips konfirmasi + edit inline expand + arsip halus Kembalikan/Kosongkan + form Manual A5; BKUPage: tombol "Kirim ke PBJ" → ?dok=PBJ).
+  Gate: build exit 0 (5.81s, 195 modul, warning xlsx pre-existing) · node unit paketPbj (A1 case-insensitive, kandidat, arsip round-trip, mode 1 vs 6) · DoD grep B-01..B-07 hijau · T-09 diff templateConfig/TemplateEngine/blocks KOSONG + package.json KOSONG + larangan 0 + print:hidden 13 hit.
+  UNTESTED: browser runtime + screenshot (playwright-mcp ERR_CONNECTION_REFUSED ke localhost:5173, workspace browser webview tak mount, pencil app tak konek — dev server :5173 jawab 200) → /acceptance-runner konteks segar + cetak fisik.
 - **MERGE main 2026-10-08 (`1ff8e97`): feat/sprint-010-pbj → main, push sinkron origin (bypass rule PR tercatat remote).** Isi: 11 file tasks 51-58 (tabel 1-invoice-1-baris 15 kolom + card full-width premium + contain fix sidebar) + pack sprint-010 + architect-pack-010. Build di main exit 0 (6.40s). Junk/artefak lokal (template PDF/XLSX, screenshot, log) TIDAK ikut commit.
 - **PBJ konsisten LPJ + tabel sheet-data + card-flow — 🟢 BUILDER SELESAI (STATIK+RUNTIME) 2026-10-08, tanpa commit/push (kuasa user).**
   Perintah user: (1) panel preview PBJ konsisten LPJ (split form + tombol lengkap), (2) tabel generate-PDF sama format `template/Dokumen PBJ_2026_Lbs.xlsx` sheet data, (3) card Kelengkapan PBJ tampil di bawah card Dokumen PBJ setelah diklik.

@@ -179,7 +179,8 @@ function transportDocs(templateId, subId, formData, sppdData, sig) {
  * Dokumen yang datanya kosong total di-skip (panel tampil pesan jujur).
  * Label persis F-PBJ6 REQUIREMENTS.
  */
-export function pbjDocs(pbjForm = {}) {
+export function pbjDocs(pbjForm = {}, mode = 'non') {
+  const gateDocs = mode === 'siplah' ? ['perencanaan'] : null
   const f = { ...pbjFormKosong(), ...pbjForm }
   for (const k of Object.keys(f)) f[k] = { ...pbjFormKosong()[k], ...(pbjForm?.[k] || {}) }
   // Revisi PBJ (7): KS dari data pejabat ala LPJ — ketikan user → Data Sekolah → ''.
@@ -219,6 +220,8 @@ export function pbjDocs(pbjForm = {}) {
   if (!docPbjKosong(f.data)) docs.push({ key: 'pbj-data', label: 'Data — Rekap Pengadaan',
     templateConfig: TEMPLATE_CONFIGS.pbj_data,
     data: { ...TEMPLATE_CONFIGS.pbj_data.defaults, rows: [{ id: 'pbj-data-1', ...f.data }] } })
+  // Sprint 011 B-02: gate mode — SIPLAH hanya Perencanaan (1 dokumen).
+  if (gateDocs) return docs.filter((d) => d.key === 'pbj-perencanaan')
   return docs
 }
 

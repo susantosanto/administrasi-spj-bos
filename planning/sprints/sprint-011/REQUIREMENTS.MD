@@ -9,8 +9,9 @@
 ## 1. Goal
 
 Satu fitur terpadu "Paket": setiap baris tabel PBJ lahir dari command-bar satu pintu
-(Upload PDF / Dari BKU / Manual), dikurasi lewat keranjang + suggestion chips
-(terima/tolak, tanpa auto-tambah), diedit inline di expand-row, "dihapus" ke arsip
+(Upload PDF / Dari BKU / Manual), dikurasi lewat panel cari+centang BKU
+(cari NoBukti/uraian + filter tanggal + centang batch, tanpa auto-tambah),
+diedit inline di expand-row, "dihapus" ke arsip
 halus yang bisa dikembalikan — dan toggle mode SIPLAH/NON-SIPLAH mengatur tab,
 gate Cek/Cetak, dan preview mengikuti mode aktif tanpa pernah menghapus isian.
 
@@ -34,8 +35,15 @@ One-liner PRD: **kurasi bukan CRUD**.
 ## 4. Scope (Fungsional — WHAT, ringkas dari FR-P1..P10 PRD)
 
 1. Command-bar satu pintu: 3 tombol sumber (Upload PDF / Dari BKU / Manual); 100% baris baru lahir dari ketiganya.
-2. Keranjang BKU→PBJ: kartu kandidat per transaksi belum berdokumen; Terima = tambah baris, Tolak = buang kartu tanpa tambah baris; tanpa auto-tambah apapun.
-3. Suggestion chips: klik chip → dialog konfirmasi → tambah hanya setelah setuju; transaksi sudah berdokumen tidak dimunculkan.
+2. Panel cari+centang BKU→PBJ: cari NoBukti/uraian + filter tanggal + toggle
+   "Hanya yang belum berdokumen" (default ON) + grup ringkas per NoBukti (buka-tutup)
+   + centang per transaksi/grup; tombol "Terima ke PBJ (n)" batch menambah tepat n baris,
+   disabled saat 0 dipilih; tanpa auto-tambah apapun, tanpa tombol Tolak per kartu
+   (revisi task 66 — menggantikan desain keranjang Terima/Tolak per kartu).
+3. Tanpa auto-tambah (guard): tidak ada suggestion chips dan tidak ada dialog konfirmasi
+   (revisi task 66 — resmi diganti panel cari+centang); baris hanya lahir dari aksi
+   eksplisit Upload / Terima-dipilih / Manual-submit; transaksi sudah berdokumen
+   tidak dimunculkan saat toggle "Hanya yang belum berdokumen" ON (definisi terkunci A1).
 4. Edit inline expand-row: seluruh edit nilai baris di dalam expand; tanpa modal edit, tanpa tombol Ubah per baris.
 5. Arsip halus: "hapus" = pindah ke arsip (soft); panel arsip tertutup default + Kembalikan per baris; tanpa warna bahaya.
 6. Toggle SIPLAH/NON-SIPLAH di card Kelengkapan: SIPLAH sembunyikan 5 tab non-Perencanaan (tab hilang, bukan disabled); NON-SIPLAH tampilkan keenam dokumen seperti sekarang.
@@ -72,7 +80,7 @@ PBJ→BKU; perubahan BKU/LPJ/template selain titik "Kirim ke PBJ"; dokumen/lampi
 | Kriteria | Target |
 |---|---|
 | Baris baru via 3 pintu; tombol aksi level baris | 100% via pintu; 0 tombol per baris |
-| Baris tercipta tanpa konfirmasi eksplisit | 0 |
+| Baris tercipta tanpa aksi eksplisit (auto-tambah) | 0 |
 | Dokumen tercetak mode SIPLAH | Tepat 1 (Perencanaan) |
 | Baris terhapus pulih dari arsip | 100% |
 | Field utuh round-trip SIPLAH→NON→SIPLAH | 100% |

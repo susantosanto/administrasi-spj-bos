@@ -36,10 +36,11 @@ dan keputusan A1..A6 yang TIDAK boleh diubah. TUNGGU persetujuan eksplisit sebel
 
 ```bash
 git diff --stat -- spj-frontend/src/data/templateConfig.js spj-frontend/src/components/TemplateEngine.jsx spj-frontend/src/components/blocks/
-grep -c "sk-doc-print" spj-frontend/src/pages/dashboard/DokumenKelengkapanPage.jsx
 grep -rn "tanda.tangan.digital\|KIRIM.ke.server\|QRCode\|navy" spj-frontend/src/pages/dashboard/DokumenKelengkapanPage.jsx spj-frontend/src/utils/aturanPbj.js spj-frontend/src/utils/paketPbj.js spj-frontend/src/utils/previewDocs.js || echo "LARANGAN-BERSIH"
 grep -rn "print:hidden\|print-hidden" spj-frontend/src/pages/dashboard/DokumenKelengkapanPage.jsx | head -10
 ```
+> Catatan G-3 (2026-10-10): `grep -c sk-doc-print` DITIADAKAN dari regresi — selalu 1 di kedua mode
+> (satu node JSX me-render list). Gate 1-vs-7 dokumen diukur RUNTIME via DOM (figure count), lihat T-07 baru.
 
 ```bash
 git diff --stat -- spj-frontend/package.json
@@ -55,7 +56,7 @@ Update STATE.MD + checklist pack sprint-011 (C-01..C-08, T-01..T-10, E-1/E-2) + 
 ## Cross-Artifact Consistency Check (hasil — HIJAU 2026-10-10)
 
 - [x] Setiap item REQUIREMENTS §4 (10 scope) → BLUEPRINT: 1-3→B-03/B-04/B-05; 4→B-06; 5→B-07; 6-7→B-01; 8→B-03(+upload existing); 9→B-02; 10→B-08. §5 larangan → HANDOFF JANGAN + T-09.
-- [x] Setiap task B-01..B-09 → ACCEPTANCE: B-01→T-02; B-02→T-07; B-03→T-03; B-04→T-04; B-05→T-05; B-06/B-07→T-06; B-08→T-08; B-09→T-09/T-10; T-01 = build umum.
+- [x] Setiap task B-01..B-09 → ACCEPTANCE: B-01→T-02; B-02→T-07; B-03→T-03; B-04→T-04 (panel cari+centang, revisi task 66); B-05→T-05 (guard tanpa auto-tambah); B-06/B-07→T-06; B-08→T-08; B-09→T-09/T-10; T-01 = build umum.
 - [x] Setiap task punya DoD mesin (build + grep) — tanpa "done" opini manusia.
 - [x] ACCEPTANCE tidak menuntut fitur di luar BLUEPRINT (E-1/E-2 reuse pola sprint-010; T-09/T-10 verifikasi saja).
 - [x] HANDOFF berisi bootstrap command block (node -v + npm run build) + 4 perintah regresi.
@@ -63,3 +64,10 @@ Update STATE.MD + checklist pack sprint-011 (C-01..C-08, T-01..T-10, E-1/E-2) + 
 - [x] Satu sprint = satu goal (kurasi + mode SIPLAH satu paket PRD; tidak dipecah karena 10 FR satu alur "kurasi bukan CRUD").
 
 **Verdict: HIJAU — siap handoff setelah persetujuan.**
+
+## Adendum 2026-10-10 (task 70, docs-only — opsi (a) G-1 DITERIMA)
+
+Desain cari+centang revisi task 66 RESMI menggantikan keranjang Terima/Tolak-per-kartu + chips + dialog
+konfirmasi. T-04/T-05 + C-03/C-04 + B-04/B-05 ditulis ulang; [x] premature dicabut (B-04/B-05/C-03/C-04 = [ ]);
+spj_pbj_keranjang_tolak dihapus dari pack (yatim); ukur sk-doc-print statis diganti runtime (G-3);
+redaksi E-1 diselaraskan. T-04'/T-05' wajib diverifikasi ulang acceptance-runner sebelum sprint APPROVED final.

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -78,6 +79,7 @@ export default function BKUPage() {
   const [grupExpand, setGrupExpand] = useState({})
   const toggleGrup = (key) => setGrupExpand((prev) => ({ ...prev, [key]: !prev[key] }))
   const toast = useToast()
+  const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
   // Recalculate real summary from transactions
@@ -389,7 +391,8 @@ export default function BKUPage() {
       <Topbar title="Data BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
-        {/* ── Upload Toggle Button (always visible) ── */}
+        {/* ── Upload Toggle Button (always visible) + Sprint 011 titik Kirim ke PBJ ── */}
+        <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={() => setShowUploadForm(!showUploadForm)}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
@@ -401,6 +404,15 @@ export default function BKUPage() {
           <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload_file'}</span>
           {showUploadForm ? 'Tutup Form' : 'Upload BKU'}
         </button>
+        <button
+          onClick={() => navigate('/dashboard/dokumen-kelengkapan?dok=PBJ')}
+          title="Buka keranjang PBJ — kandidat dari transaksi PEMBAYARAN"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
+        >
+          <span className="material-symbols-outlined text-lg">move_to_inbox</span>
+          Kirim ke PBJ
+        </button>
+        </div>
 
         {/* ── Upload Area ── */}
         {showUploadForm && (
