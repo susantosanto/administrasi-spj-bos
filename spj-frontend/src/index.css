@@ -1,239 +1,90 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SPJ Design System v2 — "Tenang"
+   Token-driven, semantic, dark mode via CSS variables.
+   Prinsip: Calm, Trustworthy, Print-first, Accessible, Token-driven.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   LPJ BOS/BOSP — Premium Blue Design System (Consolidated 2026-09-02)
-   Audit: tailwind.config 58→18 token, rounded-xl 223x dominan, text-sm/xs 563x
-   Fonts: Inter (body) + Hanken Grotesk (display). 8px grid.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
+/* ─────────────────────────────────────────────────────────────────────────
+   CSS Variables — Light Mode (default)
+   ───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Brand — Primary scale (konsolidasi dari #004ac6) */
-  --color-primary: #004ac6;
-  --color-primary-hover: #003ea8;
-  --color-primary-light: #dbe1ff;
-  --color-on-primary: #ffffff;
+  /* Brand */
+  --color-primary: #004AC6;
+  --color-primary-hover: #003EA8;
+  --color-primary-soft: #DBE1FF;
+  --color-on-primary: #FFFFFF;
 
-  /* Surface — page & card — LIGHT */
-  --color-background: #f8f9fb;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f3f4f6;
-  --color-surface-container: #edeef0;
-  --color-surface-container-high: #e7e8ea;
+  /* Surface */
+  --color-bg: #F8F9FB;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F3F4F6;
+  --color-surface-high: #E7E8EA;
 
-  /* Border — LIGHT */
-  --color-outline: #737686;
-  --color-outline-variant: #c3c6d7;
-  --color-border: #e2e8f0; /* slate-200 default */
+  /* Border */
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
 
-  /* Text — LIGHT */
+  /* Text */
   --color-text-high: #111827;
-  --color-text-muted: #64748b;
-  --color-text-low: #6b7280;
+  --color-text-muted: #64748B;
+  --color-text-low: #94A3B8;
 
   /* Semantic */
-  --color-danger: #dc2626;
-  --color-warning: #eab308;
   --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #0284C7;
 
-  /* Radius — dominan rounded-xl (12px) & rounded-2xl (16px) */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 24px -6px rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 8px 24px rgba(0, 74, 198, 0.18);
 
-  /* Shadow — 3 level + primary glow */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 24px -6px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.05);
-  --shadow-primary: 0 8px 24px rgba(0,74,198,0.18);
+  color-scheme: light;
 }
 
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   DARK MODE — Premium Blue Dark — GRADASI ANIMASI (dari Dark Mode.jpeg)
-   Aktif saat <html class="dark">. Body bukan hitam, tapi gradasi animasi
-   biru → ungu → magenta → pink yang mengalir (sesuai referensi jpeg).
-   Semua (body, bukan hanya sisi) berubah.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ─────────────────────────────────────────────────────────────────────────
+   CSS Variables — Dark Mode (solid, tenang, bukan gradient)
+   ───────────────────────────────────────────────────────────────────────── */
 .dark {
-  --color-background: #0f0f3e;
-  --color-surface: rgba(19,29,51,0.85);
-  --color-surface-muted: rgba(30,43,74,0.9);
-  --color-surface-container: #1a2642;
-  --color-surface-container-high: #24365f;
-  --color-outline: #3a4a6b;
-  --color-outline-variant: #2a3a5c;
-  --color-border: rgba(255,255,255,0.08);
-  --color-text-high: #ffffff;
-  --color-text-muted: #e2e8f0;
-  --color-text-low: #cbd5e1;
-  --color-primary: #60a5fa;
-  --color-primary-hover: #3b82f6;
-  --color-primary-light: #1e3a5f;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-  --shadow-lg: 0 10px 24px -6px rgba(0,0,0,0.6), 0 4px 12px -4px rgba(0,0,0,0.5);
-  --shadow-primary: 0 8px 24px rgba(96,165,250,0.35);
+  --color-primary: #60A5FA;
+  --color-primary-hover: #3B82F6;
+  --color-primary-soft: #1E3A5F;
+  --color-on-primary: #0B1020;
+
+  --color-bg: #0B1020;
+  --color-surface: #151B2E;
+  --color-surface-muted: #1E2640;
+  --color-surface-high: #2A3350;
+
+  --color-border: #2A3350;
+  --color-border-strong: #3A4A6B;
+
+  --color-text-high: #F8FAFC;
+  --color-text-muted: #CBD5E1;
+  --color-text-low: #94A3B8;
+
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+  --color-info: #38BDF8;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 8px 24px rgba(96, 165, 250, 0.35);
+
   color-scheme: dark;
 }
-.dark body {
-  color: #ffffff;
-  /* Body gradasi animasi — meniru Dark Mode.jpeg (biru → ungu → pink) */
-  background: linear-gradient(135deg, #0f0cc0 0%, #3a00b8 18%, #6d00c2 32%, #9a00a8 48%, #c8007a 62%, #e6006b 78%, #1a1a6c 90%, #0f0cc0 100%) !important;
-  background-size: 400% 400% !important;
-  animation: dark-body-gradient 18s ease infinite !important;
-  position: relative;
-  min-height: 100vh;
-}
-/* Layer aura tambahan — blur wave di belakang body (dark) — override light — blur dihapus */
-.dark body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 800px 600px at 15% 20%, rgba(26,0,255,0.55) 0%, transparent 60%),
-    radial-gradient(ellipse 700px 500px at 85% 30%, rgba(196,0,122,0.45) 0%, transparent 60%),
-    radial-gradient(ellipse 900px 700px at 50% 85%, rgba(255,0,107,0.35) 0%, transparent 65%),
-    radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%) !important;
-  filter: saturate(1.2) !important;
-  animation: dark-aura-drift 22s ease-in-out infinite !important;
-  opacity: 0.9 !important;
-}
-.dark body::after {
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.03) 50%, transparent 70%) !important;
-  background-size: 200% 100% !important;
-  animation: dark-wave-sweep 14s ease-in-out infinite !important;
-  opacity: 0.6 !important;
-  filter: none !important;
-}
-/* Layer kedua — wave halus */
-.dark body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.03) 50%, transparent 70%);
-  background-size: 200% 100%;
-  animation: dark-wave-sweep 14s ease-in-out infinite;
-  opacity: 0.6;
-}
-@keyframes dark-body-gradient {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 50%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes dark-aura-drift {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
-  33% { transform: translate(18px, -14px) scale(1.04); opacity: 1; }
-  66% { transform: translate(-12px, 10px) scale(0.98); opacity: 0.85; }
-  100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
-}
-@keyframes dark-wave-sweep {
-  0% { background-position: -100% 0; }
-  50% { background-position: 200% 0; }
-  100% { background-position: -100% 0; }
-}
-/* Global dark overrides — body gradasi terlihat, card jadi glass (bukan solid hitam) */
-.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; backdrop-filter: blur(10px); }
-.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; backdrop-filter: blur(8px); }
-.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; backdrop-filter: blur(8px); }
-.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; backdrop-filter: blur(10px); }
-.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; backdrop-filter: blur(12px); }
-.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; backdrop-filter: blur(16px); }
-.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; backdrop-filter: blur(8px); }
-.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-.dark .bg-slate-100\/80 { background-color: rgba(26,38,66,0.75) !important; }
-.dark .bg-slate-200 { background-color: rgba(26,38,66,0.9) !important; }
-.dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
-.dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
-.dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
-.dark .border-white\/60 { border-color: rgba(255,255,255,0.12) !important; }
-.dark .border-slate-100 { border-color: rgba(255,255,255,0.06) !important; }
-.dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.08) !important; }
-/* Pastikan semua wrapper dashboard ikut transparan agar gradasi body terlihat */
-.dark .bg-slate-100\/80 { background-color: transparent !important; }
-.dark .min-h-screen.bg-slate-100\/80,
-.dark .flex-1.bg-slate-100\/80 { background: transparent !important; }
-/* ── FIX KHUSUS: Hero CTA putih di dark harus tetap putih dengan teks gelap ── */
-.dark .hero-cta-primary { background-color: #ffffff !important; border-color: #ffffff !important; }
-.dark .hero-cta-primary .hero-cta-text,
-.dark .hero-cta-primary .hero-cta-icon { color: #1a0a6c !important; }
-.dark .hero-cta-primary span.material-symbols-outlined { color: #1a0a6c !important; font-variation-settings: 'FILL' 0 !important; }
-.dark .hero-cta-secondary { background-color: rgba(255,255,255,0.10) !important; color: #ffffff !important; border-color: rgba(255,255,255,0.20) !important; backdrop-filter: blur(12px); }
-.dark .hero-cta-secondary span { color: #ffffff !important; }
-/* Light mode — pastikan hero CTA tetap biru gelap teks putih */
-.hero-cta-primary { background-color: #004ac6; color: #ffffff; }
-.hero-cta-primary .hero-cta-text,
-.hero-cta-primary .hero-cta-icon { color: #ffffff; }
-/* ── FIX KHUSUS: PremiumTypingCard di dark — card jadi glass gelap, teks putih terbaca ── */
-.dark .premium-typing-card { background-color: rgba(19,29,51,0.92) !important; border-color: rgba(255,255,255,0.12) !important; }
-.dark .premium-typing-card .text-slate-700 { color: #ffffff !important; }
-.dark .premium-typing-card .text-slate-500 { color: rgba(255,255,255,0.75) !important; }
-.dark .premium-typing-card .text-slate-400 { color: rgba(255,255,255,0.55) !important; }
-.dark .premium-typing-card .bg-slate-100 { background-color: rgba(255,255,255,0.10) !important; }
-.dark .premium-typing-card .bg-primary\/10 { background-color: rgba(96,165,250,0.15) !important; }
-.dark .premium-typing-card .text-primary\/60 { color: rgba(96,165,250,0.9) !important; }
-.dark .premium-typing-card .border-slate-100 { border-color: rgba(255,255,255,0.08) !important; }
-.dark .premium-typing-card .bg-slate-50\/50 { background-color: rgba(255,255,255,0.06) !important; }
-/* ── TULISAN: light = biru gelap, dark = putih (sesuai request) ── */
-.dark .text-slate-900,
-.dark .text-slate-800,
-.dark .text-slate-700,
-.dark .text-gray-900,
-.dark .text-gray-800,
-.dark .text-gray-700,
-.dark .text-zinc-900,
-.dark .text-zinc-800,
-.dark .text-neutral-900,
-.dark .text-primary,
-.dark .text-blue-900,
-.dark .text-blue-800,
-.dark .text-blue-700,
-.dark .text-indigo-900,
-.dark .text-indigo-800,
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-  color: #ffffff !important;
-}
-.dark .text-slate-600,
-.dark .text-slate-500,
-.dark .text-gray-600,
-.dark .text-gray-500,
-.dark .text-zinc-600,
-.dark .text-blue-600,
-.dark .text-indigo-600 {
-  color: #f1f5f9 !important;
-}
-.dark .text-slate-400 { color: #cbd5e1 !important; }
-.dark .text-slate-300 { color: #94a3b8 !important; }
-/* Primary & biru gelap khusus — light: #004ac6/#0f172a/#111827, dark: putih */
-.dark .text-primary { color: #ffffff !important; }
-.dark .text-blue-600 { color: #f1f5f9 !important; }
-.dark .text-blue-500 { color: #e2e8f0 !important; }
-/* Angka & label di kartu — pastikan putih di dark */
-.dark .text-slate-900.font-bold,
-.dark .text-slate-800.font-bold,
-.dark .font-bold { color: #ffffff !important; }
-.dark .border-slate-100 { border-color: #1e2e50 !important; }
-.dark .border-slate-200 { border-color: #24365f !important; }
-.dark .border-slate-200\/80 { border-color: rgba(36,54,95,0.8) !important; }
-.dark .border-slate-200\/50 { border-color: rgba(36,54,95,0.5) !important; }
-.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1e2e50 !important; }
-.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
-.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
-/* Scrollbar dark */
-.dark ::-webkit-scrollbar-thumb { background: #2a3a5c !important; }
-.dark ::-webkit-scrollbar-thumb:hover { background: #3a4a6b !important; }
-/* Selection dark */
-.dark ::selection { background: #1e3a5f; color: #dbeafe; }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
@@ -247,76 +98,27 @@ html, body, #root {
 }
 
 body {
-  /* Light Mode — soft wash (direview 2026-10-11): turunkan saturasi agar konten terbaca */
-  background: linear-gradient(135deg, #cfe8f5 0%, #a9d1e9 18%, #e8f3fa 35%, #ffffff 50%, #e8f3fa 65%, #b9dcee 82%, #cfe8f5 100%);
-  background-size: 400% 400%;
-  animation: light-body-gradient 28s ease infinite;
-  color: #191c1e;
+  background-color: var(--color-bg);
+  color: var(--color-text-high);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 1100px 800px at 10% 15%, rgba(74,163,209,0.42) 0%, transparent 62%),
-    radial-gradient(ellipse 900px 700px at 90% 25%, rgba(255,255,255,0.9) 0%, transparent 58%),
-    radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.38) 0%, transparent 65%),
-    radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.34) 0%, transparent 60%),
-    radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.42) 0%, transparent 60%);
-  /* blur dihapus sesuai request */
-  filter: saturate(1.1) contrast(1.02);
-  animation: light-aura-drift 24s ease-in-out infinite;
-  opacity: 0.6;
-}
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 22%, rgba(255,255,255,0.45) 46%, rgba(74,163,209,0.22) 52%, transparent 74%);
-  background-size: 280% 100%;
-  animation: light-wave-sweep 18s ease-in-out infinite;
-  opacity: 0.45;
-  /* blur dihapus */
-  filter: none;
-}
-@keyframes light-body-gradient {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 50%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes light-aura-drift {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.6; }
-  33% { transform: translate(22px, -14px) scale(1.05) rotate(0.6deg); opacity: 0.65; }
-  66% { transform: translate(-14px, 12px) scale(0.97) rotate(-0.4deg); opacity: 0.55; }
-  100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.6; }
-}
-@keyframes light-wave-sweep {
-  0% { background-position: -130% 0; transform: translateX(0); }
-  50% { background-position: 190% 0; transform: translateX(8px); }
-  100% { background-position: -130% 0; transform: translateX(0); }
+  transition: background-color 250ms ease, color 250ms ease;
 }
 
-/* Headings use Hanken Grotesk — display */
-h1, h2, h3, .font-display {
+h1, h2, h3, h4, h5, h6, .font-display {
   font-family: 'Hanken Grotesk', sans-serif;
 }
 
-/* Focus — aksesibilitas (audit: focus:ring-2 68x fragmented → unified) */
+/* ─────────────────────────────────────────────────────────────────────────
+   Focus — aksesibilitas WCAG AA
+   ───────────────────────────────────────────────────────────────────────── */
 *:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -324,761 +126,145 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(0,74,198,0.12);
+  box-shadow: 0 0 0 4px rgba(0, 74, 198, 0.12);
 }
 
-/* Hero Wavy/Floral — 4 sisi paskan + motion ke 4 sisi saling bergerak */
-.hero-bg-wavy {
-  will-change: transform;
-  animation: hero-bg-4sides 14s ease-in-out infinite;
-  transform-origin: center;
-}
-.hero-bg-floral {
-  will-change: background-position;
-  animation: hero-floral-pan 30s linear infinite;
-}
-/* Fly-in-Fly — untuk card Laporan Pertanggungjawaban */
-@keyframes fly-in-fly {
-  0% { transform: translateX(120px) translateY(30px) rotate(3deg) scale(0.92); opacity: 0; }
-  35% { transform: translateX(-8px) translateY(-6px) rotate(-1deg) scale(1.02); opacity: 1; }
-  55% { transform: translateX(4px) translateY(2px) rotate(0.6deg) scale(1); opacity: 1; }
-  75% { transform: translateX(0) translateY(-3px) rotate(0deg) scale(1); opacity: 1; }
-  100% { transform: translateX(0) translateY(0) rotate(0deg) scale(1); opacity: 1; }
-}
-@keyframes fly-continuous {
-  0%,100% { transform: translateY(0) translateX(0) rotate(0deg); }
-  25% { transform: translateY(-8px) translateX(4px) rotate(0.6deg); }
-  50% { transform: translateY(0) translateX(0) rotate(0deg); }
-  75% { transform: translateY(-5px) translateX(-3px) rotate(-0.5deg); }
-}
-.animate-fly-in { animation: fly-in-fly 1.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-.animate-fly-continuous { animation: fly-continuous 6s ease-in-out infinite 1.5s; }
-@keyframes hero-bg-4sides {
-  0% { transform: scale(1) translate(0, 0); }
-  15% { transform: scale(1.03) translate(0.6%, 0.4%); }
-  30% { transform: scale(1.06) translate(-0.4%, 0.6%); }
-  45% { transform: scale(1.04) translate(-0.6%, -0.4%); }
-  60% { transform: scale(1.06) translate(0.5%, -0.6%); }
-  75% { transform: scale(1.03) translate(0.3%, 0.3%); }
-  100% { transform: scale(1) translate(0, 0); }
-}
-@keyframes hero-floral-pan {
-  0% { background-position: 0 0; }
-  100% { background-position: 420px 420px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-bg-wavy, .hero-bg-floral, .animate-fly-in, .animate-fly-continuous { animation: none !important; }
-  body, body::before, body::after { animation: none !important; }
-}
-
-/* Premium Animations */
-
-/* Card floating animation - moves forward and down */
-@keyframes card-float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-  }
-  25% {
-    transform: translateY(-6px) translateX(3px);
-  }
-  50% {
-    transform: translateY(-2px) translateX(0);
-  }
-  75% {
-    transform: translateY(-8px) translateX(-2px);
-  }
-}
-
-/* Card glow animation - pulsing glow effect */
-@keyframes card-glow {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-/* Accent line flowing animation */
-@keyframes accent-flow {
-  0%, 100% {
-    transform: scaleX(0.3);
-    opacity: 0.3;
-  }
-  50% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-/* Icon pulse animation */
-@keyframes icon-pulse {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(5deg);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-bounce-subtle {
-  animation: bounce-subtle 2s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s ease-in-out infinite;
-}
-
-.animate-card-glow {
-  animation: card-glow 4s ease-in-out infinite;
-}
-
-.animate-accent-flow {
-  animation: accent-flow 4s ease-in-out infinite;
-  transform-origin: left;
-}
-
-/* Material Symbols Outlined */
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  vertical-align: middle;
-}
-
-/* Selection — primary-light */
+/* ─────────────────────────────────────────────────────────────────────────
+   Selection
+   ───────────────────────────────────────────────────────────────────────── */
 ::selection {
-  background: var(--color-primary-light);
-  color: #00174b;
+  background: var(--color-primary-soft);
+  color: var(--color-text-high);
 }
 
-/* Scrollbar — 6px, outline-variant */
+/* ─────────────────────────────────────────────────────────────────────────
+   Scrollbar
+   ───────────────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
-  background: var(--color-outline-variant);
-  border-radius: 10px;
+  background: var(--color-border-strong);
+  border-radius: 8px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-low);
+}
 
-/* Theme transition — smooth, tidak statis */
-html { transition: background-color 0.35s ease, color 0.35s ease; }
-html * { transition-property: background-color, border-color, color, fill, stroke; transition-duration: 0.25s; transition-timing-function: ease; }
-/* Kecualikan elemen yang animasinya sendiri */
-.magnetic-card, .magnetic-card *, .metaball, .floating-particle, .living-gradient, .living-shimmer, .marquee-track { transition: none !important; }
+/* ─────────────────────────────────────────────────────────────────────────
+   Reduced Motion — hormati aksesibilitas
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-/* ============================================
-   Component Primitives — Premium Blue
-   Audit: glass-card 2x, bento-card 0x — keep untuk hero saja
-   ============================================ */
+/* ─────────────────────────────────────────────────────────────────────────
+   Component Primitives — minimal, akan diperluas di Step 2
+   ───────────────────────────────────────────────────────────────────────── */
 @layer components {
-  /* Glass Card — hero/premium only (backdrop blur) */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
   }
 
-  /* Bento Card — hover lift (DashboardHome fitur) */
-  .bento-card {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-  }
-  .bento-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  /* Financial Table — BKU */
-  .financial-table tr:nth-child(even) { background-color: #f9fafb; }
-  .financial-table th { position: sticky; top: 0; z-index: 10; }
-
-  /* Custom Scrollbar */
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
-
-  /* Sidebar Nav Item — 8px grid (gap-md=16px, gap-sm=8px) */
-  .nav-item {
-    @apply flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 cursor-pointer;
-  }
-  .nav-item:hover { @apply bg-surface-container-high; }
-  .nav-item-active { @apply bg-primary-container text-on-primary-container font-semibold; }
-
-  /* Premium Card — unified (audit: rounded-xl 223x + rounded-2xl 132x) */
-  .card-premium {
-    @apply bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300;
-  }
-  .card-premium-active {
-    @apply border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10;
-  }
-
-  /* Button — primary (audit: 539x bg-primary, fragment focus → unified) */
   .btn-primary {
-    @apply bg-primary text-white font-semibold shadow-sm shadow-primary/20 hover:bg-primary-hover hover:shadow-md active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-weight: 600;
+    transition: all 150ms ease-out;
   }
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-primary);
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
   .btn-secondary {
-    @apply bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 font-semibold transition-all active:scale-[0.98];
+    background-color: var(--color-surface);
+    color: var(--color-text-high);
+    border: 1px solid var(--color-border);
+    font-weight: 600;
+    transition: all 150ms ease-out;
   }
-  .btn-ghost {
-    @apply text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors;
+  .btn-secondary:hover {
+    background-color: var(--color-surface-muted);
+    border-color: var(--color-border-strong);
   }
-}
-
-/* ============================================
-   Utility Animations
-   ============================================ */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-/* Premium Space Orb Animations */
-@keyframes orb-move-1 {
-  0% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(120px, 40px) scale(1.15); }
-  50% { transform: translate(80px, 100px) scale(0.9); }
-  75% { transform: translate(-40px, 60px) scale(1.08); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@keyframes orb-move-2 {
-  0% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-100px, -30px) scale(1.12); }
-  50% { transform: translate(-60px, -90px) scale(0.88); }
-  75% { transform: translate(50px, -50px) scale(1.1); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@keyframes orb-move-3 {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(60px, -50px) scale(1.2); }
-  66% { transform: translate(-50px, 40px) scale(0.85); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
-@keyframes orb-float {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
-  50% { transform: translateY(-40px) scale(1.15); opacity: 0.9; }
-}
-
-@keyframes orb-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.3); opacity: 0.9; }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   A1 — MAGNETIC SPOTLIGHT (Landing FeatureCard)
-   out-of-the-box: spotlight mengikuti kursor + tilt 3D halus
-   ═══════════════════════════════════════════════════════════════════════════ */
-.magnetic-card {
-  --x: 50%;
-  --y: 50%;
-  --rotateX: 0deg;
-  --rotateY: 0deg;
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-.magnetic-card-inner {
-  transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
-  transition: transform 0.15s ease-out;
-}
-.magnetic-spotlight {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(600px circle at var(--x) var(--y), rgba(255,255,255,0.18), rgba(255,255,255,0.06) 25%, transparent 55%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  mix-blend-mode: overlay;
-}
-.magnetic-card:hover .magnetic-spotlight { opacity: 1; }
-.magnetic-glow {
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: radial-gradient(500px circle at var(--x) var(--y), rgba(0,74,198,0.15), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-.magnetic-card:hover .magnetic-glow { opacity: 1; }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   A2 — METABALLS / GOOEY ORBS (Dashboard Hero + Login)
-   out-of-the-box: blob morphing organik + gooey filter + drift
-   ═══════════════════════════════════════════════════════════════════════════ */
-@keyframes metaball-morph {
-  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) scale(1) rotate(0deg); }
-  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -20px) scale(1.08) rotate(3deg); }
-  50% { border-radius: 40% 60% 30% 70% / 70% 30% 60% 40%; transform: translate(-15px, 25px) scale(0.96) rotate(-2deg); }
-  75% { border-radius: 60% 40% 70% 30% / 30% 70% 40% 60%; transform: translate(20px, 10px) scale(1.05) rotate(2deg); }
-  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) scale(1) rotate(0deg); }
-}
-@keyframes metaball-drift {
-  0% { transform: translate(0,0) scale(1); }
-  33% { transform: translate(18px, -22px) scale(1.06); }
-  66% { transform: translate(-12px, 18px) scale(0.98); }
-  100% { transform: translate(0,0) scale(1); }
-}
-@keyframes metaball-float {
-  0%,100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-14px) scale(1.04); }
-}
-.metaballs-container {
-  filter: contrast(1.15) saturate(1.05);
-  isolation: isolate;
-}
-.metaball {
-  position: absolute;
-  filter: blur(18px);
-  will-change: transform, border-radius;
-  mix-blend-mode: screen;
-  opacity: 0.9;
-}
-.metaball-primary {
-  background: radial-gradient(circle at 30% 30%, rgba(96,165,250,0.9) 0%, rgba(59,130,246,0.7) 35%, rgba(0,74,198,0.5) 70%, transparent 78%);
-}
-.metaball-accent {
-  background: radial-gradient(circle at 40% 30%, rgba(125,211,252,0.85) 0%, rgba(56,189,248,0.6) 40%, rgba(14,165,233,0.35) 75%, transparent 80%);
-}
-.metaball-deep {
-  background: radial-gradient(circle at 50% 50%, rgba(30,64,175,0.5) 0%, rgba(0,50,150,0.35) 60%, transparent 75%);
-}
-.animate-metaball-1 { animation: metaball-morph 14s ease-in-out infinite; }
-.animate-metaball-2 { animation: metaball-morph 18s ease-in-out infinite reverse; }
-.animate-metaball-3 { animation: metaball-morph 22s ease-in-out infinite; }
-.animate-metaball-drift { animation: metaball-drift 12s ease-in-out infinite; }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   LIVING UI — Tidak Statis: Global Non-Static Animations 2026
-   Semua elemen punya napas halus, tidak diam. Hormati reduced-motion.
-   ═══════════════════════════════════════════════════════════════════════════ */
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes shimmer-sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-@keyframes breathing {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.015); }
-}
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-@keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
-}
-@keyframes float-particle {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
-  33% { transform: translateY(-18px) translateX(10px) scale(1.1); opacity: 1; }
-  66% { transform: translateY(-32px) translateX(-8px) scale(0.95); opacity: 0.6; }
-  100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
-}
-@keyframes border-rotate {
-  0% { --angle: 0deg; }
-  100% { --angle: 360deg; }
-}
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-@keyframes live-dot {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.85); }
-}
-.living-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 15s ease infinite;
-}
-.living-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.living-shimmer::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 50%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-  transform: translateX(-100%);
-  animation: shimmer-sweep 2.2s ease-in-out infinite;
-}
-.living-breathing { animation: breathing 4s ease-in-out infinite; }
-.marquee-track { animation: marquee 28s linear infinite; }
-.marquee-track-reverse { animation: marquee-reverse 32s linear infinite; }
-.marquee-track:hover, .marquee-track-reverse:hover { animation-play-state: paused; }
-.floating-particle { animation: float-particle 7s ease-in-out infinite; }
-.pulse-ring::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid currentColor;
-  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
-}
-.live-dot { animation: live-dot 1.6s ease-in-out infinite; }
-
-/* Reduced motion — hormati aksesibilitas */
-@media (prefers-reduced-motion: reduce) {
-  .magnetic-card-inner { transition: none !important; }
-  .magnetic-spotlight, .magnetic-glow { display: none !important; }
-  .metaball, .animate-metaball-1, .animate-metaball-2, .animate-metaball-3, .animate-metaball-drift,
-  .animate-card-glow, .animate-accent-flow,
-  .living-gradient, .living-shimmer::after, .living-breathing, .marquee-track, .marquee-track-reverse,
-  .floating-particle, .pulse-ring::before, .live-dot, body, body::before, body::after { animation: none !important; }
-  .metaball { filter: blur(22px) !important; opacity: 0.5 !important; }
-  .living-shimmer::after { display: none !important; }
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@keyframes particle-drift {
-  0% { transform: translate(0, 0); opacity: 0.7; }
-  20% { transform: translate(20px, -30px); opacity: 1; }
-  40% { transform: translate(-15px, -50px); opacity: 0.6; }
-  60% { transform: translate(25px, -20px); opacity: 0.9; }
-  80% { transform: translate(-10px, -40px); opacity: 0.5; }
-  100% { transform: translate(0, 0); opacity: 0.7; }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   PREMIUM ACCORDION ANIMATIONS 2026
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Fade In - Panel detail muncul */
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .btn-secondary:active {
+    transform: scale(0.98);
   }
 }
 
-/* Slide Up Premium */
-@keyframes slide-up-premium {
-  0% {
-    opacity: 0;
-    transform: translateY(40px);
-    filter: blur(4px);
-  }
-  60% {
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-/* Scale In - Card selection */
-@keyframes scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Glow Pulse - Selected card glow */
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(0, 74, 198, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(0, 74, 198, 0.4);
-  }
-}
-
-/* Smooth Reveal */
-@keyframes smooth-reveal {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ════════════════════════════════════════════════════════════
-   LANDING SaaS — Lapisan background dekoratif (2026-10-11)
-   Lapisan gradient wash + blob blur + dot texture + radial soft.
-   Scoped .lpbg-* — tidak menyentuh dashboard. Pure CSS, ringan.
-   ════════════════════════════════════════════════════════════ */
-
-/* Wash diagonal lembut — layer terbawa hero & CTA */
-.lpbg-wash {
-  background-image:
-    radial-gradient(ellipse 1000px 620px at 88% -10%, rgba(21, 94, 239, 0.10) 0%, transparent 62%),
-    radial-gradient(ellipse 820px 540px at -6% 42%, rgba(16, 42, 86, 0.06) 0%, transparent 58%),
-    radial-gradient(ellipse 760px 500px at 42% 118%, rgba(18, 183, 106, 0.05) 0%, transparent 55%);
-}
-
-/* Blob blur melayang */
-.lpbg-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(64px);
-  pointer-events: none;
-}
-
-/* Tekstur dot grid halus */
-.lpbg-dots {
-  background-image: radial-gradient(rgba(16, 42, 86, 0.14) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-/* Radial highlight pusat section */
-.lpbg-radial {
-  background-image: radial-gradient(ellipse 720px 420px at 50% 0%, rgba(21, 94, 239, 0.07) 0%, transparent 68%);
-}
-
-/* Float halus untuk blob — hormati reduced-motion */
-@keyframes lpbg-float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-18px, -22px) scale(1.06); }
-  66% { transform: translate(12px, 16px) scale(0.97); }
-}
-@keyframes lpbg-float-rev {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40% { transform: translate(20px, 14px) scale(1.05); }
-  75% { transform: translate(-14px, -18px) scale(0.95); }
-}
-.lpbg-blob-a { animation: lpbg-float 16s ease-in-out infinite; }
-.lpbg-blob-b { animation: lpbg-float-rev 20s ease-in-out infinite; }
-.lpbg-blob-c { animation: lpbg-float 14s ease-in-out infinite 2s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .lpbg-blob-a, .lpbg-blob-b, .lpbg-blob-c { animation: none !important; }
-}
-
-/* Stagger Children Animation */
-@keyframes stagger-child {
-  0% {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Apply Animations */
-.animate-fade-in {
-  animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-up-premium {
-  animation: slide-up-premium 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-.animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.animate-smooth-reveal {
-  animation: smooth-reveal 0.4s ease-out forwards;
-}
-
-.animate-stagger-child {
-  animation: stagger-child 0.3s ease-out forwards;
-}
-
-/* Scrollbar Hide Utility */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   LANDING SaaS 2026-10-11 — reveal on scroll + motif batik halus
-   Scoped .lp-*, tidak menyentuh dashboard.
-   ═══════════════════════════════════════════════════════════════════════════ */
-.lp-reveal {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.lp-reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-/* Motif floral-batik asli — ornamental seamless GarryKillian / Freepik
-   Digreyscale agar selaras palet biru premium. Versi ringkas: /floral-pattern.jpg (147KB, seamless)
-   Motion: pan halus tanpa putus (seamless loop, translate ≤ 1 tile) — background lebih hidup */
-@keyframes lp-batik-drift {
-  from { background-position: 0 0; }
-  to   { background-position: 360px 360px; }
-}
-@keyframes lp-batik-drift-rev {
-  from { background-position: 360px 360px; }
-  to   { background-position: 0 0; }
-}
-.lp-batik {
-  opacity: 0.18;
-  background-image: url("/floral-pattern.jpg");
-  background-size: 360px 360px;
-  filter: grayscale(1) contrast(0.85) brightness(1.04);
-  background-repeat: repeat;
-  animation: lp-batik-drift 90s linear infinite;
-  will-change: background-position;
-}
-/* Varian arah berlawanan — dua tepi tidak sinkron, terasa organik */
-.lp-batik-rev { animation: lp-batik-drift-rev 110s linear infinite; }
-/* Versi terang floral untuk panel navy — blend soft-light agar motif terlihat di atas gelap */
-.lp-batik-light {
-  opacity: 0.2;
-  background-image: url("/floral-pattern.jpg");
-  background-size: 360px 360px;
-  filter: grayscale(1) invert(1) brightness(1.35) contrast(0.7);
-  mix-blend-mode: soft-light;
-  background-repeat: repeat;
-  animation: lp-batik-drift 120s linear infinite;
-  will-change: background-position;
-}
-/* Motif sudut hero floral — hanya tepi kanan, memudar ke transparan (mask) */
-.lp-batik-corner {
-  opacity: 0.16;
-  background-image: url("/floral-pattern.jpg");
-  background-size: 420px 420px;
-  filter: grayscale(1) contrast(0.9) brightness(1.05);
-  animation: lp-batik-drift 100s linear infinite;
-  will-change: background-position;
-  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, black 30%, transparent 75%);
-  mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, black 30%, transparent 75%);
-}
-@media (prefers-reduced-motion: reduce) {
-  .lp-reveal { opacity: 1; transform: none; transition: none; }
-  .lp-batik, .lp-batik-rev, .lp-batik-light, .lp-batik-corner { animation: none !important; }
-}
-
-/* ============================================
-   Print Styles — A4 Format
-   ============================================ */
+/* ─────────────────────────────────────────────────────────────────────────
+   Print — A4
+   ───────────────────────────────────────────────────────────────────────── */
 @media print {
-  /* Hide everything except print container */
-  body * {
-    visibility: hidden;
+  body {
+    background: white;
+    color: black;
   }
 
-  /* Show print container */
-  .print-container,
-  .print-container * {
-    visibility: visible;
-  }
-
-  /* Position print container */
   .print-container {
     position: absolute;
     left: 0;
     top: 0;
+    width: 210mm;
     min-height: 297mm;
     padding: 20mm 25mm;
     background: white;
   }
 
-  /* Portrait mode (default) */
-  .print-container.portrait {
-    width: 210mm;
-  }
-
-  /* Landscape mode */
   .print-container.landscape {
     width: 297mm;
+    min-height: 210mm;
     padding: 15mm 20mm;
   }
 
-  /* Hide edit-mode elements */
   .print-container .edit-mode-only {
     display: none !important;
   }
 
-  /* A4 page size */
   @page {
     size: A4;
     margin: 0;
   }
-
-  @page landscape {
-    size: A4 landscape;
-    margin: 0;
-  }
 }
 
-/* Preview container — seperti kertas */
+/* ─────────────────────────────────────────────────────────────────────────
+   Preview container — seperti kertas
+   ───────────────────────────────────────────────────────────────────────── */
 .preview-container {
   width: 210mm;
   min-height: 297mm;
   padding: 20mm 25mm;
   background: white;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-md);
   border-radius: 8px;
   margin: 0 auto;
 }
 
-/* Landscape preview */
 .preview-container.landscape {
   width: 297mm;
   min-height: 210mm;
   padding: 15mm 20mm;
 }
 
-/* Template Engine styles */
+/* ─────────────────────────────────────────────────────────────────────────
+   Template Engine — print styles
+   ───────────────────────────────────────────────────────────────────────── */
 .template-engine table {
   width: 100%;
   border-collapse: collapse;
@@ -1113,19 +299,3 @@ html * { transition-property: background-color, border-color, color, fill, strok
   border-color: #3b82f6;
   outline: none;
 }
-
-/* Print-specific table styles */
-@media print {
-  .template-engine table {
-    page-break-inside: avoid;
-  }
-
-  .template-engine tr {
-    page-break-inside: avoid;
-  }
-
-  .template-engine thead {
-    display: table-header-group;
-  }
-}
-
