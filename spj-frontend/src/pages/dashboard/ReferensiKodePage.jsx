@@ -12,6 +12,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { KEGIATAN_BOS, REKENING_MAP, refreshKodeReferensi } from '../../data/kodeReferensi'
+import storageHelper from '../../utils/storageHelper'
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────
 const TABS = [
@@ -53,12 +54,10 @@ export default function ReferensiKodePage() {
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdate, setLastUpdate] = useState(null)
 
-  // Load last update from localStorage
+  // Load last update dari storage (quota-safe)
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('spj_kode_referensi_update'))
-      if (saved?.timestamp) setLastUpdate(saved.timestamp)
-    } catch {}
+    const saved = storageHelper.get('kode_referensi_update')
+    if (saved?.timestamp) setLastUpdate(saved.timestamp)
   }, [])
 
   // ── Filtered data ──

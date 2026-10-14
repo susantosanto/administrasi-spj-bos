@@ -9,6 +9,8 @@
  * Last updated: 2026-07-17
  */
 
+import storageHelper from '../utils/storageHelper'
+
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA DASAR — Kode Kegiatan ARKAS BOS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -286,13 +288,13 @@ export async function refreshKodeReferensi() {
     const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || []
     
     if (tables.length > 0) {
-      // Berhasil parse → simpan ke localStorage
+      // Berhasil parse → simpan ke storage (quota-safe)
       const parsedData = {
         timestamp: new Date().toISOString(),
         source: url,
         tables: tables.length,
       }
-      localStorage.setItem('spj_kode_referensi_update', JSON.stringify(parsedData))
+      storageHelper.set('kode_referensi_update', parsedData)
       return { success: true, message: `Berhasil mengambil ${tables.length} tabel referensi.` }
     }
     

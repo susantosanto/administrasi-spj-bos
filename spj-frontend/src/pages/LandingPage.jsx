@@ -1,736 +1,863 @@
 /**
- * Landing Page — Ultra Premium White & Blue Design
+ * Landing Page — Premium Education Finance SaaS (Redesign 2026-10-11)
+ * Clean, elegan, hierarki kuat. Fokus: keterbacaan, CTA jelas, motif batik halus.
+ * Light-only. Satu file, tanpa dependency baru.
  */
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import ThemeToggle from "../components/ui/ThemeToggle";
-import { useTheme } from "../contexts/ThemeContext";
 
-function ThemeToggleLanding({ variant }) {
-  // wrapper agar tidak error jika ThemeProvider belum ready di public route (sudah ada)
-  try {
-    return <ThemeToggle variant={variant} />;
-  } catch {
-    return null;
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ANIMATED COUNTER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
-  const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+// ─────────────────────────────────────────────────────────────────────────────
+// Reveal on scroll — satu observer, hormati prefers-reduced-motion
+// ─────────────────────────────────────────────────────────────────────────────
+function Reveal({ children, className = "", delay = 0, as: Tag = "div" }) {
   const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !isVisible) setIsVisible(true); },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [isVisible]);
-
-  useEffect(() => {
-    if (!isVisible) return;
-    let startTime;
-    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
-    const animate = (currentTime) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      setCount(Math.floor(easeOutQuart(progress) * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [isVisible, end, duration]);
-
-  return <span ref={ref} className="tabular-nums">{count}{suffix}</span>;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PREMIUM TYPING CARD — Clean White Design, Matches App Theme
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function PremiumTypingCard() {
-  const texts = [
-    { text: 'Upload BKU dari ARKAS', icon: 'upload_file' },
-    { text: 'Cetak LPJ Satu Klik', icon: 'print' },
-    { text: 'Kelola Data Sekolah', icon: 'school' },
-    { text: 'Generate 13 Template', icon: 'description' },
-    { text: 'Generate Foto Dokumentasi', icon: 'auto_awesome' },
-    { text: 'Import Data Guru', icon: 'groups' },
-  ];
-
-  const [displayText, setDisplayText] = useState('');
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) {
-      const pauseTimeout = setTimeout(() => setIsPaused(false), 2500);
-      return () => clearTimeout(pauseTimeout);
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
     }
-
-    const currentText = texts[textIndex].text;
-    const speed = isDeleting ? 25 : 50;
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayText(currentText.substring(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-        if (charIndex === currentText.length) {
-          setIsPaused(true);
-          setTimeout(() => setIsDeleting(true), 100);
-        }
-      } else {
-        setDisplayText(currentText.substring(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-        if (charIndex === 0) {
-          setIsDeleting(false);
-          setTextIndex(prev => (prev + 1) % texts.length);
-        }
-      }
-    }, speed);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, textIndex, isPaused]);
-
-  return (
-    <div className="relative perspective-1000 animate-fly-in animate-fly-continuous">
-      {/* Background stack of documents - visible shadows */}
-      <div className="absolute -bottom-5 -right-5 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-3xl rotate-3 shadow-xl" />
-      <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
-
-      {/* Main document card */}
-      <div className="premium-typing-card relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
-
-        {/* Document header - soft premium gradient */}
-        <div className="bg-gradient-to-r from-primary via-blue-500 to-primary px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  description
-                </span>
-              </div>
-              <div>
-                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Laporan Pertanggungjawaban</p>
-                <p className="text-white font-bold text-sm">LPJ BOS/BOSP</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-3 py-2 rounded-xl">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/70 text-xs font-medium">Aktif</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Document body */}
-        <div className="p-6 md:p-8 relative">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/[0.06] to-transparent rounded-bl-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-400/[0.04] to-transparent rounded-tr-[100px] pointer-events-none" />
-
-          {/* Subtle dot pattern */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
-            backgroundSize: '24px 24px'
-          }} />
-
-          {/* Decorative accent */}
-          <div className="relative flex items-center gap-3 mb-6">
-            <div className="h-8 w-1 bg-gradient-to-b from-primary to-blue-300 rounded-full" />
-            <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Fitur Utama</p>
-          </div>
-
-          {/* Typing text */}
-          <div className="min-h-[3rem] md:min-h-[4rem] mb-6">
-            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 flex items-center">
-              <span>{displayText}</span>
-              <span className="w-[3px] h-6 md:h-8 bg-primary ml-1 animate-pulse" />
-            </h3>
-          </div>
-
-          {/* Document metadata */}
-          <div className="flex items-center gap-5 pt-5 border-t border-slate-100">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary/60 text-xs">calendar_today</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">TA 2024/2025</span>
-            </div>
-            <div className="w-px h-4 bg-primary/10" />
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary/60 text-xs">schedule</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">Update Real-time</span>
-            </div>
-          </div>
-
-          {/* Content lines */}
-          <div className="mt-6 space-y-2">
-            <div className="h-1.5 w-full bg-slate-100 rounded-full" />
-            <div className="h-1.5 w-4/5 bg-slate-100/80 rounded-full" />
-            <div className="h-1.5 w-5/6 bg-slate-100/60 rounded-full" />
-          </div>
-        </div>
-
-        {/* Document footer */}
-        <div className="px-6 md:px-8 py-4 bg-slate-50/50 border-t border-slate-100">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1.5">
-              {texts.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === textIndex ? 'w-7 bg-primary' : 'w-1.5 bg-slate-200'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-[11px] text-slate-400 font-medium">Dokumen {textIndex + 1} dari {texts.length}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PREMIUM FEATURE PILLS — Minimalist Animated Dots
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function PremiumFeaturePills() {
-  const features = [
-    { icon: 'upload_file', label: 'Upload BKU' },
-    { icon: 'print', label: 'Cetak LPJ' },
-    { icon: 'school', label: 'Data Sekolah' },
-    { icon: 'groups', label: 'Data Guru' },
-    { icon: 'auto_awesome', label: 'Foto AI' },
-    { icon: 'description', label: '13 Template' },
-    { icon: 'verified', label: 'Resmi BOSP' },
-    { icon: 'speed', label: '85% Lebih Cepat' },
-  ];
-
-  // Gandakan untuk infinite marquee seamless
-  const loop = [...features, ...features];
-
-  return (
-    <div className="relative overflow-hidden py-2 group/marquee">
-      {/* Fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-      <div className="flex marquee-track gap-3 w-max" style={{ willChange: 'transform' }}>
-        {loop.map((feature, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2.5 px-5 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group shrink-0 living-breathing"
-            style={{ animationDelay: `${(i % features.length) * 0.12}s`, animationDuration: '3.5s' }}
-          >
-            <span className="material-symbols-outlined text-primary/70 text-lg group-hover:text-primary transition-colors">
-              {feature.icon}
-            </span>
-            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors whitespace-nowrap">
-              {feature.label}
-            </span>
-            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full live-dot ml-1" />
-          </div>
-        ))}
-      </div>
-      <p className="text-center text-[10px] text-slate-400 mt-2 tracking-wide">⟷ Hover untuk pause • Tidak statis, terus berjalan</p>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// FEATURE CARD
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function FeatureCard({ feature, index }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const cardRef = useRef(null);
-
-  useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), index * 150);
+          setVisible(true);
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.12 }
     );
-    if (cardRef.current) observer.observe(cardRef.current);
+    observer.observe(el);
     return () => observer.disconnect();
-  }, [index]);
-
-  // A1 — Magnetic spotlight + tilt (out-of-the-box)
-  const handleMouseMove = (e) => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateY = ((x - centerX) / rect.width) * 6; // max ±3deg
-    const rotateX = ((centerY - y) / rect.height) * 6;
-    card.style.setProperty('--x', `${x}px`);
-    card.style.setProperty('--y', `${y}px`);
-    card.style.setProperty('--rotateX', `${rotateX}deg`);
-    card.style.setProperty('--rotateY', `${rotateY}deg`);
-  };
-  const handleMouseLeave = (e) => {
-    const card = e.currentTarget;
-    card.style.setProperty('--x', `50%`);
-    card.style.setProperty('--y', `50%`);
-    card.style.setProperty('--rotateX', `0deg`);
-    card.style.setProperty('--rotateY', `0deg`);
-  };
+  }, []);
 
   return (
-    <div
-      ref={cardRef}
-      className={`relative group cursor-pointer
-                  ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}
-                  transition-all duration-700 ease-out
-                  ${feature.isLarge ? 'md:col-span-2' : ''}`}
+    <Tag
+      ref={ref}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`lp-reveal ${visible ? "lp-reveal-visible" : ""} ${className}`}
     >
-      <div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="magnetic-card relative h-full bg-white rounded-3xl border border-slate-200/80 p-7
-                      shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.14)]
-                      hover:border-primary/20
-                      transition-all duration-500 overflow-hidden"
-      >
-        <div className="magnetic-card-inner h-full">
-        {/* A1 — Magnetic spotlight + glow */}
-        <div className="magnetic-spotlight" />
-        <div className="magnetic-glow" />
-
-        {/* Looping glow animation - different delay per card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-blue-400/[0.02]
-                        rounded-3xl animate-card-glow pointer-events-none"
-             style={{ animationDelay: `${index * 1.5}s` }} />
-
-        {/* Top accent line - animated flow */}
-        <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient}
-                        animate-accent-flow rounded-t-3xl pointer-events-none`}
-             style={{ animationDelay: `${index * 1.5}s` }} />
-
-        {/* Content */}
-        <div className="relative">
-          <div className={`w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center mb-5
-                          group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}
-               style={{ animation: `card-float 3s ease-in-out infinite ${index * 0.5}s` }}>
-            <span className={`material-symbols-outlined text-xl ${feature.iconColor}`}
-                  style={{ fontVariationSettings: "'FILL' 1" }}>
-              {feature.icon}
-            </span>
-          </div>
-
-          <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors duration-300">
-            {feature.title}
-          </h3>
-          <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
-
-          <div className="mt-5 flex items-center gap-2 text-primary font-semibold text-sm opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-            <span>Pelajari Selengkapnya</span>
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </div>
-        </div>
-
-        {feature.isLarge && feature.extra && (
-          <div className="relative mt-5 pt-4 border-t border-slate-100">{feature.extra}</div>
-        )}
-        </div>
-      </div>
-    </div>
+      {children}
+    </Tag>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// Animated counter — berhenti setelah terlihat sekali
+// ─────────────────────────────────────────────────────────────────────────────
+function AnimatedCounter({ end, duration = 1600, suffix = "" }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          setCount(end);
+          return;
+        }
+        let startTime;
+        const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+        const animate = (now) => {
+          if (!startTime) startTime = now;
+          const progress = Math.min((now - startTime) / duration, 1);
+          setCount(Math.floor(easeOutQuart(progress) * end));
+          if (progress < 1) raf = requestAnimationFrame(animate);
+        };
+        raf = requestAnimationFrame(animate);
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [end, duration]);
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Data
+// ─────────────────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: "Beranda", href: "#beranda" },
+  { label: "Fitur", href: "#fitur" },
+  { label: "Template", href: "#template" },
+  { label: "Panduan", href: "#panduan" },
+  { label: "Kontak", href: "#kontak" },
+];
+
+const TRUST_ITEMS = [
+  { icon: "bolt", title: "Mudah Digunakan", desc: "Alur sederhana untuk semua operator." },
+  { icon: "folder_managed", title: "Data Terorganisasi", desc: "Semua dokumen rapi dalam satu sistem." },
+  { icon: "description", title: "Template Dokumen", desc: "Honor, SPPD, mamin, pemeliharaan, dan lainnya." },
+  { icon: "touch_app", title: "Akses dan Navigasi Praktis", desc: "Navigasi ringkas dari upload sampai cetak." },
+];
 
 const FEATURES = [
   {
-    icon: 'upload_file', title: 'Upload BKU', desc: 'Upload file Excel BKU dari ARKAS dan data akan langsung terparse otomatis.',
-    iconBg: 'bg-blue-50', iconColor: 'text-blue-600', gradient: 'from-blue-500 to-cyan-400', isLarge: true,
-    extra: (
-      <div className="flex flex-wrap gap-2">
-        {['BOSP', 'Honor', 'Mamin', 'Pajak'].map(tag => (
-          <span key={tag} className="px-3 py-1 bg-slate-100/80 text-slate-600 text-xs font-medium rounded-lg">{tag}</span>
-        ))}
-      </div>
-    ),
+    icon: "upload_file",
+    title: "Upload BKU dari ARKAS",
+    desc: "File Excel BKU langsung terparse otomatis menjadi transaksi yang siap dipakai.",
   },
   {
-    icon: 'auto_awesome', title: 'Generate Foto Dokumentasi', desc: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali. Pilih pakaian, suasana, dan peserta.',
-    iconBg: 'bg-violet-50', iconColor: 'text-violet-600', gradient: 'from-violet-500 to-purple-400', isLarge: true,
-    extra: (
-      <div className="flex items-center gap-3">
-        <div className="flex -space-x-1.5">
-          {['bg-violet-400', 'bg-blue-400', 'bg-emerald-400'].map((color, i) => (
-            <div key={i} className={`w-7 h-7 rounded-full ${color} border-2 border-white flex items-center justify-center`}>
-              <span className="material-symbols-outlined text-white text-xs">{['checkroom', 'meeting_room', 'groups'][i]}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-slate-500 text-xs">Formal • Batik • Seragam • Ruang Rapat • Outdoor</span>
-      </div>
-    ),
+    icon: "description",
+    title: "Template Dokumen Lengkap",
+    desc: "Honorarium, SPPD, mamin, pemeliharaan, ATK, pajak, hingga cover dan register.",
   },
   {
-    icon: 'print', title: 'Cetak Otomatis', desc: 'Generate dokumen LPJ hanya dengan satu klik. Format A4 profesional.',
-    iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', gradient: 'from-emerald-500 to-teal-400', isLarge: false,
+    icon: "print",
+    title: "Cetak Satu Klik",
+    desc: "Dokumen LPJ format A4 profesional, siap tanda tangan dan arsip.",
   },
   {
-    icon: 'description', title: '13 Template', desc: 'Tersedia 13 template dokumen siap pakai untuk berbagai keperluan.',
-    iconBg: 'bg-violet-50', iconColor: 'text-violet-600', gradient: 'from-violet-500 to-purple-400', isLarge: false,
+    icon: "school",
+    title: "Data Sekolah & Pejabat",
+    desc: "Profil sekolah, kepala sekolah, dan bendahara terisi otomatis di semua dokumen.",
   },
   {
-    icon: 'school', title: 'Data Sekolah', desc: 'Upload profil sekolah dari file Dapodik secara otomatis.',
-    iconBg: 'bg-amber-50', iconColor: 'text-amber-600', gradient: 'from-amber-500 to-orange-400', isLarge: false,
+    icon: "groups",
+    title: "Data Guru & Tendik",
+    desc: "Import dari Dapodik sekali, dipakai berulang untuk seluruh dokumen honor.",
   },
   {
-    icon: 'groups', title: 'Data Guru & Tendik', desc: 'Import data guru dan tenaga kependidikan dari Dapodik.',
-    iconBg: 'bg-rose-50', iconColor: 'text-rose-600', gradient: 'from-rose-500 to-pink-400', isLarge: false,
+    icon: "auto_awesome",
+    title: "Foto Dokumentasi AI",
+    desc: "Upload personel dan ruangan sekali, generate foto kegiatan saat dibutuhkan.",
+  },
+];
+
+const DOC_STATS = [
+  { label: "Total dokumen", value: 18, tone: "text-ink" },
+  { label: "Dokumen selesai", value: 8, tone: "text-success-bright" },
+  { label: "Dalam proses", value: 3, tone: "text-brand" },
+  { label: "Perlu tindakan", value: 2, tone: "text-warning" },
+];
+
+const STEPS = [
+  {
+    no: "01",
+    icon: "upload_file",
+    title: "Upload & verifikasi",
+    desc: "Masukkan BKU dari ARKAS dan data Dapodik. Sistem memeriksa kelengkapan otomatis.",
   },
   {
-    icon: 'edit_note', title: 'Catatan Penting', desc: 'Simpan catatan terkait BOS dengan kategori dan fitur pin.',
-    iconBg: 'bg-cyan-50', iconColor: 'text-cyan-600', gradient: 'from-cyan-500 to-blue-400', isLarge: true,
-    extra: (
-      <div className="flex items-center gap-3">
-        <div className="flex -space-x-1.5">
-          {['bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-violet-400'].map((color, i) => (
-            <div key={i} className={`w-7 h-7 rounded-full ${color} border-2 border-white flex items-center justify-center`}>
-              <span className="material-symbols-outlined text-white text-xs">{['folder', 'event', 'payments', 'push_pin'][i]}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-slate-500 text-xs">5 kategori tersedia</span>
-      </div>
-    ),
+    no: "02",
+    icon: "edit_document",
+    title: "Lengkapi otomatis",
+    desc: "Nama, jabatan, nominal, dan nomor surat terisi sendiri di setiap template.",
   },
+  {
+    no: "03",
+    icon: "print",
+    title: "Cetak & arsipkan",
+    desc: "Unduh dokumen A4 yang rapi, pantau progres kelengkapan LPJ per transaksi.",
+  },
+];
+
+const TEMPLATES = [
+  { icon: "payments", title: "Honorarium", desc: "Kuitansi, daftar hadir, SPT", count: "4 dokumen" },
+  { icon: "flight_takeoff", title: "Perjalanan Dinas", desc: "SPPD, kuitansi, laporan", count: "3 dokumen" },
+  { icon: "restaurant", title: "Makan Minum", desc: "Rapat, kegiatan, lembur", count: "2 dokumen" },
+  { icon: "handyman", title: "Pemeliharaan", desc: "Berita acara, kuitansi", count: "2 dokumen" },
+  { icon: "folder_open", title: "Kelengkapan", desc: "Cover LPJ, register kas, BAP", count: "5 dokumen" },
+  { icon: "receipt_long", title: "Belanja & Pajak", desc: "ATK, faktur, bukti potong", count: "3 dokumen" },
 ];
 
 const STATS = [
-  { number: 13, suffix: '+', label: 'Template Dokumen', icon: 'description', color: 'text-blue-600', iconBg: 'bg-blue-50' },
-  { number: 85, suffix: '%', label: 'Lebih Efisien', icon: 'speed', color: 'text-emerald-600', iconBg: 'bg-emerald-50' },
-  { number: 100, suffix: '%', label: 'Uptime Server', icon: 'cloud_done', color: 'text-violet-600', iconBg: 'bg-violet-50' },
-  { number: 24, suffix: '/7', label: 'Akses Kapan Saja', icon: 'schedule', color: 'text-amber-600', iconBg: 'bg-amber-50' },
+  { number: 18, suffix: "+", label: "Template dokumen siap pakai" },
+  { number: 6, suffix: "", label: "Modul administrasi terpadu" },
+  { number: 3, suffix: " langkah", label: "Dari BKU ke LPJ siap cetak" },
+  { number: 100, suffix: "%", label: "Data tersimpan di perangkat" },
 ];
 
 const WHY_US = [
-  { icon: 'psychology', title: 'Dirancang untuk Operator', desc: 'Dibuat oleh operator sekolah yang memahami kebutuhan nyata.', iconBg: 'bg-blue-50', iconColor: 'text-blue-600' },
-  { icon: 'auto_fix_high', title: 'Otomatis & Cerdas', desc: 'Sistem otomatis mengenali pola transaksi secara akurat.', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
-  { icon: 'shield', title: 'Keamanan Terjamin', desc: 'Semua data disimpan lokal di perangkat Anda.', iconBg: 'bg-violet-50', iconColor: 'text-violet-600' },
+  {
+    icon: "psychology",
+    title: "Dibuat operator, untuk operator",
+    desc: "Alurnya mengikuti cara kerja bendahara sekolah yang sebenarnya, bukan teori.",
+  },
+  {
+    icon: "auto_fix_high",
+    title: "Otomatis, minim salah ketik",
+    desc: "Satu sumber data untuk semua dokumen — ubah sekali, berlaku di mana-mana.",
+  },
+  {
+    icon: "shield",
+    title: "Aman dan transparan",
+    desc: "Data milik sekolah tersimpan lokal. Setiap angka bisa dilacak ke BKU-nya.",
+  },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────────────────────
+// Main
+// ─────────────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500);
-      setScrollY(window.scrollY);
+      setShowBackToTop(window.scrollY > 600);
+      setScrolled(window.scrollY > 24);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden">
-
-      {/* TOP APP BAR */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrollY > 50 ? 'bg-white/95 dark:bg-[#0f0f3e]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.4)]' : 'bg-transparent dark:bg-transparent'
-      }`}>
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/25">
-              <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
-            </div>
-            <span className="text-lg font-bold text-primary">LPJ BOS/BOSP</span>
+    <div className="min-h-screen bg-canvas text-ink font-sans antialiased overflow-x-hidden">
+      {/* ═══════════════ A. HEADER ═══════════════ */}
+      <header
+        className={`fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-line transition-shadow duration-300 ${
+          scrolled || menuOpen ? "shadow-[0_1px_8px_rgba(16,42,86,0.08)]" : "shadow-none"
+        }`}
+      >
+        <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 h-[68px] md:h-[72px] flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="LPJ BOS/BOSP — Beranda">
+            <span className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-brand to-navy flex items-center justify-center shadow-md shadow-brand/25">
+              <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                school
+              </span>
+            </span>
+            <span className="leading-none">
+              <span className="block text-[15px] font-bold text-ink tracking-tight">LPJ BOS/BOSP</span>
+              <span className="block text-[11px] font-medium text-muted mt-0.5">Administrasi Keuangan Sekolah</span>
+            </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#fitur">Fitur</a>
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#tentang">Tentang</a>
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#kontak">Kontak</a>
-            <ThemeToggleLanding />
-            <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95 text-sm">
-              Mulai Sekarang
-            </Link>
+
+          <nav className="hidden md:flex items-center gap-7" aria-label="Navigasi utama">
+            {NAV_LINKS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-muted hover:text-brand transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
           </nav>
-          {/* Mobile Theme Toggle */}
-          <div className="md:hidden flex items-center gap-2">
-            <ThemeToggleLanding variant="icon" />
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              to="/login"
+              className="px-5 py-2.5 rounded-[12px] text-sm font-semibold text-navy border border-line bg-white hover:border-brand/40 hover:bg-brand-soft transition-all"
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/login"
+              className="px-5 py-2.5 rounded-[12px] text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-all inline-flex items-center gap-1.5"
+            >
+              Mulai Sekarang
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </Link>
           </div>
+
+          <button
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-[10px] text-ink hover:bg-brand-soft transition-colors"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+          >
+            <span className="material-symbols-outlined text-2xl">{menuOpen ? "close" : "menu"}</span>
+          </button>
         </div>
+
+        {menuOpen && (
+          <div className="md:hidden border-t border-line bg-white px-5 pt-2 pb-5">
+            <nav className="flex flex-col" aria-label="Navigasi seluler">
+              {NAV_LINKS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3 text-[15px] font-medium text-ink border-b border-line/70 last:border-0 hover:text-brand transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+            <div className="flex gap-3 mt-4">
+              <Link
+                to="/login"
+                className="flex-1 text-center px-4 py-3 rounded-[12px] text-sm font-semibold text-navy border border-line bg-white"
+              >
+                Masuk
+              </Link>
+              <Link
+                to="/login"
+                className="flex-1 text-center px-4 py-3 rounded-[12px] text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25"
+              >
+                Mulai Sekarang
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className="pt-20">
+      <main>
+        {/* ═══════════════ B. HERO ═══════════════ */}
+        <section id="beranda" className="relative overflow-hidden bg-slate-50 dark:bg-slate-950 pt-12 pb-20 lg:pt-20 lg:pb-28 scroll-mt-20">
+          {/* Ambient Glow Effects */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-500/10 dark:bg-blue-600/15 blur-[120px] rounded-full pointer-events-none" aria-hidden="true" />
 
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO SECTION                                                       */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="relative min-h-[750px] flex items-center overflow-hidden px-6 bg-slate-50 dark:bg-transparent">
-          {/* Floral ornamental seamless pattern — paskan 4 sisi + motion — tanpa blur */}
-          <div className="absolute inset-0 hero-bg-floral" style={{
-            backgroundImage: "url('/floral-pattern.jpg')",
-            backgroundSize: '420px 420px',
-            backgroundRepeat: 'repeat',
-            backgroundPosition: '0 0',
-            opacity: 0.45,
-          }} />
-          {/* Base wash agar pattern tidak terlalu ramai — tanpa blur */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/88 via-white/75 to-white/60 dark:from-[#0f0f3e]/88 dark:via-[#1a1a5c]/75 dark:to-[#0f0f3e]/65 pointer-events-none" />
-          {/* Overlay — biar teks tetap terbaca — tanpa blur */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/15 dark:to-black/15 pointer-events-none" />
-          {/* Living background — LIGHT: tidak statis (di atas wavy, subtle) */}
-          <div className="absolute inset-0 living-gradient dark:hidden opacity-40" style={{ background: "radial-gradient(circle at top right, rgba(255,255,255,0.6), transparent 55%), radial-gradient(circle at bottom left, rgba(255,255,255,0.4), transparent 60%)", backgroundSize: '200% 200%' }} />
-          {/* Living background — DARK: gradasi animasi (di atas wavy) */}
-          <div className="absolute inset-0 hidden dark:block living-gradient opacity-30" style={{ background: "radial-gradient(ellipse 900px 600px at 20% 15%, rgba(26,0,255,0.18) 0%, transparent 65%), radial-gradient(ellipse 700px 500px at 85% 30%, rgba(202,0,122,0.12) 0%, transparent 65%)", backgroundSize: '200% 200%' }} />
-          {/* Floating particles — halus, tidak statis */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            <div className="absolute w-2 h-2 bg-primary/20 dark:bg-white/20 rounded-full top-[18%] left-[12%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
-            <div className="absolute w-1.5 h-1.5 bg-blue-400/30 dark:bg-white/20 rounded-full top-[32%] left-[8%] floating-particle" style={{ animationDelay: '1.2s', animationDuration: '7s' }} />
-            <div className="absolute w-1 h-1 bg-violet-400/40 dark:bg-white/15 rounded-full top-[65%] left-[15%] floating-particle" style={{ animationDelay: '0.6s', animationDuration: '8s' }} />
-            <div className="absolute w-2 h-2 bg-emerald-400/20 dark:bg-white/10 rounded-full top-[22%] right-[18%] floating-particle" style={{ animationDelay: '2s', animationDuration: '6.5s' }} />
-            <div className="absolute w-1.5 h-1.5 bg-primary/15 dark:bg-white/10 rounded-full top-[55%] right-[10%] floating-particle" style={{ animationDelay: '1.8s', animationDuration: '7.5s' }} />
-            <div className="absolute w-1 h-1 bg-blue-500/30 dark:bg-white/20 rounded-full bottom-[20%] right-[22%] floating-particle" style={{ animationDelay: '0.9s', animationDuration: '9s' }} />
-          </div>
-
-          <div className="container mx-auto relative z-10">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              {/* Left: Text Content */}
-              <div className="text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 dark:bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-primary/10 dark:border-white/10">
-                  <span className="material-symbols-outlined text-primary dark:text-white text-lg">verified</span>
-                  <span className="text-primary dark:text-white text-sm font-semibold">Resmi & Terpercaya</span>
-                </div>
-
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6 drop-shadow-sm">
-                  <span className="text-slate-900 dark:text-white">Sampurasun!</span>
-                  <br />
-                  <span className="text-blue-900 dark:text-white">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
-                </h1>
-
-                <p className="text-lg text-slate-600 dark:text-white/80 max-w-xl mb-8 leading-relaxed">
-                  Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan.
-                  Kelola dana BOS/BOSP dengan standar profesionalisme tinggi.
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Layout Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* Text Column (Left) */}
+              <Reveal className="lg:col-span-6">
+                <p className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-soft border border-brand/15 text-[13px] font-semibold text-brand mb-5">
+                  <span className="material-symbols-outlined text-base">account_balance</span>
+                  Sistem Administrasi Keuangan Sekolah
                 </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                  <Link to="/login" className="hero-cta-primary living-shimmer living-breathing bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden border-2 border-transparent">
-                    <span className="hero-cta-text">Mulai Sekarang</span>
-                    <span className="material-symbols-outlined hero-cta-icon">arrow_forward</span>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-5">
+                  Administrasi tertata.{" "}
+                  <span className="text-brand">Pelaporan lebih mudah.</span>
+                </h1>
+                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mb-8">
+                  Kelola dokumen BOS/BOSP, susun laporan, dan cetak LPJ dalam satu sistem yang
+                  dirancang untuk membantu administrasi sekolah menjadi lebih efisien dan terorganisasi.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 rounded-[12px] text-[14px] sm:text-[15px] font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-colors min-h-[48px] sm:min-h-[50px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                  >
+                    Mulai Sekarang
+                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
                   </Link>
-                  <a href="#fitur" className="hero-cta-secondary bg-white dark:bg-white/10 dark:backdrop-blur-md dark:border-white/20 dark:text-white text-primary px-8 py-4 rounded-2xl font-semibold border-2 border-primary/20 hover:bg-primary/5 dark:hover:bg-white/20 transition-all flex items-center justify-center gap-2 living-breathing" style={{ animationDelay: '0.6s' }}>
-                    <span className="material-symbols-outlined">play_circle</span>
+                  <a
+                    href="#fitur"
+                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 rounded-[12px] text-[14px] sm:text-[15px] font-semibold text-blue-600 bg-white border border-blue-200 hover:bg-blue-50 transition-colors min-h-[48px] sm:min-h-[50px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                  >
                     Lihat Fitur
                   </a>
                 </div>
-              </div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-8">Lebih praktis untuk mendukung administrasi sekolah.</p>
+              </Reveal>
 
-              {/* Right: PREMIUM TYPING CARD */}
-              <div className="relative">
-                <PremiumTypingCard />
-              </div>
+              {/* Visual: preview dashboard (data ilustratif) */}
+              {/* Mockup Column (Right) */}
+              <Reveal delay={150} className="relative lg:col-span-6">
+                <div
+                  className="relative bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl shadow-2xl p-6 ring-1 ring-white/10 overflow-hidden"
+                  role="img"
+                  aria-label="Ilustrasi preview dashboard LPJ BOS/BOSP: statistik dana, grafik realisasi, dan daftar dokumen"
+                >
+                  {/* Mini app header */}
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-line bg-white">
+                    <span className="flex gap-1.5" aria-hidden="true">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#E4EAF3]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#E4EAF3]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-soft" />
+                    </span>
+                    <span className="flex-1 h-8 rounded-lg bg-canvas border border-line flex items-center px-3 text-xs text-muted">
+                      Cari dokumen…
+                    </span>
+                    <span className="w-8 h-8 rounded-lg bg-navy text-white flex items-center justify-center text-xs font-bold">
+                      OP
+                    </span>
+                  </div>
+
+                  <div className="flex">
+                    {/* Mini sidebar */}
+                    <div className="w-14 shrink-0 bg-navy flex flex-col items-center py-4 gap-1.5" aria-hidden="true">
+                      <span className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center mb-2">
+                        <span className="material-symbols-outlined text-white text-lg">school</span>
+                      </span>
+                      {["dashboard", "upload_file", "description", "groups", "print"].map((icon, i) => (
+                        <span
+                          key={icon}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            i === 0 ? "bg-white text-navy" : "text-slate-300"
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-lg">{icon}</span>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Main panel */}
+                    <div className="flex-1 p-4 md:p-5 min-w-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-bold text-ink">Ringkasan Dokumen</p>
+                        <span className="text-[11px] font-semibold text-muted bg-canvas border border-line rounded-full px-2.5 py-1">
+                          Data ilustrasi
+                        </span>
+                      </div>
+
+                      {/* Kartu statistik dokumen */}
+                      <div className="grid grid-cols-4 gap-2 md:gap-2.5 mb-3">
+                        {DOC_STATS.map((s) => (
+                          <div key={s.label} className="rounded-xl border border-line bg-canvas/60 px-2 py-2.5 text-center">
+                            <p className="text-[10px] font-medium text-muted truncate">{s.label}</p>
+                            <p className={`text-lg font-bold tabular-nums ${s.tone}`}>{s.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Grafik + komposisi */}
+                      <div className="grid grid-cols-5 gap-2.5 md:gap-3 mb-3">
+                        <div className="col-span-3 rounded-xl border border-line p-3">
+                          <p className="text-[11px] font-semibold text-ink mb-2">Grafik realisasi dana</p>
+                          <svg viewBox="0 0 200 84" className="w-full h-auto" aria-hidden="true">
+                            <line x1="0" y1="76" x2="200" y2="76" stroke="#E4EAF3" strokeWidth="1.5" />
+                            {[
+                              { x: 14, h: 30 },
+                              { x: 48, h: 44 },
+                              { x: 82, h: 38 },
+                              { x: 116, h: 56 },
+                              { x: 150, h: 66 },
+                            ].map((b, i) => (
+                              <rect
+                                key={b.x}
+                                x={b.x}
+                                y={76 - b.h}
+                                width="20"
+                                height={b.h}
+                                rx="5"
+                                fill={i === 4 ? "#155EEF" : "#BFD6FF"}
+                              />
+                            ))}
+                          </svg>
+                        </div>
+                        <div className="col-span-2 rounded-xl border border-line p-3">
+                          <p className="text-[11px] font-semibold text-ink mb-2">Komposisi</p>
+                          <div className="flex items-center gap-2.5">
+                            <svg viewBox="0 0 64 64" className="w-14 h-14 shrink-0" aria-hidden="true">
+                              <circle cx="32" cy="32" r="24" fill="none" stroke="#EAF2FF" strokeWidth="11" />
+                              <circle cx="32" cy="32" r="24" fill="none" stroke="#155EEF" strokeWidth="11"
+                                strokeDasharray="75 151" strokeLinecap="round" transform="rotate(-90 32 32)" />
+                              <circle cx="32" cy="32" r="24" fill="none" stroke="#12B76A" strokeWidth="11"
+                                strokeDasharray="38 151" strokeLinecap="round" strokeDashoffset="-75" transform="rotate(-90 32 32)" />
+                            </svg>
+                            <ul className="space-y-1.5 text-[11px] font-medium text-muted">
+                              <li className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-brand" /> Honor 50%
+                              </li>
+                              <li className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-success-bright" /> Belanja 25%
+                              </li>
+                              <li className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#BFD6FF]" /> Lainnya
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dokumen terbaru */}
+                      <ul className="space-y-2">
+                        {[
+                          { label: "Kuitansi honorarium — Januari", status: "Selesai" },
+                          { label: "SPPD perjalanan dinas", status: "Selesai" },
+                          { label: "Daftar hadir mamin rapat", status: "Proses" },
+                        ].map((row) => (
+                          <li
+                            key={row.label}
+                            className="flex items-center justify-between gap-2 rounded-xl border border-line px-3 py-2"
+                          >
+                            <span className="text-xs font-medium text-ink truncate">{row.label}</span>
+                            <span
+                              className={`shrink-0 text-[11px] font-bold rounded-full px-2.5 py-0.5 ${
+                                row.status === "Lengkap"
+                                  ? "bg-[#E7F8EF] text-success-bright"
+                                  : "bg-[#FEF4E2] text-[#B54708]"
+                              }`}
+                            >
+                              {row.status}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute -left-2 sm:-left-5 top-8 bg-white rounded-xl border border-line shadow-lg px-3.5 py-2.5 flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-lg bg-brand-soft flex items-center justify-center">
+                    <span className="material-symbols-outlined text-brand text-lg">task_alt</span>
+                  </span>
+                  <span>
+                    <span className="block text-xs font-bold text-ink">Dokumen selesai</span>
+                    <span className="block text-[11px] text-muted">8 dari 18 template</span>
+                  </span>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Banner fitur — bawah hero sesuai desain */}
+            <div className="mt-12 md:mt-14 pt-8 border-t border-line grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6">
+              {TRUST_ITEMS.map((item) => (
+                <div key={item.title} className="flex gap-3">
+                  <span className="w-10 h-10 shrink-0 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-xl text-blue-600">{item.icon}</span>
+                  </span>
+                  <span>
+                    <span className="block text-sm font-bold text-slate-900">{item.title}</span>
+                    <span className="block text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">{item.desc}</span>
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PREMIUM FEATURE PILLS                                              */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="py-10 px-6 bg-white dark:bg-[#131d33]/60 dark:backdrop-blur-md border-y border-slate-100 dark:border-white/5">
-          <div className="container mx-auto">
-            <PremiumFeaturePills />
-          </div>
-        </section>
-
-        {/* STATS — living, tidak statis */}
-        <section className="py-14 px-6 bg-slate-50 dark:bg-transparent relative overflow-hidden">
-          <div className="absolute inset-0 living-gradient opacity-40 dark:opacity-20 pointer-events-none" style={{ background: 'linear-gradient(100deg, rgba(239,246,255,0) 0%, rgba(0,74,198,0.03) 50%, rgba(239,246,255,0) 100%)', backgroundSize: '200% 100%' }} />
-          <div className="container mx-auto relative">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {/* ═══════════════ C. STATISTIK ═══════════════ */}
+        <section className="bg-white border-y border-line relative overflow-hidden" aria-label="Statistik aplikasi">
+          <div className="absolute inset-0 lpbg-radial pointer-events-none" aria-hidden="true" />
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 py-8 md:py-10">
+            <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-7">
               {STATS.map((stat, i) => (
-                <div key={i} className="text-center group cursor-default living-breathing" style={{ animationDelay: `${i * 0.3}s`, animationDuration: '3.8s' }}>
-                  <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform relative pulse-ring`}>
-                    <span className={`material-symbols-outlined text-xl ${stat.color}`}>{stat.icon}</span>
-                  </div>
-                  <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-1">
+                <Reveal
+                  key={stat.label}
+                  delay={i * 80}
+                  className={`text-center lg:text-left lg:pl-8 ${i > 0 ? "lg:border-l lg:border-line" : ""} ${i === 0 ? "lg:pl-0" : ""}`}
+                >
+                  <dd className="font-display text-[30px] md:text-4xl font-bold text-navy tabular-nums mb-1">
                     <AnimatedCounter end={stat.number} suffix={stat.suffix} />
-                  </div>
-                  <p className="text-slate-500 text-xs uppercase tracking-wider">{stat.label}</p>
-                </div>
+                  </dd>
+                  <dt className="text-[13px] md:text-sm text-muted leading-snug max-w-[190px] mx-auto lg:mx-0">
+                    {stat.label}
+                  </dt>
+                </Reveal>
               ))}
-            </div>
+            </dl>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section id="fitur" className="py-20 px-6 bg-white">
-          <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
+        {/* ═══════════════ D. FITUR ═══════════════ */}
+        <section id="fitur" className="py-16 md:py-24 scroll-mt-20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[340px] h-[340px] lpbg-blob lpbg-blob-b bg-brand/10 pointer-events-none" aria-hidden="true" />
+          <div className="absolute bottom-10 left-0 w-[260px] h-[260px] lpbg-blob lpbg-blob-a bg-[#BFD6FF]/35 pointer-events-none" aria-hidden="true" />
+          {/* Kolom dot di tepi kanan & kiri — layar lebar */}
+          <div className="absolute inset-y-0 right-0 w-32 lpbg-dots opacity-40 pointer-events-none hidden xl:block [mask-image:linear-gradient(to_left,black,transparent)]" aria-hidden="true" />
+          <div className="absolute inset-y-0 left-0 w-32 lpbg-dots opacity-40 pointer-events-none hidden xl:block [mask-image:linear-gradient(to_right,black,transparent)]" aria-hidden="true" />
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10">
+            <Reveal className="text-center max-w-2xl mx-auto mb-12">
+              <p className="inline-block px-3.5 py-1.5 rounded-full bg-brand-soft text-brand text-xs font-bold uppercase tracking-[0.12em] mb-4">
                 Fitur Unggulan
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Fitur Unggulan Sistem</h2>
-              <p className="text-base text-slate-500 max-w-xl mx-auto">Dirancang untuk memudahkan pekerjaan operator sekolah.</p>
-            </div>
-            <div className="md:hidden overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6">
-              <div className="flex gap-4 w-max">
-                {FEATURES.map((feature, i) => (
-                  <div key={i} className="w-[300px] snap-center"><FeatureCard feature={feature} index={i} /></div>
-                ))}
-              </div>
-            </div>
-            <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5">
-              {FEATURES.map((feature, i) => (
-                <FeatureCard key={i} feature={feature} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* WHY US */}
-        <section id="tentang" className="py-20 px-6 bg-slate-50">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">Tentang Kami</span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Kenapa Memilih Kami?</h2>
-              <p className="text-base text-slate-500 max-w-xl mx-auto">Dikembangkan oleh operator sekolah, untuk operator sekolah.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 mb-14">
-              {WHY_US.map((item, i) => (
-                <div key={i} className="group bg-white rounded-2xl p-7 border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <div className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                    <span className={`material-symbols-outlined text-2xl ${item.iconColor}`}>{item.icon}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white rounded-2xl p-10 text-center border border-slate-100 shadow-sm">
-              <span className="material-symbols-outlined text-4xl text-primary/40 mb-4 block">format_quote</span>
-              <p className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed max-w-3xl mx-auto mb-6">
-                Kami percaya setiap sekolah berhak mendapatkan <span className="text-primary font-bold">alat terbaik</span> untuk mengelola keuangan dengan <span className="text-primary font-bold">transparan dan profesional</span>.
               </p>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-lg">verified</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-slate-900 font-bold text-sm">Tim Pengembang</p>
-                  <p className="text-slate-500 text-xs">LPJ BOS/BOSP Indonesia</p>
-                </div>
-              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
+                Semua kebutuhan administrasi dalam satu tempat
+              </h2>
+              <p className="text-muted text-base leading-relaxed">
+                Akses fitur yang membantu pekerjaan administrasi dan penyusunan laporan sekolah
+                menjadi lebih terstruktur.
+              </p>
+            </Reveal>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 md:gap-5">
+              {FEATURES.map((feature, i) => (
+                <Reveal key={feature.title} delay={(i % 3) * 90}>
+                  <article className="h-full bg-white rounded-2xl border border-line p-6 md:p-7 shadow-[0_1px_3px_rgba(16,42,86,0.05)] hover:shadow-[0_16px_40px_-16px_rgba(21,94,239,0.22)] hover:border-brand/30 hover:-translate-y-1 transition-all duration-300">
+                    <span className="w-11 h-11 rounded-xl bg-brand-soft flex items-center justify-center mb-5">
+                      <span className="material-symbols-outlined text-brand text-2xl">{feature.icon}</span>
+                    </span>
+                    <h3 className="text-[17px] font-bold text-ink mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted leading-relaxed">{feature.desc}</p>
+                  </article>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-16 px-6 bg-white">
-          <div className="container mx-auto">
-            <div className="bg-gradient-to-r from-primary to-blue-600 p-10 md:p-14 rounded-2xl text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-              <div className="relative z-10">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-5">Siap Mendigitalisasi Keuangan Sekolah?</h2>
-                <p className="text-white/75 max-w-lg mx-auto mb-8">Mulai sekarang dan rasakan kemudahan dalam mengelola laporan pertanggungjawaban BOS/BOSP.</p>
-                <Link to="/login" className="bg-white text-primary px-8 py-3.5 rounded-xl font-bold shadow-lg hover:bg-slate-50 hover:shadow-xl transition-all active:scale-95 inline-flex items-center gap-2">
-                  Mulai Sekarang <span className="material-symbols-outlined">arrow_forward</span>
+        {/* ═══════════════ E. PANDUAN / ALUR ═══════════════ */}
+        <section id="panduan" className="py-16 md:py-24 bg-white border-y border-line scroll-mt-20 relative overflow-hidden">
+          <div className="absolute inset-0 lpbg-dots opacity-[0.25] [mask-image:radial-gradient(ellipse_70%_60%_at_20%_30%,black,transparent)] pointer-events-none" aria-hidden="true" />
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10">
+            <div className="grid lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-16 items-start">
+              <Reveal className="lg:sticky lg:top-28">
+                <p className="inline-block px-3.5 py-1.5 rounded-full bg-brand-soft text-brand text-xs font-bold uppercase tracking-[0.12em] mb-4">
+                  Panduan
+                </p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
+                  Dari BKU berantakan ke LPJ rapi
+                </h2>
+                <p className="text-muted text-base leading-relaxed mb-6">
+                  Tiga langkah sederhana yang bisa diikuti bendahara mana pun, bahkan yang baru pertama
+                  kali menyusun LPJ.
+                </p>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-[12px] text-sm font-semibold text-white bg-navy hover:bg-brand transition-colors"
+                >
+                  Coba langkah pertama
+                  <span className="material-symbols-outlined text-base">arrow_forward</span>
                 </Link>
-              </div>
+              </Reveal>
+
+              <ol className="space-y-4">
+                {STEPS.map((step, i) => (
+                  <Reveal key={step.no} delay={i * 90}>
+                    <li className="flex gap-5 bg-canvas rounded-2xl border border-line p-6">
+                      <span className="font-display text-sm font-bold text-brand bg-brand-soft rounded-lg px-2.5 py-1.5 h-fit shrink-0">
+                        {step.no}
+                      </span>
+                      <div>
+                        <h3 className="text-[17px] font-bold text-ink mb-1.5 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-brand text-xl">{step.icon}</span>
+                          {step.title}
+                        </h3>
+                        <p className="text-sm text-muted leading-relaxed">{step.desc}</p>
+                      </div>
+                    </li>
+                  </Reveal>
+                ))}
+              </ol>
             </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ F. TEMPLATE ═══════════════ */}
+        <section id="template" className="py-16 md:py-24 scroll-mt-20 relative overflow-hidden">
+          <div className="absolute top-1/3 -left-20 w-[300px] h-[300px] lpbg-blob lpbg-blob-b bg-brand/10 pointer-events-none" aria-hidden="true" />
+          <div className="absolute bottom-0 right-0 w-[260px] h-[260px] lpbg-blob lpbg-blob-c bg-success-bright/8 pointer-events-none" aria-hidden="true" />
+          <div className="absolute inset-y-0 left-0 w-36 lp-batik pointer-events-none hidden xl:block [mask-image:linear-gradient(to_right,black,transparent)]" aria-hidden="true" />
+          <div className="absolute inset-y-0 right-0 w-36 lp-batik-rev pointer-events-none hidden xl:block [mask-image:linear-gradient(to_left,black,transparent)]" aria-hidden="true" />
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10">
+            <Reveal className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+              <div className="max-w-xl">
+                <p className="inline-block px-3.5 py-1.5 rounded-full bg-brand-soft text-brand text-xs font-bold uppercase tracking-[0.12em] mb-4">
+                  Template Dokumen
+                </p>
+                <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
+                  Semua template LPJ siap cetak
+                </h2>
+                <p className="text-muted text-base leading-relaxed">
+                  Setiap template mengikuti format administrasi BOS/BOSP dan terisi otomatis dari data Anda.
+                </p>
+              </div>
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-hover transition-colors shrink-0"
+              >
+                Lihat semua di aplikasi
+                <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              </Link>
+            </Reveal>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+              {TEMPLATES.map((tpl, i) => (
+                <Reveal key={tpl.title} delay={(i % 3) * 90}>
+                  <article className="h-full bg-white rounded-2xl border border-line p-6 hover:shadow-[0_16px_40px_-16px_rgba(16,42,86,0.18)] hover:border-brand/30 transition-all duration-300">
+                    <div className="flex items-start justify-between mb-4">
+                      <span className="w-11 h-11 rounded-xl bg-canvas border border-line flex items-center justify-center">
+                        <span className="material-symbols-outlined text-navy text-2xl">{tpl.icon}</span>
+                      </span>
+                      <span className="text-[11px] font-bold text-brand bg-brand-soft rounded-full px-2.5 py-1">
+                        {tpl.count}
+                      </span>
+                    </div>
+                    <h3 className="text-[16px] font-bold text-ink mb-1">{tpl.title}</h3>
+                    <p className="text-sm text-muted">{tpl.desc}</p>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ G. TENTANG ═══════════════ */}
+        <section id="tentang" className="py-16 md:py-24 bg-white border-y border-line scroll-mt-20 relative overflow-hidden">
+          <div className="absolute inset-0 lpbg-radial pointer-events-none" aria-hidden="true" />
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10">
+            <Reveal className="text-center max-w-2xl mx-auto mb-12">
+              <p className="inline-block px-3.5 py-1.5 rounded-full bg-brand-soft text-brand text-xs font-bold uppercase tracking-[0.12em] mb-4">
+                Tentang Kami
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-ink mb-3">
+                Kenapa sekolah memilih kami?
+              </h2>
+              <p className="text-muted text-base leading-relaxed">
+                Dikembangkan oleh operator sekolah, untuk operator sekolah di seluruh Indonesia.
+              </p>
+            </Reveal>
+
+            <div className="grid md:grid-cols-3 gap-4 md:gap-5 mb-10">
+              {WHY_US.map((item, i) => (
+                <Reveal key={item.title} delay={i * 90}>
+                  <article className="h-full bg-canvas rounded-2xl border border-line p-7">
+                    <span className="w-11 h-11 rounded-xl bg-white border border-line flex items-center justify-center mb-5 shadow-sm">
+                      <span className="material-symbols-outlined text-brand text-2xl">{item.icon}</span>
+                    </span>
+                    <h3 className="text-[17px] font-bold text-ink mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted leading-relaxed">{item.desc}</p>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal>
+              <figure className="bg-canvas rounded-2xl border border-line px-6 py-10 md:p-12 text-center relative overflow-hidden">
+                <div className="absolute inset-0 lp-batik opacity-60 pointer-events-none" aria-hidden="true" />
+                <blockquote className="relative font-display text-xl md:text-2xl font-medium text-navy leading-relaxed max-w-3xl mx-auto mb-6">
+                  “Setiap sekolah berhak mendapatkan alat terbaik untuk mengelola keuangan secara{" "}
+                  <span className="text-brand font-bold">transparan dan profesional</span>.”
+                </blockquote>
+                <figcaption className="relative flex items-center justify-center gap-3">
+                  <span className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-navy flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-lg">verified</span>
+                  </span>
+                  <span className="text-left">
+                    <span className="block text-sm font-bold text-ink">Tim Pengembang</span>
+                    <span className="block text-xs text-muted">LPJ BOS/BOSP Indonesia</span>
+                  </span>
+                </figcaption>
+              </figure>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ═══════════════ H. CTA ═══════════════ */}
+        <section className="py-16 md:py-24">
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10">
+            <Reveal>
+              <div className="relative overflow-hidden rounded-2xl bg-navy px-6 py-12 md:p-16 text-center">
+                <div className="absolute inset-0 lp-batik-light pointer-events-none" aria-hidden="true" />
+                <div className="absolute inset-0 lpbg-wash opacity-40 pointer-events-none" aria-hidden="true" />
+                <div className="absolute -top-20 -left-16 w-64 h-64 lpbg-blob bg-brand/25 pointer-events-none" aria-hidden="true" />
+                <div className="absolute -bottom-24 -right-20 w-72 h-72 lpbg-blob lpbg-blob-b bg-[#60A5FA]/20 pointer-events-none" aria-hidden="true" />
+                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/30 blur-3xl pointer-events-none" aria-hidden="true" />
+                <div className="relative">
+                  <h2 className="font-display text-2xl md:text-4xl font-bold tracking-tight text-white mb-4">
+                    Siap mengelola administrasi sekolah dengan lebih praktis?
+                  </h2>
+                  <p className="text-slate-100 text-base max-w-lg mx-auto mb-8 leading-relaxed">
+                    Mulai gunakan LPJ BOS/BOSP untuk mengakses fitur administrasi yang tersedia
+                    dalam aplikasi.
+                  </p>
+                  <div className="flex justify-center">
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-[12px] text-[15px] font-bold text-navy bg-white hover:bg-brand-soft shadow-xl transition-all min-h-[52px]"
+                    >
+                      Mulai Sekarang
+                      <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </section>
       </main>
 
-      {/* FOOTER — Premium Elegant */}
-      <footer className="bg-white border-t border-slate-100" id="kontak">
-        {/* Main footer content */}
-        <div className="container mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                  <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
-                </div>
-                <span className="text-xl font-bold text-slate-900">LPJ BOS/BOSP</span>
+      {/* ═══════════════ I. FOOTER ═══════════════ */}
+      <footer id="kontak" className="bg-white border-t border-line scroll-mt-20">
+        <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 py-14">
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+            <div>
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-brand to-navy flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    school
+                  </span>
+                </span>
+                <span className="text-[15px] font-bold text-ink">LPJ BOS/BOSP</span>
               </div>
-              <p className="text-slate-500 text-sm leading-relaxed max-w-sm mb-6">
-                Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan untuk seluruh sekolah di Indonesia.
+              <p className="text-sm text-muted leading-relaxed max-w-xs mb-5">
+                Aplikasi administrasi keuangan sekolah untuk mengelola dokumen BOS/BOSP,
+                menyusun laporan, dan mencetak LPJ.
               </p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-xs text-slate-400 font-medium">Semua sistem berjalan normal</span>
-              </div>
             </div>
 
-            {/* Links */}
+            <nav aria-label="Navigasi footer">
+              <p className="text-xs font-bold text-ink uppercase tracking-[0.12em] mb-4">Navigasi</p>
+              <ul className="space-y-2.5">
+                {NAV_LINKS.map((item) => (
+                  <li key={item.href}>
+                    <a href={item.href} className="text-sm text-muted hover:text-brand transition-colors">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
             <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Navigasi</p>
-              <ul className="space-y-3">
-                {['Fitur', 'Tentang', 'Kontak', 'Masuk'].map((item, i) => (
-                  <li key={i}>
-                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
+              <p className="text-xs font-bold text-ink uppercase tracking-[0.12em] mb-4">Fitur</p>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Dokumen LPJ", href: "#template" },
+                  { label: "Template Dokumen", href: "#template" },
+                  { label: "Panduan Penggunaan", href: "#panduan" },
+                  { label: "Tentang Aplikasi", href: "#tentang" },
+                ].map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} className="text-sm text-muted hover:text-brand transition-colors">
+                      {item.label}
+                    </a>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Legal */}
             <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Legal</p>
-              <ul className="space-y-3">
-                {['Syarat & Ketentuan', 'Kebijakan Privasi', 'Kebijakan Cookie'].map((item, i) => (
-                  <li key={i}>
-                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
-                  </li>
-                ))}
+              <p className="text-xs font-bold text-ink uppercase tracking-[0.12em] mb-4">Mulai</p>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link to="/login" className="text-sm text-muted hover:text-brand transition-colors">
+                    Masuk ke Aplikasi
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/pratinjau" className="text-sm text-muted hover:text-brand transition-colors">
+                    Pratinjau Tampilan
+                  </Link>
+                </li>
               </ul>
+              <p className="mt-5 text-xs text-muted leading-relaxed">
+                Data aplikasi tersimpan di perangkat Anda (localStorage) — tidak dikirim ke server.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-slate-100">
-          <div className="container mx-auto px-6 py-5">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-xs text-slate-400">
-                © {new Date().getFullYear()} LPJ BOS/BOSP Indonesia. All rights reserved.
-              </p>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-slate-400">Dibuat dengan</span>
+        <div className="border-t border-line">
+          <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 py-5 flex flex-col md:flex-row justify-between items-center gap-3">
+            <p className="text-xs text-muted">© {new Date().getFullYear()} LPJ BOS/BOSP. Seluruh hak cipta.</p>
+            <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
+              <span className="flex items-center gap-1.5">
+                Dibuat dengan
                 <span className="material-symbols-outlined text-red-400 text-sm">favorite</span>
-                <span className="text-xs text-slate-400">untuk sekolah Indonesia</span>
-              </div>
-            </div>
+                untuk sekolah Indonesia
+              </span>
+              <a
+                href="https://www.freepik.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-600 dark:text-slate-300 hover:text-brand transition-colors"
+              >
+                Motif ornamen oleh GarryKillian / Freepik
+              </a>
+            </p>
           </div>
         </div>
       </footer>
 
-      {/* Back to Top */}
+      {/* Back to top */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-6 right-6 w-11 h-11 bg-primary text-white rounded-full shadow-lg shadow-primary/25 flex items-center justify-center transition-all duration-300 z-50 hover:scale-110 ${
+        aria-label="Kembali ke atas"
+        className={`fixed bottom-6 right-6 w-11 h-11 bg-brand text-white rounded-full shadow-lg shadow-brand/30 flex items-center justify-center transition-all duration-300 z-50 hover:bg-brand-hover ${
           showBackToTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
         }`}
       >

@@ -19,7 +19,10 @@
  * Cadangan : Gemini (gemini-2.0-flash) — free tier 60 req/menit
  * 
  * ── NOTE ─────────────────────────────────────────────────────
- * Untuk sekarang API Key masih VITE_* (frontend).
+ * Untuk sekarang API Key masih VITE_* (frontend, terbawa ke bundle).
+ * Untuk produksi Vercel: set GROQ_API_KEY / CEREBRAS_API_KEY / GEMINI_API_KEY
+ * (TANPA prefix VITE_) di Vercel Dashboard → proxy `api/[...path].js`
+ * memakai kunci server tersebut dan frontend tidak perlu mengirim key.
  * Saat migrasi ke Electron + SQLite, ganti cara baca API Key
  * dari env → dari main process / SQLite. Cukup edit 1 file ini!
  */

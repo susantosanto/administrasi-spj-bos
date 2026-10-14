@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import storageHelper from "../utils/storageHelper";
 import { useToast } from "../components/ui/Toast";
-import ThemeToggle from "../components/ui/ThemeToggle";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -18,7 +17,7 @@ export default function LoginPage() {
     setLoading(true);
     setTimeout(() => {
       if (username && password) {
-        localStorage.setItem("spj_auth", "true");
+        storageHelper.set("auth", true);
         storageHelper.set("auth_user", { name: username, role: "admin" });
         storageHelper.set("auth_token", "mock-token-" + Date.now());
         toast.success("Selamat datang, " + username + "!");
@@ -113,7 +112,7 @@ export default function LoginPage() {
           {/* Feature Highlights — tidak statis: breathing stagger */}
           <div className="space-y-3 mb-12">
             {[
-              { icon: 'description', text: '13 Template Dokumen Siap Pakai' },
+              { icon: 'description', text: '18 Template Dokumen Siap Pakai' },
               { icon: 'upload_file', text: 'Upload BKU dari ARKAS Otomatis' },
               { icon: 'print', text: 'Cetak Dokumen Langsung dari Aplikasi' },
             ].map((item, i) => (
@@ -159,7 +158,7 @@ export default function LoginPage() {
           <div className="w-full max-w-[380px]">
             
             {/* Top Actions */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-start mb-8">
               <Link
                 to="/"
                 className="inline-flex items-center gap-1.5 text-slate-400 hover:text-[#004ac6] transition-colors text-sm"
@@ -167,7 +166,7 @@ export default function LoginPage() {
                 <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                 Beranda
               </Link>
-              <ThemeToggle variant="icon" />
+              
             </div>
 
             {/* Header */}

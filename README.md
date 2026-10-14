@@ -11,19 +11,19 @@ Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/
 
 ## 🎯 Fitur Utama
 
-### 📄 Dokumen LPJ
-- **Honorarium** — Guru, Tendik, Perpustakaan, Penjaga, Pelaksana
-- **Perjalanan Dinas** — Transport Rapat, Koordinasi, Bank, Pendamping, SPPD
-- **Makan & Minum** — Notulen, Buku Tamu, Mamin Kegiatan/Tamu/Rapat
-- **Pemeliharaan** — Alat (Upah Kerja), Mebeler, Bangunan
-- **Info Only** — Penggandaan, Cetak Foto, Cetak Banner, Tagihan
+### 📄 Dokumen LPJ (8 card di `DokumenSPJPage.jsx`)
+- **Honorarium** — Guru, Tendik, Perpustakaan, Penjaga (+ Pelaksana coming soon)
+- **Perjalanan Dinas** — Transport Rapat, Koordinasi, Bank, Pendamping + SPPD auto-fill (+ Workshop coming soon)
+- **Makan & Minum** — Rapat, Kegiatan, Tamu via `DokumenFormPreview` (Undangan, Pesanan, Notulen, Buku Tamu, Daftar Hadir + generate ringkasan AI)
+- **Pemeliharaan** — Alat/Upah Kerja (+ Mebeler & Bangunan coming soon)
+- **Info Only** — Penggandaan, Cetak Foto, Cetak Banner, Tagihan (tanpa template, hanya info kelengkapan)
 
-### 📁 Dokumen Kelengkapan
-- Dokumen SIPLAH & Non-SIPLAH
-- Register KAS, BAP KAS, Papan BOS
-- Kritik & Saran, Pengaduan
-- Cover LPJ, Sekat Cover, Realisasi Dana
-- Blanko Daftar Hadir, Surat Undangan
+### 📁 Dokumen Kelengkapan (12 item, 5 kategori di `DokumenKelengkapanPage.jsx`)
+- SIPLAH (1): Dokumen PBJ — toggle SIPLAH/Non-SIPLAH
+- Keuangan (3): Register KAS, BAP KAS, Papan BOS
+- Umum (2): Kritik & Saran, Pengaduan
+- Laporan (4): Cover LPJ, Sekat Cover, Realisasi Dana, Instrumen BOS
+- Blanko (2): Daftar Hadir, Surat Undangan
 
 ### 🏫 Data Sekolah
 - Upload profil sekolah dari file Dapodik/ARKAS
@@ -42,8 +42,8 @@ Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/
 - Integrasi dengan modul Makan & Minum
 
 ### 🖨️ Cetak Dokumen
-- Print CSS A4 format
-- Template engine dengan 13 konfigurasi
+- Print CSS A4 format (portrait/landscape per template)
+- Template engine dengan 18 konfigurasi (`src/data/templateConfig.js` = Single Source of Truth)
 
 ### 📝 Catatan
 - **Note-Taking Premium** — Simpan catatan penting terkait BOS
@@ -59,54 +59,56 @@ Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/
 |----------|-----------|
 | Framework | React 18 |
 | Build Tool | Vite 5 |
-| Styling | Tailwind CSS 3 |
+| Styling | Tailwind CSS 3 (token di `tailwind.config.js` = SSOT; `DESIGN.md` = panduan visual) |
 | Routing | React Router v6 |
-| Icons | Material Symbols Outlined |
-| Fonts | Hanken Grotesk + Inter |
-| State | localStorage |
+| Icons | Material Symbols Outlined + Lucide |
+| Fonts | Hanken Grotesk + Inter (README lama) / Plus Jakarta Sans + Montserrat (DESIGN.md Coretax) |
+| State | localStorage (`spj_*`) |
 | Excel Parser | SheetJS (xlsx) |
+| AI | Puter.js + Gemini/Groq/Cerebras via proxy Vite `/api/*` |
+| PDF | pdfjs-dist |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-spj-app/
-├── 📄 README.md                    ← File ini
-├── 📄 AGENT.md                     ← AI Agent Quick Start
-├── 📄 PROGRESS.md                  ← Task Tracking
-├── 📄 PRD_IMPLEMENTASI.md          ← Master Plan
+administrasi-spj-bos/
+├── 📄 README.md                    ← overview (18 template, terverifikasi kode)
+├── 📄 ANALISIS_PROYEK.md            ← hasil analisis statis codebase
+├── 📄 test-bku-parser.js            ← skrip uji parser BKU (Node + xlsx)
+├── 📄 test-bku-template.js          ← skrip inspeksi mentah sheet Page1
 │
-├── 📁 spj-frontend/               ← Frontend React
+├── 📁 spj-frontend/               ← Frontend React (rute: /, /login, /pratinjau, /dashboard/*)
 │   ├── 📁 src/
-│   │   ├── 📄 App.jsx
+│   │   ├── 📄 App.jsx             ← routing + ProtectedRoute (spj_auth)
 │   │   ├── 📁 components/
 │   │   │   ├── 📁 layout/         ← Sidebar, Topbar
-│   │   │   ├── 📁 templates/      ← Template Engine
-│   │   │   └── 📁 ui/             ← Toast
+│   │   │   ├── 📁 templates/      ← TemplateEngine, DokumenFormPreview + blocks/
+│   │   │   ├── 📁 ai/             ← AskAIButton, AskAIPanel
+│   │   │   ├── 📁 bku/            ← BKUSidebar
+│   │   │   ├── 📁 dokumentasi/    ← DokumentasiAIGenerate
+│   │   │   └── 📁 ui/             ← Toast, DownloadConfirmModal
 │   │   ├── 📁 data/
-│   │   │   └── 📄 templateConfig.js
+│   │   │   ├── 📄 templateConfig.js ← 18 template (Single Source of Truth)
+│   │   │   ├── 📄 kodeReferensi.js, spjRequirements.js, formatNomorSurat.js, contextMap.js
+│   │   │   └── 📄 mockData.js     ← seed localStorage
 │   │   ├── 📁 pages/
-│   │   │   └── 📁 dashboard/
-│   │   │       ├── 📄 DokumenSPJPage.jsx
-│   │   │       ├── 📄 DokumenKelengkapanPage.jsx
-│   │   │       ├── 📄 BKUPage.jsx
-│   │   │       ├── 📄 DataSekolahPage.jsx
-│   │   │       ├── 📄 DataGuruPage.jsx
-│   │   │       └── 📄 NotesPage.jsx
-│   │   └── 📁 utils/
-│   │       ├── 📄 bkuParser.js
-│   │       ├── 📄 sekolahParser.js
-│   │       └── 📄 guruTendikParser.js
+│   │   │   ├── 📄 LandingPage.jsx, LoginPage.jsx, PratinjauPage.jsx, DokumentasiAIPage.jsx
+│   │   │   └── 📁 dashboard/      ← 13 halaman (DashboardHome, DataSekolah, PejabatSekolah,
+│   │   │                              DataGuru, BKU, DokumenSPJ, DokumenKelengkapan, Realisasi,
+│   │   │                              NomorSurat, TemplateSurat, ReferensiKode, Notes, Pengaturan)
+│   │   ├── 📁 contexts/           ← AIContext, SidebarContext
+│   │   ├── 📁 services/           ← imageGenerator.js
+│   │   └── 📁 utils/              ← bkuParser, sekolahParser, guruTendikParser, nomorSuratHelper,
+│   │                                  templateSuratHelper, honorHelper, bkuHelper, aiHelper, dll (20 file)
 │   └── 📄 package.json
 │
-├── 📁 template/                   ← File template asli
-│   ├── 📄 NOTULEN RAPAT.docx
-│   ├── 📄 BUKU TAMU KEDINASAN.docx
-│   ├── 📄 Surat Tugas + SPPD.docx
-│   └── 📄 Form. Honor_2026.xlsx
+├── 📁 template/                   ← 6 .docx + 1 .xlsx honor asli
 │
-└── 📁 template-data/              ← Sample data files
+├── 📁 template-data/              ← sample Dapodik/ARKAS + juknis/ (5 PDF regulasi)
+│
+└── 📁 docs/ (65 file)             ← PRD, riset, roadmap Electron/SQLite, AI
 ```
 
 ---
@@ -153,7 +155,7 @@ npm run build
 
 ## 🧩 Template Engine
 
-Aplikasi menggunakan **Data-Driven Template Engine** untuk render 13 template dokumen:
+Aplikasi menggunakan **Data-Driven Template Engine** untuk render 18 template dokumen (`TEMPLATE_CONFIGS` di `spj-frontend/src/data/templateConfig.js`):
 
 ```
 templateConfig (JSON) → TemplateEngine → Block Components
@@ -161,29 +163,37 @@ templateConfig (JSON) → TemplateEngine → Block Components
                                            ├── HeaderDokumen
                                            ├── TabelFields
                                            ├── TabelDinamis
+                                           ├── TabelLetterHeader
                                            ├── InfoKeuangan
                                            ├── PoinPembahasan
                                            ├── UraianKegiatan
                                            └── SignatureFooter
 ```
 
-### 13 Template Config
+### 18 Template Config (terverifikasi dari kode)
 
-| ID | Card | Source |
-|----|------|--------|
-| `honor_guru` | Honor | Excel |
-| `honor_tendik` | Honor | Excel |
-| `honor_perpus` | Honor | Excel |
-| `honor_penjaga` | Honor | Excel |
-| `transpor_rapat` | Perjalanan | Excel |
-| `transpor_koordinasi` | Perjalanan | Excel |
-| `transpor_bank` | Perjalanan | Excel |
-| `transpor_pendamping` | Perjalanan | Excel |
-| `sppd` | Perjalanan | DOCX |
-| `notulen` | Mamin | DOCX |
-| `buku_tamu` | Mamin | DOCX |
-| `upah` | Pemeliharaan | Excel |
-| `pulsa` | Tagihan | Excel |
+| ID | Card | Sub-kategori | Source |
+|----|------|--------------|--------|
+| `honor_guru` | honor | guru | Excel |
+| `honor_tendik` | honor | tendik | Excel |
+| `honor_perpus` | honor | perpus | Excel |
+| `honor_penjaga` | honor | penjaga | Excel |
+| `transpor_rapat` | perjalanan_dinas | rapat | Excel |
+| `transpor_koordinasi` | perjalanan_dinas | koordinasi | Excel |
+| `transpor_bank` | perjalanan_dinas | bank | Excel |
+| `transpor_pendamping` | perjalanan_dinas | pendamping | Excel |
+| `sppd` | perjalanan_dinas | — (auto-fill dari transport) | DOCX |
+| `lampiran_daftar_tugas` | perjalanan_dinas | — (lampiran) | — |
+| `notulen` | mamin | notulen | DOCX |
+| `undangan_mamin` | mamin | rapat | DOCX |
+| `pesanan_mamin` | mamin | kegiatan | DOCX |
+| `buku_tamu` | mamin | buku_tamu | DOCX |
+| `daftar_hadir` | mamin | rapat | DOCX |
+| `upah` | pemeliharaan | alat | Excel |
+| `pulsa` | tagihan | pulsa | Excel |
+| `bku` | keuangan | bku | Excel (Page1 A/D/F/I/K/N/Q/T, baris 16–340) |
+
+> Catatan: Card LPJ di UI (`DokumenSPJPage.jsx`) = 8 card: 4 BKU Utama (`honor`, `perjalanan_dinas`, `mamin`, `pemeliharaan`) + 4 Dokumen Pendukung info-only (`penggandaan`, `cetak_foto`, `cetak_banner`, `tagihan`). Alur Mamin/Upah memakai `DokumenFormPreview.jsx` (Form → Preview → Revisi) dengan auto-fill penerima dari Data Guru/Tendik + nominal dari BKU.
 
 ---
 
@@ -226,11 +236,12 @@ templateConfig (JSON) → TemplateEngine → Block Components
 
 ## 📄 Documentation
 
-- [AGENT.md](AGENT.md) — AI Agent Quick Start
-- [PROGRESS.md](PROGRESS.md) — Task Tracking
-- [PRD_IMPLEMENTASI.md](PRD_IMPLEMENTASI.md) — Master Plan
-- [RESEARCH_TEMPLATE_ENGINE.md](RESEARCH_TEMPLATE_ENGINE.md) — Template Engine Architecture
-- [RESEARCH_BKU_UPLOAD.md](RESEARCH_BKU_UPLOAD.md) — BKU Upload Research
+- [ANALISIS_PROYEK.md](ANALISIS_PROYEK.md) — Analisis statis codebase (terverifikasi, 13 Okt 2026)
+- [docs/AGENT.md](docs/AGENT.md) — AI Agent Quick Start
+- [docs/PROGRESS.md](docs/PROGRESS.md) — Task Tracking
+- [docs/PRD_IMPLEMENTASI.md](docs/PRD_IMPLEMENTASI.md) — Master Plan
+- [docs/RESEARCH_TEMPLATE_ENGINE.md](docs/RESEARCH_TEMPLATE_ENGINE.md) — Template Engine Architecture
+- [docs/RESEARCH_BKU_UPLOAD.md](docs/RESEARCH_BKU_UPLOAD.md) — BKU Upload Research
 
 ---
 

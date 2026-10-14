@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { onQuotaWarning } from '../../utils/storageAdapter'
 
 const ToastContext = createContext()
 
@@ -6,12 +7,31 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
 
   const addToast = useCallback((message, type = 'success', duration = 3000) => {
-    const id = Date.now()
+    const id = Date.now() + Math.random()
     setToasts(prev => [...prev, { id, message, type }])
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id))
     }, duration)
   }, [])
+
+  // Peringatan kuota penyimpanan lokal (dari storageAdapter, sekali per kejadian)
+  useEffect(() => {
+    return onQuotaWarning((info) => {
+      if (info.type === 'exceeded') {
+        addToast(
+          `Penyimpanan lokal penuh (${info.percent}% dari ~5MB). Hapus data lama di Pengaturan → Backup agar data baru tersimpan.`,
+          'warning',
+          8000,
+        )
+      } else {
+        addToast(
+          `Penyimpanan lokal hampir penuh (${info.percent}%). Pertimbangkan backup & bersih-bersih data.`,
+          'warning',
+          6000,
+        )
+      }
+    })
+  }, [addToast])
 
   const toast = {
     success: (msg) => addToast(msg, 'success'),

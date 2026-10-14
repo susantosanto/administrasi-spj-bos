@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
-import { ThemeProvider } from './contexts/ThemeContext'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -19,9 +18,14 @@ import PengaturanPage from './pages/dashboard/PengaturanPage'
 import NomorSuratPage from './pages/dashboard/NomorSuratPage'
 import TemplateSuratPage from './pages/dashboard/TemplateSuratPage'
 import ReferensiKodePage from './pages/dashboard/ReferensiKodePage'
+import PratinjauPage from './pages/PratinjauPage'
+
+import storageHelper from './utils/storageHelper'
 
 function ProtectedRoute({ children }) {
-  const isLoggedIn = localStorage.getItem('spj_auth') === 'true'
+  // Mendukung nilai lama (string "true") & baru (boolean true)
+  const authVal = storageHelper.get('auth', false)
+  const isLoggedIn = authVal === true || authVal === 'true'
   if (!isLoggedIn) return <Navigate to="/login" replace />
   return (
     <>
@@ -34,7 +38,6 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <ThemeProvider>
       <ToastProvider>
         <AIProvider>
           <Router>
@@ -42,6 +45,7 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/pratinjau" element={<PratinjauPage />} />
 
             {/* Protected Routes — AskAIButton hanya muncul di halaman dashboard */}
             <Route
@@ -76,6 +80,5 @@ export default function App() {
           </Router>
         </AIProvider>
       </ToastProvider>
-    </ThemeProvider>
   )
 }

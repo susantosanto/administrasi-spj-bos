@@ -5,8 +5,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
-import storageHelper from '../../utils/storageHelper'
 import ThemeToggle from '../ui/ThemeToggle'
+import storageHelper from '../../utils/storageHelper'
 
 export default function Topbar({ title, subtitle }) {
   const { isOpen, toggle } = useSidebar()
@@ -29,9 +29,9 @@ export default function Topbar({ title, subtitle }) {
   }, [showDropdown])
 
   const handleLogout = () => {
-    localStorage.removeItem('spj_auth')
-    localStorage.removeItem('spj_auth_user')
-    localStorage.removeItem('spj_auth_token')
+    storageHelper.remove('auth')
+    storageHelper.remove('auth_user')
+    storageHelper.remove('auth_token')
     navigate('/')
   }
 
@@ -74,7 +74,9 @@ export default function Topbar({ title, subtitle }) {
           />
         </div>
 
-        {/* Theme Toggle */}
+        
+
+        {/* Theme Toggle — Light/Dark via ThemeContext */}
         <ThemeToggle variant="icon" />
 
         {/* Notifications */}
@@ -140,14 +142,7 @@ export default function Topbar({ title, subtitle }) {
                     <span className="font-medium">{item.label}</span>
                   </button>
                 ))}
-                {/* Theme Toggle in dropdown */}
-                <div className="px-5 py-3 flex items-center justify-between">
-                  <span className="flex items-center gap-3 text-sm font-medium text-slate-700">
-                    <span className="material-symbols-outlined text-xl text-slate-400">contrast</span>
-                    Tema Gelap
-                  </span>
-                  <ThemeToggle />
-                </div>
+                
               </div>
 
               {/* Divider */}

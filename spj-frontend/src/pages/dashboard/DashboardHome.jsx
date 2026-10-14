@@ -207,7 +207,7 @@ export default function DashboardHome() {
                   {[
                     { icon: 'description', label: '26+ Dokumen LPJ' },
                     { icon: 'folder_open', label: '15+ Kelengkapan' },
-                    { icon: 'print', label: '13 Template Cetak' },
+                    { icon: 'print', label: '18 Template Cetak' },
                     { icon: 'auto_awesome', label: 'Foto AI' },
                   ].map((stat, i) => (
                     <div
@@ -263,7 +263,7 @@ export default function DashboardHome() {
         {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {lpjProgress.total > 0 && (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">checklist</span>
@@ -307,7 +307,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-slate-700">download</span>
@@ -366,7 +366,7 @@ export default function DashboardHome() {
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300 living-breathing"
+                className="group bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-slate-300 transition-all duration-300 living-breathing"
                 style={{ animationDelay: `${idx * 0.2}s`, animationDuration: '5s' }}
               >
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
@@ -412,7 +412,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* PREMIUM FOOTER                                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <footer className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+        <footer className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Top Accent Line */}
           <div className="h-1 bg-gradient-to-r from-[#004ac6] via-blue-400 to-[#004ac6]" />
 
@@ -474,7 +474,7 @@ export default function DashboardHome() {
                       <span className="material-symbols-outlined text-slate-500 text-base">description</span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-700">13 Template Cetak</p>
+                      <p className="text-sm font-medium text-slate-700">18 Template Cetak</p>
                       <p className="text-[11px] text-slate-400">Format Dokumen</p>
                     </div>
                   </div>

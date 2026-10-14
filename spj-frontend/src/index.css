@@ -50,6 +50,7 @@
   --shadow-primary: 0 8px 24px rgba(0,74,198,0.18);
 }
 
+
 /* ═══════════════════════════════════════════════════════════════════════════
    DARK MODE — Premium Blue Dark — GRADASI ANIMASI (dari Dark Mode.jpeg)
    Aktif saat <html class="dark">. Body bukan hitam, tapi gradasi animasi
@@ -246,10 +247,10 @@ html, body, #root {
 }
 
 body {
-  /* Light Mode gradasi animasi — TEBAL dari Light Mode.jpeg (biru → cyan → putih pekat) */
-  background: linear-gradient(135deg, #7fbfe0 0%, #4aa3d1 14%, #b8e0f0 28%, #ffffff 42%, #d0eaf8 58%, #6fb9e3 76%, #4aa3d1 88%, #7fbfe0 100%);
+  /* Light Mode — soft wash (direview 2026-10-11): turunkan saturasi agar konten terbaca */
+  background: linear-gradient(135deg, #cfe8f5 0%, #a9d1e9 18%, #e8f3fa 35%, #ffffff 50%, #e8f3fa 65%, #b9dcee 82%, #cfe8f5 100%);
   background-size: 400% 400%;
-  animation: light-body-gradient 18s ease infinite;
+  animation: light-body-gradient 28s ease infinite;
   color: #191c1e;
   min-height: 100vh;
   overflow-x: hidden;
@@ -264,15 +265,15 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 1100px 800px at 10% 15%, rgba(74,163,209,0.85) 0%, transparent 62%),
-    radial-gradient(ellipse 900px 700px at 90% 25%, rgba(255,255,255,1) 0%, transparent 58%),
-    radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.75) 0%, transparent 65%),
-    radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.70) 0%, transparent 60%),
-    radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.80) 0%, transparent 60%);
+    radial-gradient(ellipse 1100px 800px at 10% 15%, rgba(74,163,209,0.42) 0%, transparent 62%),
+    radial-gradient(ellipse 900px 700px at 90% 25%, rgba(255,255,255,0.9) 0%, transparent 58%),
+    radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.38) 0%, transparent 65%),
+    radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.34) 0%, transparent 60%),
+    radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.42) 0%, transparent 60%);
   /* blur dihapus sesuai request */
-  filter: saturate(1.35) contrast(1.08);
-  animation: light-aura-drift 16s ease-in-out infinite;
-  opacity: 1;
+  filter: saturate(1.1) contrast(1.02);
+  animation: light-aura-drift 24s ease-in-out infinite;
+  opacity: 0.6;
 }
 body::after {
   content: '';
@@ -280,10 +281,10 @@ body::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(110deg, transparent 22%, rgba(255,255,255,0.75) 46%, rgba(74,163,209,0.45) 52%, transparent 74%);
+  background: linear-gradient(110deg, transparent 22%, rgba(255,255,255,0.45) 46%, rgba(74,163,209,0.22) 52%, transparent 74%);
   background-size: 280% 100%;
-  animation: light-wave-sweep 12s ease-in-out infinite;
-  opacity: 0.90;
+  animation: light-wave-sweep 18s ease-in-out infinite;
+  opacity: 0.45;
   /* blur dihapus */
   filter: none;
 }
@@ -295,10 +296,10 @@ body::after {
   100% { background-position: 0% 50%; }
 }
 @keyframes light-aura-drift {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
-  33% { transform: translate(22px, -14px) scale(1.05) rotate(0.6deg); opacity: 1; }
-  66% { transform: translate(-14px, 12px) scale(0.97) rotate(-0.4deg); opacity: 0.95; }
-  100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.6; }
+  33% { transform: translate(22px, -14px) scale(1.05) rotate(0.6deg); opacity: 0.65; }
+  66% { transform: translate(-14px, 12px) scale(0.97) rotate(-0.4deg); opacity: 0.55; }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.6; }
 }
 @keyframes light-wave-sweep {
   0% { background-position: -130% 0; transform: translateX(0); }
@@ -367,6 +368,7 @@ textarea:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-bg-wavy, .hero-bg-floral, .animate-fly-in, .animate-fly-continuous { animation: none !important; }
+  body, body::before, body::after { animation: none !important; }
 }
 
 /* Premium Animations */
@@ -756,7 +758,7 @@ html * { transition-property: background-color, border-color, color, fill, strok
   .metaball, .animate-metaball-1, .animate-metaball-2, .animate-metaball-3, .animate-metaball-drift,
   .animate-card-glow, .animate-accent-flow,
   .living-gradient, .living-shimmer::after, .living-breathing, .marquee-track, .marquee-track-reverse,
-  .floating-particle, .pulse-ring::before, .live-dot { animation: none !important; }
+  .floating-particle, .pulse-ring::before, .live-dot, body, body::before, body::after { animation: none !important; }
   .metaball { filter: blur(22px) !important; opacity: 0.5 !important; }
   .living-shimmer::after { display: none !important; }
 }
@@ -845,6 +847,58 @@ html * { transition-property: background-color, border-color, color, fill, strok
   }
 }
 
+/* ════════════════════════════════════════════════════════════
+   LANDING SaaS — Lapisan background dekoratif (2026-10-11)
+   Lapisan gradient wash + blob blur + dot texture + radial soft.
+   Scoped .lpbg-* — tidak menyentuh dashboard. Pure CSS, ringan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Wash diagonal lembut — layer terbawa hero & CTA */
+.lpbg-wash {
+  background-image:
+    radial-gradient(ellipse 1000px 620px at 88% -10%, rgba(21, 94, 239, 0.10) 0%, transparent 62%),
+    radial-gradient(ellipse 820px 540px at -6% 42%, rgba(16, 42, 86, 0.06) 0%, transparent 58%),
+    radial-gradient(ellipse 760px 500px at 42% 118%, rgba(18, 183, 106, 0.05) 0%, transparent 55%);
+}
+
+/* Blob blur melayang */
+.lpbg-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  pointer-events: none;
+}
+
+/* Tekstur dot grid halus */
+.lpbg-dots {
+  background-image: radial-gradient(rgba(16, 42, 86, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Radial highlight pusat section */
+.lpbg-radial {
+  background-image: radial-gradient(ellipse 720px 420px at 50% 0%, rgba(21, 94, 239, 0.07) 0%, transparent 68%);
+}
+
+/* Float halus untuk blob — hormati reduced-motion */
+@keyframes lpbg-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-18px, -22px) scale(1.06); }
+  66% { transform: translate(12px, 16px) scale(0.97); }
+}
+@keyframes lpbg-float-rev {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(20px, 14px) scale(1.05); }
+  75% { transform: translate(-14px, -18px) scale(0.95); }
+}
+.lpbg-blob-a { animation: lpbg-float 16s ease-in-out infinite; }
+.lpbg-blob-b { animation: lpbg-float-rev 20s ease-in-out infinite; }
+.lpbg-blob-c { animation: lpbg-float 14s ease-in-out infinite 2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lpbg-blob-a, .lpbg-blob-b, .lpbg-blob-c { animation: none !important; }
+}
+
 /* Stagger Children Animation */
 @keyframes stagger-child {
   0% {
@@ -889,6 +943,68 @@ html * { transition-property: background-color, border-color, color, fill, strok
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LANDING SaaS 2026-10-11 — reveal on scroll + motif batik halus
+   Scoped .lp-*, tidak menyentuh dashboard.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Motif floral-batik asli — ornamental seamless GarryKillian / Freepik
+   Digreyscale agar selaras palet biru premium. Versi ringkas: /floral-pattern.jpg (147KB, seamless)
+   Motion: pan halus tanpa putus (seamless loop, translate ≤ 1 tile) — background lebih hidup */
+@keyframes lp-batik-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 360px 360px; }
+}
+@keyframes lp-batik-drift-rev {
+  from { background-position: 360px 360px; }
+  to   { background-position: 0 0; }
+}
+.lp-batik {
+  opacity: 0.18;
+  background-image: url("/floral-pattern.jpg");
+  background-size: 360px 360px;
+  filter: grayscale(1) contrast(0.85) brightness(1.04);
+  background-repeat: repeat;
+  animation: lp-batik-drift 90s linear infinite;
+  will-change: background-position;
+}
+/* Varian arah berlawanan — dua tepi tidak sinkron, terasa organik */
+.lp-batik-rev { animation: lp-batik-drift-rev 110s linear infinite; }
+/* Versi terang floral untuk panel navy — blend soft-light agar motif terlihat di atas gelap */
+.lp-batik-light {
+  opacity: 0.2;
+  background-image: url("/floral-pattern.jpg");
+  background-size: 360px 360px;
+  filter: grayscale(1) invert(1) brightness(1.35) contrast(0.7);
+  mix-blend-mode: soft-light;
+  background-repeat: repeat;
+  animation: lp-batik-drift 120s linear infinite;
+  will-change: background-position;
+}
+/* Motif sudut hero floral — hanya tepi kanan, memudar ke transparan (mask) */
+.lp-batik-corner {
+  opacity: 0.16;
+  background-image: url("/floral-pattern.jpg");
+  background-size: 420px 420px;
+  filter: grayscale(1) contrast(0.9) brightness(1.05);
+  animation: lp-batik-drift 100s linear infinite;
+  will-change: background-position;
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, black 30%, transparent 75%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal { opacity: 1; transform: none; transition: none; }
+  .lp-batik, .lp-batik-rev, .lp-batik-light, .lp-batik-corner { animation: none !important; }
 }
 
 /* ============================================

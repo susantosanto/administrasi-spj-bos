@@ -1,188 +1,86 @@
-# 📋 SPJ BOS/BOSP - Administrasi Laporan Sekolah
+# 📋 LPJ BOS/BOSP — Frontend (`spj-frontend`)
 
-Aplikasi web untuk mengelola dan mencetak dokumen SPJ (Surat Pertanggungjawaban) dana BOS/BOSP sekolah. Membantu operator sekolah dalam menyusun, mengelola, dan mencetak dokumen pertanggungjawaban dengan mudah dan efisien.
+> Frontend React untuk cetak dokumen LPJ. **Dokumen sinkron dengan kode per 13 Okt 2026.**
+> README root (`../README.md`) adalah overview repo; file ini detail frontend.
 
-## 🎯 Fitur Utama
+## 🎯 Fitur (terverifikasi kode)
 
-- **📄 Dokumen SPJ** - 26+ jenis dokumen SPJ (Honor, Perjalanan Dinas, Makan & Minum, Workshop, dll)
-- **📁 Dokumen Wajib** - Kelola dokumen wajib di luar ARKAS (SIPLAH & Non-SIPLAH)
-- **📊 Dokumen Pelengkap** - Cover, Sekat, Realisasi Penggunaan Dana, Instrumen Laporan BOS
-- **🏫 Data Sekolah** - Form input dan upload data profil sekolah
-- **👥 Data Guru** - Manajemen data guru dan tenaga kependidikan
-- **📁 Upload BKU** - Upload BKU Excel sebagai referensi pembuatan dokumen
-- **🖨️ Cetak Dokumen** - Cetak dan export dokumen ke PDF
+- **📄 Dokumen LPJ** (`pages/dashboard/DokumenSPJPage.jsx`) — 8 card:
+  - BKU Utama: Honorarium (guru/tendik/perpus/penjaga), Perjalanan Dinas (rapat/koordinasi/bank/pendamping + SPPD auto-fill), Makan & Minum (rapat/kegiatan/tamu), Pemeliharaan (alat/upah)
+  - Dokumen Pendukung info-only: Penggandaan, Cetak Foto, Cetak Banner, Tagihan
+  - Alur khusus Honor/Transport/Mamin/Upah via `components/templates/DokumenFormPreview.jsx` (Form → Preview → Revisi, pilih penerima dari Data Guru/Tendik, nominal dari BKU, generate nomor surat + ringkasan AI untuk notulen)
+- **📁 Dokumen Kelengkapan** (`DokumenKelengkapanPage.jsx`) — 12 item / 5 kategori: SIPLAH (PBJ), Keuangan (RK/BAP/Papan BOS), Umum (KS/PD), Laporan (R-CVR/R-SKT/R-ALR/R-ILB), Blanko (DH/SU) + toggle SIPLAH + progress
+- **📊 BKU** (`BKUPage.jsx` + `utils/bkuParser.js` + `components/bku/BKUSidebar.jsx`) — upload Excel ARKAS `Page1`, 10 tipe transaksi, 7 kategori belanja, filter bulan/tahun
+- **🏫 Data Sekolah + Pejabat** (`DataSekolahPage.jsx`, `PejabatSekolahPage.jsx` + `utils/sekolahParser.js`) — upload Dapodik/ARKAS
+- **👥 Data Guru** (`DataGuruPage.jsx` + `utils/guruTendikParser.js`) — upload Dapodik 51 kolom, filter PNS/PPPK/Honorer
+- **🔢 Nomor Surat + Template Surat** (`NomorSuratPage.jsx`, `TemplateSuratPage.jsx` + `utils/nomorSuratHelper.js`, `templateSuratHelper.js`, `data/formatNomorSurat.js`, `data/kodeReferensi.js`)
+- **📈 Realisasi, Referensi Kode, Catatan, Pengaturan** (`RealisasiPage.jsx`, `ReferensiKodePage.jsx`, `NotesPage.jsx`, `PengaturanPage.jsx`)
+- **🤖 AI** (`components/ai/`, `contexts/AIContext.jsx`, `utils/aiHelper.js`, `aiConfig.js`, `queryEngine.js`, `intentClassifier.js`, `dataContextBuilder.js`) — AskAI panel + proxy Vite `/api/gemini|groq|cerebras`
+- **🖨️ Cetak** — print CSS A4 portrait/landscape per `templateConfig.orientation`
 
 ## 🛠️ Tech Stack
 
 | Komponen | Teknologi |
 |----------|-----------|
-| Framework | React 18+ |
-| Build Tool | Vite |
-| Styling | Tailwind CSS |
-| Routing | React Router v6 |
-| Icons | Material Symbols Outlined |
-| Fonts | Hanken Grotesk + Inter |
-| State | localStorage |
+| Framework | React 18.2 |
+| Build Tool | Vite 5.1 (+ `scripts/copy-docs.js` di `dev/build/preview`) |
+| Styling | Tailwind CSS 3.4 — token di `tailwind.config.js` = Single Source of Truth (lihat `DESIGN.md` untuk panduan) |
+| Routing | React Router v6 (lihat `src/App.jsx`) — `/`, `/login`, `/pratinjau`, `/dashboard/*` (13 nested + 2 redirect kompatibilitas) |
+| Ikon | Material Symbols Outlined + lucide-react |
+| State | localStorage prefix `spj_*` (auth dummy `spj_auth`) |
+| Excel | xlsx (SheetJS) |
+| PDF | pdfjs-dist |
+| AI image | @heyputer/puter.js (`services/imageGenerator.js`, masih placeholder) |
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- Node.js 18+ 
-- npm / yarn / pnpm
-
-### Installation
-
 ```bash
-# Clone repository
-git clone https://github.com/susantosanto/administrasi-spj-bos.git
-cd administrasi-spj-bos/spj-frontend
-
-# Install dependencies
+cd spj-frontend
 npm install
-
-# Run development server
-npm run dev
-
-# Build for production
+npm run dev      # http://localhost:5173/
 npm run build
+npm run preview
 ```
 
-### Development Server
+Node 18+.
 
-Buka browser dan akses `http://localhost:5173`
-
-## 📁 Struktur Folder
+## 📁 Struktur Aktual (`src/`, 74 file)
 
 ```
-spj-frontend/
-├── public/
-├── src/
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Sidebar.jsx
-│   │   │   └── Topbar.jsx
-│   │   └── ui/
-│   │       └── Toast.jsx
-│   ├── pages/
-│   │   ├── LandingPage.jsx
-│   │   ├── LoginPage.jsx
-│   │   └── dashboard/
-│   │       ├── DashboardHome.jsx
-│   │       ├── DataSekolahPage.jsx
-│   │       ├── DataGuruPage.jsx
-│   │       ├── BKUPage.jsx
-│   │       ├── DokumenSPJPage.jsx
-│   │       ├── DokumenWajibPage.jsx
-│   │       └── PengaturanPage.jsx
-│   ├── layouts/
-│   │   └── DashboardLayout.jsx
-│   ├── data/
-│   │   └── mockData.js
-│   ├── utils/
-│   │   └── storageHelper.js
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── index.html
-├── package.json
-├── tailwind.config.js
-└── vite.config.js
+src/
+├── App.jsx, main.jsx (force light mode), index.css
+├── components/
+│   ├── layout/      ← Sidebar.jsx, Topbar.jsx
+│   ├── templates/   ← TemplateEngine.jsx, DokumenFormPreview.jsx, blocks/ (11: KopSurat, HeaderDokumen, TabelFields, TabelDinamis, TabelLetterHeader, InfoKeuangan, PoinPembahasan, UraianKegiatan, SignatureFooter + AutoFillHonorButton, NomorSuratPopup)
+│   ├── ai/          ← AskAIButton.jsx, AskAIPanel.jsx
+│   ├── bku/         ← BKUSidebar.jsx
+│   ├── dokumentasi/ ← DokumentasiAIGenerate.jsx, PersonelFotoTab.jsx
+│   └── ui/          ← Toast.jsx, DownloadConfirmModal.jsx
+├── pages/
+│   ├── LandingPage.jsx, LoginPage.jsx, PratinjauPage.jsx, DokumentasiAIPage.jsx
+│   └── dashboard/   ← 13: DashboardHome, DataSekolah, PejabatSekolah, DataGuru, BKU, DokumenSPJ, DokumenKelengkapan, Realisasi, NomorSurat, TemplateSurat, ReferensiKode, Notes, Pengaturan
+├── layouts/         ← DashboardLayout.jsx (+ seedMockData)
+├── data/            ← templateConfig.js (18 template = SoT), mockData.js, kodeReferensi.js, spjRequirements.js, contextMap.js, formatNomorSurat.js
+├── contexts/        ← AIContext.jsx, SidebarContext.jsx
+├── services/        ← imageGenerator.js
+└── utils/ (20)      ← bkuParser, sekolahParser, guruTendikParser, nomorSuratHelper, templateSuratHelper, honorHelper, bkuHelper, sekolahData, signatureRoles, storageHelper, templateHelpers, templateDetector, queryEngine, intentClassifier, dataContextBuilder, semanticCache, docHelper, pdfTableExtractor, aiHelper, aiConfig
 ```
 
-## 📋 Daftar Dokumen SPJ
+## 🧩 18 Template (`data/templateConfig.js`)
 
-### BKU Utama (17 Jenis)
-| Kode | Dokumen | Kategori |
-|------|---------|----------|
-| HON | Honorarium | Honor & Narasumber |
-| HON-P | Honor Pelaksana | Honor & Narasumber |
-| NSB | Narasumber | Honor & Narasumber |
-| PD | Perjalanan Dinas | Perjalanan Dinas |
-| MR | Mamin Rapat | Makan & Minum |
-| MK | Mamin Kegiatan | Makan & Minum |
-| MT | Mamin Tamu | Makan & Minum |
-| PG | Penggandaan | Dokumen Pendukung |
-| CF | Cetak Foto | Dokumen Pendukung |
-| CB | Cetak Banner | Dokumen Pendukung |
-| SW | Sewa | Sewa & Pemeliharaan |
-| PL | Pemeliharaan | Sewa & Pemeliharaan |
-| TG | Tagihan | Sewa & Pemeliharaan |
-| WS-I | Workshop Internal | Workshop |
-| WS-E | Workshop Eksternal | Workshop |
-| PR | PR Pengadaan | Pengadaan & Rekening Koran |
-| RK | Rekening Koran | Pengadaan & Rekening Koran |
+| ID | Card | Sub | Sumber |
+|----|------|-----|--------|
+| honor_guru / honor_tendik / honor_perpus / honor_penjaga | honor | guru/tendik/perpus/penjaga | Excel |
+| transpor_rapat / koordinasi / bank / pendamping | perjalanan_dinas | rapat/koordinasi/bank/pendamping | Excel |
+| sppd | perjalanan_dinas | auto-fill dari transport | DOCX |
+| lampiran_daftar_tugas | perjalanan_dinas | lampiran | — |
+| notulen / undangan_mamin / pesanan_mamin / buku_tamu / daftar_hadir | mamin | notulen/rapat/kegiatan/buku_tamu | DOCX |
+| upah | pemeliharaan | alat | Excel |
+| pulsa | tagihan | pulsa | Excel |
+| bku | keuangan | bku | Excel Page1 |
 
-### Dokumen Pelengkap (4 Jenis)
-| Kode | Dokumen |
-|------|---------|
-| R-CVR | Cover |
-| R-SKT | Sekat Cover |
-| R-ALR | Realisasi Penggunaan Dana |
-| R-ILB | Instrumen Laporan BOS |
-
-### Dokumen Wajib (6 Jenis)
-| Kode | Dokumen | Keterangan |
-|------|---------|------------|
-| D-PBJ | Dokumen PBJ | Selalu ada |
-| D-RK | Register KAS | Non-SIPLAH |
-| D-BK | BAP KAS | Non-SIPLAH |
-| D-KS | Kritik & Saran | Non-SIPLAH |
-| D-PD | Pengaduan | Non-SIPLAH |
-| D-PB | Papan BOS | Non-SIPLAH |
-
-## 🎨 Design System
-
-Menggunakan Material Design 3-inspired Corporate Modern:
-
-- **Primary**: `#004ac6` (Biru)
-- **Secondary**: `#006c4a` (Hijau)
-- **Background**: `#f8f9fb` (Abu-abu muda)
-- **Typography**: Hanken Grotesk (Headlines) + Inter (Body)
-- **Icons**: Material Symbols Outlined
-
-## 📱 Halaman Aplikasi
-
-| Halaman | Deskripsi |
-|---------|-----------|
-| Landing Page | Halaman pembuka dengan informasi aplikasi |
-| Login | Form login dengan ilustrasi |
-| Dashboard | Ringkasan status dokumen SPJ |
-| Data Sekolah | Form input & upload data sekolah |
-| Data Guru | Tabel data guru & tendik |
-| Upload BKU | Upload BKU Excel + tabel referensi |
-| Dokumen SPJ | Card grid 26+ dokumen + template preview |
-| Dokumen Wajib | Toggle SIPLAH + template dokumen |
-| Pengaturan | Profil, Data Master, Backup |
-
-## 🔧 Konfigurasi
-
-### Tailwind CSS
-
-Konfigurasi Tailwind menggunakan custom design tokens sesuai Material Design 3:
-
-```js
-// tailwind.config.js
-theme: {
-  extend: {
-    colors: {
-      primary: '#004ac6',
-      secondary: '#006c4a',
-      background: '#f8f9fb',
-      // ...
-    }
-  }
-}
-```
+Rumus tabel: `JUMLAH = VOL × UNIT COST` (mul), `DITERIMA = JUMLAH − PPh` (sub). Kode default: honor `5.1.02.02.01.0013`, transport `5.1.02.04.01.0003`, upah `5.1.02.02.01.0016`, pulsa `5.1.02.02.01.0063`.
 
 ## 📄 License
 
-MIT License
-
-## 👨‍💻 Developer
-
-Dikembangkan oleh Tim IT Pendidikan
-
----
-
-**SPJ BOS/BOSP** © 2025
+MIT
