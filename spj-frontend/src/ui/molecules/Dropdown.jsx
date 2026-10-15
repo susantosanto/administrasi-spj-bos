@@ -56,7 +56,7 @@ export default function Dropdown({ trigger, children, align = "left", className 
           role="menu"
           className={cn(
             "absolute top-full mt-1 z-[1000] min-w-[180px]",
-            "bg-surface border border-border rounded-md shadow-lg",
+            "glass rounded-md shadow-lg",
             "py-1 animate-fade-in",
             align === "right" ? "right-0" : "left-0"
           )}

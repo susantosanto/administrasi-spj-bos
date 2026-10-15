@@ -47,8 +47,8 @@ function ToastItem({ id, variant = "info", title, message, duration, onClose }) 
       role="status"
       aria-live="polite"
       className={cn(
-        "pointer-events-auto flex items-start gap-3 p-3 rounded-md border shadow-lg",
-        "bg-surface",
+        "pointer-events-auto flex items-start gap-3 p-3 rounded-md shadow-lg",
+        "glass",
         "animate-slide-in-right",
         config.container
       )}

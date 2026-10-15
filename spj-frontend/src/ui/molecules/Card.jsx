@@ -12,6 +12,7 @@ export default function Card({
     muted: "bg-surface-muted border border-border",
     elevated: "bg-surface border border-border shadow-md",
     outline: "bg-transparent border border-border",
+    glass: "glass shadow-md",
   };
 
   const paddings = {

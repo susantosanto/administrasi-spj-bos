@@ -110,7 +110,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={title ? "modal-title" : undefined}
         className={cn(
-          "relative w-full bg-surface border border-border rounded-xl shadow-lg",
+          "relative w-full glass-strong rounded-xl shadow-lg",
           "animate-slide-in-up",
           sizes[size],
           className

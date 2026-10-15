@@ -19,7 +19,7 @@ export default function Topbar({
     <header
       className={cn(
         "h-16 flex items-center gap-4 px-4 lg:px-6",
-        "bg-surface border-b border-border shrink-0",
+        "glass-sticky sticky top-0 z-10 shrink-0",
         className
       )}
     >
