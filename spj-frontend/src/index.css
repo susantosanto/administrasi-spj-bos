@@ -17,6 +17,8 @@
   --color-primary-hover: #003EA8;
   --color-primary-soft: #DBE1FF;
   --color-on-primary: #FFFFFF;
+  /* Brand panel — FIXED (tidak berubah di dark mode) */
+  --color-brand-panel: #004AC6;
 
   /* Surface */
   --color-bg: #F8F9FB;
@@ -56,6 +58,8 @@
   --color-primary-hover: #3B82F6;
   --color-primary-soft: #1E3A5F;
   --color-on-primary: #0B1020;
+  /* Brand panel — FIXED (tidak berubah di dark mode) */
+  --color-brand-panel: #004AC6;
 
   --color-bg: #0B1020;
   --color-surface: #151B2E;

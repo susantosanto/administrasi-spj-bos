@@ -18,6 +18,8 @@ export default {
         "primary-hover": "var(--color-primary-hover)",
         "primary-soft": "var(--color-primary-soft)",
         "on-primary": "var(--color-on-primary)",
+        // ── Brand panel — FIXED color (tidak berubah di dark mode) ──
+        "brand-panel": "var(--color-brand-panel)",
 
         // ── Surface ────────────────────────────────────────────────
         bg: "var(--color-bg)",

@@ -66,7 +66,7 @@ export default function LoginPage() {
       <section
         className={cn(
           "hidden lg:flex lg:w-1/2 relative overflow-hidden",
-          "bg-primary text-on-primary"
+          "bg-brand-panel text-white"
         )}
         aria-hidden="true"
       >
