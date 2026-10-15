@@ -410,6 +410,16 @@ textarea:focus-visible {
   box-shadow: var(--shadow-sm);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sidebar Elevated — pemisah visual sidebar vs konten di light mode
+   Solid + border-right + shadow ke kanan.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.sidebar-elevated {
+  background-color: rgb(var(--color-surface-rgb));
+  border-right: 1px solid rgb(var(--color-border-strong-rgb));
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04), 1px 0 2px rgba(0, 0, 0, 0.03);
+}
+
 /* Border subtle untuk card */
 .border-subtle {
   border-color: rgba(148, 163, 184, 0.3);
