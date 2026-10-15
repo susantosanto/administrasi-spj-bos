@@ -136,6 +136,54 @@ hanya untuk elemen spesifik, dengan fallback lengkap.
 4. **SELALU** test di light + dark mode
 5. **SELALU** test print (Ctrl+P) — glass harus jadi solid putih
 
+## Modern Premium (Step 6.2)
+
+Design system v2 mengikuti aliran **"Modern Premium"** — kombinasi
+minimal & glass.
+
+### Prinsip
+
+1. **Background body subtle gradient** — bukan putih polos
+2. **Glass blur 12px** — saturate 160%
+3. **Radius medium** — 6/10/14/20/24px
+4. **Spacing base 4px** — fleksibel
+5. **Shadow double layer** — halus
+6. **Typography tegas** — line-height heading rapat
+
+### Token Radius
+
+| Token | Nilai | Penggunaan |
+|---|---|---|
+| `rounded-sm` | 6px | Badge, tag kecil |
+| `rounded-md` / `rounded` | 10px | Button, input |
+| `rounded-lg` | 14px | Card |
+| `rounded-xl` | 20px | Modal, panel |
+| `rounded-2xl` | 24px | Hero card |
+| `rounded-full` | 9999px | Avatar, pill |
+
+### Token Shadow
+
+Double layer:
+- `shadow-sm`: 2 layer tipis
+- `shadow-md`: 2 layer medium
+- `shadow-lg`: 2 layer besar
+
+### Background Body
+
+**Light mode:**
+```css
+radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(0, 74, 198, 0.04), transparent 60%),
+radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(0, 74, 198, 0.03), transparent 60%)
+```
+
+**Dark mode:**
+```css
+radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(96, 165, 250, 0.06), transparent 60%),
+radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(96, 165, 250, 0.04), transparent 60%)
+```
+
+Tujuan: supaya glass **terasa** — bukan di atas putih polos.
+
 ## Status
 
 - [x] Setup (cn.js)

@@ -42,16 +42,16 @@
   --color-info: #0284C7;
 
   /* Shadow */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 24px -6px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
   --shadow-primary: 0 8px 24px rgba(0, 74, 198, 0.18);
 
-  /* Glass (Light Mode) */
-  --color-glass: rgba(255, 255, 255, 0.72);
-  --color-glass-strong: rgba(255, 255, 255, 0.85);
-  --color-glass-border: rgba(255, 255, 255, 0.35);
-  --color-glass-border-strong: rgba(255, 255, 255, 0.5);
+  /* Glass (Light Mode) — Modern Premium */
+  --color-glass: rgba(255, 255, 255, 0.65);
+  --color-glass-strong: rgba(255, 255, 255, 0.8);
+  --color-glass-border: rgba(255, 255, 255, 0.5);
+  --color-glass-border-strong: rgba(255, 255, 255, 0.65);
 
   color-scheme: light;
 }
@@ -84,18 +84,27 @@
   --color-danger: #F87171;
   --color-info: #38BDF8;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 24px -6px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
   --shadow-primary: 0 8px 24px rgba(96, 165, 250, 0.35);
 
-  /* Glass (Dark Mode) */
-  --color-glass: rgba(21, 27, 46, 0.72);
-  --color-glass-strong: rgba(21, 27, 46, 0.85);
+  /* Glass (Dark Mode) — Modern Premium */
+  --color-glass: rgba(21, 27, 46, 0.6);
+  --color-glass-strong: rgba(21, 27, 46, 0.75);
   --color-glass-border: rgba(255, 255, 255, 0.08);
   --color-glass-border-strong: rgba(255, 255, 255, 0.14);
 
   color-scheme: dark;
+}
+
+.dark body {
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(96, 165, 250, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(96, 165, 250, 0.04) 0%, transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -115,6 +124,11 @@ html, body, #root {
 
 body {
   background-color: var(--color-bg);
+  background-image:
+    radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(0, 74, 198, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(0, 74, 198, 0.03) 0%, transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--color-text-high);
   min-height: 100vh;
   overflow-x: hidden;
@@ -350,16 +364,18 @@ textarea:focus-visible {
 
 .glass {
   background-color: var(--color-glass);
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid var(--color-glass-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .glass-strong {
   background-color: var(--color-glass-strong);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
   border: 1px solid var(--color-glass-border-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .glass-heavy {
@@ -372,8 +388,8 @@ textarea:focus-visible {
 /* Sticky glass — untuk navbar/topbar yang sticky */
 .glass-sticky {
   background-color: var(--color-glass-strong);
-  backdrop-filter: blur(16px) saturate(150%);
-  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
   border-bottom: 1px solid var(--color-glass-border);
 }
 
