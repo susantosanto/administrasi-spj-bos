@@ -8,10 +8,10 @@ export default function Card({
   ...rest
 }) {
   const variants = {
-    default: "bg-surface border border-border shadow-sm",
+    default: "bg-surface border border-subtle shadow-sm",
     muted: "bg-surface-muted border border-border",
-    elevated: "bg-surface border border-border shadow-md",
-    outline: "bg-transparent border border-border",
+    elevated: "bg-surface border border-border-strong shadow-md",
+    outline: "bg-transparent border border-border-strong",
     glass: "glass shadow-md",
   };
 

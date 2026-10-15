@@ -132,7 +132,8 @@ export default function Sidebar({
       {/* Desktop */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col h-screen glass",
+          "hidden lg:flex flex-col h-screen",
+          "bg-surface border-r border-border dark:glass dark:border-0",
           "transition-all duration-200 ease-out shrink-0",
           widths[collapsed ? "collapsed" : "expanded"],
           className
@@ -151,7 +152,8 @@ export default function Sidebar({
           />
           <aside
             className={cn(
-              "fixed top-0 left-0 h-screen w-60 glass z-[1045]",
+              "fixed top-0 left-0 h-screen w-60 z-[1045]",
+              "bg-surface border-r border-border dark:glass dark:border-0",
               "flex flex-col lg:hidden animate-slide-in-right shadow-lg"
             )}
           >

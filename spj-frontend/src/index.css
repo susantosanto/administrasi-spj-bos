@@ -48,10 +48,10 @@
   --shadow-primary: 0 8px 24px rgba(0, 74, 198, 0.18);
 
   /* Glass (Light Mode) — Modern Premium */
-  --color-glass: rgba(255, 255, 255, 0.65);
-  --color-glass-strong: rgba(255, 255, 255, 0.8);
-  --color-glass-border: rgba(255, 255, 255, 0.5);
-  --color-glass-border-strong: rgba(255, 255, 255, 0.65);
+  --color-glass: rgba(255, 255, 255, 0.55);
+  --color-glass-strong: rgba(255, 255, 255, 0.75);
+  --color-glass-border: rgba(255, 255, 255, 0.6);
+  --color-glass-border-strong: rgba(255, 255, 255, 0.75);
 
   color-scheme: light;
 }
@@ -123,10 +123,10 @@ html, body, #root {
 }
 
 body {
-  background-color: var(--color-bg);
+  background-color: #EEF2F7;
   background-image:
-    radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(0, 74, 198, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(0, 74, 198, 0.03) 0%, transparent 60%);
+    radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(0, 74, 198, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(0, 74, 198, 0.04) 0%, transparent 60%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--color-text-high);
@@ -391,6 +391,28 @@ textarea:focus-visible {
   backdrop-filter: blur(20px) saturate(170%);
   -webkit-backdrop-filter: blur(20px) saturate(170%);
   border-bottom: 1px solid var(--color-glass-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Surface Elevated — untuk card & sidebar di light mode
+   Solid + border + shadow, bukan glass.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.surface-elevated {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Sidebar: surface-elevated + border-right only */
+.surface-sidebar {
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Border subtle untuk card */
+.border-subtle {
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* Fallback: browser tidak support backdrop-filter */
