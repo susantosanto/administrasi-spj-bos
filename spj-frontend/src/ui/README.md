@@ -59,6 +59,33 @@ import Button from "@/ui/atoms/Button";
 
 Lihat `DESIGN_TOKENS.md` di root project.
 
+## ⚠️ Utang Teknis Sementara
+
+Berikut item yang **sengaja** dipertahankan sementara untuk kompatibilitas
+dengan halaman lama yang belum dimigrasi. **Semua akan dihapus di Step 24 (Cleanup).**
+
+| Item | Lokasi | Alasan | Hapus di |
+|---|---|---|---|
+| Material Symbols `<link>` | `index.html` | Halaman lama pakai ikon ini | Step 24 |
+| CSS `.material-symbols-outlined` | `src/index.css` (paling bawah) | Sama | Step 24 |
+| Alias token back-compat | `tailwind.config.js` (blok "BACK-COMPAT SEMENTARA") | Halaman lama pakai token lama (`bg-brand`, `bg-navy`, `text-ink`, dll) | Step 24 |
+
+### Aturan Selama Masa Transisi
+
+1. **JANGAN pakai** Material Symbols di kode **baru** — pakai `lucide-react`
+2. **JANGAN pakai** token back-compat di kode **baru** — pakai token v2
+3. **JANGAN hapus** back-compat ini sebelum Step 24
+4. Kalau nemu halaman lama yang rusak, **catat** — akan diperbaiki saat
+   migrasi halaman itu
+
+### Checklist Migrasi Halaman
+
+- [x] LoginPage (Step 5)
+- [ ] LandingPage (Step 6)
+- [ ] DashboardLayout + DashboardHome (Step 7)
+- [ ] ... (Step 8–20)
+- [ ] Hapus back-compat (Step 24)
+
 ## Status
 
 - [x] Setup (cn.js)

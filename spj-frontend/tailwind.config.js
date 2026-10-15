@@ -41,6 +41,47 @@ export default {
         warning: "var(--color-warning)",
         danger: "var(--color-danger)",
         info: "var(--color-info)",
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⚠️ BACK-COMPAT SEMENTARA (Step 5.5.1)
+        // Alias token lama ke token v2. Untuk halaman yang belum dimigrasi.
+        // HAPUS di Step 24 (Cleanup).
+        // ═══════════════════════════════════════════════════════════════
+        // Brand lama
+        brand: "var(--color-primary)",
+        "brand-hover": "var(--color-primary-hover)",
+        "brand-soft": "var(--color-primary-soft)",
+        navy: "#102A56",
+        ink: "var(--color-text-high)",
+        muted: "var(--color-text-muted)",
+        canvas: "var(--color-bg)",
+        line: "var(--color-border)",
+
+        // Primary lama (dipakai dashboard)
+        "primary-light": "var(--color-primary-soft)",
+        "primary-fixed": "var(--color-primary-soft)",
+        "primary-container": "var(--color-primary)",
+        "on-primary-container": "var(--color-on-primary)",
+
+        // Surface lama
+        background: "var(--color-bg)",
+        "surface-container-lowest": "var(--color-surface)",
+        "surface-container-low": "var(--color-surface-muted)",
+        "surface-container": "var(--color-surface-muted)",
+        "surface-container-high": "var(--color-surface-high)",
+        "surface-variant": "var(--color-surface-high)",
+        "on-surface": "var(--color-text-high)",
+        "on-surface-variant": "var(--color-text-muted)",
+        "on-background": "var(--color-text-high)",
+
+        // Outline lama
+        outline: "var(--color-border-strong)",
+        "outline-variant": "var(--color-border)",
+
+        // Semantic lama
+        error: "var(--color-danger)",
+        "success-bright": "var(--color-success)",
+        secondary: "var(--color-info)",
       },
       fontFamily: {
         body: ["Inter", "system-ui", "sans-serif"],
