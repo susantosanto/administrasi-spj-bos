@@ -82,6 +82,24 @@ export default {
         error: "var(--color-danger)",
         "success-bright": "var(--color-success)",
         secondary: "var(--color-info)",
+
+        // ═══════════════════════════════════════════════════════════════
+        // Glassmorphism Tokens (Step 6.0)
+        // Untuk elemen spesifik: navbar, sidebar, topbar, modal,
+        // dropdown, toast, card hero, floating button, panel login.
+        // TIDAK untuk card data / form / print area.
+        // ═══════════════════════════════════════════════════════════════
+        glass: {
+          DEFAULT: "var(--color-glass)",
+          strong: "var(--color-glass-strong)",
+          border: "var(--color-glass-border)",
+          "border-strong": "var(--color-glass-border-strong)",
+        },
+      },
+      backdropBlur: {
+        glass: "8px",
+        "glass-strong": "12px",
+        "glass-heavy": "24px",
       },
       fontFamily: {
         body: ["Inter", "system-ui", "sans-serif"],

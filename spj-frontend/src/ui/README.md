@@ -86,6 +86,56 @@ dengan halaman lama yang belum dimigrasi. **Semua akan dihapus di Step 24 (Clean
 - [ ] ... (Step 8–20)
 - [ ] Hapus back-compat (Step 24)
 
+## Glassmorphism
+
+Design system v2 menyertakan glassmorphism **subtle & terkontrol** —
+hanya untuk elemen spesifik, dengan fallback lengkap.
+
+### Kapan Pakai Glass
+
+| Elemen | Utility | Alasan |
+|---|---|---|
+| Navbar Landing | `.glass-sticky` | Sticky + transparan |
+| Sidebar Dashboard | `.glass` (dark mode) | Terasa modern |
+| Topbar Dashboard | `.glass-sticky` | Sticky + transparan |
+| Modal | `.glass-strong` | Fokus ke dialog |
+| Dropdown menu | `.glass` | Terasa mengambang |
+| Toast | `.glass` | Notifikasi ringan |
+| Card Hero (DashboardHome) | `.glass` | Aksen visual |
+| Floating AI Button | `.glass-strong` | Menonjol |
+| Panel Login (kanan) | `.glass` | Modern |
+| Card Landing | `.glass` | Marketing vibe |
+
+### Kapan **JANGAN** Pakai Glass
+
+- ❌ Card data (BKU, tabel, list) — pakai `bg-surface` solid
+- ❌ Form input — pakai `bg-surface` solid
+- ❌ Print area — selalu solid putih
+- ❌ Text di atas glass tanpa kontras cukup — cek WCAG AA
+
+### Utility Tersedia
+
+| Class | Blur | Background | Penggunaan |
+|---|---|---|---|
+| `.glass` | 8px | 72% opacity | Default, dropdown, panel |
+| `.glass-strong` | 12px | 85% opacity | Modal, floating button |
+| `.glass-heavy` | 24px | 85% opacity | (Cadangan, jarang) |
+| `.glass-sticky` | 16px | 85% opacity + border-bottom | Navbar, topbar |
+
+### Fallback Otomatis
+
+- **Browser lama tanpa `backdrop-filter`** → solid `bg-surface`
+- **User `prefers-reduced-transparency`** → solid `bg-surface`
+- **Print mode** → solid putih
+
+### Aturan
+
+1. **JANGAN** pakai glass untuk semua card — hanya elemen yang disebut di atas
+2. **SELALU** cek kontras teks di atas glass (WCAG AA minimum 4.5:1)
+3. **JANGAN** pakai glass di atas glass (nested) — bikin blur bertumpuk
+4. **SELALU** test di light + dark mode
+5. **SELALU** test print (Ctrl+P) — glass harus jadi solid putih
+
 ## Status
 
 - [x] Setup (cn.js)
