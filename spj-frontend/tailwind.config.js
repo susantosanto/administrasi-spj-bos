@@ -13,34 +13,34 @@ export default {
       // Lihat DESIGN_TOKENS.md untuk referensi lengkap.
       // ═══════════════════════════════════════════════════════════════════
       colors: {
-        // ── Brand (satu warna, semua halaman) ──────────────────────
-        primary: "var(--color-primary)",
-        "primary-hover": "var(--color-primary-hover)",
-        "primary-soft": "var(--color-primary-soft)",
-        "on-primary": "var(--color-on-primary)",
+        // v2 tokens — RGB triplet + <alpha-value> untuk mendukung opacity modifier
+        primary: "rgb(var(--color-primary-rgb) / <alpha-value>)",
+        "primary-hover": "rgb(var(--color-primary-hover-rgb) / <alpha-value>)",
+        "primary-soft": "rgb(var(--color-primary-soft-rgb) / <alpha-value>)",
+        "on-primary": "rgb(var(--color-on-primary-rgb) / <alpha-value>)",
         // ── Brand panel — FIXED color (tidak berubah di dark mode) ──
         "brand-panel": "var(--color-brand-panel)",
 
         // ── Surface ────────────────────────────────────────────────
-        bg: "var(--color-bg)",
-        surface: "var(--color-surface)",
-        "surface-muted": "var(--color-surface-muted)",
-        "surface-high": "var(--color-surface-high)",
+        bg: "rgb(var(--color-bg-rgb) / <alpha-value>)",
+        surface: "rgb(var(--color-surface-rgb) / <alpha-value>)",
+        "surface-muted": "rgb(var(--color-surface-muted-rgb) / <alpha-value>)",
+        "surface-high": "rgb(var(--color-surface-high-rgb) / <alpha-value>)",
 
         // ── Border ─────────────────────────────────────────────────
-        border: "var(--color-border)",
-        "border-strong": "var(--color-border-strong)",
+        border: "rgb(var(--color-border-rgb) / <alpha-value>)",
+        "border-strong": "rgb(var(--color-border-strong-rgb) / <alpha-value>)",
 
         // ── Text ───────────────────────────────────────────────────
-        "text-high": "var(--color-text-high)",
-        "text-muted": "var(--color-text-muted)",
-        "text-low": "var(--color-text-low)",
+        "text-high": "rgb(var(--color-text-high-rgb) / <alpha-value>)",
+        "text-muted": "rgb(var(--color-text-muted-rgb) / <alpha-value>)",
+        "text-low": "rgb(var(--color-text-low-rgb) / <alpha-value>)",
 
         // ── Semantic ───────────────────────────────────────────────
-        success: "var(--color-success)",
-        warning: "var(--color-warning)",
-        danger: "var(--color-danger)",
-        info: "var(--color-info)",
+        success: "rgb(var(--color-success-rgb) / <alpha-value>)",
+        warning: "rgb(var(--color-warning-rgb) / <alpha-value>)",
+        danger: "rgb(var(--color-danger-rgb) / <alpha-value>)",
+        info: "rgb(var(--color-info-rgb) / <alpha-value>)",
 
         // ═══════════════════════════════════════════════════════════════
         // ⚠️ BACK-COMPAT SEMENTARA (Step 5.5.1)
@@ -48,40 +48,40 @@ export default {
         // HAPUS di Step 24 (Cleanup).
         // ═══════════════════════════════════════════════════════════════
         // Brand lama
-        brand: "var(--color-primary)",
-        "brand-hover": "var(--color-primary-hover)",
-        "brand-soft": "var(--color-primary-soft)",
+        brand: "rgb(var(--color-primary-rgb) / <alpha-value>)",
+        "brand-hover": "rgb(var(--color-primary-hover-rgb) / <alpha-value>)",
+        "brand-soft": "rgb(var(--color-primary-soft-rgb) / <alpha-value>)",
         navy: "#102A56",
-        ink: "var(--color-text-high)",
-        muted: "var(--color-text-muted)",
-        canvas: "var(--color-bg)",
-        line: "var(--color-border)",
+        ink: "rgb(var(--color-text-high-rgb) / <alpha-value>)",
+        muted: "rgb(var(--color-text-muted-rgb) / <alpha-value>)",
+        canvas: "rgb(var(--color-bg-rgb) / <alpha-value>)",
+        line: "rgb(var(--color-border-rgb) / <alpha-value>)",
 
         // Primary lama (dipakai dashboard)
-        "primary-light": "var(--color-primary-soft)",
-        "primary-fixed": "var(--color-primary-soft)",
-        "primary-container": "var(--color-primary)",
-        "on-primary-container": "var(--color-on-primary)",
+        "primary-light": "rgb(var(--color-primary-soft-rgb) / <alpha-value>)",
+        "primary-fixed": "rgb(var(--color-primary-soft-rgb) / <alpha-value>)",
+        "primary-container": "rgb(var(--color-primary-rgb) / <alpha-value>)",
+        "on-primary-container": "rgb(var(--color-on-primary-rgb) / <alpha-value>)",
 
         // Surface lama
-        background: "var(--color-bg)",
-        "surface-container-lowest": "var(--color-surface)",
-        "surface-container-low": "var(--color-surface-muted)",
-        "surface-container": "var(--color-surface-muted)",
-        "surface-container-high": "var(--color-surface-high)",
-        "surface-variant": "var(--color-surface-high)",
-        "on-surface": "var(--color-text-high)",
-        "on-surface-variant": "var(--color-text-muted)",
-        "on-background": "var(--color-text-high)",
+        background: "rgb(var(--color-bg-rgb) / <alpha-value>)",
+        "surface-container-lowest": "rgb(var(--color-surface-rgb) / <alpha-value>)",
+        "surface-container-low": "rgb(var(--color-surface-muted-rgb) / <alpha-value>)",
+        "surface-container": "rgb(var(--color-surface-muted-rgb) / <alpha-value>)",
+        "surface-container-high": "rgb(var(--color-surface-high-rgb) / <alpha-value>)",
+        "surface-variant": "rgb(var(--color-surface-high-rgb) / <alpha-value>)",
+        "on-surface": "rgb(var(--color-text-high-rgb) / <alpha-value>)",
+        "on-surface-variant": "rgb(var(--color-text-muted-rgb) / <alpha-value>)",
+        "on-background": "rgb(var(--color-text-high-rgb) / <alpha-value>)",
 
         // Outline lama
-        outline: "var(--color-border-strong)",
-        "outline-variant": "var(--color-border)",
+        outline: "rgb(var(--color-border-strong-rgb) / <alpha-value>)",
+        "outline-variant": "rgb(var(--color-border-rgb) / <alpha-value>)",
 
         // Semantic lama
-        error: "var(--color-danger)",
-        "success-bright": "var(--color-success)",
-        secondary: "var(--color-info)",
+        error: "rgb(var(--color-danger-rgb) / <alpha-value>)",
+        "success-bright": "rgb(var(--color-success-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--color-info-rgb) / <alpha-value>)",
 
         // ═══════════════════════════════════════════════════════════════
         // Glassmorphism Tokens (Step 6.0)

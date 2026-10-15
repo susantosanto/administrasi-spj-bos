@@ -12,34 +12,34 @@
    CSS Variables — Light Mode (default)
    ───────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Brand */
-  --color-primary: #004AC6;
-  --color-primary-hover: #003EA8;
-  --color-primary-soft: #DBE1FF;
-  --color-on-primary: #FFFFFF;
+  /* Brand — RGB triplet untuk mendukung opacity modifier (Tailwind <alpha-value>) */
+  --color-primary-rgb: 0 74 198;
+  --color-primary-hover-rgb: 0 62 168;
+  --color-primary-soft-rgb: 219 225 255;
+  --color-on-primary-rgb: 255 255 255;
   /* Brand panel — FIXED (tidak berubah di dark mode) */
   --color-brand-panel: #004AC6;
 
   /* Surface */
-  --color-bg: #F8F9FB;
-  --color-surface: #FFFFFF;
-  --color-surface-muted: #F3F4F6;
-  --color-surface-high: #E7E8EA;
+  --color-bg-rgb: 248 249 251;
+  --color-surface-rgb: 255 255 255;
+  --color-surface-muted-rgb: 243 244 246;
+  --color-surface-high-rgb: 231 232 234;
 
   /* Border */
-  --color-border: #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  --color-border-rgb: 226 232 240;
+  --color-border-strong-rgb: 203 213 225;
 
   /* Text */
-  --color-text-high: #111827;
-  --color-text-muted: #64748B;
-  --color-text-low: #94A3B8;
+  --color-text-high-rgb: 17 24 39;
+  --color-text-muted-rgb: 100 116 139;
+  --color-text-low-rgb: 148 163 184;
 
   /* Semantic */
-  --color-success: #059669;
-  --color-warning: #D97706;
-  --color-danger: #DC2626;
-  --color-info: #0284C7;
+  --color-success-rgb: 5 150 105;
+  --color-warning-rgb: 217 119 6;
+  --color-danger-rgb: 220 38 38;
+  --color-info-rgb: 2 132 199;
 
   /* Shadow */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
@@ -60,29 +60,29 @@
    CSS Variables — Dark Mode (solid, tenang, bukan gradient)
    ───────────────────────────────────────────────────────────────────────── */
 .dark {
-  --color-primary: #60A5FA;
-  --color-primary-hover: #3B82F6;
-  --color-primary-soft: #1E3A5F;
-  --color-on-primary: #0B1020;
+  --color-primary-rgb: 96 165 250;
+  --color-primary-hover-rgb: 59 130 246;
+  --color-primary-soft-rgb: 30 58 95;
+  --color-on-primary-rgb: 11 16 32;
   /* Brand panel — FIXED (tidak berubah di dark mode) */
   --color-brand-panel: #004AC6;
 
-  --color-bg: #0B1020;
-  --color-surface: #151B2E;
-  --color-surface-muted: #1E2640;
-  --color-surface-high: #2A3350;
+  --color-bg-rgb: 11 16 32;
+  --color-surface-rgb: 21 27 46;
+  --color-surface-muted-rgb: 30 38 64;
+  --color-surface-high-rgb: 42 51 80;
 
-  --color-border: #2A3350;
-  --color-border-strong: #3A4A6B;
+  --color-border-rgb: 42 51 80;
+  --color-border-strong-rgb: 58 74 107;
 
-  --color-text-high: #F8FAFC;
-  --color-text-muted: #CBD5E1;
-  --color-text-low: #94A3B8;
+  --color-text-high-rgb: 248 250 252;
+  --color-text-muted-rgb: 203 213 225;
+  --color-text-low-rgb: 148 163 184;
 
-  --color-success: #34D399;
-  --color-warning: #FBBF24;
-  --color-danger: #F87171;
-  --color-info: #38BDF8;
+  --color-success-rgb: 52 211 153;
+  --color-warning-rgb: 251 191 36;
+  --color-danger-rgb: 248 113 113;
+  --color-info-rgb: 56 189 248;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -99,7 +99,7 @@
 }
 
 .dark body {
-  background-color: var(--color-bg);
+  background-color: rgb(var(--color-bg-rgb));
   background-image:
     radial-gradient(ellipse 1200px 800px at 15% 10%, rgba(96, 165, 250, 0.06) 0%, transparent 60%),
     radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(96, 165, 250, 0.04) 0%, transparent 60%);
@@ -129,7 +129,7 @@ body {
     radial-gradient(ellipse 1000px 700px at 85% 90%, rgba(0, 74, 198, 0.04) 0%, transparent 60%);
   background-attachment: fixed;
   background-repeat: no-repeat;
-  color: var(--color-text-high);
+  color: rgb(var(--color-text-high-rgb));
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -145,7 +145,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
    Focus — aksesibilitas WCAG AA
    ───────────────────────────────────────────────────────────────────────── */
 *:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid rgb(var(--color-primary-rgb));
   outline-offset: 2px;
 }
 
@@ -154,7 +154,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid rgb(var(--color-primary-rgb));
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(0, 74, 198, 0.12);
 }
@@ -163,8 +163,8 @@ textarea:focus-visible {
    Selection
    ───────────────────────────────────────────────────────────────────────── */
 ::selection {
-  background: var(--color-primary-soft);
-  color: var(--color-text-high);
+  background: rgb(var(--color-primary-soft-rgb));
+  color: rgb(var(--color-text-high-rgb));
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -178,11 +178,11 @@ textarea:focus-visible {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-strong);
+  background: rgb(var(--color-border-strong-rgb));
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-low);
+  background: rgb(var(--color-text-low-rgb));
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -202,20 +202,20 @@ textarea:focus-visible {
    ───────────────────────────────────────────────────────────────────────── */
 @layer components {
   .card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background-color: rgb(var(--color-surface-rgb));
+    border: 1px solid rgb(var(--color-border-rgb));
     border-radius: 16px;
     box-shadow: var(--shadow-sm);
   }
 
   .btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
+    background-color: rgb(var(--color-primary-rgb));
+    color: rgb(var(--color-on-primary-rgb));
     font-weight: 600;
     transition: all 150ms ease-out;
   }
   .btn-primary:hover {
-    background-color: var(--color-primary-hover);
+    background-color: rgb(var(--color-primary-hover-rgb));
     box-shadow: var(--shadow-primary);
   }
   .btn-primary:active {
@@ -223,15 +223,15 @@ textarea:focus-visible {
   }
 
   .btn-secondary {
-    background-color: var(--color-surface);
-    color: var(--color-text-high);
-    border: 1px solid var(--color-border);
+    background-color: rgb(var(--color-surface-rgb));
+    color: rgb(var(--color-text-high-rgb));
+    border: 1px solid rgb(var(--color-border-rgb));
     font-weight: 600;
     transition: all 150ms ease-out;
   }
   .btn-secondary:hover {
-    background-color: var(--color-surface-muted);
-    border-color: var(--color-border-strong);
+    background-color: rgb(var(--color-surface-muted-rgb));
+    border-color: rgb(var(--color-border-strong-rgb));
   }
   .btn-secondary:active {
     transform: scale(0.98);
@@ -398,15 +398,15 @@ textarea:focus-visible {
    Solid + border + shadow, bukan glass.
    ═══════════════════════════════════════════════════════════════════════════ */
 .surface-elevated {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: rgb(var(--color-surface-rgb));
+  border: 1px solid rgb(var(--color-border-rgb));
   box-shadow: var(--shadow-sm);
 }
 
 /* Sidebar: surface-elevated + border-right only */
 .surface-sidebar {
-  background-color: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background-color: rgb(var(--color-surface-rgb));
+  border-right: 1px solid rgb(var(--color-border-rgb));
   box-shadow: var(--shadow-sm);
 }
 
@@ -418,17 +418,17 @@ textarea:focus-visible {
 /* Fallback: browser tidak support backdrop-filter */
 @supports not (backdrop-filter: blur(8px)) {
   .glass {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background-color: rgb(var(--color-surface-rgb));
+    border: 1px solid rgb(var(--color-border-rgb));
   }
   .glass-strong,
   .glass-heavy {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background-color: rgb(var(--color-surface-rgb));
+    border: 1px solid rgb(var(--color-border-rgb));
   }
   .glass-sticky {
-    background-color: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
+    background-color: rgb(var(--color-surface-rgb));
+    border-bottom: 1px solid rgb(var(--color-border-rgb));
   }
 }
 
@@ -438,10 +438,10 @@ textarea:focus-visible {
   .glass-strong,
   .glass-heavy,
   .glass-sticky {
-    background-color: var(--color-surface);
+    background-color: rgb(var(--color-surface-rgb));
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border-color: var(--color-border);
+    border-color: rgb(var(--color-border-rgb));
   }
 }
 
