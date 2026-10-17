@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
+  FileText,
+  Printer,
   ShieldCheck,
+  Upload,
   GraduationCap,
 } from "lucide-react";
 import Button from "../ui/atoms/Button";
@@ -185,10 +188,211 @@ export default function LandingPage() {
           </div>
         </main>
 
-        {/* PLACEHOLDER untuk Step 7B (Fitur, dll) */}
-        <div className="py-20 text-center text-muted border-t border-border/50 bg-surface/50">
-          [Section Fitur, Statistik, CTA, dan Footer akan dibangun di Step 7B]
-        </div>
+        {/* ═════════════════════════════════════════════════════════════════ */}
+        {/* SECTION 1: STATISTIK                                           */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <section className="py-16 bg-surface/30 border-y border-border/50 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x-0 md:divide-x divide-border/50">
+              {[
+                { value: "18+", label: "Template dokumen siap pakai" },
+                { value: "6", label: "Modul administrasi terpadu" },
+                { value: "3", label: "Langkah dari BKU ke LPJ siap cetak" },
+                { value: "100%", label: "Data tersimpan di perangkat" },
+              ].map((stat, i) => (
+                <div key={i} className="flex flex-col items-center text-center px-4">
+                  <span className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
+                    {stat.value}
+                  </span>
+                  <span className="text-sm text-muted leading-snug">
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════════════ */}
+        {/* SECTION 2: FITUR UTAMA (BENTO GRID)                            */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <section id="fitur" className="py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <Badge variant="primary" className="mb-4">FITUR UNGGULAN</Badge>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-high mb-4">
+                Semua kebutuhan administrasi dalam satu tempat
+              </h2>
+              <p className="text-base text-muted">
+                Akses fitur yang membantu pekerjaan administrasi dan penyusunan laporan sekolah menjadi lebih terstruktur.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: Upload,
+                  title: "Upload BKU dari ARKAS",
+                  desc: "File Excel BKU langsung terparse otomatis menjadi transaksi yang siap dipakai.",
+                  color: "text-blue-500",
+                  bg: "bg-blue-500/10"
+                },
+                {
+                  icon: FileText,
+                  title: "Template Dokumen Lengkap",
+                  desc: "Honorarium, SPPD, mamin, pemeliharaan, ATK, pajak, hingga cover dan register.",
+                  color: "text-emerald-500",
+                  bg: "bg-emerald-500/10"
+                },
+                {
+                  icon: Printer,
+                  title: "Cetak A4 Siap Kirim",
+                  desc: "Dokumen LPJ format A4 profesional, siap tanda tangan dan arsip.",
+                  color: "text-purple-500",
+                  bg: "bg-purple-500/10"
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Data Sekolah & Pejabat",
+                  desc: "Profil sekolah, kepala sekolah, dan bendahara terisi otomatis di semua dokumen.",
+                  color: "text-amber-500",
+                  bg: "bg-amber-500/10"
+                },
+                {
+                  icon: CheckCircle2,
+                  title: "Data Guru & Tendik",
+                  desc: "Import dari Dapodik sekali, dipakai berulang untuk seluruh dokumen honor.",
+                  color: "text-rose-500",
+                  bg: "bg-rose-500/10"
+                },
+                {
+                  icon: GraduationCap,
+                  title: "Foto Dokumentasi AI",
+                  desc: "Upload personel dan ruangan sekolah, generate foto kegiatan saat dibutuhkan.",
+                  color: "text-primary",
+                  bg: "bg-primary/10"
+                }
+              ].map((feature, i) => (
+                <div 
+                  key={i} 
+                  className="group p-6 rounded-xl bg-surface border border-border hover:border-primary/50 hover:shadow-md transition-all duration-300"
+                >
+                  <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center mb-5", feature.bg, feature.color)}>
+                    <feature.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display text-lg font-semibold text-high mb-2 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-muted leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* SECTION 3: CTA (CALL TO ACTION)                                */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative rounded-3xl overflow-hidden bg-primary px-6 py-16 md:px-16 text-center shadow-xl">
+              {/* Motif dekoratif di dalam CTA */}
+              <div 
+                className="absolute inset-0 opacity-10 pointer-events-none"
+                style={{
+                  backgroundImage: "url('/floral-pattern.svg')",
+                  backgroundSize: "400px 400px",
+                  filter: "brightness(0) invert(1)"
+                }}
+              />
+              <div className="relative z-10 max-w-2xl mx-auto">
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+                  Siap mengelola administrasi sekolah dengan lebih praktis?
+                </h2>
+                <p className="text-primary-soft text-base mb-8">
+                  Mulai gunakan LPJ BOS/BOSP untuk mengakses fitur administrasi yang tersedia dalam aplikasi.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link 
+                    to="/login" 
+                    className="inline-flex h-12 px-8 items-center justify-center rounded-md text-base font-semibold bg-white text-primary hover:bg-gray-100 transition-colors shadow-sm"
+                  >
+                    Mulai Sekarang
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        {/* SECTION 4: FOOTER                                              */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
+        <footer className="bg-surface border-t border-border pt-16 pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-12">
+              
+              {/* Brand */}
+              <div className="md:col-span-1">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-on-primary" />
+                  </div>
+                  <span className="font-display font-bold text-high text-sm">
+                    LPJ BOS/BOSP
+                  </span>
+                </div>
+                <p className="text-sm text-muted leading-relaxed mb-4">
+                  Aplikasi administrasi keuangan sekolah untuk mengelola dokumen BOS/BOSP, menyusun laporan, dan mencetak LPJ.
+                </p>
+              </div>
+
+              {/* Navigasi */}
+              <div>
+                <h4 className="font-display font-semibold text-high mb-4 text-sm">Navigasi</h4>
+                <ul className="space-y-2 text-sm text-muted">
+                  <li><a href="#beranda" className="hover:text-primary transition-colors">Beranda</a></li>
+                  <li><a href="#fitur" className="hover:text-primary transition-colors">Fitur</a></li>
+                  <li><a href="#template" className="hover:text-primary transition-colors">Template</a></li>
+                  <li><a href="#panduan" className="hover:text-primary transition-colors">Panduan</a></li>
+                </ul>
+              </div>
+
+              {/* Produk */}
+              <div>
+                <h4 className="font-display font-semibold text-high mb-4 text-sm">Produk</h4>
+                <ul className="space-y-2 text-sm text-muted">
+                  <li><a href="#" className="hover:text-primary transition-colors">Dokumen LPJ</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Template Dokumen</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Panduan Penggunaan</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Tentang Aplikasi</a></li>
+                </ul>
+              </div>
+
+              {/* Akses */}
+              <div>
+                <h4 className="font-display font-semibold text-high mb-4 text-sm">Akses</h4>
+                <ul className="space-y-2 text-sm text-muted">
+                  <li><Link to="/login" className="hover:text-primary transition-colors">Masuk ke Aplikasi</Link></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Pratinjau Tampilan</a></li>
+                </ul>
+              </div>
+
+            </div>
+
+            <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-xs text-text-low">
+                © {new Date().getFullYear()} LPJ BOS/BOSP. Seluruh hak cipta.
+              </p>
+              <p className="text-xs text-text-low flex items-center gap-1">
+                Dibuat dengan <span className="text-danger">♥</span> untuk sekolah Indonesia
+              </p>
+            </div>
+          </div>
+        </footer>
 
       </div>
     </div>
