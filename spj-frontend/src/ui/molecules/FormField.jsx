@@ -31,7 +31,7 @@ export default function FormField({
       {hasError && (
         <p
           role="alert"
-          className="text-xs text-danger flex items-start gap-1"
+          className="text-xs text-danger flex items-start gap-1 mt-0.5"
         >
           {error}
         </p>

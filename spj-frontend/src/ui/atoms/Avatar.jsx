@@ -31,6 +31,7 @@ export default function Avatar({
       className={cn(
         "inline-flex items-center justify-center rounded-full overflow-hidden",
         "bg-primary-soft text-primary font-semibold",
+        "ring-2 ring-surface",
         "select-none shrink-0",
         sizes[size],
         className

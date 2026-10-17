@@ -7,7 +7,7 @@ export default function Skeleton({
   className,
   ...rest
 }) {
-  const base = "animate-pulse bg-surface-muted";
+  const base = "animate-pulse bg-surface-muted/80";
 
   const variants = {
     text: "h-4 rounded-sm",

@@ -24,9 +24,9 @@ const Checkbox = forwardRef(function Checkbox(
           id={inputId}
           type="checkbox"
           className={cn(
-            "peer appearance-none w-5 h-5 rounded-[4px] border transition-colors",
+            "peer appearance-none w-5 h-5 rounded-sm border transition-colors",
             "checked:bg-primary checked:border-primary",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
             "disabled:cursor-not-allowed",
             error
               ? "border-danger"

@@ -43,7 +43,7 @@ export default function Divider({
       role="separator"
       aria-orientation={orientation}
       className={cn(
-        "bg-border",
+        "bg-border-strong/50",
         isHorizontal ? "w-full h-px" : "h-full w-px",
         className
       )}

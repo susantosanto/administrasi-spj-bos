@@ -25,7 +25,7 @@ const Radio = forwardRef(function Radio(
           "appearance-none w-5 h-5 rounded-full border-2 transition-colors",
           "border-border-strong checked:border-primary",
           "checked:bg-primary checked:shadow-[inset_0_0_0_3px_var(--color-surface)]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
           "hover:border-primary disabled:cursor-not-allowed"
         )}
         {...rest}
