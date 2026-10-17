@@ -1,4 +1,4 @@
-import { Menu, Sun, Moon } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "../cn";
 import Breadcrumb from "../molecules/Breadcrumb";
 import Dropdown, { DropdownItem, DropdownSeparator } from "../molecules/Dropdown";
@@ -8,8 +8,6 @@ import IconButton from "../atoms/IconButton";
 export default function Topbar({
   onMobileMenuToggle,
   breadcrumbItems = [],
-  theme = "light",
-  onThemeToggle,
   user = null,
   userMenuItems = [],
   actions = null,
@@ -44,17 +42,6 @@ export default function Topbar({
 
       {/* Actions slot */}
       {actions && <div className="flex items-center gap-2">{actions}</div>}
-
-      {/* Theme toggle */}
-      {onThemeToggle && (
-        <IconButton
-          icon={theme === "dark" ? Sun : Moon}
-          label={theme === "dark" ? "Mode terang" : "Mode gelap"}
-          variant="ghost"
-          size="md"
-          onClick={onThemeToggle}
-        />
-      )}
 
       {/* User menu */}
       {user && (

@@ -29,7 +29,7 @@ export default function LandingPage() {
       {/* BACKGROUND MOTIF FLORAL (Sangat Halus)                        */}
       {/* ════════════════════════════════════════════════════════════════ */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-0"
+        className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
         style={{
           backgroundImage: "url('/floral-pattern.svg')",
           backgroundSize: "600px 600px",

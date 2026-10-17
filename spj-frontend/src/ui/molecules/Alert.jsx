@@ -61,7 +61,7 @@ export default function Alert({
           aria-label="Tutup"
           className={cn(
             "shrink-0 p-1 rounded-md transition-colors",
-            "hover:bg-black/5 dark:hover:bg-white/10",
+            "hover:bg-black/5",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
           )}
         >

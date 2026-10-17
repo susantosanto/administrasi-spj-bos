@@ -10,8 +10,6 @@ export default function AppShell({
   sidebarLogo = null,
   sidebarFooter = null,
   breadcrumbItems = [],
-  theme = "light",
-  onThemeToggle,
   user = null,
   userMenuItems = [],
   topbarActions = null,
@@ -46,8 +44,6 @@ export default function AppShell({
         <Topbar
           onMobileMenuToggle={() => setMobileOpen(true)}
           breadcrumbItems={breadcrumbItems}
-          theme={theme}
-          onThemeToggle={onThemeToggle}
           user={user}
           userMenuItems={userMenuItems}
           actions={topbarActions}

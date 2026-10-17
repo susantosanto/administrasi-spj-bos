@@ -4,7 +4,6 @@
  */
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
-import ThemeToggle from '../ui/ThemeToggle'
 import storageHelper from '../../utils/storageHelper'
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -233,15 +232,6 @@ export default function Sidebar() {
  <div className="px-3 pb-4 space-y-1">
  {/* Divider */}
  <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-3" />
- {/* Theme Toggle */}
- <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 mb-1">
-   <span className="flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-300">
-     <span className="material-symbols-outlined text-[16px]">contrast</span>
-     Tema
-   </span>
-   <ThemeToggle />
- </div>
-
  {/* Bottom Menu Items */}
  {BOTTOM_ITEMS.map((item) => (
  <NavLink

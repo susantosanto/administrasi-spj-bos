@@ -68,7 +68,7 @@ function ToastItem({ id, variant = "info", title, message, duration, onClose }) 
         aria-label="Tutup"
         className={cn(
           "shrink-0 p-1 rounded-md transition-colors",
-          "hover:bg-black/5 dark:hover:bg-white/10"
+          "hover:bg-black/5"
         )}
       >
         <X className="w-4 h-4" aria-hidden="true" />
