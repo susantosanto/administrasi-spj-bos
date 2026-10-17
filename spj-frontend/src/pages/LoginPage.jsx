@@ -61,12 +61,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-bg">
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* LEFT: VISUAL PANEL (desktop only)                             */}
+      {/* LEFT: VISUAL PANEL — selalu biru tua (light + dark)            */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <section
         className={cn(
           "hidden lg:flex lg:w-1/2 relative overflow-hidden",
-          "bg-brand-panel text-white"
+          "bg-[#004AC6] text-white"
         )}
         aria-hidden="true"
       >
@@ -100,7 +100,7 @@ export default function LoginPage() {
               <h2 className="font-display text-lg font-bold tracking-tight">
                 SPJ BOS/BOSP
               </h2>
-              <p className="text-xs text-on-primary/60">
+              <p className="text-xs text-white/60">
                 Administrasi Keuangan Sekolah
               </p>
             </div>
@@ -111,7 +111,7 @@ export default function LoginPage() {
             <h1 className="font-display text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight mb-5">
               Kelola LPJ Sekolah dengan Tenang
             </h1>
-            <p className="text-on-primary/70 text-base leading-relaxed">
+            <p className="text-white/70 text-base leading-relaxed">
               Sistem administrasi terintegrasi untuk pelaporan BOS/BOSP yang
               transparan, akuntabel, dan sesuai juknis.
             </p>
@@ -137,7 +137,7 @@ export default function LoginPage() {
               return (
                 <li
                   key={i}
-                  className="flex items-center gap-3 text-on-primary/90"
+                  className="flex items-center gap-3 text-white/90"
                 >
                   <div className="w-9 h-9 rounded-md bg-white/12 border border-white/15 flex items-center justify-center shrink-0">
                     <Icon className="w-4 h-4" strokeWidth={2} />
@@ -149,7 +149,7 @@ export default function LoginPage() {
           </ul>
 
           {/* Trust */}
-          <div className="flex items-center gap-2 text-on-primary/50">
+          <div className="flex items-center gap-2 text-white/50">
             <Shield className="w-4 h-4" />
             <span className="text-xs">
               Data disimpan lokal di perangkat Anda
@@ -159,9 +159,9 @@ export default function LoginPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* RIGHT: LOGIN FORM                                              */}
+      {/* RIGHT: FORM PANEL — glass                                    */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="flex-1 flex flex-col min-h-screen bg-surface">
+      <section className="flex-1 flex flex-col min-h-screen glass">
         {/* Mobile Header */}
         <div className="lg:hidden px-6 pt-8">
           <div className="flex items-center gap-3">
