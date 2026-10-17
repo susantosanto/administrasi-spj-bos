@@ -208,13 +208,11 @@ const WHY_US = [
 // ─────────────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 600);
-      setScrolled(window.scrollY > 24);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -223,11 +221,11 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-canvas text-ink font-sans antialiased overflow-x-hidden">
       {/* ═══════════════ A. HEADER ═══════════════ */}
-      <header className="sticky top-0 z-50 w-full glass-sticky border-b-0">
+      <header className="sticky top-0 z-50 w-full glass-sticky">
         <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 h-[68px] md:h-[72px] flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="LPJ BOS/BOSP — Beranda">
-            <span className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-brand to-navy flex items-center justify-center shadow-md shadow-brand/25">
-              <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+            <span className="w-9 h-9 rounded-[10px] bg-primary flex items-center justify-center shadow-md shadow-primary/25">
+              <span className="material-symbols-outlined text-on-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 school
               </span>
             </span>
@@ -242,7 +240,7 @@ export default function LandingPage() {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted hover:text-primary transition-colors"
+                className="text-sm font-medium text-high hover:text-primary transition-colors"
               >
                 {item.label}
               </a>
@@ -252,7 +250,7 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/login"
-              className="h-9 px-4 items-center justify-center rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-muted border border-border transition-colors"
+              className="h-9 px-4 items-center justify-center rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-high border border-border-strong shadow-sm transition-colors"
             >
               Masuk
             </Link>
@@ -292,7 +290,7 @@ export default function LandingPage() {
             <div className="flex gap-3 mt-4">
               <Link
                 to="/login"
-                className="flex-1 text-center px-4 py-3 rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-muted border border-border"
+                className="flex-1 text-center px-4 py-3 rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-high border border-border-strong shadow-sm"
               >
                 Masuk
               </Link>
