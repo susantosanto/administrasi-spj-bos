@@ -223,11 +223,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-canvas text-ink font-sans antialiased overflow-x-hidden">
       {/* ═══════════════ A. HEADER ═══════════════ */}
-      <header
-        className={`fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-line transition-shadow duration-300 ${
-          scrolled || menuOpen ? "shadow-[0_1px_8px_rgba(16,42,86,0.08)]" : "shadow-none"
-        }`}
-      >
+      <header className="sticky top-0 z-50 w-full glass-sticky border-b-0">
         <div className="w-full max-w-[1280px] xl:max-w-[1440px] 2xl:max-w-[1580px] mx-auto px-5 md:px-8 xl:px-10 h-[68px] md:h-[72px] flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 shrink-0" aria-label="LPJ BOS/BOSP — Beranda">
             <span className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-brand to-navy flex items-center justify-center shadow-md shadow-brand/25">
@@ -236,7 +232,7 @@ export default function LandingPage() {
               </span>
             </span>
             <span className="leading-none">
-              <span className="block text-[15px] font-bold text-ink tracking-tight">LPJ BOS/BOSP</span>
+              <span className="block text-[15px] font-bold text-high tracking-tight">LPJ BOS/BOSP</span>
               <span className="block text-[11px] font-medium text-muted mt-0.5">Administrasi Keuangan Sekolah</span>
             </span>
           </Link>
@@ -246,7 +242,7 @@ export default function LandingPage() {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted hover:text-brand transition-colors"
+                className="text-sm font-medium text-muted hover:text-primary transition-colors"
               >
                 {item.label}
               </a>
@@ -256,13 +252,13 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               to="/login"
-              className="px-5 py-2.5 rounded-[12px] text-sm font-semibold text-navy border border-line bg-white hover:border-brand/40 hover:bg-brand-soft transition-all"
+              className="h-9 px-4 items-center justify-center rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-muted border border-border transition-colors"
             >
               Masuk
             </Link>
             <Link
               to="/login"
-              className="px-5 py-2.5 rounded-[12px] text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-all inline-flex items-center gap-1.5"
+              className="h-9 px-4 inline-flex items-center gap-2 rounded-md text-sm font-semibold bg-primary text-on-primary hover:bg-primary-hover transition-colors shadow-sm inline-flex items-center gap-1.5"
             >
               Mulai Sekarang
               <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -270,7 +266,7 @@ export default function LandingPage() {
           </div>
 
           <button
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-[10px] text-ink hover:bg-brand-soft transition-colors"
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-md text-high hover:bg-surface-muted transition-colors"
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
@@ -280,14 +276,14 @@ export default function LandingPage() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden border-t border-line bg-white px-5 pt-2 pb-5">
+          <div className="md:hidden border-t border-border bg-surface px-5 pt-2 pb-5">
             <nav className="flex flex-col" aria-label="Navigasi seluler">
               {NAV_LINKS.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="py-3 text-[15px] font-medium text-ink border-b border-line/70 last:border-0 hover:text-brand transition-colors"
+                  className="py-3 text-[15px] font-medium text-high border-b border-border/70 last:border-0 hover:text-primary transition-colors"
                 >
                   {item.label}
                 </a>
@@ -296,13 +292,13 @@ export default function LandingPage() {
             <div className="flex gap-3 mt-4">
               <Link
                 to="/login"
-                className="flex-1 text-center px-4 py-3 rounded-[12px] text-sm font-semibold text-navy border border-line bg-white"
+                className="flex-1 text-center px-4 py-3 rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-muted border border-border"
               >
                 Masuk
               </Link>
               <Link
                 to="/login"
-                className="flex-1 text-center px-4 py-3 rounded-[12px] text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25"
+                className="flex-1 text-center px-4 py-3 rounded-md text-sm font-semibold bg-primary text-on-primary hover:bg-primary-hover shadow-sm"
               >
                 Mulai Sekarang
               </Link>
