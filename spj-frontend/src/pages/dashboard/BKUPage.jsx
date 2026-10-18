@@ -1,7 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import { useToast } from '../../components/ui/Toast'
-import { Upload } from 'lucide-react'
+import {
+  Upload,
+  UploadCloud,
+  CheckSquare,
+  School,
+  ListChecks,
+  Landmark,
+  Banknote,
+  Wallet,
+  RefreshCw,
+  Trash2,
+  Table2,
+  CheckCircle2,
+} from "lucide-react";
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import BKUSidebar from '../../components/bku/BKUSidebar'
@@ -11,6 +24,7 @@ import Badge from "../../ui/atoms/Badge";
 import Button from "../../ui/atoms/Button";
 import Card from "../../ui/molecules/Card";
 import Input from "../../ui/atoms/Input";
+import EmptyState from "../../ui/molecules/EmptyState";
 
 // ─── CHECKLIST LPJ ─────────────────────────────────────────────
 const CHECKLIST_KEY = 'bku_lpj_checklist'
@@ -309,7 +323,7 @@ export default function BKUPage() {
         <Card className="p-6 mb-6 border-border">
           <div className="border-2 border-dashed border-border rounded-2xl p-10 text-center hover:border-primary/40 transition-all duration-300 bg-surface-muted/50">
             <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-4 shadow-inner">
-              <span className="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
+              <UploadCloud className="w-10 h-10 text-primary" />
             </div>
             <h3 className="font-display text-lg font-bold text-text-high mb-2">
               Upload File BKU Excel
@@ -334,10 +348,8 @@ export default function BKUPage() {
                   : "bg-primary text-on-primary hover:bg-primary-hover shadow-sm hover:shadow-primary/25 active:scale-[0.98]"
               }`}
             >
-              <span className="material-symbols-outlined text-lg">
-                {isUploading ? "sync" : "upload"}
-              </span>
-              {isUploading ? "Memproses…" : "Pilih File Excel"}
+              <CheckSquare className="w-5 h-5" />
+                {isUploading ? "Memproses…" : "Pilih File Excel"}
             </label>
             <p className="text-xs text-text-low mt-4">Format: .xlsx atau .xls</p>
           </div>
@@ -350,7 +362,7 @@ export default function BKUPage() {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-2xl">school</span>
+                <School className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h4 className="font-display font-bold text-text-high">
@@ -378,7 +390,7 @@ export default function BKUPage() {
           <div className="mt-4 pt-4 border-t border-border">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-lg">checklist</span>
+                <ListChecks className="w-5 h-5 text-primary" />
                 <span className="font-bold text-text-high">Progress Kelengkapan LPJ</span>
               </div>
               <span className="font-bold text-primary">{lpjCheckedCount}/{lpjTotalCount} ({lpjProgress}%)</span>
@@ -401,7 +413,7 @@ export default function BKUPage() {
         <Card className="p-6 border-border">
           <div className="flex justify-between items-start mb-sm">
             <span className="text-xs font-medium text-text-low">Total Penerimaan</span>
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
+            <Landmark className="w-5 h-5 text-primary" />
           </div>
           <h3 className="font-display text-2xl font-bold text-text-high">Rp {fmt(totalDebet)}</h3>
           {uploadedInfo && (
@@ -413,7 +425,7 @@ export default function BKUPage() {
         <Card className="p-6 border-border">
           <div className="flex justify-between items-start mb-sm">
             <span className="text-xs font-medium text-text-low">Total Pengeluaran</span>
-            <span className="material-symbols-outlined text-danger" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+            <Banknote className="w-5 h-5 text-danger" />
           </div>
           <h3 className="font-display text-2xl font-bold text-text-high">Rp {fmt(totalKredit)}</h3>
           {uploadedInfo && (
@@ -426,7 +438,7 @@ export default function BKUPage() {
           <div className="relative z-10">
             <div className="flex justify-between items-start mb-sm">
               <span className="text-xs font-medium opacity-80">Saldo Akhir</span>
-              <span className="material-symbols-outlined opacity-80">wallet</span>
+              <Wallet className="w-4 h-4 opacity-80" />
             </div>
             <h3 className="font-display text-2xl font-bold">Rp {fmt(lastSaldo)}</h3>
             {uploadedInfo && filterBulan !== "Semua" && (
@@ -475,7 +487,7 @@ export default function BKUPage() {
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
                   title="Refresh data dari localStorage"
                 >
-                  <span className="material-symbols-outlined text-lg">refresh</span>
+                  <RefreshCw className="w-5 h-5" />
                   Refresh
                 </Button>
                 <Button
@@ -491,7 +503,7 @@ export default function BKUPage() {
                   }}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium"
                 >
-                  <span className="material-symbols-outlined text-lg">delete_forever</span>
+                  <Trash2 className="w-5 h-5" />
                   Hapus Data
                 </Button>
               </>
@@ -500,10 +512,13 @@ export default function BKUPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="p-10 text-center border-border">
-            <span className="material-symbols-outlined text-5xl text-text-low mb-4 block">table_rows</span>
-            <p className="text-text-low">Belum ada data BKU. Upload file Excel untuk memulai.</p>
-          </div>
+          <EmptyState 
+            icon={Table2}
+            title="Belum ada data BKU"
+            description="Upload file Excel ARKAS untuk memulai."
+            actionLabel="Upload BKU"
+            onAction={() => fileInputRef.current?.click()}
+          />
         ) : (
           <div className="min-w-0 overflow-x-auto">
             <table className="w-full text-sm text-left">
@@ -581,18 +596,12 @@ export default function BKUPage() {
                             isChecked && isLpjRelevant
                               ? "bg-success text-white shadow-sm shadow-success/50"
                               : isLpjRelevant
-                                ? "bg-white text-slate-300 border border-border hover:border-success hover:text-success hover:shadow-sm hover:shadow-success/20/30"
+                                ? "bg-surface text-text-low border border-border hover:border-success hover:text-success hover:shadow-sm"
                                 : "bg-surface-muted text-text-low border border-border cursor-not-allowed opacity-50"
                           }`}
                           title={isChecked && isLpjRelevant ? "Tandai belum lengkap" : isLpjRelevant ? "Tandai dokumen LPJ sudah lengkap" : "Tidak memerlukan LPJ"}
                         >
-                          <span className="material-symbols-outlined text-lg">
-                            {isChecked && isLpjRelevant
-                              ? "check_circle"
-                              : isLpjRelevant
-                                ? "radio_button_unchecked"
-                                : "remove_circle_outline"}
-                          </span>
+                          <CheckCircle2 className="w-5 h-5" />
                         </button>
                       </td>
                     </tr>
@@ -610,7 +619,7 @@ export default function BKUPage() {
                   <td className="px-4 py-3 text-right text-primary font-bold">{fmt(lastSaldo)}</td>
                   <td className="px-4 py-3 text-center">
                     <div className="inline-flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-sm">assignment_turned_in</span>
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
                       <span className={`text-sm font-bold ${
                         lpjCheckedCount === lpjTotalCount && lpjTotalCount > 0
                           ? "text-success"
