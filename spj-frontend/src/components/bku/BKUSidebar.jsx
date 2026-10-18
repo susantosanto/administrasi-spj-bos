@@ -9,36 +9,47 @@ import { useState, useEffect, useRef } from 'react'
  * Design 2026 — minimalis, kontras tinggi, mudah dibaca.
  * Efek glassmorphism dipertahankan pada panel & header.
  */
+import { cn } from '../../ui/cn'
 import { detectTemplate } from '../../utils/templateDetector'
 import { buildSpjChecklist, isBpuBnu } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
+import {
+  BadgeCent,
+  Zap,
+  PenTool,
+  Utensils,
+  Printer,
+  Wifi,
+  BookOpen,
+} from 'lucide-react'
+import Badge from '../../ui/atoms/Badge'
 
 // ─── Constants ─────────────────────────────────────────────────
 
-const TYPE_BADGES = {
-  PENERIMAAN_BOSP: { bg: 'bg-emerald-100 text-emerald-700', label: 'Dana BOSP' },
-  PUNGUT_PPH: { bg: 'bg-amber-100 text-amber-700', label: 'Pungut PPh' },
-  PERGESERAN_BANK: { bg: 'bg-blue-100 text-blue-700', label: 'Pergeseran' },
-  SETOR_PAJAK: { bg: 'bg-rose-100 text-rose-700', label: 'Setor Pajak' },
-  TARIK_TUNAI: { bg: 'bg-orange-100 text-orange-700', label: 'Tarik Tunai' },
-  BUNGA_BANK: { bg: 'bg-teal-100 text-teal-700', label: 'Bunga Bank' },
-  PAJAK_BUNGA: { bg: 'bg-pink-100 text-pink-700', label: 'Pajak Bunga' },
-  PEMBAYARAN: { bg: 'bg-slate-200 text-slate-700', label: 'Pembayaran' },
-  SALDO_AWAL: { bg: 'bg-purple-100 text-purple-700', label: 'Saldo Awal' },
-  LAINNYA: { bg: 'bg-slate-100 text-slate-500', label: '-' },
+const TYPE_BADGE_VARIANT = {
+  PENERIMAAN_BOSP: { variant: 'success', label: 'Dana BOSP' },
+  PUNGUT_PPH: { variant: 'warning', label: 'Pungut PPh' },
+  PERGESERAN_BANK: { variant: 'info', label: 'Pergeseran' },
+  SETOR_PAJAK: { variant: 'danger', label: 'Setor Pajak' },
+  TARIK_TUNAI: { variant: 'warning', label: 'Tarik Tunai' },
+  BUNGA_BANK: { variant: 'success', label: 'Bunga Bank' },
+  PAJAK_BUNGA: { variant: 'danger', label: 'Pajak Bunga' },
+  PEMBAYARAN: { variant: 'default', label: 'Pembayaran' },
+  SALDO_AWAL: { variant: 'primary', label: 'Saldo Awal' },
+  LAINNYA: { variant: 'default', label: '-' },
 }
 
 const fmt = (n) => (n ?? 0).toLocaleString('id-ID')
 
 const KATEGORI_LABELS = {
-  HONOR: { label: 'Honor/Gaji', icon: 'badge', color: 'text-purple-600' },
-  LISTRIK: { label: 'Listrik', icon: 'bolt', color: 'text-orange-600' },
-  ATK: { label: 'ATK', icon: 'draw', color: 'text-blue-600' },
-  MAMIN: { label: 'Makan/Minuman', icon: 'restaurant', color: 'text-green-600' },
-  CETAK: { label: 'Cetak/Penggandaan', icon: 'print', color: 'text-teal-600' },
-  INTERNET: { label: 'Pulsa/Internet', icon: 'wifi', color: 'text-cyan-600' },
-  PERPUS: { label: 'Perpustakaan', icon: 'menu_book', color: 'text-indigo-600' },
+  HONOR: { label: 'Honor/Gaji', Icon: BadgeCent, color: 'text-purple-600' },
+  LISTRIK: { label: 'Listrik', Icon: Zap, color: 'text-orange-600' },
+  ATK: { label: 'ATK', Icon: PenTool, color: 'text-blue-600' },
+  MAMIN: { label: 'Makan/Minuman', Icon: Utensils, color: 'text-green-600' },
+  CETAK: { label: 'Cetak/Penggandaan', Icon: Printer, color: 'text-teal-600' },
+  INTERNET: { label: 'Pulsa/Internet', Icon: Wifi, color: 'text-cyan-600' },
+  PERPUS: { label: 'Perpustakaan', Icon: BookOpen, color: 'text-indigo-600' },
 }
 
 // ─── Helper: extract Saldo Awal ────────────────────────────────
@@ -82,7 +93,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
 
   if (!transaction) return null
 
-  const badge = TYPE_BADGES[transaction.tipe] || TYPE_BADGES.LAINNYA
+  const badge = TYPE_BADGE_VARIANT[transaction.tipe] || TYPE_BADGE_VARIANT.LAINNYA
   const kategoriInfo = transaction.kategori ? KATEGORI_LABELS[transaction.kategori.key] : null
   const currentIdx = allTransactions.findIndex(t => t.row === transaction.row)
   const hasPrev = currentIdx > 0
@@ -215,9 +226,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
           </div>
           {/* Quick summary bar */}
           <div className="px-5 pb-3 flex items-center gap-2 text-xs">
-            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${badge.bg}`}>
-              {badge.label}
-            </span>
+            <Badge variant={badge.variant}>{badge.label}</Badge>
             {transaction.noBukti && (
               <span className="font-mono text-slate-500">#{transaction.noBukti}</span>
             )}
@@ -355,9 +364,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               <div className="flex items-center justify-between py-2">
                 <dt className="text-sm text-slate-500">Tipe Transaksi</dt>
                 <dd>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badge.bg}`}>
-                    {badge.label}
-                  </span>
+                  <Badge variant={badge.variant}>{badge.label}</Badge>
                 </dd>
               </div>
             </dl>
@@ -373,8 +380,10 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                 Kategori Belanja
               </h4>
               <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center bg-slate-100`}>
-                  <span className={`material-symbols-outlined ${kategoriInfo.color} text-xl`}>{kategoriInfo.icon}</span>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-slate-100">
+                  {kategoriInfo.Icon ? (
+                    <kategoriInfo.Icon className={cn("w-4 h-4", kategoriInfo.color)} />
+                  ) : null}
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">{kategoriInfo.label}</p>
