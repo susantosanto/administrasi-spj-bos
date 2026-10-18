@@ -15,7 +15,7 @@ import PageHeader from "../../ui/organisms/PageHeader";
 import Card from "../../ui/molecules/Card";
 import Button from "../../ui/atoms/Button";
 import Badge from "../../ui/atoms/Badge";
-import { SlidersHorizontal, ChevronRight, FileText, Hash } from "lucide-react";
+import { SlidersHorizontal, ChevronRight, FileText, Hash, RefreshCw, Copy, CheckCircle2, Search, FolderX, Eye, Trash2, X, ChevronUp, ChevronDown, EyeOff } from "lucide-react";
 
 const { get, set } = storageHelper;
 
@@ -410,7 +410,7 @@ const NomorSuratPage = () => {
             {/* Generate */}
             <button onClick={handleGenerate}
               className="w-full py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl flex items-center justify-center gap-2 mb-6">
-              <span className="material-symbols-outlined text-xl">autorenew</span> Generate Nomor
+              <RefreshCw className="w-5 h-5" /> Generate Nomor
             </button>
 
             {/* Generated */}
@@ -420,10 +420,10 @@ const NomorSuratPage = () => {
                 <p className="text-xl font-mono font-bold text-primary break-all mb-4">{generatedNomor.nomor}</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => handleCopy(generatedNomor.nomor)} className="flex-1 py-3 bg-surface hover:bg-surface-muted rounded-xl border border-border transition-all text-sm font-medium text-text-high flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-lg">content_copy</span> Salin
+                    <Copy className="w-4 h-4" /> Salin
                   </button>
                   <button onClick={handleUseNomor} className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined">check_circle</span> Simpan
+                    <CheckCircle2 className="w-4 h-4" /> Simpan
                   </button>
                 </div>
               </div>
@@ -440,15 +440,15 @@ const NomorSuratPage = () => {
                 <p className="text-sm text-text-muted">{filteredRecords.length} surat</p>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-text-low" />
                 <input type="text" placeholder="Cari..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2.5 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none w-48" />
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-4">
-              <button onClick={() => setFilterKode('')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-slate-200'}`}>Semua</button>
+              <button onClick={() => setFilterKode('')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-surface-muted'}`}>Semua</button>
               {['STS', 'SK', 'SU', 'SP', 'SKU', 'SE'].map(kode => (
-                <button key={kode} onClick={() => setFilterKode(kode)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === kode ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-slate-200'}`}>{kode}</button>
+                <button key={kode} onClick={() => setFilterKode(kode)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === kode ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-surface-muted'}`}>{kode}</button>
               ))}
             </div>
           </div>
@@ -456,7 +456,7 @@ const NomorSuratPage = () => {
           <div className="p-4">
             {filteredRecords.length === 0 ? (
               <div className="text-center py-16">
-                <span className="material-symbols-outlined text-text-low text-5xl mb-4 block">folder_off</span>
+                <FolderX className="w-12 h-12 text-text-low mb-4" />
                 <p className="text-text-muted font-medium">Belum ada nomor</p>
               </div>
             ) : (
@@ -481,9 +481,9 @@ const NomorSuratPage = () => {
                           <td className="py-4 px-4 text-sm text-text-muted">{new Date(record.createdAt).toLocaleDateString('id-ID')}</td>
                           <td className="py-4 px-4">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-bg rounded-lg"><span className="material-symbols-outlined text-text-low text-lg">content_copy</span></button>
-                              <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="p-2 hover:bg-bg rounded-lg"><span className="material-symbols-outlined text-text-low text-lg">visibility</span></button>
-                              <button onClick={() => handleDeleteClick(record)} className="p-2 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-red-500 text-lg">delete</span></button>
+                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-bg rounded-lg"><Copy className="w-4 h-4 text-text-low" /></button>
+                              <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="p-2 hover:bg-bg rounded-lg"><Eye className="w-4 h-4 text-text-muted" /></button>
+                              <button onClick={() => handleDeleteClick(record)} className="p-2 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4 text-danger" /></button>
                             </div>
                           </td>
                         </tr>
@@ -535,11 +535,11 @@ const NomorSuratPage = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-text-high">Pilih Kode Klasifikasi</h3>
                 <button onClick={() => { setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }} className="p-2 hover:bg-bg rounded-xl">
-                  <span className="material-symbols-outlined text-text-low">close</span>
+                  <X className="w-5 h-5 text-text-muted" />
                 </button>
               </div>
               <div className="mt-4 relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-text-low" />
                 <input type="text" placeholder="Cari..." value={searchKlasifikasi} onChange={(e) => setSearchKlasifikasi(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
               </div>
@@ -561,7 +561,7 @@ const NomorSuratPage = () => {
                       <p className="font-mono font-bold text-text-high text-sm">{item.kode}</p>
                       <p className="text-xs text-text-muted">{item.nama}</p>
                     </div>
-                    {kodeKlasifikasi === item.kode && <span className="material-symbols-outlined text-primary">check_circle</span>}
+                    <CheckCircle2 className="w-4 h-4 text-primary" />
                   </button>
                 ))}
               </div>
@@ -578,11 +578,11 @@ const NomorSuratPage = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-text-high">Pilih Kode Surat</h3>
                 <button onClick={() => { setShowKodePendekModal(false); setSearchKodePendek(''); }} className="p-2 hover:bg-bg rounded-xl">
-                  <span className="material-symbols-outlined text-text-low">close</span>
+                  <X className="w-5 h-5 text-text-muted" />
                 </button>
               </div>
               <div className="mt-4 relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-text-low" />
                 <input type="text" placeholder="Cari..." value={searchKodePendek} onChange={(e) => setSearchKodePendek(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
               </div>
@@ -601,7 +601,7 @@ const NomorSuratPage = () => {
                     }`}>
                     <span className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-bold font-mono">{item.kode}</span>
                     <p className="text-sm text-text-muted">{item.nama}</p>
-                    {kodePendek === item.kode && <span className="material-symbols-outlined text-primary ml-auto">check_circle</span>}
+                    {kodePendek === item.kode && <CheckCircle2 className="w-4 h-4 text-primary ml-auto" />}
                   </button>
                 ))}
               </div>
@@ -618,7 +618,7 @@ const NomorSuratPage = () => {
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-text-high">Edit Format Nomor</h3>
               <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-bg rounded-xl">
-                <span className="material-symbols-outlined text-text-low">close</span>
+                <X className="w-5 h-5 text-text-muted" />
               </button>
             </div>
 
@@ -650,15 +650,15 @@ const NomorSuratPage = () => {
                   <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${seg.enabled ? 'bg-surface border-border' : 'bg-surface-muted border-slate-100 opacity-50'}`}>
                     <div className="flex flex-col">
                       <button onClick={() => moveSegment(index, 'up')} disabled={index === 0} className="p-0.5 hover:bg-bg rounded disabled:opacity-20">
-                        <span className="material-symbols-outlined text-text-low text-sm">expand_less</span>
+                        <ChevronUp className="w-4 h-4 text-text-muted" />
                       </button>
                       <button onClick={() => moveSegment(index, 'down')} disabled={index === formatSegments.length - 1} className="p-0.5 hover:bg-bg rounded disabled:opacity-20">
-                        <span className="material-symbols-outlined text-text-low text-sm">expand_more</span>
+                        <ChevronDown className="w-4 h-4 text-text-muted" />
                       </button>
                     </div>
 
                     <button onClick={() => toggleSegment(index)} className="p-1">
-                      <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-text-low'}`}>{seg.enabled ? 'visibility' : 'visibility_off'}</span>
+                      {seg.enabled ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4 text-text-muted" />}
                     </button>
 
                     <div className="flex-1">
@@ -691,7 +691,7 @@ const NomorSuratPage = () => {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
-              <button onClick={() => setShowFormatModal(false)} className="flex-1 py-3 bg-bg hover:bg-slate-200 text-text-high font-medium rounded-2xl">Batal</button>
+              <button onClick={() => setShowFormatModal(false)} className="flex-1 py-3 bg-bg hover:bg-surface-muted text-text-high font-medium rounded-2xl">Batal</button>
               <button onClick={() => { handleSaveFormat(); }} className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg">Simpan Format</button>
             </div>
           </div>
@@ -706,7 +706,7 @@ const NomorSuratPage = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-text-high">Detail</h3>
                 <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-bg rounded-xl">
-                  <span className="material-symbols-outlined">close</span>
+                  <X className="w-5 h-5 text-text-muted" />
                 </button>
               </div>
             </div>
@@ -727,7 +727,7 @@ const NomorSuratPage = () => {
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => { handleCopy(selectedRecord.nomor); setShowDetailModal(false); }} className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-medium rounded-2xl">Salin</button>
-                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-bg hover:bg-slate-200 text-text-muted font-medium rounded-2xl">Tutup</button>
+                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-bg hover:bg-surface-muted text-text-muted font-medium rounded-2xl">Tutup</button>
               </div>
             </div>
           </div>
@@ -739,11 +739,11 @@ const NomorSuratPage = () => {
         <div className="fixed inset-0 bg-text-low/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
           <div className="bg-surface rounded-3xl w-full max-w-sm shadow-2xl">
             <div className="p-6 text-center">
-              <span className="material-symbols-outlined text-red-500 text-5xl mb-4 block">delete</span>
+              <Trash2 className="w-12 h-12 text-danger mb-4" />
               <h3 className="text-lg font-semibold text-text-high mb-2">Hapus?</h3>
               <p className="font-mono font-semibold text-text-high mb-4 text-sm break-all">{recordToDelete.nomor}</p>
               <div className="flex gap-3">
-                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-bg hover:bg-slate-200 text-text-muted font-medium rounded-2xl">Batal</button>
+                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-bg hover:bg-surface-muted text-text-muted font-medium rounded-2xl">Batal</button>
                 <button onClick={handleDeleteConfirm} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-2xl">Hapus</button>
               </div>
             </div>
