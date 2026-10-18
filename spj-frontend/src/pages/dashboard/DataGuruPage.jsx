@@ -1,382 +1,392 @@
-/**
- * Data Guru & Tendik Page — Premium Design 2026
- * Tabs: Guru + Tendik with integrated upload toggle
- */
-import { useState, useEffect, useRef } from 'react'
-import storageHelper from '../../utils/storageHelper'
-import Topbar from '../../components/layout/Topbar'
-import { useToast } from '../../components/ui/Toast'
-import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════════════════════════════
+import { useState, useEffect, useRef } from "react";
+import {
+  Users,
+  Upload,
+  Search,
+  Trash2,
+  UserCheck,
+  Briefcase,
+} from "lucide-react";
+import PageContainer from "../../ui/organisms/PageContainer";
+import PageHeader from "../../ui/organisms/PageHeader";
+import { Tabs, TabList, Tab, TabPanel } from "../../ui/molecules/Tabs";
+import Card from "../../ui/molecules/Card";
+import Badge from "../../ui/atoms/Badge";
+import Button from "../../ui/atoms/Button";
+import Input from "../../ui/atoms/Input";
+import EmptyState from "../../ui/molecules/EmptyState";
+import Spinner from "../../ui/atoms/Spinner";
+import storageHelper from "../../utils/storageHelper";
+import { parseGuruTendikExcel } from "../../utils/guruTendikParser";
 
 const STATUS_BADGE = {
-  'PNS': 'bg-blue-100 text-blue-700',
-  'PPPK': 'bg-emerald-100 text-emerald-700',
-  'CPNS': 'bg-violet-100 text-violet-700',
-  'Honorer': 'bg-amber-100 text-amber-700',
-}
+  PNS: "bg-primary-soft text-primary",
+  PPPK: "bg-success/10 text-success",
+  CPNS: "bg-info/10 text-info",
+  Honorer: "bg-warning/10 text-warning",
+};
 
-// Role Honor options untuk Tendik
 const ROLE_HONOR_OPTIONS = [
-  { value: 'tendik', label: 'Tendik Umum', color: 'bg-slate-100 text-slate-700', icon: 'badge' },
-  { value: 'perpus', label: 'Perpustakaan', color: 'bg-blue-100 text-blue-700', icon: 'menu_book' },
-  { value: 'penjaga', label: 'Penjaga', color: 'bg-emerald-100 text-emerald-700', icon: 'security' },
-]
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
+  { value: "tendik", label: "Tendik Umum", color: "bg-surface-muted text-text-muted", icon: "badge" },
+  { value: "perpus", label: "Perpustakaan", color: "bg-primary/10 text-primary", icon: "menu_book" },
+  { value: "penjaga", label: "Penjaga", color: "bg-success/10 text-success", icon: "security" },
+];
 
 export default function DataGuruPage() {
-  const [tab, setTab] = useState('guru')
-  const [guru, setGuru] = useState([])
-  const [tendik, setTendik] = useState([])
-  const [showUploadGuru, setShowUploadGuru] = useState(false)
-  const [showUploadTendik, setShowUploadTendik] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const toast = useToast()
-  const guruFileRef = useRef(null)
-  const tendikFileRef = useRef(null)
+  const [tab, setTab] = useState("guru");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [guru, setGuru] = useState([]);
+  const [tendik, setTendik] = useState([]);
+  const [showUploadGuru, setShowUploadGuru] = useState(false);
+  const [showUploadTendik, setShowUploadTendik] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const toast = useToast();
+  const guruFileRef = useRef(null);
+  const tendikFileRef = useRef(null);
 
   useEffect(() => {
-    const storedGuru = storageHelper.get('data_guru', null)
+    const storedGuru = storageHelper.get("data_guru", null);
     if (storedGuru && storedGuru.length > 0) {
-      setGuru(storedGuru)
+      setGuru(storedGuru);
     }
 
-    const storedTendik = storageHelper.get('data_tendik', null)
+    const storedTendik = storageHelper.get("data_tendik", null);
     if (storedTendik && storedTendik.length > 0) {
-      setTendik(storedTendik)
+      setTendik(storedTendik);
     }
-  }, [])
+  }, []);
 
-  // ─── Upload Handler ──────────────────────────────────────────
-  const handleFileUpload = async (e, jenis) => {
-    const file = e.target.files[0]
-    if (!file) return
-    if (!file.name.match(/\.(xlsx|xls)$/i)) {
-      toast.error('File harus berformat Excel (.xlsx atau .xls)')
-      return
-    }
-
-    setIsUploading(true)
-    try {
-      const result = await parseGuruTendikExcel(file)
-      if (result.total === 0) {
-        toast.error('Tidak ada data yang ditemukan')
-        return
-      }
-
-      const detectedJenis = jenis || result.jenis || 'guru'
-
-      if (detectedJenis === 'tendik') {
-        setTendik(result.items)
-        storageHelper.set('data_tendik', result.items)
-        setShowUploadTendik(false)
-      } else {
-        setGuru(result.items)
-        storageHelper.set('data_guru', result.items)
-        setShowUploadGuru(false)
-      }
-
-      toast.success(`${detectedJenis === 'tendik' ? 'Tendik' : 'Guru'} berhasil diupload! ${result.total} data`)
-    } catch (error) {
-      toast.error(`Gagal memproses file: ${error.message}`)
-    } finally {
-      setIsUploading(false)
-      if (jenis === 'tendik' && tendikFileRef.current) tendikFileRef.current.value = ''
-      if (jenis !== 'tendik' && guruFileRef.current) guruFileRef.current.value = ''
-    }
-  }
-
-  // ─── Delete Handler ──────────────────────────────────────────
-  const handleDelete = (id, type) => {
-    if (type === 'tendik') {
-      const updated = tendik.filter(g => g.id !== id)
-      setTendik(updated)
-      storageHelper.set('data_tendik', updated)
+  const handleUploadClick = () => {
+    if (tab === "guru") {
+      guruFileRef.current?.click();
     } else {
-      const updated = guru.filter(g => g.id !== id)
-      setGuru(updated)
-      storageHelper.set('data_guru', updated)
+      tendikFileRef.current?.click();
     }
-    toast.success('Data berhasil dihapus')
-  }
+  };
 
-  // ─── Role Honor Handler ──────────────────────────────────────
-  const handleRoleHonorChange = (id, newRole) => {
-    const updated = tendik.map(t => {
-      if (t.id === id) {
-        return { ...t, roleHonor: newRole }
+  const handleFileUpload = async (e, jenis) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      toast.error("File harus berformat Excel (.xlsx atau .xls)");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await parseGuruTendikExcel(file);
+      if (result.total === 0) {
+        toast.error("Tidak ada data yang ditemukan");
+        return;
       }
-      return t
-    })
-    setTendik(updated)
-    storageHelper.set('data_tendik', updated)
-    
-    const roleLabel = ROLE_HONOR_OPTIONS.find(r => r.value === newRole)?.label || newRole
-    toast.success(`Role honor diubah ke "${roleLabel}"`)
-  }
 
-  // Get role badge style
+      const detectedJenis = jenis || result.jenis || "guru";
+
+      if (detectedJenis === "tendik") {
+        setTendik(result.items);
+        storageHelper.set("data_tendik", result.items);
+        setShowUploadTendik(false);
+      } else {
+        setGuru(result.items);
+        storageHelper.set("data_guru", result.items);
+        setShowUploadGuru(false);
+      }
+
+      toast.success(`${detectedJenis === "tendik" ? "Tendik" : "Guru"} berhasil diupload! ${result.total} data`);
+    } catch (error) {
+      toast.error(`Gagal memproses file: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+      if (jenis === "tendik" && tendikFileRef.current) tendikFileRef.current.value = "";
+      if (jenis !== "tendik" && guruFileRef.current) guruFileRef.current.value = "";
+    }
+  };
+
+  const handleDelete = (id, type) => {
+    if (type === "tendik") {
+      const updated = tendik.filter((g) => g.id !== id);
+      setTendik(updated);
+      storageHelper.set("data_tendik", updated);
+    } else {
+      const updated = guru.filter((g) => g.id !== id);
+      setGuru(updated);
+      storageHelper.set("data_guru", updated);
+    }
+    toast.success("Data berhasil dihapus");
+  };
+
+  const handleRoleHonorChange = (id, newRole) => {
+    const updated = tendik.map((t) => {
+      if (t.id === id) {
+        return { ...t, roleHonor: newRole };
+      }
+      return t;
+    });
+    setTendik(updated);
+    storageHelper.set("data_tendik", updated);
+
+    const roleLabel = ROLE_HONOR_OPTIONS.find((r) => r.value === newRole)?.label || newRole;
+    toast.success(`Role honor diubah ke "${roleLabel}"`);
+  };
+
   const getRoleBadge = (role) => {
-    const option = ROLE_HONOR_OPTIONS.find(r => r.value === role)
-    if (!option) return ROLE_HONOR_OPTIONS[0] // default: tendik
-    return option
-  }
+    const option = ROLE_HONOR_OPTIONS.find((r) => r.value === role);
+    if (!option) return ROLE_HONOR_OPTIONS[0]; // default: tendik
+    return option;
+  };
 
-  // ═══════════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════════
+  const currentList = tab === "guru" ? guru : tendik;
+  const filteredList = currentList.filter((item) =>
+    item.nama?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.nip?.includes(searchQuery)
+  );
+
+  const hasUploadFormOpen = tab === "guru" ? showUploadGuru : showUploadTendik;
+  const toggleUpload = () => {
+    if (tab === "guru") setShowUploadGuru((v) => !v);
+    else setShowUploadTendik((v) => !v);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100/80">
-      <Topbar title="Data Guru & Tendik" subtitle="Data guru dan tenaga kependidikan" />
-
-      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
-
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* TABS                                                            */}
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setTab('guru')}
-            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              tab === 'guru'
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
+    <PageContainer>
+      <PageHeader
+        title="Data Guru & Tendik"
+        description="Kelola data pendidik dan tenaga kependidikan dari Dapodik"
+        actions={
+          <Button
+            variant="primary"
+            onClick={handleUploadClick}
+            loading={isUploading}
           >
-            <span className="material-symbols-outlined text-lg">groups</span>
-            Guru
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${tab === 'guru' ? 'bg-white/20' : 'bg-slate-100'}`}>
-              {guru.length}
-            </span>
-          </button>
-          <button
-            onClick={() => setTab('tendik')}
-            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              tab === 'tendik'
-                ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <span className="material-symbols-outlined text-lg">badge</span>
-            Tendik
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${tab === 'tendik' ? 'bg-white/20' : 'bg-slate-100'}`}>
-              {tendik.length}
-            </span>
-          </button>
+            {isUploading ? (
+              <Spinner size="sm" className="mr-2" />
+            ) : (
+              <Upload className="w-4 h-4 mr-2" />
+            )}
+            {isUploading ? "Memproses…" : "Upload Excel"}
+          </Button>
+        }
+      />
+
+      <input
+        type="file"
+        ref={guruFileRef}
+        onChange={(e) => handleFileUpload(e, "guru")}
+        accept=".xlsx, .xls"
+        className="hidden"
+        id="guru-upload"
+      />
+      <input
+        type="file"
+        ref={tendikFileRef}
+        onChange={(e) => handleFileUpload(e, "tendik")}
+        accept=".xlsx, .xls"
+        className="hidden"
+        id="tendik-upload"
+      />
+
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <Tabs value={tab} onChange={setTab}>
+          <TabList>
+            <Tab value="guru">
+              <UserCheck className="w-4 h-4 mr-2 inline" />
+              Guru
+              <Badge variant="default" className="ml-2">
+                {guru.length}
+              </Badge>
+            </Tab>
+            <Tab value="tendik">
+              <Briefcase className="w-4 h-4 mr-2 inline" />
+              Tendik
+              <Badge variant="default" className="ml-2">
+                {tendik.length}
+              </Badge>
+            </Tab>
+          </TabList>
+        </Tabs>
+
+        <div className="relative w-full md:w-72">
+          <Search
+            className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+          />
+          <Input
+            placeholder="Cari nama atau NIP…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
+      </div>
 
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* TAB: GURU                                                       */}
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        {tab === 'guru' && (
-          <div className="space-y-5">
-            {/* Header with Upload Button */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Data Guru</h2>
-              <button
-                onClick={() => setShowUploadGuru(!showUploadGuru)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
-                  showUploadGuru
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                    : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{showUploadGuru ? 'close' : 'upload_file'}</span>
-                {showUploadGuru ? 'Tutup Form' : 'Upload Excel'}
-              </button>
-            </div>
-
-            {/* Upload Form — Hidden by default */}
-            {showUploadGuru && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Guru</h3>
-                  <p className="text-sm text-slate-500 mb-4">File Excel Dapodik — data akan langsung terisi otomatis</p>
-
-                  <input type="file" ref={guruFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'guru')} className="hidden" id="guru-upload" />
-                  <label
-                    htmlFor="guru-upload"
-                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                      isUploading
-                        ? 'bg-slate-400 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                    {isUploading ? 'Memproses...' : 'Pilih File Excel Guru'}
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100">
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">NIP</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">NUPTK</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Golongan</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Jabatan</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {guru.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="text-center py-12 text-slate-400">
-                          <span className="material-symbols-outlined text-4xl mb-2 block">groups</span>
-                          Belum ada data guru
-                        </td>
-                      </tr>
-                    ) : guru.map(g => (
-                      <tr key={g.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-3 text-sm font-semibold text-slate-800">{g.nama}</td>
-                        <td className="px-5 py-3 text-sm text-slate-500 font-mono">{g.nip || '-'}</td>
-                        <td className="px-5 py-3 text-sm text-slate-500 font-mono">{g.nuptk || '-'}</td>
-                        <td className="px-5 py-3 text-sm text-slate-600">{g.golongan || '-'}</td>
-                        <td className="px-5 py-3 text-sm text-slate-600">{g.jabatan || '-'}</td>
-                        <td className="px-5 py-3">
-                          <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_BADGE[g.status] || 'bg-slate-100 text-slate-600'}`}>
-                            {g.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3 text-center">
-                          <button onClick={() => handleDelete(g.id, 'guru')} className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
-                            <span className="material-symbols-outlined text-sm">delete</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        {/* TAB: TENDIK                                                     */}
-        {/* ═══════════════════════════════════════════════════════════════ */}
-        {tab === 'tendik' && (
-          <div className="space-y-5">
-            {/* Header with Upload Button */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Data Tendik</h2>
-              <button
-                onClick={() => setShowUploadTendik(!showUploadTendik)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
-                  showUploadTendik
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                    : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{showUploadTendik ? 'close' : 'upload_file'}</span>
-                {showUploadTendik ? 'Tutup Form' : 'Upload Excel'}
-              </button>
-            </div>
-
-            {/* Upload Form — Hidden by default */}
-            {showUploadTendik && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Tendik</h3>
-                  <p className="text-sm text-slate-500 mb-4">File Excel Dapodik — data akan langsung terisi otomatis</p>
-
-                  <input type="file" ref={tendikFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'tendik')} className="hidden" id="tendik-upload" />
-                  <label
-                    htmlFor="tendik-upload"
-                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                      isUploading
-                        ? 'bg-slate-400 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                    {isUploading ? 'Memproses...' : 'Pilih File Excel Tendik'}
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100">
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">NIP</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">NUPTK</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Jenis PTK</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Role Honor</th>
-                      <th className="px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {tendik.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="text-center py-12 text-slate-400">
-                          <span className="material-symbols-outlined text-4xl mb-2 block">badge</span>
-                          Belum ada data tendik
-                        </td>
-                      </tr>
-                    ) : tendik.map(t => {
-                      const currentRole = getRoleBadge(t.roleHonor)
-                      return (
-                        <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-5 py-3 text-sm font-semibold text-slate-800">{t.nama}</td>
-                          <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nip || '-'}</td>
-                          <td className="px-5 py-3 text-sm text-slate-500 font-mono">{t.nuptk || '-'}</td>
-                          <td className="px-5 py-3 text-sm text-slate-600">{t.jenisPtk || t.jabatan || '-'}</td>
-                          <td className="px-5 py-3">
-                            <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${STATUS_BADGE[t.status] || 'bg-slate-100 text-slate-600'}`}>
-                              {t.status}
-                            </span>
+      <Card className="overflow-hidden border-border">
+        {filteredList.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title={searchQuery ? "Data tidak ditemukan" : `Belum ada data ${tab}`}
+            description={
+              searchQuery
+                ? "Coba gunakan kata kunci lain."
+                : "Upload file Excel dari Dapodik untuk mengisi data secara otomatis."
+            }
+            actionLabel={!searchQuery ? "Upload Excel" : undefined}
+            onAction={!searchQuery ? handleUploadClick : undefined}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-surface-muted text-text-muted border-b border-border">
+                <tr>
+                  {tab === "guru" ? (
+                    <>
+                      <th className="px-4 py-3 font-medium">Nama</th>
+                      <th className="px-4 py-3 font-medium">NIP</th>
+                      <th className="px-4 py-3 font-medium">NUPTK</th>
+                      <th className="px-4 py-3 font-medium">Golongan</th>
+                      <th className="px-4 py-3 font-medium">Jabatan</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium text-right">Aksi</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="px-4 py-3 font-medium">Nama</th>
+                      <th className="px-4 py-3 font-medium">NIP</th>
+                      <th className="px-4 py-3 font-medium">NUPTK</th>
+                      <th className="px-4 py-3 font-medium">Jenis PTK</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                      <th className="px-4 py-3 font-medium">Role Honor</th>
+                      <th className="px-4 py-3 font-medium text-right">Aksi</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredList.map((item) => {
+                  const isTendik = tab === "tendik";
+                  const currentRole = isTendik ? getRoleBadge(item.roleHonor) : null;
+                  return (
+                    <tr key={item.id} className="hover:bg-surface-muted/50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-text-high">
+                        {item.nama || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-text-muted">
+                        {item.nip || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-text-muted">
+                        {item.nuptk || "-"}
+                      </td>
+                      {tab === "guru" ? (
+                        <>
+                          <td className="px-4 py-3 text-text-muted">
+                            {item.golongan || "-"}
                           </td>
-                          <td className="px-5 py-3">
-                            <select
-                              value={t.roleHonor || 'tendik'}
-                              onChange={(e) => handleRoleHonorChange(t.id, e.target.value)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-0 cursor-pointer focus:ring-2 focus:ring-blue-500 ${currentRole.color}`}
+                          <td className="px-4 py-3 text-text-muted">
+                            {item.jabatan || "-"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge
+                              variant={
+                                item.status === "PNS"
+                                  ? "primary"
+                                  : item.status === "PPPK"
+                                  ? "success"
+                                  : item.status === "CPNS"
+                                  ? "info"
+                                  : "default"
+                              }
+                              size="sm"
                             >
-                              {ROLE_HONOR_OPTIONS.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              {item.status}
+                            </Badge>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-4 py-3 text-text-muted">
+                            {item.jenisPtk || item.jabatan || "-"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge
+                              variant={
+                                item.status === "Aktif" ? "success" : "default"
+                              }
+                              size="sm"
+                            >
+                              {item.status || "Aktif"}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3">
+                            <select
+                              value={item.roleHonor || "tendik"}
+                              onChange={(e) =>
+                                handleRoleHonorChange(item.id, e.target.value)
+                              }
+                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-0 cursor-pointer focus:ring-2 focus:ring-primary/20 ${currentRole.color}`}
+                            >
+                              {ROLE_HONOR_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
                               ))}
                             </select>
                           </td>
-                          <td className="px-5 py-3 text-center">
-                            <button onClick={() => handleDelete(t.id, 'tendik')} className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors">
-                              <span className="material-symbols-outlined text-sm">delete</span>
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                        </>
+                      )}
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-danger hover:bg-danger/10"
+                          onClick={() => handleDelete(item.id, tab === "tendik" ? "tendik" : "guru")}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
-    </div>
-  )
+      </Card>
+
+      {hasUploadFormOpen && (
+        <Card className="mt-6 p-6 border-border">
+          <div className="border-2 border-dashed border-border rounded-2xl p-10 text-center hover:border-primary/40 transition-all duration-300 bg-surface-muted/50">
+            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-5 shadow-inner">
+              <span className="text-4xl text-primary">cloud_upload</span>
+            </div>
+            <h3 className="font-display text-lg font-bold text-text-high mb-2">
+              Upload Data {tab === "guru" ? "Guru" : "Tendik"}
+            </h3>
+            <p className="text-sm text-text-muted mb-6 max-w-sm mx-auto">
+              File Excel Dapodik — data akan langsung terisi otomatis
+            </p>
+            <input
+              type="file"
+              ref={tab === "guru" ? guruFileRef : tendikFileRef}
+              accept=".xlsx, .xls"
+              onChange={(e) => handleFileUpload(e, tab === "guru" ? "guru" : "tendik")}
+              className="hidden"
+              id={`${tab}-upload`}
+            />
+            <label
+              htmlFor={`${tab}-upload`}
+              className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-md text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                isUploading
+                  ? "bg-text-muted text-surface cursor-not-allowed"
+                  : "bg-primary text-on-primary hover:bg-primary-hover shadow-sm hover:shadow-primary/25 active:scale-[0.98]"
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">
+                {isUploading ? "sync" : "upload"}
+              </span>
+              {isUploading ? "Memproses…" : "Pilih File Excel"}
+            </label>
+            <p className="text-xs text-text-low mt-4">Format: .xlsx atau .xls</p>
+          </div>
+        </Card>
+      )}
+    </PageContainer>
+  );
 }
