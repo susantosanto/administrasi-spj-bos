@@ -22,6 +22,9 @@ import {
   Printer,
   Wifi,
   BookOpen,
+  FileText,
+  MapPin,
+  Camera,
 } from 'lucide-react'
 import Badge from '../../ui/atoms/Badge'
 
@@ -171,7 +174,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
       {/* ══ PREMIUM GLASS SIDEBAR (efek glass dipertahankan) ══ */}
       <div
         ref={sidebarRef}
-        className="fixed top-0 right-0 h-full w-full max-w-xl bg-white/70 backdrop-blur-2xl shadow-2xl z-[110] overflow-y-auto animate-slide-in-left border-l border-white/40 outline-none"
+        className="fixed top-0 right-0 h-full w-full max-w-xl glass-strong shadow-2xl z-[110] overflow-y-auto animate-slide-in-left border-l border-white/40 outline-none"
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
@@ -251,13 +254,17 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`flex-1 px-3 py-2.5 rounded-t-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 px-3 py-2.5 rounded-t-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === t.id
-                    ? 'bg-white text-slate-900 border border-b-white border-slate-200 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
+                    ? 'bg-surface text-text-high border border-b-surface border-border shadow-sm'
+                    : 'text-text-muted hover:text-text-high hover:bg-surface-muted/60'
                 }`}
               >
-                <span className="material-symbols-outlined text-base">{t.icon}</span>
+                {t.id === 'detail' ? (
+                  <FileText className="w-4 h-4" />
+                ) : (
+                  <Camera className="w-4 h-4" />
+                )}
                 {t.label}
               </button>
             ))}
@@ -270,14 +277,14 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
         {activeTab === 'detail' ? (
           <>
           {/* ── Hero Card: Uraian + Angka Kunci ── */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          <div className="bg-surface rounded-xl border border-border shadow-sm p-5">
             <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-xl bg-blue-600 shadow-md shadow-blue-600/30 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
+              <div className="w-11 h-11 rounded-lg bg-primary shadow-sm flex items-center justify-center flex-shrink-0">
+                <FileText className="w-5 h-5 text-on-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 mb-1">Uraian Kegiatan</p>
-                <p className="text-lg font-bold text-slate-900 leading-snug">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-text-muted mb-1">Uraian Kegiatan</p>
+                <p className="text-lg font-bold text-text-high leading-snug">
                   {transaction.uraian || '-'}
                 </p>
                 {/* Keterangan kegiatan dari kode kegiatan */}
@@ -286,12 +293,12 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                   const namaKeg = getNamaKegiatan(transaction.kodeKegiatan)
                   if (!namaKeg || namaKeg === normalized || namaKeg === '-') return null
                   return (
-                    <div className="mt-2.5 flex items-start gap-2 bg-blue-50 rounded-xl p-2.5 border border-blue-100">
-                      <span className="material-symbols-outlined text-[16px] text-blue-600 flex-shrink-0 mt-0.5">meeting_room</span>
+                    <div className="mt-2.5 flex items-start gap-2 bg-primary/5 rounded-lg p-2.5 border border-primary/10">
+                      <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-blue-500 font-semibold uppercase tracking-[0.1em]">Kegiatan</p>
-                        <p className="text-xs font-semibold text-blue-900 leading-relaxed">{namaKeg}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5 font-mono">{normalized}</p>
+                        <p className="text-[10px] text-primary font-semibold uppercase tracking-[0.1em]">Kegiatan</p>
+                        <p className="text-xs font-semibold text-text-high leading-relaxed">{namaKeg}</p>
+                        <p className="text-[10px] text-text-low mt-0.5 font-mono">{normalized}</p>
                       </div>
                     </div>
                   )
