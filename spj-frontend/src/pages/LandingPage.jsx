@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   CheckCircle2,
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Button from "../ui/atoms/Button";
 import Badge from "../ui/atoms/Badge";
+import TransitionOverlay from "../components/TransitionOverlay";
 import { cn } from "../ui/cn";
 
 const NAV_LINKS = [
@@ -22,6 +23,16 @@ const NAV_LINKS = [
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleNavigateToLogin = (e) => {
+    if (e) e.preventDefault();
+    setIsNavigating(true);
+    setTimeout(() => {
+      navigate("/login");
+    }, 500);
+  };
 
   return (
     <div className="min-h-screen bg-bg relative overflow-hidden">
@@ -75,6 +86,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-3">
               <Link
                 to="/login"
+                onClick={handleNavigateToLogin}
                 className="hidden sm:inline-flex h-9 px-4 items-center justify-center rounded-md text-sm font-semibold text-high bg-surface hover:bg-surface-high border border-border-strong shadow-sm transition-colors"
               >
                 Masuk
@@ -317,6 +329,7 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Link 
                     to="/login" 
+                    onClick={handleNavigateToLogin}
                     className="inline-flex h-12 px-8 items-center justify-center rounded-md text-base font-semibold bg-white text-primary hover:bg-gray-100 transition-colors shadow-sm"
                   >
                     Mulai Sekarang
@@ -376,7 +389,7 @@ export default function LandingPage() {
               <div>
                 <h4 className="font-display font-semibold text-high mb-4 text-sm">Akses</h4>
                 <ul className="space-y-2 text-sm text-muted">
-                  <li><Link to="/login" className="hover:text-primary transition-colors">Masuk ke Aplikasi</Link></li>
+                  <li><Link to="/login" onClick={handleNavigateToLogin} className="hover:text-primary transition-colors">Masuk ke Aplikasi</Link></li>
                   <li><a href="#" className="hover:text-primary transition-colors">Pratinjau Tampilan</a></li>
                 </ul>
               </div>
@@ -395,6 +408,10 @@ export default function LandingPage() {
         </footer>
 
       </div>
+      <TransitionOverlay 
+        show={isNavigating} 
+        message="Menyiapkan halaman login..." 
+      />
     </div>
   );
 }
