@@ -76,7 +76,9 @@ export default function DashboardLayout() {
       user={user}
       userMenuItems={userMenuItems}
     >
-      <Outlet />
+      <div key={location.pathname} className="animate-fade-in">
+        <Outlet />
+      </div>
     </AppShell>
   );
 }

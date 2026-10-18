@@ -47,12 +47,17 @@ const Button = forwardRef(function Button(
       {...rest}
     >
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+        <>
+          <Loader2 className="w-4 h-4 animate-spin mr-2" aria-hidden="true" />
+          <span>Memproses…</span>
+        </>
       ) : (
-        leftIcon
+        <>
+          {leftIcon}
+          {children}
+          {rightIcon}
+        </>
       )}
-      {children}
-      {!loading && rightIcon}
     </button>
   );
 });

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import AskAIButton from './components/ai/AskAIButton'
@@ -21,6 +22,7 @@ import ReferensiKodePage from './pages/dashboard/ReferensiKodePage'
 import PratinjauPage from './pages/PratinjauPage'
 
 import storageHelper from './utils/storageHelper'
+import SplashScreen from './components/SplashScreen'
 
 function ProtectedRoute({ children }) {
   // Mendukung nilai lama (string "true") & baru (boolean true)
@@ -37,6 +39,16 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulasi loading 1 detik
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) return <SplashScreen />;
+
   return (
       <ToastProvider>
         <AIProvider>

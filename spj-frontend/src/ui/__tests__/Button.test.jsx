@@ -28,8 +28,13 @@ describe("Button", () => {
     expect(spinner).toBeInTheDocument();
   });
 
+  it("shows Memproses text when loading", () => {
+    render(<Button loading>Simpan</Button>);
+    expect(screen.getByText("Memproses…")).toBeInTheDocument();
+  });
+
   it("is disabled when loading", () => {
     render(<Button loading>Simpan</Button>);
-    expect(screen.getByText("Simpan").closest("button")).toBeDisabled();
+    expect(screen.getByText("Memproses…").closest("button")).toBeDisabled();
   });
 });

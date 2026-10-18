@@ -11,3 +11,4 @@ export { ToastProvider, useToast } from "./Toast";
 export { Tabs, TabList, Tab, TabPanel } from "./Tabs";
 export { default as Modal, ModalFooter } from "./Modal";
 export { default as Dropdown, DropdownItem, DropdownSeparator } from "./Dropdown";
+export { default as EmptyState } from "./EmptyState";
