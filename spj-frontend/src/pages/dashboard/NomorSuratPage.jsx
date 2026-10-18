@@ -8,10 +8,14 @@ import {
   getIndonesianMonth,
   getAllNomorSurat
 } from '../../utils/nomorSuratHelper';
-import Topbar from '../../components/layout/Topbar';
 import storageHelper from '../../utils/storageHelper';
 import { useToast } from '../../components/ui/Toast';
-import { useSidebar } from '../../contexts/SidebarContext';
+import PageContainer from "../../ui/organisms/PageContainer";
+import PageHeader from "../../ui/organisms/PageHeader";
+import Card from "../../ui/molecules/Card";
+import Button from "../../ui/atoms/Button";
+import Badge from "../../ui/atoms/Badge";
+import { SlidersHorizontal, ChevronRight, FileText, Hash } from "lucide-react";
 
 const { get, set } = storageHelper;
 
@@ -61,7 +65,6 @@ const KODE_TO_KLASIFIKASI = {
 
 const NomorSuratPage = () => {
   const toast = useToast();
-  const { isMobile } = useSidebar();
 
   // State
   const [kodeKlasifikasi, setKodeKlasifikasi] = useState('422.1');
@@ -220,7 +223,7 @@ const NomorSuratPage = () => {
     if (kode.startsWith('424')) return 'bg-amber-500';
     if (kode.startsWith('425')) return 'bg-rose-500';
     if (kode.startsWith('426')) return 'bg-teal-500';
-    return 'bg-slate-500';
+    return 'bg-surface-muted0';
   };
 
   // Get display value
@@ -298,67 +301,76 @@ const NomorSuratPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100/80">
-      <Topbar title="Nomor Surat" subtitle="Generate nomor surat dinas pendidikan" />
-      
+    <PageContainer>
+      <PageHeader
+        title="Nomor Surat"
+        description="Generate nomor surat otomatis sesuai kode klasifikasi"
+        actions={
+          <Button variant="secondary">
+            <SlidersHorizontal className="w-4 h-4 mr-2" />
+            Format Nomor
+          </Button>
+        }
+      />
+
       {/* Format Button */}
       <div className="px-4 sm:px-6 py-3">
         <button onClick={() => setShowFormatModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors">
-          <span className="material-symbols-outlined text-lg">tune</span> Format Nomor
+          className="flex items-center gap-2 px-4 py-2.5 bg-surface hover:bg-surface-muted border border-border rounded-xl text-sm font-medium text-text-high transition-colors">
+          <SliversHorizontal className="w-4 h-4 mr-2" /> Format Nomor
         </button>
       </div>
 
       <div className="flex-1 px-4 sm:px-6 pb-6 max-w-6xl mx-auto w-full">
         {/* GENERATOR */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+        <Card className="mb-8">
           <div className="p-6">
 
             {/* 1. Kode Klasifikasi */}
             <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">1. Kode Klasifikasi</label>
+              <label className="text-xs font-semibold text-text-low uppercase tracking-wider mb-2 block">1. Kode Klasifikasi</label>
               <div onClick={() => setShowKlasifikasiModal(true)}
-                className="p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
+                className="p-4 bg-surface border-2 border-border rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className={`w-3 h-3 rounded-full ${getBadgeColor(kodeKlasifikasi)}`}></span>
                     <div>
-                      <p className="font-mono font-bold text-slate-900">{kodeKlasifikasi}</p>
-                      <p className="text-sm text-slate-500">{getKlasifikasiInfo().nama}</p>
+                      <p className="font-mono font-bold text-text-high">{kodeKlasifikasi}</p>
+                      <p className="text-sm text-text-muted">{getKlasifikasiInfo().nama}</p>
                     </div>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                  <ChevronRight className="w-4 h-4 text-text-low" />
                 </div>
               </div>
             </div>
 
             {/* 2. Kode Surat */}
             <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">2. Kode Surat</label>
+              <label className="text-xs font-semibold text-text-low uppercase tracking-wider mb-2 block">2. Kode Surat</label>
               <div onClick={() => setShowKodePendekModal(true)}
-                className="p-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
+                className="p-4 bg-surface border-2 border-border rounded-xl cursor-pointer hover:border-primary/30 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-bold font-mono">{kodePendek}</span>
-                    <p className="text-sm text-slate-500">{getKodePendekInfo().nama}</p>
+                    <p className="text-sm text-text-muted">{getKodePendekInfo().nama}</p>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+                  <ChevronRight className="w-4 h-4 text-text-low" />
                 </div>
               </div>
             </div>
 
             {/* 3. Nama Sekolah */}
             <div className="mb-4">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">3. Nama / Kode Sekolah</label>
+              <label className="text-xs font-semibold text-text-low uppercase tracking-wider mb-2 block">3. Nama / Kode Sekolah</label>
               <input type="text" value={namaSekolah} onChange={(e) => setNamaSekolah(e.target.value)}
                 placeholder="SDN / SMPN / SMAN / SDN-PSR"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
+                className="w-full px-4 py-3 bg-surface-muted border border-border rounded-xl text-text-high font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" />
             </div>
 
             {/* Preview */}
-            <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Preview</p>
-              <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-slate-200">
+            <div className="mb-6 p-4 bg-surface-muted rounded-2xl border border-border">
+              <p className="text-xs font-semibold text-text-low uppercase tracking-wider mb-3">Preview</p>
+              <div className="flex flex-wrap items-center gap-0.5 p-3 bg-surface rounded-xl border border-border">
                 {(() => {
                   const enabledSegs = formatSegments
                     .filter(s => s.enabled)
@@ -378,18 +390,18 @@ const NomorSuratPage = () => {
             {/* Bulan & Tahun */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bulan</label>
+                <label className="block text-xs font-semibold text-text-low uppercase tracking-wider mb-2">Bulan</label>
                 <select value={bulan} onChange={(e) => setBulan(parseInt(e.target.value))}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                  className="w-full px-4 py-3 bg-surface-muted border border-border rounded-xl text-text-high font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(b => (
                     <option key={b} value={b}>{getRomanMonth(b)} — {getIndonesianMonth(b)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tahun</label>
+                <label className="block text-xs font-semibold text-text-low uppercase tracking-wider mb-2">Tahun</label>
                 <select value={tahun} onChange={(e) => setTahun(parseInt(e.target.value))}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                  className="w-full px-4 py-3 bg-surface-muted border border-border rounded-xl text-text-high font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
                   {[2024, 2025, 2026, 2027, 2028].map(t => (<option key={t} value={t}>{t}</option>))}
                 </select>
               </div>
@@ -404,10 +416,10 @@ const NomorSuratPage = () => {
             {/* Generated */}
             {generatedNomor && (
               <div className="p-5 bg-gradient-to-r from-primary/5 to-blue-50 rounded-2xl border border-primary/10">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nomor Surat</p>
+                <p className="text-xs font-semibold text-text-low uppercase tracking-wider mb-1">Nomor Surat</p>
                 <p className="text-xl font-mono font-bold text-primary break-all mb-4">{generatedNomor.nomor}</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => handleCopy(generatedNomor.nomor)} className="flex-1 py-3 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-all text-sm font-medium text-slate-700 flex items-center justify-center gap-2">
+                  <button onClick={() => handleCopy(generatedNomor.nomor)} className="flex-1 py-3 bg-surface hover:bg-surface-muted rounded-xl border border-border transition-all text-sm font-medium text-text-high flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-lg">content_copy</span> Salin
                   </button>
                   <button onClick={handleUseNomor} className="flex-1 py-3 bg-primary hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all flex items-center justify-center gap-2">
@@ -417,26 +429,26 @@ const NomorSuratPage = () => {
               </div>
             )}
           </div>
-        </div>
+        </Card>
 
         {/* DAFTAR NOMOR */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="p-6 pb-4 border-b border-slate-100">
+        <Card>
+          <div className="p-6 pb-4 border-b border-border">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">Daftar Nomor</h2>
-                <p className="text-sm text-slate-500">{filteredRecords.length} surat</p>
+                <h2 className="text-lg font-semibold text-text-high">Daftar Nomor</h2>
+                <p className="text-sm text-text-muted">{filteredRecords.length} surat</p>
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
                 <input type="text" placeholder="Cari..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none w-48" />
+                  className="pl-10 pr-4 py-2.5 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none w-48" />
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-4">
-              <button onClick={() => setFilterKode('')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>Semua</button>
+              <button onClick={() => setFilterKode('')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === '' ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-slate-200'}`}>Semua</button>
               {['STS', 'SK', 'SU', 'SP', 'SKU', 'SE'].map(kode => (
-                <button key={kode} onClick={() => setFilterKode(kode)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === kode ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{kode}</button>
+                <button key={kode} onClick={() => setFilterKode(kode)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterKode === kode ? 'bg-primary text-white' : 'bg-bg text-text-muted hover:bg-slate-200'}`}>{kode}</button>
               ))}
             </div>
           </div>
@@ -444,8 +456,8 @@ const NomorSuratPage = () => {
           <div className="p-4">
             {filteredRecords.length === 0 ? (
               <div className="text-center py-16">
-                <span className="material-symbols-outlined text-slate-300 text-5xl mb-4 block">folder_off</span>
-                <p className="text-slate-500 font-medium">Belum ada nomor</p>
+                <span className="material-symbols-outlined text-text-low text-5xl mb-4 block">folder_off</span>
+                <p className="text-text-muted font-medium">Belum ada nomor</p>
               </div>
             ) : (
               <>
@@ -453,24 +465,24 @@ const NomorSuratPage = () => {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-slate-100">
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">No</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Nomor</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Jenis</th>
-                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Tanggal</th>
-                        <th className="text-right py-3 px-4 text-xs font-semibold text-slate-400 uppercase">Aksi</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-text-low uppercase">No</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-text-low uppercase">Nomor</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-text-low uppercase">Jenis</th>
+                        <th className="text-left py-3 px-4 text-xs font-semibold text-text-low uppercase">Tanggal</th>
+                        <th className="text-right py-3 px-4 text-xs font-semibold text-text-low uppercase">Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
                       {paginatedRecords.map((record, index) => (
-                        <tr key={record.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                          <td className="py-4 px-4 text-sm text-slate-400">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                          <td className="py-4 px-4"><span className="font-mono font-semibold text-slate-900 text-sm">{record.nomor}</span></td>
+                        <tr key={record.id} className="border-b border-border hover:bg-surface-muted/50">
+                          <td className="py-4 px-4 text-sm text-text-low">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td className="py-4 px-4"><span className="font-mono font-semibold text-text-high text-sm">{record.nomor}</span></td>
                           <td className="py-4 px-4"><span className={`inline-flex px-2 py-1 rounded text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span></td>
-                          <td className="py-4 px-4 text-sm text-slate-500">{new Date(record.createdAt).toLocaleDateString('id-ID')}</td>
+                          <td className="py-4 px-4 text-sm text-text-muted">{new Date(record.createdAt).toLocaleDateString('id-ID')}</td>
                           <td className="py-4 px-4">
                             <div className="flex items-center justify-end gap-1">
-                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-slate-400 text-lg">content_copy</span></button>
-                              <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="p-2 hover:bg-slate-100 rounded-lg"><span className="material-symbols-outlined text-slate-400 text-lg">visibility</span></button>
+                              <button onClick={() => handleCopy(record.nomor)} className="p-2 hover:bg-bg rounded-lg"><span className="material-symbols-outlined text-text-low text-lg">content_copy</span></button>
+                              <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="p-2 hover:bg-bg rounded-lg"><span className="material-symbols-outlined text-text-low text-lg">visibility</span></button>
                               <button onClick={() => handleDeleteClick(record)} className="p-2 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-red-500 text-lg">delete</span></button>
                             </div>
                           </td>
@@ -482,15 +494,15 @@ const NomorSuratPage = () => {
                 {isMobile && (
                   <div className="space-y-3">
                     {paginatedRecords.map((record) => (
-                      <div key={record.id} className="p-4 bg-slate-50 rounded-xl">
+                      <div key={record.id} className="p-4 bg-surface-muted rounded-xl">
                         <div className="flex items-start justify-between mb-2">
-                          <span className="font-mono font-semibold text-slate-900 text-sm">{record.nomor}</span>
+                          <span className="font-mono font-semibold text-text-high text-sm">{record.nomor}</span>
                           <span className={`px-2 py-1 rounded text-xs font-semibold text-white ${getBadgeColor(record.kode)}`}>{record.kode}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mb-3">{new Date(record.createdAt).toLocaleDateString('id-ID')}</p>
+                        <p className="text-xs text-text-low mb-3">{new Date(record.createdAt).toLocaleDateString('id-ID')}</p>
                         <div className="flex gap-2">
-                          <button onClick={() => handleCopy(record.nomor)} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Salin</button>
-                          <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="flex-1 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600">Detail</button>
+                          <button onClick={() => handleCopy(record.nomor)} className="flex-1 py-2 bg-surface border border-border rounded-lg text-sm font-medium text-text-muted">Salin</button>
+                          <button onClick={() => { setSelectedRecord(record); setShowDetailModal(true); }} className="flex-1 py-2 bg-surface border border-border rounded-lg text-sm font-medium text-text-muted">Detail</button>
                         </div>
                       </div>
                     ))}
@@ -498,38 +510,38 @@ const NomorSuratPage = () => {
                 )}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
-                    <p className="text-sm text-slate-400">{currentPage} dari {totalPages}</p>
+                    <p className="text-sm text-text-low">{currentPage} dari {totalPages}</p>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30"><span className="material-symbols-outlined">chevron_left</span></button>
+                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="p-2 rounded-lg hover:bg-bg disabled:opacity-30"><ChevronLeft className="w-4 h-4 text-text-muted" /></button>
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         let page = totalPages <= 5 ? i + 1 : currentPage <= 3 ? i + 1 : currentPage >= totalPages - 2 ? totalPages - 4 + i : currentPage - 2 + i;
-                        return <button key={page} onClick={() => setCurrentPage(page)} className={`w-10 h-10 rounded-lg text-sm font-medium ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-slate-100'}`}>{page}</button>;
+                        return <button key={page} onClick={() => setCurrentPage(page)} className={`w-10 h-10 rounded-lg text-sm font-medium ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-bg'}`}>{page}</button>;
                       })}
-                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30"><span className="material-symbols-outlined">chevron_right</span></button>
+                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="p-2 rounded-lg hover:bg-bg disabled:opacity-30"><ChevronRight className="w-4 h-4 text-text-muted" /></button>
                     </div>
                   </div>
                 )}
               </>
             )}
           </div>
-        </div>
-      </div>
+          </Card>
+          </div>
 
       {/* KODE KLASIFIKASI MODAL */}
       {showKlasifikasiModal && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-text-low/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-3xl w-full max-w-lg shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-slate-900">Pilih Kode Klasifikasi</h3>
-                <button onClick={() => { setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }} className="p-2 hover:bg-slate-100 rounded-xl">
-                  <span className="material-symbols-outlined text-slate-400">close</span>
+                <h3 className="text-xl font-semibold text-text-high">Pilih Kode Klasifikasi</h3>
+                <button onClick={() => { setShowKlasifikasiModal(false); setSearchKlasifikasi(''); }} className="p-2 hover:bg-bg rounded-xl">
+                  <span className="material-symbols-outlined text-text-low">close</span>
                 </button>
               </div>
               <div className="mt-4 relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
                 <input type="text" placeholder="Cari..." value={searchKlasifikasi} onChange={(e) => setSearchKlasifikasi(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
+                  className="w-full pl-10 pr-4 py-3 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
               </div>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
@@ -542,12 +554,12 @@ const NomorSuratPage = () => {
                     setSearchKlasifikasi('');
                   }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
-                      kodeKlasifikasi === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
+                      kodeKlasifikasi === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-surface border-border hover:border-primary/20'
                     }`}>
                     <span className={`w-3 h-3 rounded-full ${getBadgeColor(item.kode)}`}></span>
                     <div className="flex-1">
-                      <p className="font-mono font-bold text-slate-900 text-sm">{item.kode}</p>
-                      <p className="text-xs text-slate-500">{item.nama}</p>
+                      <p className="font-mono font-bold text-text-high text-sm">{item.kode}</p>
+                      <p className="text-xs text-text-muted">{item.nama}</p>
                     </div>
                     {kodeKlasifikasi === item.kode && <span className="material-symbols-outlined text-primary">check_circle</span>}
                   </button>
@@ -560,19 +572,19 @@ const NomorSuratPage = () => {
 
       {/* KODE PENDEK MODAL */}
       {showKodePendekModal && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-text-low/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-3xl w-full max-w-md shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-slate-900">Pilih Kode Surat</h3>
-                <button onClick={() => { setShowKodePendekModal(false); setSearchKodePendek(''); }} className="p-2 hover:bg-slate-100 rounded-xl">
-                  <span className="material-symbols-outlined text-slate-400">close</span>
+                <h3 className="text-xl font-semibold text-text-high">Pilih Kode Surat</h3>
+                <button onClick={() => { setShowKodePendekModal(false); setSearchKodePendek(''); }} className="p-2 hover:bg-bg rounded-xl">
+                  <span className="material-symbols-outlined text-text-low">close</span>
                 </button>
               </div>
               <div className="mt-4 relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-low text-xl">search</span>
                 <input type="text" placeholder="Cari..." value={searchKodePendek} onChange={(e) => setSearchKodePendek(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
+                  className="w-full pl-10 pr-4 py-3 bg-surface-muted border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" />
               </div>
             </div>
             <div className="p-4 overflow-y-auto flex-1">
@@ -585,10 +597,10 @@ const NomorSuratPage = () => {
                     setSearchKodePendek('');
                   }}
                     className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
-                      kodePendek === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-200 hover:border-primary/20'
+                      kodePendek === item.kode ? 'bg-primary/5 border-primary/20' : 'bg-surface border-border hover:border-primary/20'
                     }`}>
                     <span className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-bold font-mono">{item.kode}</span>
-                    <p className="text-sm text-slate-600">{item.nama}</p>
+                    <p className="text-sm text-text-muted">{item.nama}</p>
                     {kodePendek === item.kode && <span className="material-symbols-outlined text-primary ml-auto">check_circle</span>}
                   </button>
                 ))}
@@ -601,19 +613,19 @@ const NomorSuratPage = () => {
       {/* FORMAT SETTINGS MODAL */}
       {showFormatModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowFormatModal(false)}>
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-slate-900">Edit Format Nomor</h3>
-              <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
-                <span className="material-symbols-outlined text-slate-400">close</span>
+              <h3 className="text-lg font-semibold text-text-high">Edit Format Nomor</h3>
+              <button onClick={() => setShowFormatModal(false)} className="p-2 hover:bg-bg rounded-xl">
+                <span className="material-symbols-outlined text-text-low">close</span>
               </button>
             </div>
 
             {/* Preview */}
             <div className="px-6 py-4 bg-primary/5">
               <p className="text-xs font-medium text-primary mb-2 uppercase">Preview</p>
-              <div className="flex flex-wrap items-center gap-0.5 p-3 bg-white rounded-xl border border-primary/20">
+              <div className="flex flex-wrap items-center gap-0.5 p-3 bg-surface rounded-xl border border-primary/20">
                 {formatSegments
                   .filter(s => s.enabled)
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -635,22 +647,22 @@ const NomorSuratPage = () => {
                 {formatSegments
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((seg, index) => (
-                  <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${seg.enabled ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-100 opacity-50'}`}>
+                  <div key={seg.id} className={`p-3 rounded-xl border flex items-center gap-2 ${seg.enabled ? 'bg-surface border-border' : 'bg-surface-muted border-slate-100 opacity-50'}`}>
                     <div className="flex flex-col">
-                      <button onClick={() => moveSegment(index, 'up')} disabled={index === 0} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
-                        <span className="material-symbols-outlined text-slate-400 text-sm">expand_less</span>
+                      <button onClick={() => moveSegment(index, 'up')} disabled={index === 0} className="p-0.5 hover:bg-bg rounded disabled:opacity-20">
+                        <span className="material-symbols-outlined text-text-low text-sm">expand_less</span>
                       </button>
-                      <button onClick={() => moveSegment(index, 'down')} disabled={index === formatSegments.length - 1} className="p-0.5 hover:bg-slate-100 rounded disabled:opacity-20">
-                        <span className="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
+                      <button onClick={() => moveSegment(index, 'down')} disabled={index === formatSegments.length - 1} className="p-0.5 hover:bg-bg rounded disabled:opacity-20">
+                        <span className="material-symbols-outlined text-text-low text-sm">expand_more</span>
                       </button>
                     </div>
 
                     <button onClick={() => toggleSegment(index)} className="p-1">
-                      <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-slate-300'}`}>{seg.enabled ? 'visibility' : 'visibility_off'}</span>
+                      <span className={`material-symbols-outlined text-lg ${seg.enabled ? 'text-primary' : 'text-text-low'}`}>{seg.enabled ? 'visibility' : 'visibility_off'}</span>
                     </button>
 
                     <div className="flex-1">
-                      <p className="font-medium text-slate-700 text-sm">{seg.label}</p>
+                      <p className="font-medium text-text-high text-sm">{seg.label}</p>
                       {seg.id === 'nomor' && (
                         <div className="flex items-center gap-2 mt-1">
                           <input type="text" value={seg.startNumber || '001'} 
@@ -660,13 +672,13 @@ const NomorSuratPage = () => {
                               setFormatSegments(newSegments);
                             }}
                             placeholder="Mulai dari"
-                            className="w-16 px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-xs font-mono text-center" />
-                          <span className="text-xs text-slate-400">= awal</span>
+                            className="w-16 px-2 py-0.5 bg-surface-muted border border-border rounded text-xs font-mono text-center" />
+                          <span className="text-xs text-text-low">= awal</span>
                         </div>
                       )}
                     </div>
 
-                    <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)} className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono">
+                    <select value={seg.separator || '/'} onChange={(e) => updateSeparator(index, e.target.value)} className="px-2 py-1 bg-surface-muted border border-border rounded-lg text-xs font-mono">
                       <option value="/">/</option>
                       <option value="-">-</option>
                       <option value=".">.</option>
@@ -679,7 +691,7 @@ const NomorSuratPage = () => {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
-              <button onClick={() => setShowFormatModal(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-2xl">Batal</button>
+              <button onClick={() => setShowFormatModal(false)} className="flex-1 py-3 bg-bg hover:bg-slate-200 text-text-high font-medium rounded-2xl">Batal</button>
               <button onClick={() => { handleSaveFormat(); }} className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-semibold rounded-2xl shadow-lg">Simpan Format</button>
             </div>
           </div>
@@ -688,18 +700,18 @@ const NomorSuratPage = () => {
 
       {/* DETAIL MODAL */}
       {showDetailModal && selectedRecord && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
+        <div className="fixed inset-0 bg-text-low/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-3xl w-full max-w-md shadow-2xl">
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900">Detail</h3>
-                <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                <h3 className="text-lg font-semibold text-text-high">Detail</h3>
+                <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-bg rounded-xl">
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
             </div>
             <div className="p-6">
-              <p className="text-lg font-mono font-bold text-slate-900 text-center mb-6 break-all">{selectedRecord.nomor}</p>
+              <p className="text-lg font-mono font-bold text-text-high text-center mb-6 break-all">{selectedRecord.nomor}</p>
               <div className="space-y-2">
                 {[
                   { label: 'Kode', value: selectedRecord.kode },
@@ -707,15 +719,15 @@ const NomorSuratPage = () => {
                   { label: 'Bulan', value: getIndonesianMonth(selectedRecord.bulan) },
                   { label: 'Tahun', value: selectedRecord.tahun }
                 ].map((item, i) => (
-                  <div key={i} className="flex justify-between py-2 border-b border-slate-50 last:border-0">
-                    <span className="text-slate-400 text-sm">{item.label}</span>
-                    <span className="font-medium text-slate-700 text-sm">{item.value}</span>
+                  <div key={i} className="flex justify-between py-2 border-b border-border last:border-0">
+                    <span className="text-text-low text-sm">{item.label}</span>
+                    <span className="font-medium text-text-high text-sm">{item.value}</span>
                   </div>
                 ))}
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => { handleCopy(selectedRecord.nomor); setShowDetailModal(false); }} className="flex-1 py-3 bg-primary hover:bg-blue-600 text-white font-medium rounded-2xl">Salin</button>
-                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-2xl">Tutup</button>
+                <button onClick={() => setShowDetailModal(false)} className="px-6 py-3 bg-bg hover:bg-slate-200 text-text-muted font-medium rounded-2xl">Tutup</button>
               </div>
             </div>
           </div>
@@ -724,21 +736,21 @@ const NomorSuratPage = () => {
 
       {/* DELETE */}
       {showDeleteConfirm && recordToDelete && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 bg-text-low/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+          <div className="bg-surface rounded-3xl w-full max-w-sm shadow-2xl">
             <div className="p-6 text-center">
               <span className="material-symbols-outlined text-red-500 text-5xl mb-4 block">delete</span>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Hapus?</h3>
-              <p className="font-mono font-semibold text-slate-700 mb-4 text-sm break-all">{recordToDelete.nomor}</p>
+              <h3 className="text-lg font-semibold text-text-high mb-2">Hapus?</h3>
+              <p className="font-mono font-semibold text-text-high mb-4 text-sm break-all">{recordToDelete.nomor}</p>
               <div className="flex gap-3">
-                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-2xl">Batal</button>
+                <button onClick={() => { setShowDeleteConfirm(false); setRecordToDelete(null); }} className="flex-1 py-3 bg-bg hover:bg-slate-200 text-text-muted font-medium rounded-2xl">Batal</button>
                 <button onClick={handleDeleteConfirm} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-2xl">Hapus</button>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 
