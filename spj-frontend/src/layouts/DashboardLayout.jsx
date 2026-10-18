@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import AppShell from "../ui/organisms/AppShell";
 import storageHelper from "../utils/storageHelper";
+import TransitionOverlay from "../components/TransitionOverlay";
 
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -33,6 +34,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState({ name: "Operator", email: "operator@sekolah.id" });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const userData = storageHelper.get("auth_user");
@@ -50,8 +52,11 @@ export default function DashboardLayout() {
   };
 
   const handleLogout = () => {
-    storageHelper.set("auth", false);
-    navigate("/login");
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      storageHelper.set("auth", false);
+      navigate("/login");
+    }, 800);
   };
 
   const userMenuItems = [
@@ -79,6 +84,10 @@ export default function DashboardLayout() {
       <div key={location.pathname} className="animate-fade-in">
         <Outlet />
       </div>
+      <TransitionOverlay 
+        show={isLoggingOut} 
+        message="Keluar dari aplikasi..." 
+      />
     </AppShell>
   );
 }

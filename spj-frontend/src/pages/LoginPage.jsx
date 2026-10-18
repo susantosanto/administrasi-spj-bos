@@ -19,6 +19,7 @@ import IconButton from "../ui/atoms/IconButton";
 import FormField from "../ui/molecules/FormField";
 import Divider from "../ui/atoms/Divider";
 import { cn } from "../ui/cn";
+import TransitionOverlay from "../components/TransitionOverlay";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -49,7 +51,14 @@ export default function LoginPage() {
           storageHelper.set("auth_remember", true);
         }
         toast.success("Selamat datang, " + username + "!");
-        navigate("/dashboard");
+        
+        // Tampilkan overlay transisi
+        setIsTransitioning(true);
+        
+        // Tunggu 800ms, baru pindah halaman
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 800);
       } catch (err) {
         toast.error("Gagal masuk: " + err.message);
       } finally {
@@ -313,6 +322,10 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
+      <TransitionOverlay 
+        show={isTransitioning} 
+        message="Menyiapkan dashboard..." 
+      />
     </div>
   );
 }
