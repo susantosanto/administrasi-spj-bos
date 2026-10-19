@@ -1,0 +1,191 @@
+/**
+ * bkuPdfParser.js — Sprint 015 · M3b: baris → TransactionRow (≤200 baris)
+ *
+ * Masukan : fixture / hasil OCR engine  { items:[{str,x,y,w,h,page}], meta }
+ * Keluaran: { transactions, problems, reconcile, kop, meta }
+ *
+ * Bentuk baris WAJIB 17 field identik jalur Excel (bkuParser.js:346-366).
+ * `problems` TIDAK ikut ke baris — hanya untuk badge di layar preview.
+ *
+ * Deteksi tipe/kategori TIDAK disalin logikanya: memakai API publik
+ * redetectTypes() milik bkuParser.js (file itu TABU — harus 0 diff).
+ * Bentuk kolom & pengelompokan baris ada di bkuPdfLayout.js.
+ */
+import { redetectTypes } from './bkuParser.js'
+import {
+  kalibrasiNominal, barisPerHalaman, kolomAngka,
+} from './bkuPdfLayout.js'
+import { pisahTeks } from './bkuPdfTeks.js'
+import { bacaTanggal, tanggalPemisah, tanggalPolos } from './bkuPdfTanggal.js'
+
+const pad = (n) => String(n).padStart(2, '0')
+
+/**
+ * Buang label footer tabel (bukan milik sekolah).
+ *
+ * Label HEADER tabel ("TANGGAL", "URAIAN", "SALDO", ...) TIDAK dibuang di
+ * sini: "SALDO" bisa jadi kata sah di uraian ("Saldo Bank Bulan Desember
+ * 2025"). Area kop/header sudah otomatis terpisah oleh filter yData di
+ * barisPerHalaman — label header ada di atas jangkai data pertama.
+ */
+function buangHeader(items) {
+  const RE_FOOTER = /^HALAMAN\b/i
+  return items.filter((it) => !RE_FOOTER.test(it.str.trim()))
+}
+
+/**
+ * Identitas sekolah dari blok kop: nama, NPSN, tahun.
+ * Urutan item OCR tidak tepercaya, jadi dicari lewat KEDEKATAN — token berlabel
+ * lalu token paling dekat di kanannya. Label ditulis toleran tanda baca karena
+ * OCR bisa mengubah "Nama Sekolah" jadi "Nama,Sekolah.". Tidak ada nama
+ * sekolah yang di-hardcode di modul ini.
+ */
+export function bacaKop(items) {
+  const hal1 = items.filter((it) => it.page === 1 && it.y < 560)
+  const bersih = (v) => v.replace(/^[^:]{0,4}:\s*/, '').replace(/[\s,._-]+$/, '').trim()
+  const cari = (label) => {
+    const l = hal1.find((it) => new RegExp(label, 'i').test(it.str))
+    if (!l) return ''
+    const dekat = hal1
+      .filter((it) => it !== l && it.x > l.x && Math.abs(it.y - l.y) < 12)
+      .sort((a, b) => Math.abs(a.y - l.y) - Math.abs(b.y - l.y) || a.x - b.x)[0]
+    if (dekat) return bersih(dekat.str)
+    const pisah = l.str.split(':')
+    return pisah.length > 1 ? bersih(pisah.slice(1).join(':')) : ''
+  }
+  const th = hal1.map((i) => i.str).join(' ').match(/\b(20\d{2})\b/)
+  return {
+    namaSekolah: cari('Nama[\\s,._-]*Sekolah'),
+    npsn: cari('NPSN'),
+    tahun: th ? th[1] : '',
+    terbaca: hal1.length > 0,
+  }
+}
+
+/** "82.560.000" | "82560000" | "Rp 82.560.000" -> 82560000 */
+export function potongNominal(s) {
+  const v = String(s).replace(/[^\d]/g, '')
+  return v ? Number(v) : 0
+}
+
+/**
+ * Token tanggal pada satu baris.
+ * Bentuk berpemisah ("01-01-2026") didahulukan; bentuk tanpa pemisah
+ * ("01012026)") dipakai sebagai cadangan supaya baris tidak hilang.
+ */
+function cariTokenTanggal(items) {
+  for (const it of items) if (tanggalPemisah(it.str.trim())) return it
+  for (const it of items) if (tanggalPolos(it.str.trim())) return it
+  return null
+}
+
+/** Bangun 1 baris mentah (tanpa tipe & kategori). */
+function barisMentah(baris, edges) {
+  const tgl = cariTokenTanggal(baris.items)
+  if (!tgl) return null
+  const dibaca = bacaTanggal(tgl.str.trim())
+  const teks = pisahTeks(baris, edges)
+  const problems = []
+  if (!teks.uraian) problems.push('uraian_kosong')
+  if (!teks.kodeRekening && !teks.kodeKegiatan && !teks.noBukti) problems.push('kolom_geser')
+
+  const [penerimaan, pengeluaran, saldo] = kolomAngka(baris, edges, potongNominal)
+
+  // Tanggal tak terbaca -> baris TETAP dibuat supaya angka di bawahnya
+  // tidak bergeser, tapi ditandai supaya user mengoreksinya di preview.
+  // Men-drop baris justru menggeser semua saldo.
+  //
+  // Tanggal yang perlu DITEBAK (pemisah hilang saat OCR) tetap dipakai
+  // supaya baris tidak hilang, tapi ditandai 'tanggal_perlu_dikoreksi' —
+  // angka tebakan tidak boleh diam-diam dianggap benar; user memeriksa
+  // ulang di tabel preview sebelum menyimpan.
+  const oke = !!dibaca
+  if (!dibaca) problems.push('tanggal_tidak_valid')
+  else if (!dibaca.pasti) problems.push('tanggal_perlu_dikoreksi')
+  const year = oke ? dibaca.year : 0
+  const day = oke ? dibaca.day : 0
+  const month = oke ? dibaca.month : 0
+
+  return {
+    problems,
+    row: baris.page,
+    tanggal: { day, month, year },
+    tanggalStr: oke ? `${pad(day)}-${pad(month)}-${year}` : tgl.str.trim(),
+    tanggalISO: oke ? `${year}-${pad(month)}-${pad(day)}` : '',
+    bulan: month,
+    tahun: year,
+    kodeKegiatan: teks.kodeKegiatan,
+    kodeRekening: teks.kodeRekening,
+    noBukti: teks.noBukti,
+    uraian: teks.uraian,
+    penerimaan,
+    pengeluaran,
+    saldo,
+    debet: penerimaan,
+    kredit: pengeluaran,
+    tipe: null,
+    kategori: null,
+  }
+}
+
+/** Jaring pengaman: saldo harus runtun antar-baris. */
+export function reconcile(transaksi) {
+  const mismatches = []
+  for (let i = 1; i < transaksi.length; i++) {
+    const s = transaksi[i - 1]
+    const c = transaksi[i]
+    const harus = s.saldo + c.penerimaan - c.pengeluaran
+    if (Math.abs(harus - c.saldo) > 0.5) {
+      mismatches.push({
+        baris: i + 1, tanggal: c.tanggalStr, alasan: 'saldo_tak_runtun',
+        harus, dapat: c.saldo,
+      })
+    }
+  }
+  const masuk = transaksi.reduce((a, t) => a + t.penerimaan, 0)
+  const keluar = transaksi.reduce((a, t) => a + t.pengeluaran, 0)
+  const awal = transaksi.length
+    ? transaksi[0].saldo - transaksi[0].penerimaan + transaksi[0].pengeluaran : 0
+  const akhir = transaksi.length ? transaksi[transaksi.length - 1].saldo : 0
+  if (Math.abs(awal + masuk - keluar - akhir) > 0.5) {
+    mismatches.push({ alasan: 'saldo_tak_runtun_total', harus: akhir, dapat: awal + masuk - keluar })
+  }
+  return { ok: mismatches.length === 0, mismatches, saldoAwal: awal, masuk, keluar, saldoAkhir: akhir }
+}
+
+/**
+ * API utama.
+ * @param {{items:Array, meta?:object}} fixture
+ */
+export function parseBkuFixture(fixture) {
+  const semua = (Array.isArray(fixture) ? fixture : fixture.items || [])
+    .filter((it) => it && typeof it.str === 'string' && it.str.trim())
+  const kop = bacaKop(semua)
+  const items = buangHeader(semua)
+  const baris = barisPerHalaman(items)
+  // Kalibrasi HANYA dari item yang benar-benar ada di dalam baris data.
+  // Kalau ikut menghitung header, baris nomor kolom ("1 2 3 4 5 6 7 8")
+  // bisa mengalahkan kolom rupiah dan membuat semua angka masuk 0.
+  const itemsData = baris.flatMap((b) => b.items)
+  const edges = kalibrasiNominal(itemsData)
+  const mentah = baris.map((b) => barisMentah(b, edges)).filter(Boolean)
+  const bertipe = redetectTypes(mentah)
+
+  const problems = []
+  const transactions = bertipe.map(({ problems: p, ...row }) => {
+    for (const jenis of p || []) {
+      problems.push({ tanggal: row.tanggalStr, halaman: row.row, jenis })
+    }
+    return row
+  })
+
+  return {
+    transactions,
+    problems,
+    reconcile: reconcile(transactions),
+    kop,
+    meta: { ...(fixture.meta || {}), kolomAngka: edges, totalBaris: baris.length },
+  }
+}
+
+export default { parseBkuFixture, reconcile, potongNominal }

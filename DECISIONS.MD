@@ -904,3 +904,67 @@
   Alasan: perintah user langsung — "buat branch kerja baru terkait fitur upload pdf untuk BKU ... sebagai alternatif upload excel yang sudah berfungsi dan berjalan dengan sangat akurat" + "berikan notifikasi, setelah user bersedia menyetujui untuk di timpa ka lakukan timpa data, jika tidak bersedia maka data masih menggunakan hasil upload file excel saja". Jalur Excel tidak diganti; PDF hanya pintu masuk kedua ke model data yang sama.
   Dibuat oleh: user (perintah eksplisit) + builder (eksekusi pack)
   Dampak: (1) branch `feat/bku-upload-pdf`; (2) pack `planning/sprints/sprint-013/` (nomor 012 sudah dipesan WIP Cover/Sekat); (3) tidak ada penulisan parsial — bila user menolak timpa, `spj_bku_data` tidak disentuh sama sekali; (4) baris gagal dibaca / saldo tidak nyambung TIDAK disimpan, dilaporkan sebagai daftar baris; (5) metadata header PDF (NPSN/sekolah/sumber dana) tidak diambil — transaksi saja. Bukti audit: PDF contoh 21 hal **tanpa text layer** (0 karakter) → wajib OCR; hasil OCR 421 baris, total 182.305.000/149.582.000, saldo 32.723.000, dan 300 transaksi Jan–Jun identik dengan XLSX.
+
+## Q. Sprint 015 — engine OCR tunggal tanpa A/B (2026-10-19)
+
+**Status:** accepted (keputusan user eksplisit,_BUILD_REPORT task 2.2)
+
+### Konteks
+Pack sprint-015 merancang **A/B berangka** antara `@paddleocr/paddleocr-js@0.4.2`
+dan `tesseract.js@7.0.0` (BLUEPRINT 2.2, T-15): ukur akurasi uraian + sel
+golden di fixture hal 1–4 lalu 21 halaman, winner dipilih dari angka, yang kalah
+di-uninstall.
+
+A/B itu direkomendasikan karena dry run menandai 🔴 **risiko akurasi OCR** —
+OCR tanpa rotasi menghasilkan angka kacau (`2.560.000`, `.160.000`).
+
+### Fakta yang mengubah keputusan
+Selama **Task 0.1** ditemukan bahwa penyebab angka kacau itu **bukan engine,
+melainkan rotasi**. PDF contoh berorientasi SISI (teks 90°). Setelah
+di-rotasi 90° sebelum OCR:
+
+| Metrik (hal 1, engine sama) | Tanpa rotasi | Dengan rotasi 90° |
+|---|---|---|
+| Token sampah | `009′660't` | tidak ada |
+| Digit hilang | `.160.000` | **0** |
+| Rantai saldo | tidak konsisten | **82.560.000 → 81.560.000 → 80.560.000 → … → 75.910.000** |
+| Teks kop | kacau | `Nama Sekolah : SD NEGERI PASIRHALANG` (sempurna) |
+
+Dengan rotasi, **1.5 (PINTU GERBANG 1) lulus pada target yang paling ketat**:
+0 selisih jumlah/masuk/keluar/saldo Januari dan **akurasi uraian 100%** (5/5).
+Jadi risiko yang membuat A/B dirasa perlu sudah hilang tanpa ganti engine.
+
+### Keputusan
+User: **"skip A/B lanjut ke ui"**.
+
+- **Dilewati:** BLUEPRINT 2.2 (ukur A/B), 2.3 (uninstall engine kalah),
+  T-15 (tabel akurasi 2 baris di ADR), MODULE-PLAN T-21/T-22.
+- **Tetap dikerjakan:** BLUEPRINT 2.1 (adapter `ocrPage`) — bukan bagian A/B,
+  ini antarmuka yang dibutuhkan UI.
+- **Engine tunggal:** `tesseract.js@7.0.0` (pin eksak, sudah diverifikasi ada
+  di npm 2026-10-19).
+
+### Alasan memilih tesseract.js (tanpa A/B)
+1. Tidak butuh COOP/COEP (paddleocr-js butuh `SharedArrayBuffer` → header
+   `vite.config.js` + model `.onnx` self-host; task 2.4 jadi wajib, bukan
+   kondisional).
+2. `tesseract.js-core` + `ind.traineddata` bisa di-*vendor* ke `public/`,
+   sehingga tetap offline - syarat CONSTITUTION "tidak ada file yang dikirim
+   ke layanan mana pun".
+3. Teruji luas, API stabil, tidak butuh model eksternal berukuran besar.
+
+### Risiko yang **disengaja diterima**
+- **Kualitas runtime engine BELUM terukur.** Fixture dibangkitkan dengan
+  RapidOCR (Python, dev-only), yang **bukan** salah satu kandidat. Jadi akurasi
+  100% di T-08 adalah bukti untuk *pipeline parse*, **bukan** bukti bahwa
+  tesseract.js di browser akan menghasilkan item setara.
+- Mitigasi: smoke test tesseract.js di Node atas halaman 1 (bukan A/B — satu
+  engine saja, tanpa perbandingan) dijalankan pada task 2.1 sebagai pagar
+  risiko, bukan sebagai gerbang A/B yang ditunda.
+- Bila smoke test itu menunjukkan kualitas jauh di bawah RapidOCR,Voices:
+  kembali ke user untuk membuka kembali A/B (preseden sprint-013).
+
+### Dampak ke pack
+- BLUEPRINT 2.2–2.4 → superseded; digantikan 2.1 + 2.5 (smoke test).
+- T-15 → turun dari "wajib" menjadi "tidak berlaku (A/B dilewati)".
+- ACCEPTANCE Definisi "Selesai" tidak lagi menuntut tabel A/B.
