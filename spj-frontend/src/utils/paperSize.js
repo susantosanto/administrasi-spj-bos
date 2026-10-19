@@ -15,6 +15,9 @@ export const PAPER_SIZES = {
     cssWidth: '210mm',
     cssMinHeight: '297mm',
     pageSize: 'A4',
+    // Orientasi landscape — dipakai dokumen sekat/cover (lihat
+    // templateConfig.js orientation + index.css `.print-container.landscape`).
+    pageSizeLandscape: 'A4 landscape',
   },
   F4: {
     id: 'F4',
@@ -26,6 +29,7 @@ export const PAPER_SIZES = {
     cssMinHeight: '330mm',
     // @page memakai inci agar Chrome/Firefox pas ke Folio/F4.
     pageSize: '215.9mm 330.2mm',
+    pageSizeLandscape: '330.2mm 215.9mm',
   },
 }
 
@@ -51,7 +55,12 @@ function terapkanAturanPage() {
     document.head.appendChild(el)
   }
   // @page tak bisa di-scope per elemen — disuntik global sesuai pilihan.
-  el.textContent = `@media print { @page { size: ${def.pageSize}; margin: 0; } }`
+  // Aturan bernama 'landscape' HANYA aktif bila sebuah elemen memakai
+  // `page: landscape` (lihat index.css `.print-container.landscape`).
+  // Tanpa binding it, aturan 'landscape' mati dan dokumen sekat/cover
+  // tercetak portrait walau layar landscape.
+  el.textContent = `@media print { @page { size: ${def.pageSize}; margin: 0; }` +
+    ` @page landscape { size: ${def.pageSizeLandscape}; margin: 0; } }`
 }
 
 export function setPaperSize(id) {

@@ -830,3 +830,77 @@
   Alasan: perintah user (task 46, user-verified) — TTD tunggal di kiri terlihat janggal; kanan = posisi formal dokumen
   Dibuat oleh: user (2026-10-07)
   Dampak: SignatureFooter cabang single-TTD `justify-between` → `justify-end` (undangan_mamin, pesanan_mamin, buku_tamu, daftar_hadir); SPDForm helper ttdKepala `mx-auto` → `ml-auto mr-0`; multi-TTD + format 4 baris task 39 tak tersentuh; merge 0c5d986 (feat da4c37a)
+
+[2026-10-18] Keputusan: background biru nama Bulan di Sekat WAJIB dipertahankan (jangan dihilangkan)
+  Status: accepted
+  Alasan: perintah user langsung — bar biru = penanda visual bulan di bendel LPJ, konsisten dengan bar navy nama sekolah di Cover contoh Bandung Barat
+  Dibuat oleh: user (2026-10-18)
+  Dampak: config `sekat_lpj` + blok `CoverHeader` varian sekat wajib render bar biru `#004ac6` (BLUE-ONLY AGENTS.MD) berisi nama bulan; verifikasi visual vs contoh saat sprint Cover/Sekat dieksekusi
+
+[2026-10-18] Keputusan: sesi perbaikan "cek project" — blok template duplikat dihapus, nama identitas di `defaults` template dikosongkan, hardcode residual TIDAK disentuh di luar cakupan
+  Status: accepted
+  Alasan: (1) `npm run build` EXIT 1 karena blok `bap_kas` terpaste dua kali (baris 1193–1262) — proyek tak bisa dijalankan; (2) `defaults.bap_kas` memuat nama riil (`YUNIARTI, S.Pd`, `AHMAD, S.Pd`) = kelas hardcode yang Sprint 001/002 sudah berantas, padahal `previewDocs.js:316–317` sudah meng-override dari Pejabat Sekolah sehingga nilainya mati saat preview; (3) 2 residual T-02 (`KopGugus.jsx:17`, komentar `SignatureFooter.jsx:8`) sudah ada di HEAD dan berada di blok cetak SHARED — AGENTS.MD melarang refactor di luar cakupan sprint, jadi dicatat untuk task sendiri, bukan dibenahi diam-diam.
+  Dibuat oleh: builder (sesi "cek project", disetujui user)
+  Dampak: build hijau exit 0 (`✓ built in 7.81s`); key template 35 → 34 tanpa duplikat; gate T-02 5 → 2 hit (2 residual = blocker+sprint berikutnya); 28 file junk 0-byte + 5 log dihapus; `.gitignore` +4 direktori agent + `*.log` + `/*.png` + `~$*`. WIP Cover/Sekat TANPA pack tidak dibuang — menunggu keputusan user di QUESTIONS.MD (pack Sprint 012 / branch terpisah / buang).
+
+## O. Format 6 dokumen kas/cover vs file referensi (2026-10-18, sesi "cek project" ronde-2)
+
+[2026-10-18] Keputusan: 4 keputusan user atas audit format 6 dokumen baru (register kas, BAP, pengaduan, kritik-saran, cover, sekat) vs `template/Contoh Template App_Register-BA Kas.xlsx` + `template/Contoh template COVER.pdf`:
+  1. **Font dokumen = font aplikasi** (bukan Bookman Old Style/Arial sumber) — override `fontFamily: 'Arial...'` di `CoverHeader.jsx` dihapus.
+  2. **Format uang "Rp 100.000,-"** (koma sebelum strip) — dipertahankan; kolom subtotal tanpa strip tetap "Rp 0".
+  3. **Bahasa tanggal = Indonesia** ("8 Januari 2026") — `formatTanggalContoh` di `dokKas.js` ganti array EN→ID.
+  4. **Sekat = landscape seperti cover, HANYA 4 elemen**: logo dinas + judul sekat + bar biru nama bulan + keterangan; blok nama sekolah DIBUANG; `sekat_lpj.orientation` portrait→landscape. ⚠️ Poin warna/bentuk bar **DIPERBARUI ronde-3** → kini SAMA PERSIS dengan bar cover (#002060): lihat ADR-P.
+  Status: accepted
+  Alasan: perintah user langsung atas hasil audit ekstraksi file referensi (openpyxl + content-stream PDF); sumber xlsx sendiri TIDAK seragam (judul lama non-bold dirender bold, "DANA..." 14pt non-bold, tanggal Inggris di E31 vs Indonesia di format sel) sehingga nilai sebenarnya harus diputuskan manusia, bukan default agent
+  Dibuat oleh: user (keputusan) + builder (eksekusi)
+  Dampak: 6 file diubah (`dokKas.js`, `previewDocs.js`, `BapKas.jsx`, `RegisterKas.jsx`, `LembarPengaduan.jsx`, `LembarKritikSaran.jsx`, `CoverHeader.jsx`, `templateConfig.js`). Judul/PERIODE Pengaduan & judul/baris-dana Kritik-Saran jadi non-bold (persis sumber); kolom lembar kosong cetak "0"/"Rp 0" (mirror fmt `#,##0` + accounting sumber); BAP tambah label "Tanggal :" + nomor SK di baris terpisah (B6/B7); bug "BULAN BULAN JANUARI" di sekat diperbaiki.
+
+[2026-10-18] Keputusan: nilai Register Kas & BAP diambil dari data BKU yang sudah diupload (`spj_bku_data`) — ketikan user tetap menimpa
+  Status: accepted
+  Alasan: perintah user langsung; sheet "Data" contoh memang turunan BKU (D = saldo awal + BOSP masuk, K = D − saldo akhir, A = saldo akhir)
+  Dibuat oleh: user (perintah eksplisit) + builder (eksekusi)
+  Dampak: `kasDocs` — Sub Jumlah (3) "Saldo Bank, Surat Berharga, dll." default = saldo akhir BKU dikurangi pecahan fisik (B ≡ A, perbedaan 0); BAP a) uang fisik = pecahan Register, b) Saldo Bank = sisa saldo BKU, c) 0, "Saldo uang menurut Kas Umum" = saldo akhir BKU; paragraf SK Bupati pakai kabupaten dari Data Sekolah + tahun anggaran BKU. Bukti: node oracle 38/38 PASS (BKU Januari + Februari) + build exit 0. UNTESTED: render browser/cetak fisik.
+
+## P. Register Kas tabel + lembar/keping otomatis + nama SD di bar cover (2026-10-18, sesi "cek project" ronde-3)
+
+[2026-10-18] Keputusan: **Register Kas WAJIB terlihat sebagai TABEL** — bukan baris teks polos
+  Status: accepted
+  Alasan: keluhan user setelah menguji ronde-2 ("terutama untuk tampilan dokumen register kas tidak memakai tabel"). Sheet sumber memang TIDAK pakai grid (showGridLines = False, print area B2:H51) melainkan **garis putus-putus (border dotted) per baris pecahan** — itulah "tabel"-nya. Menampilkan tanpa garis = tampilan tak sama dengan referensi.
+  Dibuat oleh: user (keluhan) + builder (eksekusi)
+  Dampak: `RegisterKas.jsx` — tiap baris pecahan: garis bawah putus-putus di kolom LEMMBAR/KEPING (E:F sumber) dan kolom JUMLAH (H sumber); baris ke-2 dan seterusnya juga garis ATAS putus-putus di kolom lembar/keping (E17:F22, E26:F28). Baris Sub Jumlah/Jumlah/Perbedaan **polos** (H23/H29/H31/H33/H35 sumber tanpa border) — jangan "dirapikan" sendiri. Lebar kolom `<colgroup>` dari COL_WIDTH Excel B..H (3,22/22,22/17,0/2,55+5,78/15,0/26,11 = 91,88 total → 3,5/24/18,5/9/16/29 %) + `table-fixed`.
+
+[2026-10-18] Keputusan: **nilai lembar/keping/jumlah uang kertas & uang logam harus benar** (regresi: Sub Jumlah (1)/(2) SELALU "Rp 0")
+  Status: accepted
+  Alasan: bug klasik dobel-format — `previewDocs.js` mengirim string SUDAH terformat (`subKertasValue: "Rp 300.000"`), lalu `RegisterKas.jsx` memformatnya LAGI lewat `rp()` → `Number("Rp 300.000")` = NaN → `Rp 0`. Ditambah: form Register KAS sebelumnya **tidak punya input lembar/keping sama sekali**, jadi nilai tak mungkin diisi user.
+  Dibuat oleh: user (keluhan) + builder (eksekusi)
+  Dampak: (1) Sub Jumlah (1)/(2) memakai string terformat apa ada (`data.subKertasValue ?? rp(subKertas)`), `rp()` hanya untuk angka mentah; (2) bug lain diperbaiki: kolon ganda `": :"` di 5 baris label/value (sumber hanya satu ":" di kolom E) dan `width:9%16%` tak-valid → diganti `<colgroup>`; (3) nilai "Perbedaan (A - B)" pindah ke kolom TERAKHIR (sumber: label C35, nilai H35).
+
+[2026-10-18] Keputusan: **lembar & keping OTOMATIS dari Saldo Kas Tunai** (greedy), ketikan user tetap menang per baris
+  Status: accepted
+  Alasan: perintah user langsung ("tolong automasi terisi berdasarkan jumlah saldo kas tunai nya"). BKU tidak punya rincian pecahan, jadi SALDO TUNAI adalah nilai yang tetap dari manusia; pecahannya matematika deterministik (greedy) → aman diotomasi. Tidak ada fallback mengarang nilai identitas.
+  Dibuat oleh: user (perintah eksplisit) + builder (eksekusi)
+  Dampak: helper baru di `dokKas.js` — `PECAHAN_DAFTAR` (11 baris urut sumber, id stabil `k-<nominal>`/`l-<nominal>`), `pecahanDariSaldo(nominal)` (greedy kertas 100.000→1.000 dulu, baru logam 1.000→100; Rp 1.000 dihitung sebagai LEMBARAN KERTAS), `lembarPecahan(tersimpan, saldoTunai)` (ketikan > otomatis > kosong), `subtotalPecahanJenis`. Form Register KAS dapat field **"Saldo Kas Tunai — uang fisik (Rp)"** + tabel input 11 baris; `kasDocs` memakai `lembarPecahan`. Bukti: node oracle 24/24 PASS — tunai 406.000 → 4×100rb + 1×5rb + 1×1rb (semua kertas), 1.500 → 1×1rb kertas + 1×500 logam, ketikan 1 baris menang sementara baris lain tetap otomatis, tunai 0 → semua kosong (cetak 0/Rp 0 persis sumber).
+
+[2026-10-18] Keputusan: **nama SD HARUS ada di bar biru Cover, diambil dari Data Sekolah**
+  Status: accepted
+  Alasan: keluhan user ("di cover ada nama SD nya di background biru tersebut"). Akar BUKAN komponen cover (sudah benar `v('namaSekolah')` di bar #002060) melainkan **label Excel**: sheet "Data" contoh memakai label **"SEKOLAH"** (A4) sedangkan `LABEL_MAP` parser hanya mengenali `'nama sekolah'` → `header.nama_sekolah` kosong → `data.namaSekolah` kosong → bar tercetak kosong.
+  Dibuat oleh: user (keluhan) + builder (eksekusi)
+  Dampak: `sekolahParser.js` tambah SCAN 3 fallback label **persis "SEKOLAH"** (bukan substring — supaya "ALAMAT SEKOLAH" tidak tersapu; dijalankan SETELAH SCAN 1/2 agar label lengkap tetap menang) + resolver `allFields` di `getSchoolData()` untuk data yang sudah tersimpan tanpa upload ulang (`namaSekolah`, `kabupaten`, `kecamatan`). Geometri bar dari content stream COVER.pdf: rect 97,824,189,17 666,55×35,64 pt, teks putih bold ~31pt. Bukti: oracle kasus "nama SD dari allFields label SEKOLAH" PASS.
+
+[2026-10-18] Keputusan: **bar biru SEKAT harus SAMA PERSIS dengan bar COVER** (warna + bentuk)
+  Status: accepted (menggantikan poin 4 ADR-O di atas)
+  Alasan: keluhan user ("warna biru di dokumen sekat tidak sama dengan warna biru di dokumen cover, serta bentuk warna biru nya di dokumen sekat juga tidak sama"). Ronde-2 memakai #004ac6 (biru terang) + padding 5mm/12mm + min-width 120mm + 28pt — beda warna DAN beda bentuk dari bar cover #002060.
+  Dibuat oleh: user (keluhan) + builder (eksekusi)
+  Dampak: `CoverHeader.jsx` — konstanta bersama `BAR_GAYA` (#002060, putih bold 31pt, line-height 35,64pt, lebar 235,6mm, letter-spacing 0,5pt) dipakai oleh COVER dan SEKAT (hanya margin-top layout yang beda: 8mm vs 12mm); kelas CSS tunggal `bar-navy`; aturan `.sk-print-area .bar-biru` (#004ac6) **dihapus** (mati). Bukti PDF: navy #002060 ADA, #004ac6 TIDAK ADA.
+
+[2026-10-18] Keputusan: dokumen landscape (cover/sekat) harus CETAK landscape — named page hanya berlaku untuk box in-flow
+  Status: accepted
+  Alasan: temuan saat verifikasi PDF ronde-2 — `cetak-sekat-nobg.pdf` keluar 595,92×842,88 (portrait) walau `@page landscape { size: A4 landscape }` ada. Diuji terisolasi di Edge 155: `page: landscape` **diabaikan untuk box `position: absolute`** (D & F portrait) dan berlaku untuk static/relative (E, G, I landscape). Selain itu `min-height: 297mm` warisan aturan dasar bikin halaman ke-2 kosong.
+  Dibuat oleh: builder (temuan verifikasi) + persetujuan user (mode Agent)
+  Dampak: `index.css` — `.print-container.landscape` di `@media print` jadi `position: relative; left/top: auto; min-height: 210mm` (aman: hanya SATU `.print-container` terlihat saat cetak karena panel preview dibungkus `print:hidden`); `.print-container.landscape { page: landscape }` di luar @media; `paperSize.js` suntik `@page landscape { size: A4 landscape | 330.2mm 215.9mm }` (A4/F4). Bukti PDF: sekat **1 halaman 841,92×594,96 LANDSCAPE + navy #002060** dengan `printBackground: false` (setelan default dialog cetak user).
+
+[2026-10-19] Keputusan: **upload PDF BKU = jalur kedua**, dan konflik data diselesaikan lewat NOTIFIKASI (setuju → timpa, tidak → data Excel dipertahankan)
+  Status: accepted
+  Alasan: perintah user langsung — "buat branch kerja baru terkait fitur upload pdf untuk BKU ... sebagai alternatif upload excel yang sudah berfungsi dan berjalan dengan sangat akurat" + "berikan notifikasi, setelah user bersedia menyetujui untuk di timpa ka lakukan timpa data, jika tidak bersedia maka data masih menggunakan hasil upload file excel saja". Jalur Excel tidak diganti; PDF hanya pintu masuk kedua ke model data yang sama.
+  Dibuat oleh: user (perintah eksplisit) + builder (eksekusi pack)
+  Dampak: (1) branch `feat/bku-upload-pdf`; (2) pack `planning/sprints/sprint-013/` (nomor 012 sudah dipesan WIP Cover/Sekat); (3) tidak ada penulisan parsial — bila user menolak timpa, `spj_bku_data` tidak disentuh sama sekali; (4) baris gagal dibaca / saldo tidak nyambung TIDAK disimpan, dilaporkan sebagai daftar baris; (5) metadata header PDF (NPSN/sekolah/sumber dana) tidak diambil — transaksi saja. Bukti audit: PDF contoh 21 hal **tanpa text layer** (0 karakter) → wajib OCR; hasil OCR 421 baris, total 182.305.000/149.582.000, saldo 32.723.000, dan 300 transaksi Jan–Jun identik dengan XLSX.

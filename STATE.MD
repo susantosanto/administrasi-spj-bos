@@ -5,6 +5,35 @@
 - Mulai (titik adopsi workflow): 2026-09-13
 
 ## Status Saat Ini
+- **2026-10-18 (sesi "cek project" ronde-3 — Register Kas tabel + nilai lembar/keping + cover nama SD + sekat biru): 3 KELUHAN USER DITUTUP DENGAN BUKTI.** User melaporkan ronde-2: (1) nilai lembar/keping/jumlah uang kertas & logam salah di Register Kas, (2) Register Kas "tidak memakai tabel", (3) nama SD tidak ada di bar biru Cover, (4) biru sekat ≠ biru cover. Semua dilacak ke akar + diperbaiki + diverifikasi: **(a) REGISTER KAS jadi TABEL bergaris putus-putus** persis sumber (kolom LEMBAR/KEPING dan JUMLAH bergaris bawah putus-putus; baris ke-2+ juga garis atas di kolom lembar/keping) + `<colgroup>` lebar kolom sumber (3,5/24/18,5/9/16/29 %) + `table-fixed`; **bug kolon ganda `": :"** dan `width:9%16%` (tak valid) dihapus; **(b) Sub Jumlah (1)/(2) SELALU "Rp 0"** — builder kirim string terformat (`"Rp 300.000"`) lalu komponen format ulang → `Number("Rp 300.000")` = NaN → 0. Kini string terpakai apa ada; **(c) input LEMBAR & KEPING ditambah** (11 baris di form Register KAS — sebelumnya TIDAK ADA inputnya sama sekali) + **OTOMATIS dari Saldo Kas Tunai** (greedy kertas 100.000→1.000 lalu logam 1.000→100; ketikan menang per baris); **(d) nama SD di bar biru Cover** kosong karena parser hanya mengenali label "NAMA SEKOLAH" sedangkan sheet Data contoh memakai label **"SEKOLAH"** → ditambah fallback label persis di `sekolahParser.js` (SCAN 3) + resolver `allFields` di `getSchoolData()`; **(e) bar sekat kini SAMA PERSIS dengan cover** (#002060, lebar 235,6mm, teks putih bold 31pt — dulu #004ac6 + padding/min-width sendiri) lewat konstanta `BAR_GAYA` bersama; **(f) dokumen landscape (cover/sekat) tercetak PORTRAIT** — akar: named page `page: landscape` tak berlaku untuk box `position: absolute` (terbukti Edge 155: absolute → 595×842, static/relative → 842×595) + `min-height: 297mm` bikin halaman ke-2 → `.print-container.landscape` jadi `position: relative` + `min-height: 210mm`. Gate: build exit 0 (`✓ built in 9.58s`) · node oracle **24/24 PASS** (kasus baru: auto-fill tunai 406.000 → 4×100rb+1×5rb+1×1rb, sisa <1.000 pakai logam, ketikan menang, BAP a/b ikut otomatis, nama SD dari allFields "SEKOLAH") · PDF bukti: sekat **1 halaman 841,92×594,96 LANDSCAPE + navy #002060 tanpa #004ac6**, register portrait dengan semua nilai benar. TANPA commit/push (kuasa user). ADR baru seksi P di DECISIONS.MD + fakta tahan-lama di `.workbuddy-ai/memory/`.
+- **2026-10-18 (sesi "cek project" ronde-2 — audit format + eksekusi 4 keputusan user): SELARAS FILE REFERENSI + NILAI DARI BKU.** 4 keputusan user (font aplikasi · uang "Rp 100.000,-" · tanggal Indonesia · sekat landscape 4 elemen) + nilai Register/BAP dari BKU (`spj_bku_data`) → 8 file diubah (`dokKas.js`, `previewDocs.js`, `BapKas.jsx`, `RegisterKas.jsx`, `LembarPengaduan.jsx`, `LembarKritikSaran.jsx`, `CoverHeader.jsx`, `templateConfig.js`). Perbaikan dari audit ekstraksi file referensi: judul/PERIODE Pengaduan & judul/baris-dana Kritik-Saran jadi non-bold; kolom lembar kosong cetak "0"/"Rp 0" (mirror fmt sumber); BAP label "Tanggal :" + nomor SK baris terpisah + SK Bupati kabupaten dari Data Sekolah; bug "BULAN BULAN JANUARI" sekat diperbaiki; logo cover 58×54 → 40,4×38,9mm (persis PDF). Gate: build exit 0 (`✓ built in 12.43s`) · node oracle **38/38 PASS** (BKU Januari+Februari: D/K/A, Sub3, BAP a/b/c/Jumlah, tanggal Indonesia, sekat, tanpa namaSekolah) · artefak tes dihapus. ADR baru seksi O di DECISIONS.MD. UNTESTED: render browser/cetak fisik (printer-gated) + acceptance-runner. WIP 6 dokumen TANPA architect pack **masih** belum di-commit (kuasa user).
+- **2026-10-18 (sesi "cek project" + perbaikan): BUILD DIPULIHKAN, gate T-02 5 → 2 residual, junk root dibersihkan.**
+  Temuan: `npm run build` **EXIT 1** — `templateConfig.js` blok `bap_kas` **terpaste dua kali**
+  (baris 1193–1262 = kurung yatim + blok duplikat) → parser gagal, proyek tak bisa dijalankan.
+  Perbaikan: hapus 70 baris yatim/duplikat (blok sah 1157–1192 dipertahankan, komentar header
+  Pengaduan dipulihkan) → **35 → 34 key template, 0 duplikat**; build hijau `✓ built in 7.81s` (exit 0).
+  Gate T-02 (15 pola, wajib 0 hit): **5 → 2 hit**. Dibersihkan: `templateConfig.js` defaults
+  `namaPemeriksa`/`namaDiperiksa` (`'YUNIARTI, S.Pd'`/`'AHMAD, S.Pd'`) → `''` — `previewDocs.js:316–317`
+  sudah meng-override dari Pejabat Sekolah (`sig['kepala-sekolah']`/`sig['bendahara']`) jadi **0 dampak print** ·
+  `previewDocs.js` fallback `barisPemda` `'PEMERINTAH KABUPATEN BANDUNG BARAT'` → kosong-jujur (ikut pola `KopSurat`) ·
+  fallback `tempatBku` `'Bandung Barat'` → `''`.
+  ⚠️ **Residual 2 hit PRE-EXISTING di HEAD (di luar cakupan sesi, TIDAK disentuh):**
+  `blocks/KopGugus.jsx:17` `kabupaten: 'PEMERINTAH KABUPATEN BANDUNG BARAT'` (bertentangan ADR F-4
+  "baris 9 prop-driven") + `blocks/SignatureFooter.jsx:8` komentar `SDN Pasirhalang` → **klaim
+  "T-02 = 0 hit" di STATE/pack tidak akurat**; masuk sprint berikutnya.
+  Kebersihan repo: **28 file junk 0-byte** di root (jebakan quoting PowerShell: `'`, `500kB)`,
+  `section+deep-link`, dst) + **5 `*.log`** dihapus; `.gitignore` +4 direktori agent (`.birdview/`,
+  `.intent/`, `.playwright-mcp/`, `pencil.dev/`) + `*.log` + `/*.png` + `~$*` (lock Excel masih
+  terkunci aplikasi user — tak terhapus, sudah diabaikan).
+  🔴 **WIP tak-ter-commit tanpa architect pack (melanggar AGENTS.MD "DILARANG coding tanpa pack"):**
+  Cover/Sekat + 6 template kas baru (`register_kas`, `bap_kas`, `pengaduan_masyarakat`,
+  `kritik_saran`, `cover_lpj`, `sekat_lpj`) + `blocks/CoverHeader.jsx` (67 baris, varian cover/sekat) +
+  `utils/dokKas.js` (helper ringkasan kas bulanan dari BKU) + form kas di `DokumenKelengkapanPage.jsx`
+  + `kasDocs()` di `previewDocs.js` + `docs/PRD_PAKET_SUMBER_BARIS_SIPLAH.md` (PRD Sprint 011 belum di-commit)
+  → **butuh architect pack Sprint 012** sebelum lanjut.
+  UNTESTED: semua runtime (sesi ini murni statis + build; belum ada uji browser/cetak).
+- **Sprint 011 Paket Sumber Baris + Toggle SIPLAH — SELESAI 2026-10-10 (merge `e28e976` + state `9a14f88`; main sinkron origin/main).** Acceptance fresh: laporan utama REWORK (8 PASS / 2 GAP-desain G-1/G-2 / E-2 UNTESTED) → adendum task 70 opsi (a): terima desain cari+centang, pack 4 dokumen diselaraskan (T-04'/T-05'/C-03/C-04 ditulis ulang, TOLAK_KEY dihapus dari BLUEPRINT/storage-list, G-1/G-3 CLOSED) → adendum kedua task 71 verifikasi ulang fresh mini **T-04'/T-05'/C-03/C-04 4/4 PASS** (console 0 errors; build di main exit 0, 195 modul, warning xlsx pre-existing). Checklist ACCEPTANCE.MD C-01..C-08 [x] penuh. Sisa: G-2 OPEN-kode (`TOLAK_KEY` export + komentar yatim — pembersihan kode untuk sprint berikut) + G-4 observasi flip-mode (bukan bug) + E-2 & cetak fisik UNTESTED (lihat Blockers).
+- **Sprint 011 builder (detail arsip):** branch `feat/sprint-011-paket-sumber` (dari main @a176947, memuat kerja 010): 1 baru (`paketPbj.js`: kunci A1 isSudahBerdokumen + kandidatKeranjang + bkuKePaketRow + manualKePaketRow subset A5 + arsipkanBaris/kembalikanBaris + terapkanMode) + 3 ubah (previewDocs: pbjDocs gate SIPLAH=1 doc; DokumenKelengkapanPage: toggle SIPLAH/NON-SIPLAH persist `spj_pbj_mode` default non + panel cari+centang + guard tanpa auto-tambah + edit inline + arsip; BKUPage: tombol "Kirim ke PBJ").
 - **MERGE main 2026-10-10 (`e28e976`): feat/sprint-011-paket-sumber → main fast-forward, memuat tumpukan 010 (`1ff8e97`) + 011.** C-03/C-04 dicentang pack-keeper (verdict task 71: T-04'/T-05'/C-03/C-04 4/4 PASS). Isi: 10 file (pack sprint-011: ACCEPTANCE C-01..C-08 penuh + BLUEPRINT/REQUIREMENTS/HANDOFF selaras cari+centang + VERIFICATION-REPORT adendum; src: paketPbj.js baru + DokumenKelengkapanPage cari+centang + BKUPage + previewDocs). Build di main exit 0 (7.85s, 195 modul, warning xlsx pre-existing). Junk/artefak lokal TIDAK ikut commit. Main lokal ahead origin, tanpa push (kuasa user).
 
 - **Sprint 011 Paket Sumber Baris + Toggle SIPLAH — 🟡 BUILDER SELESAI (STATIK+NODE) 2026-10-10 di branch `feat/sprint-011-paket-sumber` (dari main @a176947, memuat kerja 010), tanpa commit/push (kuasa user).**
@@ -530,7 +559,10 @@
   LPJ-mati 0 hit · non-blue tambah 0 · package 0 · cetak tak tersentuh · prefix spj utuh.
   Verifier FINAL APPROVED Medium (batas live klik+screenshot). **Belum push** (ahead 3), **belum acceptance fresh**.
   Detail: `planning/sprints/sprint-004/BUILD-REPORT.MD` §ADDENDUM REVISI 2026-10-02.
-- Terakhir Diperbarui: 2026-10-07 (state-keeper sinkron pasca-push TTD kanan — merge 0c5d986 + push 14e5077..0c5d986 masuk STATE + 1 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
+- Terakhir Diperbarui: 2026-10-18 (sesi "cek project" ronde-3 — Register Kas jadi tabel + Sub Jumlah (1)/(2) tidak lagi "Rp 0" + input lembar/keping + auto dari saldo tunai + nama SD di bar biru cover + bar sekat sama persis dengan cover + landscape fix; build exit 0, oracle 24/24, PDF bukti; tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-18 (sesi "cek project" ronde-2 — build dipulihkan dari `bap_kas` duplikat, 4 keputusan user dieksekusi, gate T-02 5→2 residual, junk root + .gitignore bersih, WIP Cover/Sekat dicatat sebagai blocker proses; tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-10 (state-keeper tutup Sprint 011 — SELESAI + push 9a14f88 + ADR cari+centang + risiko TOLAK_KEY yatim + QUESTIONS G-1/E-1 closed; E-2/cetak fisik jadi blocker; tanpa ubah pack/src, tanpa commit/push)
+- Terakhir Diperbarui sebelumnya: 2026-10-07 (state-keeper sinkron pasca-push TTD kanan — merge 0c5d986 + push 14e5077..0c5d986 masuk STATE + 1 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-06 (state-keeper sinkron pasca-push tab pajak — merge 14e5077 + push 0ae1638..14e5077 masuk STATE + 2 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-06 (state-keeper tutup sesi — merge 9659372/32c5b7e/0ae1638 masuk STATE + 6 ADR baru; main sinkron origin; tanpa ubah src, tanpa commit/push)
 - Terakhir Diperbarui sebelumnya: 2026-10-02 (T8 docs — revisi BKU T1-T7 masuk STATE + BUILD-REPORT; commit docs terpisah, tanpa merge/push)
@@ -553,7 +585,19 @@
 
 | 008 | Panel Preview Document A4 ala SIMENULIS + SK Honor + fixes blank/logo (merge `9659372`; acceptance manual runtime TERBUKA) | U0001F7E1 Menunggu acceptance | 2026-10-06 |
 | 009 | Pecah pesanan Nasi/Snack + sticky preview + hapus Ringkasan + logo/TTD preview + TTD 4 baris (merge `9659372`; Fase A in-progress, Fase B selesai) | U0001F7E1 Berjalan | 2026-10-06 |
+| 011 | Paket Sumber Baris + Toggle SIPLAH PBJ — panel cari+centang ganti chips/Tolak-per-kartu (merge `e28e976` + state `9a14f88`; T-04'/T-05'/C-03/C-04 4/4 PASS task 71; E-2 + cetak fisik UNTESTED) | SELESAI | 2026-10-10 |
 ## Langkah Selanjutnya
+- **Sesi 2026-10-18. Berikutnya (urutan):**
+  1. **Architect pack Sprint 012** untuk WIP Cover/Sekat + dokumen kas (6 template) — WIP sudah ada di working tree tapi tanpa pack; sesuai AGENTS.MD pack dulu, lalu dry run, lalu eksekusi.
+  2. **Commit WIP** (hanya setelah paket Reviewed — `templateConfig.js`, `DokumenKelengkapanPage.jsx`, `previewDocs.js`, `TemplateEngine.jsx`, `blocks/index.js` + baru `CoverHeader.jsx`, `dokKas.js`, `public/logo-dinas.png`) — **tanpa** artefak junk; commit/push = kuasa user.
+  3. **Bersihkan residual T-02** (`KopGugus.jsx:17` + komentar `SignatureFooter.jsx:8`) — blok `KopGugus` shared → butuh task sendiri di pack, tidak boleh di luar cakupan.
+  4. **Bersihkan `TOLAK_KEY` yatim** (G-2 Sprint 011) — `paketPbj.js` export + param `tolakSet` + komentar; grep `keranjang_tolak|tolakSet` = 0.
+  5. `/acceptance-runner konteks segar` — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28) masih antre.
+- **Tutup Sprint 011 2026-10-10 (`9a14f88`, main sinkron origin). Berikutnya:**
+- **Tutup Sprint 011 2026-10-10 (`9a14f88`, main sinkron origin). Berikutnya:**
+  1. **E-2 + cetak fisik** — upload PDF asing di mode SIPLAH (fallback manual jujur) + cetak fisik panel cari+centang & gate 1-dokumen SIPLAH (UNTESTED, printer-gated).
+  2. **Sprint berikut: bersihkan `TOLAK_KEY` yatim (G-2 OPEN-kode)** — export + param `tolakSet` + komentar tanpa UI di `paketPbj.js`/`DokumenKelengkapanPage.jsx` (pack sudah steril: key dihapus dari BLUEPRINT/storage-list).
+  3. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28) masih antre (acceptance runtime TERBUKA).
 - **Sinkron pasca-push TTD kanan 2026-10-07 (`0c5d986`). Berikutnya (acceptance runtime TERBUKA):**
   1. **/acceptance-runner konteks segar** — Sprint 005 (task 12), Sprint 007 (task 18), Sprint 008 (task 28: 3 zona + form kosong + landscape).
   2. Lanjutkan **Sprint 009 Fase A** (task 35, in-progress) + eksekusi Sprint 007 (task 17).
@@ -620,6 +664,9 @@
   (`README.md` sudah beres 2026-09-13 — GitHub-only, lihat DECISIONS.MD.)
 
 ## Blockers
+- **2026-10-18 (proses): WIP Cover/Sekat + dokumen kas tanpa architect pack.** Kode sudah ada di working tree tapi belum punya pack Sprint 012 → sesuai AGENTS.MD, pack + dry run dulu sebelum lanjut eksekusi/acceptance. Blocking untuk sprint berikutnya, TIDAK memblok build (build hijau).
+- **2026-10-18 (data): 2 residual hardcode T-02 yang sudah ada di HEAD** — `blocks/KopGugus.jsx:17` (kabupaten literal) + komentar `blocks/SignatureFooter.jsx:8`. Keduanya di blok cetak SHARED → tidak boleh disentuh di luar task pack sendiri.
+- **2026-10-10 (tutup Sprint 011): E-2 UNTESTED + cetak fisik UNTESTED (printer-gated).** Upload PDF non-invoice di mode SIPLAH belum diuji live (butuh fixture PDF asing; jalur fallback manual jujur ada di kode). Cetak fisik panel cari+centang + gate 1-dokumen SIPLAH belum terbukti di printer. Non-blocking: sprint dinyatakan SELESAI (4/4 PASS task 71); temuan cetak masuk sprint berikut.
 - **2026-10-07 (sinkron TTD kanan): TIDAK ADA blocker.** Main sinkron origin/main (`0c5d986`); baris push-tertunda di bawah SUPERSEDED.
 - **2026-10-06 (sinkron pajak): TIDAK ADA blocker.** Main sinkron origin/main (`14e5077`); baris push-tertunda di bawah SUPERSEDED.
 - **2026-10-06: TIDAK ADA blocker.** Main sinkron origin/main (`0ae1638`); baris push-tertunda di bawah SUPERSEDED.

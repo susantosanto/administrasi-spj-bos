@@ -64,6 +64,16 @@ Nul.*
 # Agent working dirs (bukan bagian repo — jangan di-commit)
 .zcode/
 .workbuddy-ai/
+.birdview/
+.intent/
+.playwright-mcp/
+pencil.dev/
+
+# Log dev server + screenshot bukti (artefak kerja agent, bukan bagian repo)
+*.log
+/*.png
+# Lock file Excel sementara
+~$*
 
 # Data kerja user (bukan artefak repo, keputusan user 2026-09-14)
 template-data/BKU\ tahunan.pdf

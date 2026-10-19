@@ -41,21 +41,30 @@ function pick(stored, key, allFields, regex) {
 /**
  * Get identitas sekolah dari localStorage.
  * Tidak ada fallback — nilai kosong dikembalikan apa adanya.
+ *
+ * ⚠️ CATATAN 2026-10-18 (Cover LPJ "nama SD di bar biru" kosong): file Excel
+ *    bertipe contoh memakai label PERSIS "SEKOLAH" (bukan "NAMA SEKOLAH").
+ *    Keyword parser lama tak mengenalinya → namaSekolah tersimpan kosong.
+ *    Diperbaiki dua tempat: (1) sekolahParser SCAN 3 fallback label "SEKOLAH",
+ *    (2) resolver di bawah untuk data yang SUDAH tersimpan tanpa upload ulang.
+ *    Label dicocokkan PERSIS (bukan substring) agar "ALAMAT SEKOLAH" tidak
+ *    tersangka sebagai nama sekolah.
  */
 export function getSchoolData() {
   const stored = storageHelper.get('data_sekolah', null)
   const allFields = stored?.allFields
 
   return {
-    namaSekolah: stored?.namaSekolah || '',
+    namaSekolah: stored?.namaSekolah
+      || findFieldByLabel(allFields, /^\s*(nama\s+)?sekolah\s*$/i) || '',
     npsn: stored?.npsn || '',
     alamat: stored?.alamat || '',
     email: pick(stored, 'email', allFields, /email/i),
     telepon: pick(stored, 'telepon', allFields, /nomor telepon|telepon/i),
     website: pick(stored, 'website', allFields, /website/i),
-    kabupaten: stored?.kabupaten || '',
-    provinsi: stored?.provinsi || '',
-    kecamatan: stored?.kecamatan || '',
+    kabupaten: pick(stored, 'kabupaten', allFields, /kabupaten\/kota|kabupaten/i),
+    provinsi: pick(stored, 'provinsi', allFields, /provinsi/i),
+    kecamatan: pick(stored, 'kecamatan', allFields, /^\s*kecamatan\s*$/i),
     kelurahan: stored?.kelurahan || '',
     kodePos: stored?.kodePos || '',
     // Data Gugus (US-18) — dipakai kop gugus pada surat undangan

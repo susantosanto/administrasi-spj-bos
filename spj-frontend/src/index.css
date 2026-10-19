@@ -381,6 +381,12 @@ body {
   .print-container,
   .print-container * {
     visibility: visible;
+    /* ⚠️ PENTING (temuan user 2026-10-18): Chrome/Edge mematikan "Background
+       graphics" secara default saat cetak → bar warna (#002060 cover, #004ac6
+       sekat, hijau PBD) TIDAK ikut tercetak. print-color-adjust: exact memaksa
+       background ikut tercetak tanpa user mengubah setelan dialog cetak. */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Position print container */
@@ -402,6 +408,24 @@ body {
   .print-container.landscape {
     width: 297mm;
     padding: 15mm 20mm;
+    /* Tinggi ikut kertas LANDSCAPE (210mm) — min-height 297mm dari aturan
+       dasar membuat dokumen landscape tercetak 2 halaman (temuan 2026-10-18:
+       sekat/cover keluar halaman kosong kedua). */
+    min-height: 210mm;
+  }
+
+  /* ⚠️ TEMUAN 2026-10-18 (dokumen sekat/cover tercetak PORTRAIT 595x842):
+     named page `@page landscape` hanya menaungi elemen yang IKUT ALUR (in-flow).
+     Box `position: absolute` keluar dari alur → Chromium tak membuatkan
+     halaman landscape untuknya, `page: landscape` diabaikan (terbukti dengan
+     page.pdf preferCSSPageSize: 594,96x841,92 walau @page landscape benar).
+     Dokumentasi landscape TIDAK butuh absolute — hanya SATU .print-container
+     terlihat saat cetak (panel preview dibungkus print:hidden), jadi
+     `position: relative` aman dan membuat named page berlaku. */
+  .print-container.landscape {
+    position: relative;
+    left: auto;
+    top: auto;
   }
 
   /* Hide edit-mode elements */
@@ -415,10 +439,23 @@ body {
     margin: 0;
   }
 
+  /* Named page untuk dokumen LANDSCAPE (templateConfig.orientation).
+     ⚠️ Aturan bernama TIDAK berlaku otomatis — elemen WAJIB punya properti
+     `page: landscape` (lihat .print-container.landscape di bawah). Tanpa itu
+     dokumen landscape (cover/sekat/pbj_data) tercetak di kertas portrait —
+     temuan user 2026-10-18 (PDF sekat keluar 595x842 = portrait). */
   @page landscape {
     size: A4 landscape;
     margin: 0;
   }
+}
+
+/* ── Kertas landscape (cover/sekat/pbj_data) ──
+   `page:` mengaitkan elemen ke named page @page landscape di atas. Chromium
+   modern (Edge/Chrome ≥85) mendukung named pages; @page size di-inject
+   paperSize.js (ikut pilihan A4/F4 user). */
+.print-container.landscape {
+  page: landscape;
 }
 
 /* Preview container — seperti kertas */
@@ -456,6 +493,34 @@ body {
 .template-engine th {
   background-color: #f3f4f6;
   font-weight: 600;
+}
+
+/* ⚠️ TEMUAN USER 2026-10-19 ("untuk dokumen register kas saya tidak ingin
+   menggunakan garis tabel"): aturan global .template-engine th/td di atas
+   memberi GRID ABU-ABU (#d1d5db) ke SETIAP sel — termasuk Register Kas,
+   padahal file sumber ("Template Register Kas Contoh.xlsx", sheet
+   Register_Kas) gridlines-nya OFF: hanya garis TITIK (border dotted) pada
+   kolom LEMBAR/KEPING (E:F) dan JUMLAH (H) baris pecahan, yang ditulis
+   inline di RegisterKas.jsx (inline MENANG atas reset ini).
+   Reset HANYA untuk tabel kas (.kas-tabel) — blok lain tetap pakai grid
+   global. Bukti: audit DOM menemukan 113 border solid 1px di dokumen. */
+.template-engine .kas-tabel th,
+.template-engine .kas-tabel td {
+  border: 0;
+}
+
+@media print {
+  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) memaksa
+     grid global jadi HITAM saat cetak. Dimenangkan khusus kas-tabel; sel
+     bergaris titik (inline "dotted") dikembalikan hitam — selector style*
+     lebih spesifik dari reset di atas, jadi garis titik TETAP tercetak. */
+  .sk-print-area .kas-tabel th,
+  .sk-print-area .kas-tabel td {
+    border-color: transparent !important;
+  }
+  .sk-print-area .kas-tabel td[style*="dotted"] {
+    border-color: #000 !important;
+  }
 }
 
 .template-engine input,
@@ -528,6 +593,24 @@ body {
   /* Judul SPT bold + underline seperti docx (khusus print) */
   .sk-print-area .spt-judul {
     text-decoration: underline !important;
+  }
+
+  /* ⚠️ TEMUAN USER 2026-10-18 ("cover tidak ada bar background biru"):
+     aturan print-hitam di atas memaksa `background: transparent !important` untuk
+     SEMUA elemen .sk-print-area — ikut mematikan warna milik DOKUMEN (bukan
+     dekorasi layar): bar navy #002060 Cover, bar SEKAT (kini bentuk & warna
+     SAMA dengan cover — temuan "warna biru sekat tidak sama dengan cover"
+     2026-10-18 ronde-3, dulu #004ac6 terang), judul PBD hijau #00b050.
+     Elemen berikut diberi warna KEMBALI lewat kelas eksplisit (inline style
+     kalah dari !important author rule, jadi harus ditulis di sini).
+     Sumber warna: content stream `template/Contoh template COVER.pdf`. */
+  .sk-print-area .bar-navy {
+    background-color: #002060 !important;
+    color: #ffffff !important;
+  }
+
+  .sk-print-area .bar-pbd {
+    color: #00b050 !important;
   }
 }
 

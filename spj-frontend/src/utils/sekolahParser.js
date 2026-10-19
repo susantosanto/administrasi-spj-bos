@@ -240,6 +240,34 @@ function parseByScanning(ws) {
     }
   }
 
+  // ── SCAN 3 (fallback): label PERSIS "SEKOLAH" ──
+  // Sheet Data contoh memakai label pendek: A2 "DATA SEKOLAH", A4 "SEKOLAH"
+  // → C4 nama sekolah. Keyword 'nama sekolah' tak mengenali label ini, jadi
+  // nama sekolah kosong → bar biru Cover LPJ tercetak KOSONG (temuan user
+  // 2026-10-18: "di cover ada nama SD nya di background biru"). Dijalankan
+  // SETELAH SCAN 1/2 agar label lengkap tetap menang bila ada.
+  // Pencocokan PERSIS (bukan includes) supaya "alamat sekolah" tidak tersapu.
+  if (!result.nama_sekolah) {
+    scanSekolah:
+    for (let r = 0; r < MAX_SCAN_ROWS; r++) {
+      for (let c = 0; c < MAX_SCAN_COLS; c++) {
+        const cellVal = getCell(ws, r, c)
+        if (!cellVal) continue
+        const cellStr = String(cellVal).toLowerCase()
+          .replace(/[:;,.\-]/g, ' ').replace(/\s+/g, ' ').trim()
+        if (cellStr !== 'sekolah') continue
+
+        let value = getValueRight(ws, r, c)
+        if (!value) value = getValueBelow(ws, r, c)
+        if (value) {
+          result.nama_sekolah = value
+          foundLabels.nama_sekolah = true
+          break scanSekolah
+        }
+      }
+    }
+  }
+
   // ── POST-PROCESS ──
   if (!foundLabels.tahunAnggaran) {
     for (let r = 0; r < 10; r++) {

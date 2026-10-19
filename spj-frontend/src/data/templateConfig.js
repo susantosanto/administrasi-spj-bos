@@ -1107,6 +1107,85 @@ export const TEMPLATE_CONFIGS = {
     ],
     defaults: { nomorNego: '', tanggalNego: '' },
   },
+  // ─── REGISTER KAS — Register Penutupan Kas BOS Reguler ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Register Kas)
+  register_kas: {
+    id: 'register_kas',
+    label: 'Register Penutupan Kas',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Register Kas)',
+    orientation: 'portrait',
+    blocks: [{ type: 'register-kas' }],
+    defaults: { jenisDana: 'BOS REGULER', periode: '', tglTutup: '', namaPenutup: '', tglLalu: '', totalPenerimaan: '', totalPengeluaran: '', saldoBuku: '', saldoKas: '', perbedaan: '', penjelasanPerbedaan: '', saldoBank: '', jumlahTotal: '', tanggalTtd: '' },
+
+  },
+  // ─── BAP KAS — Berita Acara Pemeriksaan Kas ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet BA_Pemeriksaan Kas)
+  bap_kas: {
+    id: 'bap_kas',
+    label: 'Berita Acara Pemeriksaan Kas',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet BA_Pemeriksaan Kas)',
+    orientation: 'portrait',
+    blocks: [{ type: 'bap-kas' }],
+    defaults: { jenisDana: 'BOS REGULER', periode: '', uraianKegiatan: '', namaPemeriksa: '', jabatanPemeriksa: 'Kepala Sekolah', namaDiperiksa: '', jabatanDiperiksa: 'Bendahara', skBendahara: '', tanggalTtd: '' },
+  },
+  // ─── PENGADUAN MASYARAKAT — Lembar Pencatatan Pengaduan ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Pengaduan Masyarakat)
+  pengaduan_masyarakat: {
+    id: 'pengaduan_masyarakat',
+    label: 'Lembar Pencatatan Pengaduan Masyarakat',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Pengaduan Masyarakat)',
+    orientation: 'portrait',
+    blocks: [{ type: 'lembar-pengaduan' }],
+    defaults: { judulDana: '', namaSekolahKet: '', periode: '', namaPengadu: '', alamatPengadu: '', tglTerima: '', lokasiRtRw: '', lokasiKelurahan: '', lokasiKabupaten: '', lokasiProvinsi: '', uraianKegiatan: '', tglSelidik: '', penyelidik: '', temuan: '', tindakLanjut: '', tempatTtd: '' },
+  },
+  // ─── KRITIK SARAN — Lembar Kritik-Saran ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Kritik-Saran)
+  kritik_saran: {
+    id: 'kritik_saran',
+    label: 'Lembar Kritik-Saran',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Kritik-Saran)',
+    orientation: 'portrait',
+    blocks: [{ type: 'lembar-kritik-saran' }],
+    defaults: { judulDana: '', namaSekolahKet: '', periode: '', hariTanggal: '', namaPemberi: '', uraianKegiatan: '', penerima: '', tindakLanjut: '', tempatTtd: '' },
+  },
+  // ─── COVER LPJ — Sampul bendel ala contoh COVER Bandung Barat ───
+  // Source: template/Contoh template COVER.pdf (landscape) — logo dinas +
+  //   judul RKAS/BOSP/PBD + bar nama sekolah + kecamatan + footer pemda.
+  cover_lpj: {
+    id: 'cover_lpj',
+    label: 'Cover Bendel LPJ',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh template COVER.pdf',
+    orientation: 'landscape',
+    blocks: [
+      { type: 'cover-header', varian: 'cover' },
+    ],
+    defaults: { judulBaris1: 'RENCANA KEGIATAN DAN ANGGARAN SEKOLAH (RKAS)', judulBaris2: 'BANTUAN OPERASIONAL SATUAN PENDIDIKAN (BOSP)', judulBaris3: 'PERENCANAAN BERBASIS DATA (PBD)', judulTahun: '', namaSekolah: '', kecamatan: '', barisPemda: '', barisDinas: 'DINAS PENDIDIKAN', tahunCover: '' },
+  },
+  // ─── SEKAT LPJ — Pembatas dokumen: logo dinas + judul + BAR BIRU bulan + keterangan ───
+  // Landscape seperti cover; HANYA 4 elemen (keputusan user 2026-10-18).
+  // Bar biru nama bulan WAJIB dipertahankan (DECISIONS 2026-10-18).
+  sekat_lpj: {
+    id: 'sekat_lpj',
+    label: 'Sekat Dokumen',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: 'turunan Contoh template COVER.pdf (varian sederhana)',
+    orientation: 'landscape',
+    blocks: [
+      { type: 'cover-header', varian: 'sekat', judulSekat: 'SEKAT DOKUMEN' },
+    ],
+    defaults: { bulanSekat: '', keteranganSekat: '', judulSekat: 'SEKAT DOKUMEN' },
+  },
   // ─── PBJ DATA — rekap 1 baris persis kolom sheet "data" ───
   // Kolom = header sheet data (No s.d. No. Telp; link SIPLah ada di arsip
   // invoice, tak ikut kolom cetak). Landscape agar 15 kolom muat di A4.
