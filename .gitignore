@@ -77,3 +77,6 @@ pencil.dev/
 
 # Data kerja user (bukan artefak repo, keputusan user 2026-09-14)
 template-data/BKU\ tahunan.pdf
+
+# Sprint 015 - fixture OCR dev-only (golden lokal, bukan bagian repo)
+scratch-pdf-check/

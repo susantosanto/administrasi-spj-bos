@@ -8,6 +8,7 @@ import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import { kategoriDenganKoreksi, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
+import BKUUploadPdf from '../../components/bku/BKUUploadPdf'
 
 // Label badge kategori BKU (Sprint 004 A.2)
 const KATEGORI_BADGE_LABEL = {
@@ -67,6 +68,7 @@ export default function BKUPage() {
   const [filterBulan, setFilterBulan] = useState('Semua')
   const [isUploading, setIsUploading] = useState(false)
   const [showUploadForm, setShowUploadForm] = useState(true)
+  const [showUploadPdf, setShowUploadPdf] = useState(false) // Sprint 015: pintu masuk PDF
   const [uploadedInfo, setUploadedInfo] = useState(null) // { header, summary }
   const [availableMonths, setAvailableMonths] = useState([])
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
@@ -404,10 +406,12 @@ export default function BKUPage() {
       <Topbar title="Data BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
-        {/* ── Upload Toggle Button (always visible) + Sprint 011 titik Kirim ke PBJ ── */}
+        {/* ── Upload Toggle Buttons + Sprint 011 titik Kirim ke PBJ ──
+            Dua pintu upload (Excel & PDF) SALING EKSKLUSIF: hanya satu
+            panel hero yang tampil. Dua kotak upload bertumpuk terasa/nonpremium. */}
         <div className="flex flex-wrap items-center gap-2">
         <button
-          onClick={() => setShowUploadForm(!showUploadForm)}
+          onClick={() => { const buka = !showUploadForm; setShowUploadForm(buka); if (buka) setShowUploadPdf(false) }}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
             showUploadForm
               ? 'bg-primary text-white shadow-lg shadow-primary/20'
@@ -415,7 +419,19 @@ export default function BKUPage() {
           }`}
         >
           <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload_file'}</span>
-          {showUploadForm ? 'Tutup Form' : 'Upload BKU'}
+          {showUploadForm ? 'Tutup Form' : 'Upload Excel'}
+        </button>
+        <button
+          onClick={() => { const buka = !showUploadPdf; setShowUploadPdf(buka); if (buka) setShowUploadForm(false) }}
+          title="Import BKU dari PDF hasil scan (pintu masuk kedua, jalur Excel tidak berubah)"
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
+            showUploadPdf
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+          }`}
+        >
+          <span className="material-symbols-outlined text-lg">{showUploadPdf ? 'close' : 'picture_as_pdf'}</span>
+          {showUploadPdf ? 'Tutup Import PDF' : 'Upload PDF'}
         </button>
         <button
           onClick={() => navigate('/dashboard/dokumen-kelengkapan?dok=PBJ')}
@@ -427,15 +443,29 @@ export default function BKUPage() {
         </button>
         </div>
 
-        {/* ── Upload Area ── */}
+        {/* ── Import PDF (Sprint 015) — pintu masuk kedua, Excel tetap utuh ── */}
+        {showUploadPdf && (
+          <BKUUploadPdf
+            recalcSummary={recalcSummary}
+            bulanAwal={filterBulan !== 'Semua' ? Number(filterBulan) : 1}
+            onSelesai={() => loadFromStorage(true)}
+          />
+        )}
+
+        {/* ── Upload Area — kanon premium yang sama dengan form upload lain ── */}
         {showUploadForm && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
+                            hover:border-primary/40 transition-all duration-300
+                            bg-gradient-to-b from-slate-50/50 to-transparent">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
+                              flex items-center justify-center mx-auto mb-5 shadow-inner">
+                <span className="material-symbols-outlined text-4xl text-primary">table_view</span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1">Upload File BKU Excel</h3>
-              <p className="text-sm text-slate-500 mb-4">Export BKU dari ARKAS — data akan langsung terisi otomatis</p>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Upload File BKU Excel</h3>
+              <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
+                File Excel dari ARKAS — transaksi akan langsung terisi otomatis
+              </p>
 
               <input
                 type="file"
@@ -447,15 +477,17 @@ export default function BKUPage() {
               />
               <label
                 htmlFor="bku-file-input"
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
+                            transition-all duration-300 cursor-pointer ${
                   isUploading
-                    ? 'bg-slate-400 text-white cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
+                    ? 'bg-slate-300 text-white cursor-not-allowed'
+                    : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                {isUploading ? 'Memproses...' : 'Pilih File Excel'}
+                {isUploading ? 'Memproses...' : 'Pilih File Excel BKU'}
               </label>
+              <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
             </div>
           </div>
         )}
