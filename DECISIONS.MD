@@ -968,3 +968,59 @@ User: **"skip A/B lanjut ke ui"**.
 - BLUEPRINT 2.2–2.4 → superseded; digantikan 2.1 + 2.5 (smoke test).
 - T-15 → turun dari "wajib" menjadi "tidak berlaku (A/B dilewati)".
 - ACCEPTANCE Definisi "Selesai" tidak lagi menuntut tabel A/B.
+
+## R. Sprint 015 — import PDF: 10 perbaikan (rotasi, prapemrosesan garis, kalibrasi kolom) (2026-10-19)
+
+**Status:** accepted (user: "lanjutkan" + "tutup sprint ini anggap sukses dan berhasil")
+
+### Konteks
+ADR Q menyepakati `tesseract.js@7.0.0` sebagai engine tunggal **tanpa** A/B,
+dengan risiko yang disengaja diterima: *"kualitas runtime engine BELUM
+terukur — fixture dibangkitkan RapidOCR, bukan tesseract.js"*.
+
+User lalu melaporkan error nyata: *"Gagal memproses PDF: The PDF file is
+empty, i.e. its size is zero bytes."* File-nya `template-data/BKU tahunan.pdf`
+= **0 byte** (unduhan gagal). Setelah file itu diunduh ulang (5.585.435 byte,
+PDF 1.7, 21 halaman), terbukti jalur import **tidak pernah benar-benar
+jalan** — ada 9 bug lagi di baliknya, plus 1 bug yang baru ketahuan saat
+uji browser pasca-merge.
+
+### Keputusan
+Sprint 015 diperluas dari "UI import" jadi "**import yang benar-benar
+menghasilkan data Excel-identik di engine yang benar-benar dipakai**".
+10 perbaikan, semuanya di file baru sprint ini (tidak menyentuh
+`bkuParser.js` yang TABU — 0 diff):
+
+| # | Keputusan | Alasan (terukur) |
+|---|---|---|
+| 1 | Validasi file SEBELUM pdf.js + terjemahan pesan pdf.js | pdf.js lempar exception teknis Inggris untuk file 0 byte; user butuh aksi, bukan stack trace |
+| 2 | Aset bahasa OCR disajikan **tanpa** ekstensi `.gz` + `gzip:false` + `cacheMethod:'none'` | extension IDM browser membalas **204 + body 0 byte** untuk `.gz` → tesseract tulis `./ind.traineddata` kosong → init gagal. tesseract.js sendiri deteksi magic 1F 8B (`worker-script/index.js:161-166`), jadi isi gzip tetap aman |
+| 3 | **Rotasi halaman dideteksi**, tidak hardcode 90 | BKU RKAS ada 2 orientasi: file user landscape 842×595 (teks tegak), file sampel portrait 595×842 (isi diputar 90°). Rotasi salah → conf 62.6→28.7 & 0 transaksi. Probe OCR hal 1 di rot 0 & 90, ambil conf tertinggi |
+| 4 | **Garis tabel dihapus dari gambar sebelum OCR** (`bkuPdfBersih.js`, tanpa dependensi baru) | tesseract baca garis sbg `\|` & gabung 2 sel (kotak 557 px). Setelah dibersihkan: noise 22→**4**, tanggal terbaca 8→**14**, conf 62.6→**80.8** |
+| 5 | Kalibrasi kolom uang = **3 bucket paling KANAN** (bukan paling kiri/terbanyak) | kolom uang = 3 kolom terakhir tabel BKU & bersebelahan; kode rekening "5102020100" (65 hit) harus kalah dari kolom uang |
+| 6 | Token milik kolom X kalau **tepi X ada di dalam kotak token** | OCR menggabung 2 sel jadi 1 kotak lebar → tepi-kanan jatuh di kolom sebelah |
+| 7 | Tanggal tanpa pemisah diterima (`bkuPdfTanggal.js`), tebakan ditandai `pasti:false` | OCR sering hilangkan "-" ("01-01-2026"→"01012026)") → baris hilang diam-diam. Tebakan selalu ditandai untuk diperiksa user |
+| 8 | Filter `yData` dijalankan **setelah** orphan attach | baris header "1..8" (40 px di atas jangkai pertama) menempel ke baris data pertama |
+| 9 | Pecahan kolom teks pindah ke `bkuPdfTeks.js` (URAIAN = grup token **terbanyak**); `buangHeader` tak lagi buang "SALDO"; angka uraian tak dibuang; `MIN_CONFIDENCE` 30→**0** | "celah x terbesar" memotong kata pertama uraian (celah antar-kata 107 px > celah antar-kolom 99 px); "SALDO" adalah kata sah di uraian; tesseract beri confidence **0.0** utk 3 nilai SALDO yang BENAR di render rotasi 90 |
+| 10 | Import PDF **menulis `header`** ke storage; halaman BKU akses header pakai `?.` | data tanpa header → `TypeError: Cannot read properties of undefined (reading 'nama_sekolah')` → seluruh halaman BKU putus saat reload (React error boundary) |
+
+### Alasan
+- Semua perbaikan diukur, bukan ditebak: setiap bug punya **angka sebelum →
+  sesudah** (edges kolom, confidence OCR, jumlah token, akurasi uraian).
+- Tidak ada dependensi baru (B-lite/paddleocr-js tidak dipakai) — sesuai
+  ADR Q & alasan 1–3 di situ (COOP/COEP + model `.onnx` jadi beban besar).
+- Aturan "jangan hardcode nama sekolah" tetap dijaga: nama sekolah dibaca dari
+  **kop PDF**, bukan ditulis di kode (T-02 = 0 hit di 9 file sprint).
+
+### Dampak
+- **T-03/T-04/T-05/T-08 kini LOLOS di engine yang dipakai** (bukan hanya di
+  fixture RapidOCR): 3 fixture — RapidOCR, tesseract+bersih file USER,
+  tesseract+bersih file SAMPEL — semuanya 0 selisih + akurasi uraian 100%.
+- Risiko "kualitas runtime engine BELUM terukur" (ADR Q) → **termaterialisasi
+  & sudah dimitigasi**; lihat RISKS.MD.
+- Fast-path text-layer (T-14) **belum** dipakai sebagai cabang OCR — flag
+  `hasText` sudah ada di `bkuPdfPages.ukurTextLayer` tapi jalur import selalu
+  OCR (lihat BUILD-REPORT "Yang BELUM tuntas").
+- Modul baru: `bkuPdfTanggal.js`, `bkuPdfBersih.js`, `bkuPdfTeks.js`
+  (masing-masing ≤200 baris) + `bkuPdfLayout.js`/`bkuPdfOcr.js`/
+  `bkuPdfPages.js`/`bkuPdfParser.js` yang direfactor.

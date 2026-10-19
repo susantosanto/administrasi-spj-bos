@@ -58,8 +58,8 @@ function buangHeader(items) {
   let namaSekolah = ''
   if (label) {
     // Nilai = semua token huruf/angka di kanan label pada baris yang sama
-    // ("SD" + "NEGERI" + "PASIRHALANG"); token ":" (pemisah) dan "|" (sisa
-    // garis tabel) dilewati.
+    // (kata "SD" + "NEGERI" + nama sekolah); token ":" (pemisah) dan "|"
+    // (sisa garis tabel) dilewati.
     const nilai = hal1
       .filter((it) => it.x > label.x && Math.abs(it.y - label.y) < 12 && /[A-Za-z0-9]/.test(it.str))
       .sort((p, q) => p.x - q.x).map((it) => bersih(it.str)).join(' ')

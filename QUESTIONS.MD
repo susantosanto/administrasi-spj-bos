@@ -101,11 +101,10 @@
   Opsi: (a) buat pack Sprint 012 lengkap (REQUIREMENTS/BLUEPRINT/ACCEPTANCE/HANDOFF) lalu dry run lalu eksekusi; (b) simpan WIP di branch terpisah (`feat/cover-sekat-dokumen-kas`) dan lanjutkan sprint lain dulu; (c) buang WIP.
   Konteks: AGENTS.MD melarang mulai coding tanpa pack; STATE.MD 2026-10-18 mencatat ini sebagai blocker proses.
 
-❓ [OPEN] Pertanyaan: Sprint 013 (upload PDF BKU) butuh dependency baru `tesseract.js@6.0.1` + aset OCR lokal `public/ocr/{eng,ind}.traineddata.gz` (±6 MB masuk repo) — disetujui?
-  Konteks: PDF contoh `template/contoh format BKU-PDF tahunan.pdf` **tanpa text layer** (0 karakter, 21 halaman) → OCR satu-satunya jalan untuk file jenis ini. AGENTS.MD melarang library di luar BLUEPRINT; BLUEPRINT sprint-013 meminta pin persis. Tanpa aset lokal, OCR butuh internet (CDN) — aplikasi ini tanpa backend dan dipakai di sekolah.
-  Opsi: (a) setujui `tesseract.js@6.0.1` + 2 aset bahasa (±6 MB, offline penuh); (b) setujui library tapi hanya `eng.traineddata.gz` (±2 MB; angka tetap akurat, teks Indonesia bisa salah eja); (c) tanpa dependency — batalkan jalur OCR, hanya dukung PDF ber-text-layer (PDF contoh akan DITOLAK).
-  Dampak bila dijawab: menentukan apakah BLUEPRINT §4 dieksekusi apa adanya; (c) membatalkan asumsi A5 dan mengubah Scope REQUIREMENTS butir 2.
+❓ [CLOSED] Pertanyaan: Sprint 013 (upload PDF BKU) butuh dependency baru `tesseract.js@6.0.1` + aset OCR lokal `public/ocr/{eng,ind}.traineddata.gz` (±6 MB masuk repo) — disetujui?
+  Jawaban: **DISETUJUI** (opsi a, dengan penyesuaian versi & aset): dependency dipasang sebagai `tesseract.js@7.0.0` (pin eksak, versi 6.0.1 sudah usang) dan aset OCR **hanya bahasa Indonesia** (`ind.traineddata`, 3,85 MB — `eng` tidak dipakai karena dokumen BKU berbahasa Indonesia) diletakkan di `public/tesseract/`. Aset disajikan **tanpa** ekstensi `.gz` (lihat DECISIONS.MD bagian R keputusan 2) karena extension browser meng-intercept URL `.gz` dan membalas 204 + body kosong. Seluruh proses tetap offline — tidak ada aset yang diambil dari CDN.
+  Ditutup: 2026-10-19 (sprint 015 ditutup, dependency + aset sudah terpasang & terverifikasi 200/3.847.026 byte)
 
-❓ [OPEN] Pertanyaan: nomor sprint untuk upload PDF BKU = **013** (012 sudah dipesan WIP Cover/Sekat) — benar, atau tunggu 012 selesai dulu?
-  Konteks: `QUESTIONS.MD` [OPEN] sebelumnya + `STATE.MD:591` mencatat pack Sprint 012 untuk WIP Cover/Sekat. Pack PDF dibuat docs-only di `planning/sprints/sprint-013/` agar tidak menabrak nomor.
-  Dampak bila dijawab: bila user ingin 012 dulu, pack 013 tetap valid tapi eksekusi ditunda sampai WIP Cover/Sekat selesai.
+❓ [CLOSED] Pertanyaan: nomor sprint untuk upload PDF BKU = **013** (012 sudah dipesan WIP Cover/Sekat) — benar, atau tunggu 012 selesai dulu?
+  Jawaban: **Nomor akhirnya 015** — sprint 013 (versi lama) dibatalkan total & di-reset 2026-09-19 (kebijakan user: PRD baru ditulis dari nol), 014 dipakai laporan rincian pajak, dan upload PDF BKU dilanjutkan sebagai **Sprint 015** dengan pack `planning/sprints/sprint-015/` + salinan audit `architect-packs/architect-pack-015-bku-pdf-import.md`. Sprint 012 (WIP Cover/Sekat + dokumen kas) tidak lagi memblokir — Sprint 015 berdiri sendiri.
+  Ditutup: 2026-10-19 (sprint 015 ditutup)

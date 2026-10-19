@@ -585,3 +585,88 @@ G-4: hanya BKUPage.jsx + DataGuruPage.jsx berubah (file baru = allowlist)
 Catatan G-4: `DataGuruPage.jsx` ikut berubah karena permintaan penyelarasan
 visual user — di luar daftar file BLUEPRINT §File, jadi dicatat sebagai
 penyimpangan yang diminta user, bukan inisiatif builder.
+
+---
+
+# LAPORAN PENUTUP SPRINT 015 (2026-10-19, sesi lanjutan setelah "lanjutkan")
+
+## Konteks pemicu
+User melaporkan: *"ketika upload file pdf bku error notif: Gagal — Gagal
+memproses PDF: The PDF file is empty, i.e. its size is zero bytes."*
+File `template-data/BKU tahunan.pdf` ternyata **0 byte** (unduhan gagal).
+Setelah user mengunduh ulang (5.585.435 byte, PDF 1.7, 21 halaman), jalur
+import dibuktikan **tidak pernah benar-benar jalan** — 9 bug lagi ditemukan,
+plus 1 bug yang baru ketahuan saat uji browser pasca-merge.
+
+## 10 perbaikan (detail + angka sebelum→sesudah: DECISIONS.MD bagian R)
+1. Validasi file sebelum pdf.js + terjemahan pesan → pesan Indonesia yang
+   bisa ditindaklanjuti.
+2. Aset bahasa OCR tanpa `.gz` + `gzip:false` + `cacheMethod:'none'`
+   (extension IDM balas 204 + 0 byte untuk `.gz`).
+3. Deteksi orientasi halaman (probe OCR hal 1 di rot 0 & 90).
+4. `bkuPdfBersih.js` — hapus garis tabel dari gambar sebelum OCR.
+5. Kalibrasi kolom uang = 3 bucket paling KANAN.
+6. Token kotak lebar → penempatan kolom berbasis containment.
+7. `bkuPdfTanggal.js` — recovery tanggal tanpa pemisah (ditandai perlu
+   dikoreksi).
+8. Filter `yData` dijalankan setelah orphan attach.
+9. `bkuPdfTeks.js` — uraian = grup token terbanyak; `buangHeader` tak buang
+   "SALDO"; angka uraian tak dibuang; `MIN_CONFIDENCE` 30→0.
+10. Import PDF menulis `header`; halaman BKU pakai `?.` (crash fix).
+
+## Bukti akhir (browser, file user, 21 halaman)
+```
+SD NEGERI PASIRHALANG   NPSN: 20205293   Tahun: 2026   5 transaksi
+Total Penerimaan Rp 82.560.000 | Total Pengeluaran Rp 0 | Saldo Akhir Rp 82.560.000
+01-01-2026  Saldo Bank Bulan Desember 2025            0            0              0
+01-01-2026  Saldo Tunai Bulan Desember 2025           0            0              0
+20-01-2026  BBUO1  Terima Dana BOSP Tahap 1 2026  82.560.000        0  82.560.000
+31-01-2026  Bunga Bank                                0            0  82.560.000
+31-01-2026  Pajak Bunga                               0            0  82.560.000
+```
+→ **identik dengan Excel** (5 baris, uraian persis, angka persis).
+
+## Bukti oracle — 3 fixture, semuanya 0 selisih + uraian 100%
+| fixture | engine | hasil |
+|---|---|---|
+| `fixture.json` | RapidOCR (fixture resmi sprint) | 0 selisih · uraian 100% |
+| `fixture-tesseract-user.json` | tesseract.js + bersihkan (file **USER**) | 0 selisih · uraian 100% |
+| `fixture-tesseract-sampel.json` | tesseract.js + bersihkan (file **SAMPEL**) | 0 selisih · uraian 100% |
+
+Harness ukur engine asli (dev-only, gitignored):
+`spj-frontend/scratch-pdf-check/gen_fixture_tesseract.mjs` →
+`node test-bku-pdf-parse.mjs --pdf --fixture <file.json>`.
+
+## Gate akhir (di `main`)
+```
+BUILD_EXIT=0                 G-1 bkuParser.js 0 diff : PASS
+G-2 T-02 0 hit di 9 file sprint-015 : PASS   (baseline pre-existing 4, tak disentuh)
+G-3 0 localStorage di file baru : PASS
+T-16 baris: 165/198/196/200/104/86/77 (util) + 299/300 (komponen) : semua <= batas
+T-03/T-04/T-05/T-08 : LOLOS di engine yang dipakai
+```
+Commit: `7dee0cd` (fitur) · `e00f148` (merge ke main) · `d06041d` (fix header) ·
+`cb1a01e` (docs). Branch `feat/bku-upload-pdf` disinkronkan ke `main`.
+
+## Yang BELUM tuntas (disclose, bukan ditutup diam-diam)
+- **T-14 fast-path text-layer** belum dipakai sebagai cabang OCR: flag
+  `hasText` sudah ada (`bkuPdfPages.ukurTextLayer`) tapi jalur import selalu
+  OCR. Tidak bersamaan di sini: PDF contoh & PDF user keduanya hasil scan
+  (0 karakter text layer).
+- **Bulan selain Januari** masih punya selisih jumlah baris (Feb −5, Apr −1,
+  Jun −3, Jul +2, Agu +87, Sep +29). Penyebab utama: bagian ringkasan tahunan
+  "BKU-ALL" di PDF yang tidak ada padanannya di jalur Excel. T-07 hanya
+  mewajibkan Januari 0 selisih (bulan lain = info).
+- **T-10 (batal di tengah)** belum diuji runtime; mekanisme abort
+  (AbortController + tombol "Batalkan proses") ada dan jalur error-nya
+  teruji (pesan "Proses dibatalkan. Data tidak diubah.").
+- **T-15** turun jadi tidak berlaku (A/B dilewati — ADR Q) → replaced by
+  ADR R (10 perbaikan terukur) + harness ukur engine asli.
+- 4 file hardcode pre-existing (T-02 baseline) **tidak** disentuh — di luar
+  cakupan sprint-015, tercatat di RISKS.MD + Blockers.
+
+## Verdict
+**Sprint 015 SELESAI & BERHASIL** (user: "tutup sprint ini anggap sukses dan
+berhasil"). Goal tunggal pack — "pintu masuk upload BKU PDF identik dengan
+Excel Januari 2026" — **tercapai di engine yang benar-benar dipakai**, bukan
+hanya di fixture dev.

@@ -152,3 +152,28 @@
   Dampak: Sedang — gate yang diklaim hijau sebenarnya tidak dapat dipakai sebagai bukti; kalau tidak dibenahi, regresi hardcode berikutnya bisa lolos tanpa terdeteksi.
   Status: OPEN — tidak disentuh di sesi 2026-10-18 karena keduanya blok cetak SHARED (AGENTS.MD: jangan refactor di luar cakupan sprint). Terdaftar di STATE.MD Blockers + Langkah Selanjutnya butir 3.
   Mitigasi: (1) buat task sendiri di pack Sprint 012 untuk `KopGugus` + komentar `SignatureFooter`; (2) setelah itu jalankan ulang perintah kanonik 15 pola dan perbarui angka baseline di STATE/pack agar klaim match dengan kode; (3) beware laporan lama — angka "0 hit" hanya berlaku untuk versi file saat itu.
+
+⚠️ [Tinggi] RISIKO: kualitas runtime engine OCR (tesseract.js) di browser BELUM terukur — fixture resmi dibangun dengan RapidOCR (engine lain), sehingga akurasi 100% di oracle tidak berlaku untuk jalur yang benar-benar dipakai user.
+  FAKTA (ADR Q, 2026-10-19): risiko ini **sengaja diterima** saat A/B dilewati.
+  FAKTA (Sprint 015 closure, 2026-10-19): risiko **MATERIALISASI** — diukur dengan engine asli (`test-bku-pdf-parse.mjs --pdf --fixture` atas fixture hasil tesseract.js): Januari 3/5 baris, **akurasi uraian 0%**, kolom uang salah (masuk Rp 0), tanggal hilang pemisah, baris hilang diam-diam. Total 10 bug perbaikan (lihat DECISIONS.MD bagian R).
+  Dampak: Tinggi — kalau dibiarkan, fitur "import PDF" jadi tidak berguna (data hilang/ngawur) walau build hijau.
+  Mitigasi (selesai): 10 perbaikan terukur (rotasi dideteksi, garis tabel dihapus sebelum OCR, kalibrasi kolom 3 paling kanan, penempatan token kotak lebar, recovery tanggal tanpa pemisah, filter yData setelah orphan attach, pecahan kolom teks, `buangHeader` tak buang "SALDO", `MIN_CONFIDENCE` 0, header ditulis saat simpan).
+  Status: **RESOLVED** 2026-10-19 — 3 fixture (RapidOCR · tesseract+bersih file USER · tesseract+bersih file SAMPEL) semuanya **0 selisih + akurasi uraian 100%**; harness ukur engine asli tetap dipakai (dev-only, gitignored) agar regresi engine terdeteksi.
+
+⚠️ [Tinggi] RISIKO: extension browser meng-intercept aset OCR (IDM "Advanced Integration" balas **204 + body 0 byte** untuk URL berakhiran `.gz`) → tesseract menulis `./ind.traineddata` kosong → init gagal ("Error opening data file ./ind.traineddata") dan fitur import mati total.
+  FAKTA (2026-10-19, Edge profil sekolah): `/tesseract/lang/ind.traineddata.gz` → 204 / 0 byte; `/tesseract/lang/ind.traineddata` → 200 / 3.847.026 byte. `resp.ok` = true untuk 2xx sehingga body kosong lolos tanpa error.
+  Dampak: Tinggi — import PDF gagal total di browser yang punya extension tersebut, dan gejalanya (error teknis) tidak Led ke penyebabnya.
+  Mitigasi (selesai): aset disajikan **tanpa** ekstensi `.gz` + opsi `gzip:false` (tesseract.js deteksi magic 1F 8B sendiri) + `cacheMethod:'none'` (cache IndexedDB tidak meng-cache body kosong) + pesan error jujur di UI.
+  Status: **MITIGATED** — terverifikasi 200 + OCR jalan 21/21 halaman.
+
+⚠️ [Sedang] RISIKO: import PDF menulis `bku_data` tanpa `header` → halaman BKU crash saat reload (`TypeError: Cannot read properties of undefined (reading 'nama_sekolah')`, React error boundary) — data hasil import jadi tidak bisa dilihat.
+  FAKTA (2026-10-19, ketemu saat uji browser pasca-merge): jalur Excel menulis `header`, jalur PDF tidak; `uploadedInfo.header.nama_sekolah` diakses tanpa penjaga.
+  Dampak: Tinggi (halaman mati) — tapi hanya muncul setelah user menyimpan dari jalur PDF.
+  Mitigasi (selesai): `simpan()` menulis header dari kop PDF (nama_sekolah/npsn/tahunAnggaran) + halaman BKU akses header pakai `?.` (aman untuk data lama).
+  Status: **RESOLVED** 2026-10-19 — simpan → reload → halaman utuh, 0 console error, badge "SD NEGERI PASIRHALANG · NPSN 20205293 · Tahun 2026 · 5 transaksi".
+
+⚠️ [Rendah] RISIKO: OCR 21 halaman butuh 2–4 menit di browser; tab yang ter-throttle (background) membuat worker web ikut melambat sehingga hasil tampil sangat lama dan user mengira hang.
+  FAKTA (2026-10-19): terukur 5–7 detik/halaman saat tab aktif; saat tab ter-throttle progres 12→14 halaman butuh ~6 menit. Tidak ada error; hanya lambat.
+  Dampak: Rendah — bukan cacat data, tapi pengalaman buruk kalau user pindah tab.
+  Mitigasi: progres per halaman sudah tampil ("Membaca halaman N dari 21") + tombol "Batalkan proses" tersedia.
+  Status: OPEN (non-blocking, diterima user).
