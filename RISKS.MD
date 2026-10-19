@@ -140,3 +140,15 @@
   shape output parser xlsx (bkuParser/sekolahParser/konsumen) — bukan bug. Tercatat
   di ADR `DECISIONS.MD` + QUESTIONS.MD (CLOSED).
   Mitigasi (selesai): observasi Sprint 002 dieksekusi sebagai fix pra-sprint terpisah.
+
+⚠️ [Rendah] RISIKO: `TOLAK_KEY` yatim (G-2 Sprint 011 OPEN-kode) — export + param `tolakSet` + komentar tanpa UI.
+  FAKTA (VERIFICATION-REPORT Sprint 011 adendum task 70/71, 2026-10-10): desain keranjang Terima/Tolak-per-kartu diganti panel cari+centang (revisi task 66, opsi a diterima); pack sudah steril (`spj_pbj_keranjang_tolak` dihapus dari BLUEPRINT/storage-list) tetapi sisa export yatim di `paketPbj.js` + komentar di `DokumenKelengkapanPage.jsx:500` tanpa state/UI. Bukan bug fungsional (guard tanpa auto-tambah PASS 4/4 task 71).
+  Dampak: Rendah — kode mati membingungkan pembaca; bila dibiarkan, kunci yatim bisa dipakai keliru di sprint berikut.
+  Status: OPEN — dibersihkan di sprint berikut (di luar cakupan adendum docs-only task 70/71).
+  Mitigasi: hapus export `TOLAK_KEY` + param `tolakSet` + komentar terkait; grep `keranjang_tolak|tolakSet` = 0 hit pasca-bersih.
+
+⚠️ [Sedang] RISIKO: gate T-02 "0 hit" TIDAK akurat — ada drift hardcode yang lolos laporan sprint.
+  FAKTA (sesi "cek project" 2026-10-18, perintah kanonik 15 pola dari `sprint-001/ACCEPTANCE.MD:92` diukur ulang terhadap working tree + HEAD): total **5 hit** → 3 berasal dari WIP tak-ter-commit (`templateConfig.js` defaults `YUNIARTI, S.Pd` + `AHMAD, S.Pd`, `previewDocs.js` fallback kabupaten) dan sudah dibersihkan di sesi itu; **2 hit PRE-EXISTING di HEAD** tersisa: `blocks/KopGugus.jsx:17` `kabupaten: 'PEMERINTAH KABUPATEN BANDUNG BARAT'` (bertentangan ADR F-4 "baris 9 prop-driven dari prop") + `blocks/SignatureFooter.jsx:8` komentar `SDN Pasirhalang`. Keduanya berarti laporan Sprint 001/002 ("T-02 = 0 hit") tidak lagi mencerminkan kode sekarang.
+  Dampak: Sedang — gate yang diklaim hijau sebenarnya tidak dapat dipakai sebagai bukti; kalau tidak dibenahi, regresi hardcode berikutnya bisa lolos tanpa terdeteksi.
+  Status: OPEN — tidak disentuh di sesi 2026-10-18 karena keduanya blok cetak SHARED (AGENTS.MD: jangan refactor di luar cakupan sprint). Terdaftar di STATE.MD Blockers + Langkah Selanjutnya butir 3.
+  Mitigasi: (1) buat task sendiri di pack Sprint 012 untuk `KopGugus` + komentar `SignatureFooter`; (2) setelah itu jalankan ulang perintah kanonik 15 pola dan perbarui angka baseline di STATE/pack agar klaim match dengan kode; (3) beware laporan lama — angka "0 hit" hanya berlaku untuk versi file saat itu.

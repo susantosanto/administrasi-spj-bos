@@ -14,6 +14,7 @@ import { detectTemplate } from '../../utils/templateDetector'
 import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan } from '../../utils/bkuKategori'
 import { isBpuBnu, SPJ_REQUIREMENTS, SPJ_PBJ_DOCS, SPJ_WAJIB_LUAR_ARKAS, detectSpjCategory } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
+import { deteksiJenisPajak } from '../../utils/dokPajak'
 import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
 
 // ─── Constants ─────────────────────────────────────────────────
@@ -53,7 +54,7 @@ function getSaldoAwal(items) {
 
 // ─── Component ─────────────────────────────────────────────────
 
-export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin }) {
+export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin, onUpdateTransaction }) {
   const navigate = useNavigate()
   const sidebarRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -64,7 +65,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const [showPhotoPreview, setShowPhotoPreview] = useState(false)
   const spjCardRef = useRef(null)
 
-  // Listen for AI-generated photos
   useEffect(() => {
     const handler = (e) => {
       const photo = e.detail
@@ -401,16 +401,23 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </dl>
             <div className="grid grid-cols-2 gap-2.5 mt-3">
               {isSetorPajak ? (
-                <a
-                  href={CORETAX_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Bayar pajak via Coretax DJP (tab baru)"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-                >
-                  <span className="material-symbols-outlined text-lg">open_in_new</span>
-                  Bayar via Coretax
-                </a>
+                <>
+                  <a
+                    href={CORETAX_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Bayar pajak via Coretax DJP (tab baru)"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+                  >
+                    <span className="material-symbols-outlined text-lg">open_in_new</span>
+                    Bayar via Coretax
+                  </a>
+                  {/* Tampilkan jenis pajak hasil deteksi dari uraian */}
+                  <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 text-primary text-sm font-semibold border border-primary/20">
+                    <span className="material-symbols-outlined text-lg">receipt_long</span>
+                    {deteksiJenisPajak(transaction.uraian) || 'Jenis pajak tidak dikenali'}
+                  </div>
+                </>
               ) : katEfektif ? (
                 <button
                   onClick={handleDeepLink}

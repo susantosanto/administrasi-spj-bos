@@ -25,7 +25,13 @@ import {
   KopGugus,
   SuratUndangan,
   SuratTugas,
-  SPDForm,
+SPDForm,
+  CoverHeader,
+  RegisterKas,
+  BapKas,
+  RincianPajak,
+  LembarPengaduan,
+  LembarKritikSaran,
   PeringatanData,
 } from './blocks'
 import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
@@ -46,6 +52,12 @@ const BLOCK_RENDERERS = {
   'surat-undangan': SuratUndangan,
   'surat-tugas': SuratTugas,
   'spd-form': SPDForm,
+  'cover-header': CoverHeader,
+  'register-kas': RegisterKas,
+  'bap-kas': BapKas,
+  'rincian-pajak': RincianPajak,
+  'lembar-pengaduan': LembarPengaduan,
+  'lembar-kritik-saran': LembarKritikSaran,
 }
 
 export default function TemplateEngine({

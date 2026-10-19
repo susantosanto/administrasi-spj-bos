@@ -84,3 +84,28 @@
     saja; agent TIDAK perlu membacanya dan tidak ada kewajiban menjaganya sinkron.
     Marker eksplisit ditambahkan di kepala README + satu baris di AGENTS.MD.
   Ditutup: 2026-09-13
+
+✅ [CLOSED] Pertanyaan: Sprint 011 G-1 — terima desain panel cari+centang revisi task 66 (opsi a), atau kembalikan Tolak-per-kartu + chips + dialog konfirmasi (opsi b)?
+  Jawaban: **(a) terima desain baru** — pengganti terverifikasi jujur runtime (batch tepat n, tombol-0 disabled, toggle default ON, 0 auto-tambah); pack 4 dokumen diselaraskan docs-only + verifikasi ulang fresh mini T-04'/T-05'/C-03/C-04 4/4 PASS.
+  Ditutup: 2026-10-10 (adendum task 70 + task 71 — VERIFICATION-REPORT Sprint 011; ADR di DECISIONS.MD)
+
+✅ [CLOSED] Pertanyaan: Sprint 011 E-1 — redaksi empty-state beda dari teks ACCEPTANCE ("Belum ada data BKU…" vs "Tidak ada transaksi BKU yang belum berdokumen") — terima redaksi implementasi atau selaraskan teks?
+  Jawaban: **diselaraskan** — teks ACCEPTANCE E-1 ditulis ulang mengikuti implementasi (makna sama, tanpa crash).
+  Ditutup: 2026-10-10 (adendum task 70 — VERIFICATION-REPORT Sprint 011)
+
+❓ [OPEN] Pertanyaan: Bar nama sekolah di Cover LPJ memakai `#0A2463` (navy, meniru contoh Bandung Barat), sementara aturan BLUE-ONLY (AGENTS.MD/CONSTITUTION) menetapkan `#004ac6` sebagai satu-satunya warna branded — dan ADR 2026-10-18 justru memerintahkan bar biru `#004ac6` khusus varian **Sekat**. Ikuti mana untuk Cover?
+  Konteks: `blocks/CoverHeader.jsx:56` (varian cover) vs bar `#004ac6` di varian sekat (baris 32). Tidak diubah di sesi 2026-10-18 — keputusan warna = domain user/architect, bukan asumsi agent.
+  Dampak bila dijawab: (a) samakan ke `#004ac6` → Cover/Sekat konsisten blue-only; (b) pertahankan navy `#0A2463` → butuh pengecualian warna tertulis di ADR + pack Sprint 012 agar tidak dianggap pelanggaran T-10.
+
+❓ [OPEN] Pertanyaan: WIP Cover/Sekat + 6 template kas sudah ada di working tree tanpa architect pack — diproses bagaimana?
+  Opsi: (a) buat pack Sprint 012 lengkap (REQUIREMENTS/BLUEPRINT/ACCEPTANCE/HANDOFF) lalu dry run lalu eksekusi; (b) simpan WIP di branch terpisah (`feat/cover-sekat-dokumen-kas`) dan lanjutkan sprint lain dulu; (c) buang WIP.
+  Konteks: AGENTS.MD melarang mulai coding tanpa pack; STATE.MD 2026-10-18 mencatat ini sebagai blocker proses.
+
+❓ [OPEN] Pertanyaan: Sprint 013 (upload PDF BKU) butuh dependency baru `tesseract.js@6.0.1` + aset OCR lokal `public/ocr/{eng,ind}.traineddata.gz` (±6 MB masuk repo) — disetujui?
+  Konteks: PDF contoh `template/contoh format BKU-PDF tahunan.pdf` **tanpa text layer** (0 karakter, 21 halaman) → OCR satu-satunya jalan untuk file jenis ini. AGENTS.MD melarang library di luar BLUEPRINT; BLUEPRINT sprint-013 meminta pin persis. Tanpa aset lokal, OCR butuh internet (CDN) — aplikasi ini tanpa backend dan dipakai di sekolah.
+  Opsi: (a) setujui `tesseract.js@6.0.1` + 2 aset bahasa (±6 MB, offline penuh); (b) setujui library tapi hanya `eng.traineddata.gz` (±2 MB; angka tetap akurat, teks Indonesia bisa salah eja); (c) tanpa dependency — batalkan jalur OCR, hanya dukung PDF ber-text-layer (PDF contoh akan DITOLAK).
+  Dampak bila dijawab: menentukan apakah BLUEPRINT §4 dieksekusi apa adanya; (c) membatalkan asumsi A5 dan mengubah Scope REQUIREMENTS butir 2.
+
+❓ [OPEN] Pertanyaan: nomor sprint untuk upload PDF BKU = **013** (012 sudah dipesan WIP Cover/Sekat) — benar, atau tunggu 012 selesai dulu?
+  Konteks: `QUESTIONS.MD` [OPEN] sebelumnya + `STATE.MD:591` mencatat pack Sprint 012 untuk WIP Cover/Sekat. Pack PDF dibuat docs-only di `planning/sprints/sprint-013/` agar tidak menabrak nomor.
+  Dampak bila dijawab: bila user ingin 012 dulu, pack 013 tetap valid tapi eksekusi ditunda sampai WIP Cover/Sekat selesai.
