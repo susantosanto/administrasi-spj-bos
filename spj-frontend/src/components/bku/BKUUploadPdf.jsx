@@ -44,10 +44,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai, bulanAwal }) {
   const [perluKoreksi, setPerluKoreksi] = useState(new Set())
   const [konfirmasi, setKonfirmasi] = useState(false)
 
-  const reset = () => {
-    setTahap('pilih'); setBaris([]); setRingkas(null); setMasalah([]); setPerluKoreksi(new Set())
-    setKonfirmasi(false); setProgres({ hal: 0, total: 0 })
-  }
+  const reset = () => { setTahap('pilih'); setBaris([]); setRingkas(null); setMasalah([]); setPerluKoreksi(new Set()); setKonfirmasi(false); setProgres({ hal: 0, total: 0 }) }
 
   // ── 1. pilih file (E-1: bukan PDF ditolak dengan pesan jujur) ──
   const pilihFile = async (e) => {
@@ -144,8 +141,11 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai, bulanAwal }) {
       // Ganti hanya baris bulan terpilih; sisa data & meta lain tidak tersentuh.
       const sisa = lama.filter((t) => !(t.bulan === bulan && t.tahun === tahun))
       const gabung = redetectTypes([...sisa, ...aktif])
+      // Header WAJIB: halaman BKU membaca uploadedInfo.header saat reload —
+      // data BKU tanpa header bikin halaman crash.
+      const header = { ...(tersimpan.header || {}), nama_sekolah: ringkas?.namaSekolah || tersimpan.header?.nama_sekolah || '', npsn: ringkas?.npsn || tersimpan.header?.npsn || '', tahunAnggaran: ringkas?.tahun || tersimpan.header?.tahunAnggaran || '' }
       storageHelper.set('bku_data', {
-        ...tersimpan, transactions: gabung,
+        ...tersimpan, header, transactions: gabung,
         summary: recalcSummary(gabung), uploadedAt: new Date().toISOString(),
       })
       setKonfirmasi(false)

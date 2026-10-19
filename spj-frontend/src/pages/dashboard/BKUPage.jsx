@@ -502,15 +502,15 @@ export default function BKUPage() {
                 </div>
                 <div>
                   <h4 className="text-lg font-bold text-slate-900">
-                    {uploadedInfo.header.nama_sekolah || 'SD NEGERI ...'}
+                    {uploadedInfo.header?.nama_sekolah || 'SD NEGERI ...'}
                   </h4>
                   <p className="text-sm text-slate-500">
-                    NPSN: {uploadedInfo.header.npsn || '-'} | Tahun: {uploadedInfo.header.tahunAnggaran || '-'}
+                    NPSN: {uploadedInfo.header?.npsn || '-'} | Tahun: {uploadedInfo.header?.tahunAnggaran || '-'}
                   </p>
                   <p className="text-xs text-slate-400">
-                    {uploadedInfo.header.alamat || ''}
-                    {uploadedInfo.header.kabupaten ? `, ${uploadedInfo.header.kabupaten}` : ''}
-                    {uploadedInfo.header.provinsi ? `, ${uploadedInfo.header.provinsi}` : ''}
+                    {uploadedInfo.header?.alamat || ''}
+                    {uploadedInfo.header?.kabupaten ? `, ${uploadedInfo.header.kabupaten}` : ''}
+                    {uploadedInfo.header?.provinsi ? `, ${uploadedInfo.header.provinsi}` : ''}
                   </p>
                 </div>
               </div>
@@ -735,7 +735,7 @@ export default function BKUPage() {
               </h4>
               <p className="text-text-low text-sm">
                 {uploadedInfo
-                  ? `Data dari ${uploadedInfo.header.nama_sekolah || 'file'}`
+                  ? `Data dari ${uploadedInfo.header?.nama_sekolah || 'file'}`
                   : 'Upload file Excel untuk melihat data BKU'}
               </p>
             </div>

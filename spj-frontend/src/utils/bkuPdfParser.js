@@ -6,15 +6,13 @@
  *
  * Bentuk baris WAJIB 17 field identik jalur Excel (bkuParser.js:346-366).
  * `problems` TIDAK ikut ke baris — hanya untuk badge di layar preview.
- *
- * Deteksi tipe/kategori TIDAK disalin logikanya: memakai API publik
- * redetectTypes() milik bkuParser.js (file itu TABU — harus 0 diff).
- * Bentuk kolom & pengelompokan baris ada di bkuPdfLayout.js.
+ * Deteksi tipe/kategori TIDAK disalin: memakai API publik redetectTypes()
+ * milik bkuParser.js (file itu TABU — harus 0 diff).
+ * Bentuk kolom/baris: bkuPdfLayout.js · kolom teks: bkuPdfTeks.js ·
+ * pembacaan tanggal: bkuPdfTanggal.js.
  */
 import { redetectTypes } from './bkuParser.js'
-import {
-  kalibrasiNominal, barisPerHalaman, kolomAngka,
-} from './bkuPdfLayout.js'
+import { kalibrasiNominal, barisPerHalaman, kolomAngka } from './bkuPdfLayout.js'
 import { pisahTeks } from './bkuPdfTeks.js'
 import { bacaTanggal, tanggalPemisah, tanggalPolos } from './bkuPdfTanggal.js'
 
@@ -25,12 +23,11 @@ const pad = (n) => String(n).padStart(2, '0')
  *
  * Label HEADER tabel ("TANGGAL", "URAIAN", "SALDO", ...) TIDAK dibuang di
  * sini: "SALDO" bisa jadi kata sah di uraian ("Saldo Bank Bulan Desember
- * 2025"). Area kop/header sudah otomatis terpisah oleh filter yData di
+ * 2025"). Area kop/header sudah terpisah oleh filter yData di
  * barisPerHalaman — label header ada di atas jangkai data pertama.
  */
 function buangHeader(items) {
-  const RE_FOOTER = /^HALAMAN\b/i
-  return items.filter((it) => !RE_FOOTER.test(it.str.trim()))
+  return items.filter((it) => !/^HALAMAN\b/i.test(it.str.trim()))
 }
 
 /**
@@ -39,23 +36,37 @@ function buangHeader(items) {
  * lalu token paling dekat di kanannya. Label ditulis toleran tanda baca karena
  * OCR bisa mengubah "Nama Sekolah" jadi "Nama,Sekolah.". Tidak ada nama
  * sekolah yang di-hardcode di modul ini.
- */
-export function bacaKop(items) {
+ */export function bacaKop(items) {
   const hal1 = items.filter((it) => it.page === 1 && it.y < 560)
   const bersih = (v) => v.replace(/^[^:]{0,4}:\s*/, '').replace(/[\s,._-]+$/, '').trim()
   const cari = (label) => {
     const l = hal1.find((it) => new RegExp(label, 'i').test(it.str))
     if (!l) return ''
     const dekat = hal1
-      .filter((it) => it !== l && it.x > l.x && Math.abs(it.y - l.y) < 12)
+      .filter((it) => it !== l && it.x > l.x && Math.abs(it.y - l.y) < 12 && bersih(it.str) !== '')
       .sort((a, b) => Math.abs(a.y - l.y) - Math.abs(b.y - l.y) || a.x - b.x)[0]
     if (dekat) return bersih(dekat.str)
     const pisah = l.str.split(':')
     return pisah.length > 1 ? bersih(pisah.slice(1).join(':')) : ''
   }
   const th = hal1.map((i) => i.str).join(' ').match(/\b(20\d{2})\b/)
+  // "Nama Sekolah" bisa terbagi 2 token ("Nama" + "Sekolah") — cari pasangan
+  // berurutan dengan y sama, lalu nilainya di sebelah kanannya.
+  const a = hal1.find((it) => /^nama$/i.test(it.str.trim()))
+  const b = a && hal1.find((it) => it.x > a.x && Math.abs(it.y - a.y) < 12 && /^sekolah$/i.test(it.str.trim()))
+  const label = b || hal1.find((it) => /nama[\s,._-]*sekolah/i.test(it.str))
+  let namaSekolah = ''
+  if (label) {
+    // Nilai = semua token huruf/angka di kanan label pada baris yang sama
+    // ("SD" + "NEGERI" + "PASIRHALANG"); token ":" (pemisah) dan "|" (sisa
+    // garis tabel) dilewati.
+    const nilai = hal1
+      .filter((it) => it.x > label.x && Math.abs(it.y - label.y) < 12 && /[A-Za-z0-9]/.test(it.str))
+      .sort((p, q) => p.x - q.x).map((it) => bersih(it.str)).join(' ')
+    if (nilai) namaSekolah = nilai
+  }
   return {
-    namaSekolah: cari('Nama[\\s,._-]*Sekolah'),
+    namaSekolah: namaSekolah || cari('Nama[\\s,._-]*Sekolah'),
     npsn: cari('NPSN'),
     tahun: th ? th[1] : '',
     terbaca: hal1.length > 0,
@@ -69,9 +80,9 @@ export function potongNominal(s) {
 }
 
 /**
- * Token tanggal pada satu baris.
- * Bentuk berpemisah ("01-01-2026") didahulukan; bentuk tanpa pemisah
- * ("01012026)") dipakai sebagai cadangan supaya baris tidak hilang.
+ * Token tanggal pada satu baris. Bentuk berpemisah ("01-01-2026")
+ * didahulukan; bentuk tanpa pemisah ("01012026)") dipakai sebagai cadangan
+ * supaya baris tidak hilang.
  */
 function cariTokenTanggal(items) {
   for (const it of items) if (tanggalPemisah(it.str.trim())) return it
@@ -93,12 +104,10 @@ function barisMentah(baris, edges) {
 
   // Tanggal tak terbaca -> baris TETAP dibuat supaya angka di bawahnya
   // tidak bergeser, tapi ditandai supaya user mengoreksinya di preview.
-  // Men-drop baris justru menggeser semua saldo.
-  //
-  // Tanggal yang perlu DITEBAK (pemisah hilang saat OCR) tetap dipakai
-  // supaya baris tidak hilang, tapi ditandai 'tanggal_perlu_dikoreksi' —
-  // angka tebakan tidak boleh diam-diam dianggap benar; user memeriksa
-  // ulang di tabel preview sebelum menyimpan.
+  // Men-drop baris justru menggeser semua saldo. Tanggal yang perlu
+  // DITEBAK (pemisah hilang saat OCR) tetap dipakai supaya baris tidak
+  // hilang, tapi ditandai 'tanggal_perlu_dikoreksi' — tebakan tidak boleh
+  // diam-diam dianggap benar; user memeriksa ulang di tabel preview.
   const oke = !!dibaca
   if (!dibaca) problems.push('tanggal_tidak_valid')
   else if (!dibaca.pasti) problems.push('tanggal_perlu_dikoreksi')
