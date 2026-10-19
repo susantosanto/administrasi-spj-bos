@@ -13,6 +13,8 @@ import { parseInvoiceSIPLah, pbjFormKosong, terapkanPrefillPbj } from '../../uti
 import { isSudahBerdokumen, kunciTransaksi, bkuKePaketRow, manualKePaketRow, arsipkanBaris, kembalikanBaris, terapkanMode, nominalBku, isoBku, grupBkuPerNoBukti } from '../../utils/paketPbj'
 import { snapshotSebelumTimpa, urungkanTimpa, bacaSnapshot } from '../../utils/aturanUndangan'
 import { pbjDocs, kasDocs, kasFormKosong } from '../../utils/previewDocs'
+import { barisPajakDariBku, JENIS_PAJAK } from '../../utils/dokPajak'
+import { getSchoolData } from '../../utils/sekolahData'
 import { bulanNameToNum, ringkasanKasPerBulan, BULAN_ID, NOMINAL_KERTAS, NOMINAL_LOGAM, lembarPecahan, subtotalPecahanJenis } from '../../utils/dokKas'
 import { PBJ_SHEET_COLUMNS } from '../../data/pbjDataSheet'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
@@ -87,6 +89,17 @@ const CATEGORIES = [
         formFields: [
           { name: 'anggaran', label: 'Total Anggaran (Rp)', type: 'number', placeholder: '0' },
           { name: 'realisasi', label: 'Total Realisasi (Rp)', type: 'number', placeholder: '0' },
+        ],
+      },
+      {
+        id: 'RPAJAK',
+        nama: 'Rincian Pajak',
+        deskripsi: 'Laporan Rincian Pajak Sekolah (landscape) — baris dari BKU',
+        icon: 'receipt_long',
+        kasDoc: 'rincian-pajak',
+        formFields: [
+          { name: 'tahun', label: 'Tahun Anggaran (TA)', type: 'text', placeholder: '2026' },
+          { name: 'jenjang', label: 'Jenjang', type: 'text', placeholder: 'Sekolah Dasar' },
         ],
       },
     ],
@@ -340,7 +353,7 @@ const muatPbjForm = () => {
 // ─── Kas kelengkapan (RK/BAP/KS/PD): 1 form per card, storage spj_kas_form ──
 // Prioritas angka: ketikan user > BKU (kasDocs) > Data Sekolah. Pecahan fisik +
 // No.SK + isi pengaduan = manual (BKU tak punya pecahan/bank-vs-tunai/SK).
-const KAS_IDS = ['RK', 'BAP', 'KS', 'PD', 'R-CVR', 'R-SKT']
+const KAS_IDS = ['RK', 'BAP', 'KS', 'PD', 'R-CVR', 'R-SKT', 'RPAJAK']
 const muatKasForm = () => {
   const s = storageHelper.get('kas_form', {})
   const out = kasFormKosong()
@@ -351,6 +364,7 @@ const muatKasForm = () => {
   out.PP = { ...(s?.PP || {}), ...(s?.PD || {}) }
   out.COVER = { ...(s?.COVER || {}), ...(s?.['R-CVR'] || {}) }
   out.SEKAT = { ...(s?.SEKAT || {}), ...(s?.['R-SKT'] || {}) }
+  out.RPAJAK = { ...(s?.RPAJAK || {}) }
   return out
 }
 const muatBkuKas = () => storageHelper.get('bku_data', null) || { transactions: [] }
@@ -464,7 +478,23 @@ export default function DokumenKelengkapanPage() {
   const kasSectionRef = useRef(null)
   const [kasForm, setKasForm] = useState(muatKasForm)
   const simpanKasForm = (next) => {
-    storageHelper.set('kas_form', { RK: next.RK || {}, BAP: next.BAP || {}, KS: next.KS || {}, PP: next.PP || {}, PD: next.PP || {}, COVER: next.COVER || {}, SEKAT: next.SEKAT || {}, 'R-CVR': next.COVER || {}, 'R-SKT': next.SEKAT || {} })
+    storageHelper.set('kas_form', { RK: next.RK || {}, BAP: next.BAP || {}, KS: next.KS || {}, PP: next.PP || {}, PD: next.PP || {}, COVER: next.COVER || {}, SEKAT: next.SEKAT || {}, 'R-CVR': next.COVER || {}, 'R-SKT': next.SEKAT || {}, RPAJAK: next.RPAJAK || {} })
+  }
+
+  // ─── Rincian Pajak (sprint-014): isian manual per baris — spj_pajak_manual ──
+  // Kolom yang TIDAK ada di BKU (jenis pajak, tanggal NTPN, NTPN, kode billing,
+  // keterangan). Kunci baris stabil (tanggalISO|uraian|pengeluaran|noBukti) →
+  // isian lama tetap nyambung walau BKU bertambah/berkurang baris.
+  const [pajakManual, setPajakManual] = useState(() => {
+    const s = storageHelper.get('pajak_manual', {})
+    return s && typeof s === 'object' && !Array.isArray(s) ? s : {}
+  })
+  const setPajakSel = (key, field, value) => {
+    setPajakManual((prev) => {
+      const next = { ...prev, [key]: { ...(prev[key] || {}), [field]: value } }
+      storageHelper.set('pajak_manual', next)
+      return next
+    })
   }
 
   // ─── Sprint 004 D.2: terima kelompok ATK dari BKU ────────────────────
@@ -585,7 +615,18 @@ export default function DokumenKelengkapanPage() {
     ...NOMINAL_KERTAS.map((n) => ({ id: `k-${n}`, jenis: 'Kertas', nominal: n, satuan: 'Lembar' })),
     ...NOMINAL_LOGAM.map((n) => ({ id: `l-${n}`, jenis: 'Logam', nominal: n, satuan: 'Keping' })),
   ])
-  const saldoTunaiForm = Number(String(formData.saldoTunai ?? '').replace(/[^\d.-]/g, '')) || 0
+  // Saldo kas tunai form: ketikan user MENANG; kosong → Saldo Akhir BKU bulan
+  // terpilih (model user 2026-10-19: "Saldo Akhir = uang tunai").
+  const saldoTunaiKetikForm = String(formData.saldoTunai ?? '').trim()
+  const saldoTunaiBkuForm = (() => {
+    const mN = bulanNameToNum(formData.bulan)
+    if (!mN) return 0
+    const ringF = ringkasanKasPerBulan(muatBkuKas()?.transactions || [], mN)
+    return ringF.adaData ? ringF.saldoAkhir : 0
+  })()
+  const saldoTunaiForm = saldoTunaiKetikForm !== ''
+    ? Number(saldoTunaiKetikForm.replace(/[^\d.-]/g, '')) || 0
+    : saldoTunaiBkuForm
   const pecahanGabung = () => lembarPecahan(formData.pecahan, saldoTunaiForm)
   const subPecahan = (jenis) => subtotalPecahanJenis(pecahanGabung(), jenis)
   const adaKetikanPecahan = () => (Array.isArray(formData.pecahan) ? formData.pecahan : [])
@@ -1015,14 +1056,28 @@ export default function DokumenKelengkapanPage() {
   // ─── Kas split-view ala PBJ: form kiri + PanelPreviewDocument kanan ───
   const kasAktif = !!selectedDokumen?.kasDoc
   const bkuKas = muatBkuKas()
-  const kasDocsList = kasAktif ? kasDocs(kasForm, bkuKas) : []
+  const kasDocsList = kasAktif ? kasDocs(kasForm, bkuKas, pajakManual) : []
   const kasDocAktif = kasAktif ? kasDocsList.find((d) => d.key === selectedDokumen.kasDoc) || kasDocsList[0] : null
+  // Baris pajak (shape SAMA dengan builder kasDocs) untuk editor kolom manual.
+  const pajakRowsAktif = kasAktif && selectedDokumen?.id === 'RPAJAK'
+    ? barisPajakDariBku(bkuKas?.transactions || [], pajakManual, {
+      namaSekolah: getSchoolData().namaSekolah || '',
+      jenjang: formData.jenjang || '',
+    })
+    : []
   const handleCloseKas = () => {
     setSelectedDokumen(null)
     setSelectedCategory(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   const handleCekKas = () => {
+    if (selectedDokumen?.id === 'RPAJAK') {
+      if (pajakRowsAktif.length === 0) { toast.info('Belum ada baris pajak dari BKU'); return }
+      const belum = pajakRowsAktif.filter((r) => !r.jenis).length
+      if (belum === 0) toast.success('LENGKAP — semua baris punya jenis pajak')
+      else toast.info(`${belum} baris belum pilih jenis pajak`)
+      return
+    }
     const kosong = (selectedDokumen?.formFields || []).filter((fld) => String(formData[fld.name] ?? '').trim() === '')
     if (kosong.length === 0) toast.success('LENGKAP — siap cetak')
     else toast.info(`${kosong.length} field perlu diisi: ${kosong.map((fld) => fld.label).slice(0, 3).join(', ')}`)
@@ -1075,6 +1130,32 @@ export default function DokumenKelengkapanPage() {
               </div>
             </div>
             <div className="flex items-center gap-1.5">
+              {selectedDokumen?.id === 'RPAJAK' && (
+                <button
+                  onClick={() => {
+                    const rows = pajakRowsAktif.map((r) => ({
+                      ...r,
+                      pengeluaran: r.nilai,
+                    }))
+                    if (rows.length === 0) {
+                      toast.info('Belum ada data pajak untuk di-download')
+                      return
+                    }
+                    import('../../utils/exportPajakExcel').then((mod) => {
+                      mod.exportPajakExcel(rows, {
+                        tahun: formData.tahun || '',
+                        namaSekolah: getSchoolData().namaSekolah || '',
+                        jenjang: formData.jenjang || '',
+                      })
+                    })
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all"
+                  title="Download Excel Rincian Pajak"
+                >
+                  <span className="material-symbols-outlined text-base">table</span>
+                  Excel
+                </button>
+              )}
               <button onClick={handleCloseKas} aria-label="Tutup detail Kas"
                 className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95">
                 <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
@@ -1086,7 +1167,7 @@ export default function DokumenKelengkapanPage() {
               Belum ada data BKU di aplikasi — angka dokumen kosong. Upload BKU dulu di halaman BKU agar D/K/A terisi otomatis.
             </div>
           )}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
+          <div className={`grid gap-4 items-start ${selectedDokumen?.id === 'RPAJAK' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)]'}`}>
             <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 space-y-4">
               {fields.map((field) => (
                 <div key={field.name}>
@@ -1123,7 +1204,7 @@ export default function DokumenKelengkapanPage() {
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-700">Lembar &amp; Keping Fisik</div>
                     <div className="text-[10px] text-slate-400">
-                      {adaKetikanPecahan() ? 'ketikan + otomatis' : 'otomatis dari saldo tunai'}
+                      {adaKetikanPecahan() ? 'ketikan + otomatis' : 'otomatis dari saldo tunai BKU'}
                     </div>
                   </div>
                   <table className="w-full text-[11px] border-collapse">
@@ -1167,9 +1248,130 @@ export default function DokumenKelengkapanPage() {
                     </tfoot>
                   </table>
                   <p className="text-[10px] text-slate-500 leading-relaxed">
-                    Terisi otomatis dari <b>Saldo Kas Tunai</b> di atas (kertas Rp 100.000 dulu, lalu
-                    logam). Isi salah satu kolom untuk menimpa baris itu saja. Saldo Bank
-                    (Sub Jumlah 3) = sisa saldo BKU setelah uang fisik.
+                    {saldoTunaiKetikForm === '' ? (
+                      <>Terisi otomatis dari <b>Saldo Akhir BKU bulan {formData.bulan || 'terpilih'}</b> = <b>{fmtRpPecahan(saldoTunaiBkuForm)}</b>. </>
+                    ) : (
+                      <>Memakai ketikan <b>Saldo Kas Tunai</b> = <b>{fmtRpPecahan(saldoTunaiForm)}</b> (menang atas BKU). </>
+                    )}
+                    Urutan: kertas Rp 100.000 dulu, lalu logam. Isi kolom untuk menimpa
+                    baris itu saja. Sub Jumlah 3 (bank) = Rp 0 (model tanpa rekening bank terpisah).
+                  </p>
+                </div>
+              )}
+              {/* ─── Rincian Pajak: kolom MANUAL per baris (tidak ada di BKU) ───
+                  Jenis pajak TANPA default otomatis (nilai kolom pajak baru
+                  tampil setelah dipilih); NTPN/kode billing/tanggal NTPN/
+                  keterangan = manual semata. TANGGAL BAYAR sudah otomatis dari
+                  tanggal transaksi BKU — boleh ditimpa di sini.
+                  Isi → spj_pajak_manual (kunci stabil) → panel & cetak ikut. */}
+              {selectedDokumen.id === 'RPAJAK' && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-slate-700">Kolom manual per baris</div>
+                    <div className="text-[10px] text-slate-400">
+                      {pajakRowsAktif.filter((r) => r.jenis).length}/{pajakRowsAktif.length} baris punya jenis pajak
+                    </div>
+                  </div>
+                  {pajakRowsAktif.length === 0 ? (
+                    <p className="text-[11px] text-slate-500">
+                      Belum ada transaksi pajak (Setor Pajak / Pajak Bunga) di BKU — baris terisi
+                      otomatis setelah data BKU diunggah di halaman BKU.
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-[11px] border-collapse min-w-[860px]">
+                        <thead>
+                          <tr className="text-slate-500">
+                            <th className="text-left font-medium py-1 pr-1 w-8">No</th>
+                            <th className="text-left font-medium py-1 pr-1 w-20">Bulan</th>
+                            <th className="text-left font-medium py-1 pr-1 min-w-[180px]">Uraian pajak (dari BKU)</th>
+                            <th className="text-right font-medium py-1 pr-1 w-24">Nilai</th>
+                            <th className="text-left font-medium py-1 pr-1 w-28">Jenis pajak</th>
+                            <th className="text-left font-medium py-1 pr-1 w-32">Tgl Bayar</th>
+                            <th className="text-left font-medium py-1 pr-1 w-32">Tgl NTPN</th>
+                            <th className="text-left font-medium py-1 pr-1 w-36">NTPN</th>
+                            <th className="text-left font-medium py-1 pr-1 w-36">Kode Billing</th>
+                            <th className="text-left font-medium py-1 pr-1 min-w-[100px]">Keterangan</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pajakRowsAktif.map((r) => (
+                            <tr key={r.key} className="border-t border-slate-200 align-top">
+                              <td className="py-1 pr-1 text-slate-500">{r.no}</td>
+                              <td className="py-1 pr-1 text-slate-700 whitespace-nowrap">{r.bulan}</td>
+                              <td className="py-1 pr-1 text-slate-700">{r.uraian}</td>
+                              <td className="py-1 pr-1 text-right text-slate-700 whitespace-nowrap">
+                                {(Number(r.nilai) || 0).toLocaleString('id-ID')}
+                              </td>
+                              <td className="py-1 pr-1">
+                                <select
+                                  aria-label={`Jenis pajak baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.jenis}
+                                  onChange={(e) => setPajakSel(r.key, 'jenis', e.target.value)}
+                                >
+                                  <option value="">— pilih —</option>
+                                  {JENIS_PAJAK.map((j) => <option key={j} value={j}>{j}</option>)}
+                                </select>
+                              </td>
+                              <td className="py-1 pr-1">
+                                <input
+                                  type="date"
+                                  aria-label={`Tanggal bayar baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.tglBayar}
+                                  onChange={(e) => setPajakSel(r.key, 'tglBayar', e.target.value)}
+                                />
+                              </td>
+                              <td className="py-1 pr-1">
+                                <input
+                                  type="date"
+                                  aria-label={`Tanggal NTPN baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.tglNtpn}
+                                  onChange={(e) => setPajakSel(r.key, 'tglNtpn', e.target.value)}
+                                />
+                              </td>
+                              <td className="py-1 pr-1">
+                                <input
+                                  type="text"
+                                  placeholder="NTPN"
+                                  aria-label={`NTPN baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.ntpn}
+                                  onChange={(e) => setPajakSel(r.key, 'ntpn', e.target.value)}
+                                />
+                              </td>
+                              <td className="py-1 pr-1">
+                                <input
+                                  type="text"
+                                  placeholder="Kode billing"
+                                  aria-label={`Kode billing baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.kodeBilling}
+                                  onChange={(e) => setPajakSel(r.key, 'kodeBilling', e.target.value)}
+                                />
+                              </td>
+                              <td className="py-1 pr-1">
+                                <input
+                                  type="text"
+                                  placeholder="—"
+                                  aria-label={`Keterangan baris ${r.no}`}
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  value={r.keterangan}
+                                  onChange={(e) => setPajakSel(r.key, 'keterangan', e.target.value)}
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-slate-500 leading-relaxed">
+                    Nilai &amp; tanggal bayar dari BKU (ketikan di sini menang). Pilih jenis pajak → nilai
+                    pindah ke kolom PPh 21/22/23/PPN di dokumen; Total tetap nilai dari BKU. Isian
+                    tersimpan otomatis di perangkat ini.
                   </p>
                 </div>
               )}

@@ -509,6 +509,48 @@ body {
   border: 0;
 }
 
+/* RINCIAN PAJAK (sprint-014): sumber PAKAI grid hitam — tepi MEDIUM (2px),
+   dalam THIN (1px) — openpyxl: border L/R header medium, sisanya thin.
+   Reset grid abu-abu global jadi hitam; border table 2px menang di tepi luar
+   (collapse model: border lebih lebar menang). Sumber: template/Contoh
+   template Rincian Pajak Sekolah Dasar Negeri.xlsx sheet SD_SMP. */
+.template-engine .pajak-tabel {
+  border: 2px solid #000;
+}
+.template-engine .pajak-tabel .th-pajak,
+.template-engine .pajak-tabel .th-pajak-num,
+.template-engine .pajak-tabel .td-pajak {
+  border: 1px solid #000;
+  padding: 1px 2px;
+  vertical-align: middle;
+}
+.template-engine .pajak-tabel .th-pajak {
+  font-weight: bold;
+  text-align: center;
+}
+.template-engine .pajak-tabel .th-pajak-num {
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5px 1px;
+}
+
+@media print {
+  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) sudah
+     memaksa hitam — pajak-tabel memang hitam, jadi TIDAK perlu reset
+     kembali seperti kas-tabel. Aturan di atas tetap dipakai apa adanya. */
+  /* Rincian Pajak (sprint-014): sumber Excel print scale 45% → font efektif
+     ~3,6pt; kita pakai 4pt agar muat di kolom sempit (2–4%) tanpa tumpang
+     tindih, sementara preview layar tetap 6pt. */
+  .pajak-dok { font-size: 4pt !important; }
+  /* Padding default (px-1 = 4px) terlalu besar untuk kolom sempit (~2–4%).
+     Di cetak padding dipangkas agar angka muat. */
+  .pajak-tabel .th-pajak,
+  .pajak-tabel .th-pajak-num,
+  .pajak-tabel .td-pajak {
+    padding: 0.5px 1px !important;
+  }
+}
+
 @media print {
   /* Print-hitam (.sk-print-area td { border-color: #000 !important }) memaksa
      grid global jadi HITAM saat cetak. Dimenangkan khusus kas-tabel; sel

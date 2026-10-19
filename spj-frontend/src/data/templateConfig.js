@@ -1156,6 +1156,24 @@ export const TEMPLATE_CONFIGS = {
     blocks: [{ type: 'lembar-kritik-saran' }],
     defaults: { judulDana: '', namaSekolahKet: '', periode: '', hariTanggal: '', namaPemberi: '', uraianKegiatan: '', penerima: '', tindakLanjut: '', tempatTtd: '' },
   },
+  // ─── RINCIAN PAJAK — Laporan Rincian Pajak Sekolah (landscape) ───
+  // Source: template/Contoh template Rincian Pajak Sekolah Dasar Negeri.xlsx
+  //   (sheet SD_SMP, A4 landscape, 16 kolom A..P). Baris dari BKU (SETOR_PAJAK +
+  //   PAJAK_BUNGA); kolom manual tanpa default. Sprint-014.
+  rincian_pajak: {
+    id: 'rincian_pajak',
+    label: 'Rincian Pajak',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh template Rincian Pajak Sekolah Dasar Negeri.xlsx (sheet SD_SMP)',
+    orientation: 'landscape',
+    blocks: [{ type: 'rincian-pajak' }],
+    defaults: {
+      judul: 'RINCIAN PAJAK SEKOLAH', tahun: '', namaSekolah: '', jenjang: '',
+      catatanAtas: 'Catatan : tanggal diisi dengan format tanggal',
+      ketBawah: 'Ket : Pajak yang di bayar oleh sekolah (tidak dari SIPLAH)',
+    },
+  },
   // ─── COVER LPJ — Sampul bendel ala contoh COVER Bandung Barat ───
   // Source: template/Contoh template COVER.pdf (landscape) — logo dinas +
   //   judul RKAS/BOSP/PBD + bar nama sekolah + kecamatan + footer pemda.

@@ -4,6 +4,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
+import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import { kategoriDenganKoreksi, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
@@ -309,6 +310,18 @@ export default function BKUPage() {
 
   const sidebarToast = (msg) => {
     toast.info(msg)
+  }
+
+  // Update field tertentu pada transaksi (misal: jenisPajak) → sync state + localStorage
+  const updateTransaction = (row, patch) => {
+    setItems((prev) => {
+      const next = prev.map((t) => (t.row === row ? { ...t, ...patch } : t))
+      const stored = storageHelper.get('bku_data', null)
+      if (stored) {
+        storageHelper.set('bku_data', { ...stored, transactions: next })
+      }
+      return next
+    })
   }
 
   // T2 — satu baris BKU (dipakai baris tunggal maupun anggota grup saat expand)
@@ -617,13 +630,14 @@ export default function BKUPage() {
                 <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
                   <tr>
                     <th className="px-2 py-2 font-bold text-[10px] w-[3%]">No</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[11%]">Tanggal</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[27%]">Uraian</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">No. Bukti</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Kategori</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[13%]">Pungut (Rp)</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[13%]">Setor (Rp)</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[14%]">Nominal (Rp)</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Tanggal</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[24%]">Uraian</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[8%]">No. Bukti</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">Kategori</th>
+                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">Jenis Pajak</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[11%]">Pungut (Rp)</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[11%]">Setor (Rp)</th>
+                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[11%]">Nominal (Rp)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
@@ -651,6 +665,9 @@ export default function BKUPage() {
                           <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
                             {badge.label}
                           </span>
+                        </td>
+                        <td className="px-2 py-2 text-[11px] font-medium text-slate-700">
+                          {deteksiJenisPajak(item.uraian) || '-'}
                         </td>
                         <td className="px-2 py-2 text-right text-[11px] font-medium" title={fmt(pungut)}>{pungut > 0 ? fmt(pungut) : '-'}</td>
                         <td className="px-2 py-2 text-right text-[11px] font-medium" title={fmt(setor)}>{setor > 0 ? fmt(setor) : '-'}</td>
@@ -845,6 +862,7 @@ export default function BKUPage() {
           onClose={closeSidebar}
           onNavigate={(tx) => setSidebarTransaction(tx)}
           showToast={sidebarToast}
+          onUpdateTransaction={updateTransaction}
           onOpenMamin={(tx) => {
             toast.info('Dokumen khusus Mamin: ' + (tx.uraian || ''))
           }}

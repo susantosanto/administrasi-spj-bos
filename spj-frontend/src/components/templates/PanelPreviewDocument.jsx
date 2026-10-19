@@ -79,7 +79,7 @@ function ScaledPaper({ doc, zoom }) {
         {doc.label}
         {landscape && <span className="font-semibold normal-case text-slate-400">(landscape)</span>}
       </figcaption>
-      <div ref={wrapRef} className="overflow-hidden rounded-lg bg-slate-200/60 p-2">
+      <div ref={wrapRef} className={`${landscape ? 'overflow-x-auto' : 'overflow-hidden'} rounded-lg bg-slate-200/60 p-2`}>
         <div
           ref={paperRef}
           className="panel-a4-paper bg-white shadow-md"

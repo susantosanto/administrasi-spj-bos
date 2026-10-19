@@ -13,6 +13,7 @@ import { loadSkPasal, cloneDefaultPasal } from '../data/skPasal'
 import { bagiPesananPerSeksi } from './aturanMamin'
 import { pbjFormKosong } from './aturanPbj'
 import { ringkasanKasPerBulan, bulanNameToNum, teksTanggalPanjang, formatTanggalContoh, lembarPecahan } from './dokKas'
+import { barisPajakDariBku, tahunPajak, totalKolomPajak } from './dokPajak'
 
 const isKosong = (v) => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0)
 const docPbjKosong = (d = {}) => Object.values(d).every(isKosong)
@@ -262,7 +263,7 @@ function sekolahKetKas(sekolah) {
  *   kolom nominal  -> "Rp 82.560.000,-"   (kolom D Register Kas)
  *   kolom subtotal -> "Rp 0"              (kolom H Register Kas / BAP)
  */
-export function kasDocs(kasForm = {}, bku = {}) {
+export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
   const { txs, sekolah, sig, tahun } = kasKonteks(bku)
   const f = { ...kasFormKosong(), ...kasForm }
   const docs = []
@@ -281,20 +282,23 @@ export function kasDocs(kasForm = {}, bku = {}) {
   const D = String(u.totalPenerimaan ?? '').trim() !== '' ? Number(String(u.totalPenerimaan).replace(/[^\d.-]/g, '')) || 0 : ring.D
   const K = String(u.totalPengeluaran ?? '').trim() !== '' ? Number(String(u.totalPengeluaran).replace(/[^\d.-]/g, '')) || 0 : ring.K
   const A = D - K
-  // Lembar/keping: ketikan user MENANG per baris, kosong → OTOMATIS dari saldo
-  // kas tunai (greedy kertas→logam). Selalu 11 baris urut sumber; isian lama
-  // yang belum lengkap/kelebihan tidak membuat baris hilang/dobel.
-  const saldoTunai = Number(String(u.saldoTunai ?? '').replace(/[^\d.-]/g, '')) || 0
+  // Lembar/keping: ketikan user MENANG per baris, kosong → OTOMATIS dari
+  // SALDO AKHIR BKU bulan terpilih (model user: "Saldo Akhir = uang tunai").
+  // Saldo Akhir = saldo penutupan bulan itu = seluruh uang kertas+logam
+  // (sekolah tidak punya rekening bank terpisah; Sub 3 bank = 0).
+  const saldoTunaiKetik = String(u.saldoTunai ?? '').trim()
+  const saldoTunai = saldoTunaiKetik !== ''
+    ? Number(saldoTunaiKetik.replace(/[^\d.-]/g, '')) || 0
+    : (ring.adaData ? ring.saldoAkhir : 0)
   const pecahan = lembarPecahan(u.pecahan, saldoTunai)
   const subJenis = (jenis) => pecahan
     .filter((r) => r.jenis === jenis)
     .reduce((s, r) => s + (Number(r.nominal) || 0) * (Number(r.lembar) || 0), 0)
   const subKertas = subJenis('Kertas')
   const subLogam = subJenis('Logam')
-  // Sub Jumlah (3) "Saldo Bank, Surat Berharga, dll." — dari BKU: saldo akhir bulan
-  // dikurangi pecahan fisik yang sudah dihitung (mirror H31 contoh = saldo penuh di bank).
-  const sub3 = String(u.saldoBank ?? '').trim() !== '' ? Number(String(u.saldoBank).replace(/[^\d.-]/g, '')) || 0
-    : Math.max(0, (ring.adaData ? ring.saldoAkhir : 0) - subKertas - subLogam)
+  // Sub Jumlah (3) "Saldo Bank, Surat Berharga, dll." — model ini tanpa bank
+  // (pilihan user 2026-10-19), jadi default 0; ketikan user tetap menimpa.
+  const sub3 = String(u.saldoBank ?? '').trim() !== '' ? Number(String(u.saldoBank).replace(/[^\d.-]/g, '')) || 0 : 0
   const B = String(u.saldoKas ?? '').trim() !== '' ? Number(String(u.saldoKas).replace(/[^\d.-]/g, '')) || 0 : subKertas + subLogam + sub3
   const selisih = A - B
   docs.push({ key: 'register-kas', label: 'Register Penutupan Kas', templateConfig: TEMPLATE_CONFIGS.register_kas, data: {
@@ -412,6 +416,24 @@ export function kasDocs(kasForm = {}, bku = {}) {
     ...TEMPLATE_CONFIGS.sekat_lpj.defaults, ...us,
     bulanSekat: us.bulanSekat || (bulanSekat ? `BULAN ${String(bulanSekat).toUpperCase()}` : ''),
     keteranganSekat: us.keteranganSekat || (u.bulan ? `Register Penutupan Kas Bulan ${String(u.bulan).toUpperCase()} ${tahun}` : ''),
+  } })
+
+  // ─── Rincian Pajak (sprint-014 — sheet SD_SMP contoh, A4 landscape) ───
+  // Baris otomatis dari BKU (SETOR_PAJAK/PAJAK_BUNGA); kolom manual per baris
+  // dari spj_pajak_manual (argumen ke-3). Nilai = tx.pengeluaran APA ADA.
+  // Doc-level (tahun/jenjang) = spj_kas_form → kasForm.RPAJAK.
+  const pajakForm = f.RPAJAK || {}
+  const pajakRows = barisPajakDariBku(txs, pajakManual, {
+    namaSekolah: sekolah.namaSekolah || '',
+    jenjang: pajakForm.jenjang || '',
+  })
+  docs.push({ key: 'rincian-pajak', label: 'Rincian Pajak', templateConfig: TEMPLATE_CONFIGS.rincian_pajak, data: {
+    ...TEMPLATE_CONFIGS.rincian_pajak.defaults,
+    tahun: tahunPajak(pajakRows, pajakForm.tahun),
+    namaSekolah: sekolah.namaSekolah || '',
+    jenjang: pajakForm.jenjang || '',
+    rows: pajakRows,
+    totals: totalKolomPajak(pajakRows),
   } })
   return docs
 }

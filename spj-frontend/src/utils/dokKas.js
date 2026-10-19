@@ -62,6 +62,37 @@ export function totalPenerimaanBosp(transactions = []) {
     .reduce((s, t) => s + num(t.penerimaan), 0)
 }
 
+/**
+ * Saldo kas TUNAI akhir bulan M — mirror kolom E "Saldo BKU Akhir Kas Tunai"
+ * sheet "BKU--" file "Template Register Kas Contoh.xlsx":
+ *   E = BKU!D28 = MAX(0, TARIK TUNAI bulan itu − BELANJA BPU bulan itu)
+ * (D28 = MAX(0,D26-D25); D26 = SUMIF "TARIK TUNAI", D25 = SUMIF "BELANJA BPU").
+ *
+ * Inilah nilai yang menggerakkan lembar/keping OTOMATIS di Register Kas —
+ * helper P16:Y16 sheet Register_Kas: O16 = VLOOKUP(bulan → BKU-- kolom E),
+ * lalu FLOOR(O16, pecahan) greedy 100.000→100.
+ *
+ * Permintaan user 2026-10-19: "update automatis nilai lembar uang kertas serta
+ * kepingan uang logam sesuai dengan nilai uang tunai yang ada di masing-masing
+ * dokumen setiap bulannya" → pilih bulan, lembar/keping mengikuti saldo tunai
+ * BKU bulan tersebut. Ketikan user (spj_kas_form → RK.saldoTunai) tetap MENANG.
+ *
+ * @param {Array} transactions spj_bku_data.transactions
+ * @param {number} bulanNum 1-12
+ * @returns {number} saldo kas tunai (Rp), >= 0
+ */
+export function saldoKasTunaiBulan(transactions = [], bulanNum) {
+  const list = transaksiBulan(transactions, bulanNum)
+  const tarikTunai = list
+    .filter((t) => t?.tipe === 'TARIK_TUNAI')
+    .reduce((s, t) => s + num(t.pengeluaran), 0)
+  // Belanja tunai = pengeluaran ber-BPU (cash); BNU = transfer bank (bukan tunai).
+  const belanjaBpu = list
+    .filter((t) => String(t?.noBukti || '').toUpperCase().startsWith('BPU'))
+    .reduce((s, t) => s + num(t.pengeluaran), 0)
+  return Math.max(0, tarikTunai - belanjaBpu)
+}
+
 /** Total pengeluaran riil (tipe PEMBAYARAN) — untuk validasi realisasi. */
 export function totalPengeluaranRiil(transactions = []) {
   return (transactions || [])
@@ -166,4 +197,4 @@ export function subtotalPecahan(pecahan = {}) {
   return Object.entries(pecahan || {}).reduce((s, [nom, jml]) => s + (Number(nom) || 0) * (Number(jml) || 0), 0)
 }
 
-export default { BULAN_ID, bulanNameToNum, transaksiBulan, saldoAkhirBulan, ringkasanKasPerBulan, totalPenerimaanBosp, totalPengeluaranRiil, teksTanggalPanjang, formatTanggalContoh, NOMINAL_KERTAS, NOMINAL_LOGAM, PECAHAN_DAFTAR, pecahanDariSaldo, lembarPecahan, subtotalPecahanJenis, subtotalPecahan }
+export default { BULAN_ID, bulanNameToNum, transaksiBulan, saldoAkhirBulan, ringkasanKasPerBulan, totalPenerimaanBosp, totalPengeluaranRiil, saldoKasTunaiBulan, teksTanggalPanjang, formatTanggalContoh, NOMINAL_KERTAS, NOMINAL_LOGAM, PECAHAN_DAFTAR, pecahanDariSaldo, lembarPecahan, subtotalPecahanJenis, subtotalPecahan }
