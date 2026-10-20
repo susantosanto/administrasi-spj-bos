@@ -15,7 +15,7 @@ import { redetectTypes } from './bkuParser.js'
 import { kalibrasiNominal, barisPerHalaman, kolomAngka } from './bkuPdfLayout.js'
 import { pisahTeks } from './bkuPdfTeks.js'
 import { bacaTanggal, tanggalPemisah, tanggalGabung, tanggalPolos } from './bkuPdfTanggal.js'
-import { perbaikiTanggalTakWajar, saringBarisRingkasan, modusTahun, perbaikiNominalDariSaldo } from './bkuPdfRapi.js'
+import { perbaikiTanggalTakWajar, saringBarisRingkasan, modusTahun, perbaikiNominalDariSaldo, gabungBarisLanjutan } from './bkuPdfRapi.js'
 const pad = (n) => String(n).padStart(2, '0')
 
 /**
@@ -177,7 +177,10 @@ export function parseBkuFixture(fixture) {
   const tahunDok = Number(kop.tahun) || modusTahun(mentah)
   perbaikiTanggalTakWajar(mentah, tahunDok)
   perbaikiNominalDariSaldo(mentah)
-  const { rows: rapi, dilewati } = saringBarisRingkasan(mentah)
+  const { rows: tanpaRingkasan, dilewati } = saringBarisRingkasan(mentah)
+  // Uraian panjang yang membungkus 2 baris di PDF terbaca sebagai 2 baris
+  // parser. Baris kedua digabung ke induknya (numerik induk tidak berubah).
+  const { rows: rapi } = gabungBarisLanjutan(tanpaRingkasan)
   const bertipe = redetectTypes(rapi)
 
   const problems = [...dilewati]

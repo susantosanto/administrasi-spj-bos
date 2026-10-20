@@ -128,6 +128,69 @@ export async function ukurTextLayer(page, { ambang = AMBANG_TEXT } = {}) {
 }
 
 /**
+ * Ekstraksi TEKS ASLI (text-layer) satu halaman → item seragam parser.
+ *
+ * PDF hasil UNDUH dari ARKAS membawa lapisan teks asli (bukan hasil scan).
+ * Membacanya langsung memberi hasil 100% akurat — tanpa salah baca OCR
+ * (noBukti tidak bocor ke uraian, uraian utuh). Item dibentuk dengan skema
+ * yang SAMA seperti hasil OCR {str,x,y,w,h,page} dan koordinat diskalakan ke
+ * DPI yang sama supaya seluruh heuristik kolom (bkuPdfLayout/bkuPdfTeks)
+ * tetap berlaku. Terbukti identik numerik dengan jalur OCR (420 baris,
+ * total per bulan sama persis) — jadi aman menggantikan OCR untuk file
+ * ber-text-layer.
+ *
+ * @param {object} page halaman pdfjs
+ * @param {number} nomor nomor halaman (1-based)
+ * @param {{dpi?:number}} [opts]
+ * @returns {Promise<Array<{str:string,x:number,y:number,w:number,h:number,score:number,page:number}>>}
+ */
+export async function bacaTeksHalaman(page, nomor, { dpi = DPI_AWAL } = {}) {
+  const skala = dpi / 72
+  const vp = page.getViewport({ scale: skala })
+  const content = await page.getTextContent()
+  const items = []
+  for (const it of content.items) {
+    const str = String(it.str || '').trim()
+    if (!str) continue
+    const tx = it.transform[4], ty = it.transform[5]
+    // Titik teks (ruang halaman) → ruang perangkat viewport (y ke bawah,
+    // sudah memperhitungkan rotasi halaman). Ini yang menyamakan sumbu
+    // dengan hasil OCR.
+    const x = vp.transform[0] * tx + vp.transform[2] * ty + vp.transform[4]
+    const y = vp.transform[1] * tx + vp.transform[3] * ty + vp.transform[5]
+    items.push({
+      str, x, y,
+      w: (it.width || 0) * skala,
+      h: (it.height || 0) * skala,
+      score: 1,
+      page: nomor,
+    })
+  }
+  return items
+}
+
+/**
+ * Baca SELURUH dokumen dari text-layer (tanpa OCR, tanpa render).
+ * Hanya dipakai bila dokumen memang punya text-layer (lihat ukurTextLayer).
+ * Bila tidak, pemanggil wajib memakai jalur OCR.
+ *
+ * @param {object} pdf dokumen pdfjs
+ * @param {{dpi?:number, sinyal?:AbortSignal, onProgress?:(done:number,total:number)=>void}} [opts]
+ * @returns {Promise<Array>} item seragam
+ */
+export async function bacaTeksNative(pdf, { dpi = DPI_AWAL, sinyal, onProgress } = {}) {
+  const items = []
+  for (let n = 1; n <= pdf.numPages; n++) {
+    ensure(sinyal)
+    const page = await pdf.getPage(n)
+    items.push(...(await bacaTeksHalaman(page, n, { dpi })))
+    if (onProgress) onProgress(n, pdf.numPages)
+  }
+  ensure(sinyal)
+  return items
+}
+
+/**
  * Render satu halaman ke canvas.
  * @returns {Promise<{canvas:HTMLCanvasElement,width:number,height:number,scale:number,hasText:boolean,charCount:number}>}
  */

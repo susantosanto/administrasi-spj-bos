@@ -21,7 +21,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useToast } from '../ui/Toast'
 import storageHelper from '../../utils/storageHelper'
 import { redetectTypes } from '../../utils/bkuParser'
-import { bukaPdf, renderHalaman, periksaFilePdf, headerPdfValid, pesanGagalPdf } from '../../utils/bkuPdfPages'
+import { bukaPdf, renderHalaman, periksaFilePdf, headerPdfValid, pesanGagalPdf, ukurTextLayer, bacaTeksNative } from '../../utils/bkuPdfPages'
 import { ocrPage, lepasWorker, deteksiOrientasiHalaman } from '../../utils/bkuPdfOcr'
 import { parseBkuFixture } from '../../utils/bkuPdfParser'
 import { tandaiDuplikat, ringkasPerBulan } from '../../utils/bkuPdfDuplikat'
@@ -81,18 +81,33 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
         return
       }
       const { pdf, total } = await bukaPdf(buf, { workerUrl: pdfWorkerUrl })
-      // Orientasi isi halaman dideteksi dulu (bisa tegak atau menyamping) —
-      // rotasi hardcode bikin seluruh teks terbaca miring.
-      const orient = await deteksiOrientasiHalaman(pdf, { dpi: 200, sinyal: ctrl.signal })
-      const semua = [...orient.items]
-      setProgres({ hal: 1, total })
-      for (let n = 2; n <= total; n++) {
-        if (ctrl.signal.aborted) throw new Error('dibatalkan')
-        const { canvas } = await renderHalaman(pdf, n, { dpi: 200, rotasi: orient.rotasi, sinyal: ctrl.signal })
-        semua.push(...(await ocrPage(canvas, { page: n })))
-        setProgres({ hal: n, total })
+      // ── PILIH JALUR BACA ───────────────────────────────────────────────
+      // PDF hasil UNDUH (mis. bku-output.pdf dari ARKAS) membawa lapisan
+      // teks ASLI → dibaca langsung, 100% akurat tanpa salah baca OCR
+      // (noBukti tidak bocor ke uraian, uraian utuh). PDF hasil SCAN /
+      // print-to-pdf tidak punya teks → jatuh ke OCR. Deteksi dari hal. 1.
+      const halaman1 = await pdf.getPage(1)
+      const teksHalaman1 = await ukurTextLayer(halaman1)
+      let semua
+      if (teksHalaman1.hasText) {
+        semua = await bacaTeksNative(pdf, {
+          dpi: 200, sinyal: ctrl.signal,
+          onProgress: (hal) => setProgres({ hal, total }),
+        })
+      } else {
+        // Orientasi isi halaman dideteksi dulu (bisa tegak atau menyamping) —
+        // rotasi hardcode bikin seluruh teks terbaca miring.
+        const orient = await deteksiOrientasiHalaman(pdf, { dpi: 200, sinyal: ctrl.signal })
+        semua = [...orient.items]
+        setProgres({ hal: 1, total })
+        for (let n = 2; n <= total; n++) {
+          if (ctrl.signal.aborted) throw new Error('dibatalkan')
+          const { canvas } = await renderHalaman(pdf, n, { dpi: 200, rotasi: orient.rotasi, sinyal: ctrl.signal })
+          semua.push(...(await ocrPage(canvas, { page: n })))
+          setProgres({ hal: n, total })
+        }
+        await lepasWorker()
       }
-      await lepasWorker()
       const hasil = parseBkuFixture({ items: semua, meta: { total_pages: total } })
       // tahun diambil dari kop PDF — BUKAN angka tetap, supaya file sekolah
       // lain / tahun lain ikut terbaca. Fallback ke tahun terbanyak baris.
@@ -281,7 +296,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
           <div className="overflow-x-auto border border-slate-200 rounded-xl mb-4">
             <table className="w-full text-sm min-w-[640px]">
               <thead className="bg-slate-50 text-slate-600">
-                <tr>{['Bulan', 'Baris', 'Masuk', 'Keluar', 'Saldo Akhir'].map((h) => (
+                <tr>{['Bulan', 'Masuk', 'Keluar', 'Saldo Akhir'].map((h) => (
                   <th key={h} className={thn}>{h}</th>
                 ))}</tr>
               </thead>
@@ -289,7 +304,6 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
                 {ringkasBulan.map((g) => (
                   <tr key={g.kunci} className="border-t border-slate-100">
                     <td className="px-3 py-1.5 text-slate-700">{g.namaBulan} {g.tahun}</td>
-                    <td className="px-3 py-1.5 text-slate-700">{g.jumlah}</td>
                     <td className="px-3 py-1.5 text-slate-700">{rp(g.masuk)}</td>
                     <td className="px-3 py-1.5 text-slate-700">{rp(g.keluar)}</td>
                     <td className="px-3 py-1.5 text-slate-700 font-semibold">{rp(g.saldoAkhir)}</td>
@@ -297,7 +311,6 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
                 ))}
                 <tr className="border-t border-slate-200 bg-slate-50/60">
                   <td className="px-3 py-1.5 font-semibold text-slate-900">Total</td>
-                  <td className="px-3 py-1.5 font-semibold text-slate-900">{aktif.length}</td>
                   <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(totalMasuk)}</td>
                   <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(totalKeluar)}</td>
                   <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(saldoAkhir)}</td>

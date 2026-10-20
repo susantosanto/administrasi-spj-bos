@@ -185,4 +185,99 @@ export function perbaikiNominalDariSaldo(rows) {
   return n
 }
 
-export default { hariMaks, modusTahun, perbaikiTanggalTakWajar, saringBarisRingkasan, perbaikiNominalDariSaldo }
+/**
+ * Lengkapi uraian baris yang TERPOTONG oleh baris lanjutan di bawahnya.
+ *
+ * Uraian BKU yang panjang membungkus 2 baris di PDF. Baris kedua tidak
+ * punya tanggal/kode sendiri, tetapi tetap terbaca sebagai cluster
+ * terpisah sehingga parser memperlakukannya sebagai baris transaksi baru.
+ * Baris berlabel "lanjutan" itu terlihat seperti:
+ *   - uraian = pecahan kalimat ("baca peserta didik", "dalam pembelajaran",
+ *     "RKT, RKAS)") atau sisa angka kolom ("52", "55")
+ *   - noBukti kosong, kode rekening SAMA dengan baris induk
+ *   - TIDAK punya nominal sendiri (penerimaan & pengeluaran = 0)
+ *
+ * PENTING — batas aman numerik (2026-10-20): baris yang MEMBAWA nominal
+ * sendiri adalah transaksi terpisah (saldonya berbeda dari induk), BUKAN
+ * pecahan uraian. Menggabungkannya ke induk memaksa `redetectTypes`
+ * mengklasifikasi ulang induk dan mencoret nominal PEMBAYARAN dari
+ * totalPengeluaran (terbukti regresi 72.000). Maka fungsi ini HANYA
+ * menyatukan baris lanjutan MURNI (nominal 0). Numerik dibekukan per
+ * aturan user ("nilai angka sudah akurat, jangan ubah lagi").
+ *
+ * Yang diperbaiki murni TEKS: uraian induk dipanjangkan dengan pecahan
+ * baris anak, baris anak DIHAPUS dari daftar. Nominal tidak disentuh.
+ *
+ * @param {Array} rows baris mentah (DIMUTASI: uraian induk dipanjangkan)
+ * @returns {{gabung:number, rincian:Array, rows:Array}}
+ */
+export function gabungBarisLanjutan(rows) {
+  const rincian = []
+  const hasil = []
+  for (const r of rows) {
+    const induk = hasil[hasil.length - 1]
+    // HANYA gabung baris lanjutan MURNI — baris yang TIDAK membawa nominal
+    // sendiri. Baris yang punya penerimaan/pengeluaran SENDIRI adalah
+    // transaksi terpisah (bukti: saldonya berbeda 24.000 dari induk).
+    // Menyatukannya ke induk memaksa `redetectTypes` mengklasifikasi ulang
+    // induk dan mencoret nominal PEMBAYARAN-nya dari totalPengeluaran
+    // (terbukti regresi 72.000). Numerik dibekukan per aturan user.
+    if (!induk || !bolehDilanjut(r, induk) || r.penerimaan || r.pengeluaran) {
+      hasil.push(r); continue
+    }
+    induk.uraian = gabungTeks(induk.uraian, r.uraian)
+    if (!induk.noBukti && r.noBukti) induk.noBukti = r.noBukti
+    if (r.problems) {
+      induk.problems = [...new Set([...(induk.problems || []), ...r.problems])]
+    }
+    rincian.push({ induk: induk.tanggalStr, tambahan: r.uraian, nominal: 0 })
+  }
+  return { gabung: rincian.length, rincian, rows: hasil }
+}
+
+const POLA_PECAHAAN = /^(baca|dalam|rkt|berpusat|yang|dan|untuk|pada|ke|dari|di|program|kegiatan|penyusunan|pembagian|peningkatan|perserta|terpusat|bersama)\b/i
+
+/** Uraian induk masih terbuka untuk dilanjutkan (tidak diakhiri titik). */
+function bisaDilanjutUraian(u) {
+  const s = String(u || '').trim()
+  if (!s) return false
+  return !/\.$/.test(s)
+}
+
+/** Gabung dua potongan uraian dengan satu spasi. */
+function gabungTeks(a, b) {
+  const x = String(a || '').trim(), y = String(b || '').trim()
+  if (!x) return y
+  if (!y) return x
+  return `${x} ${y}`
+}
+
+/**
+ * Baris `r` adalah pecahan uraian milik baris `induk` di atasnya.
+ *
+ * Syarat (semuanya harus terpenuhi):
+ *  1. uraian = pecahan kalimat ATAU sisa angka kecil kolom ("52", "55")
+ *  2. kode rekening & kegiatan kosong atau sama dengan induk — satu transaksi
+ *  3. noBukti kosong atau sama dengan induk (noBukti sah = transaksi sendiri)
+ *  4. uraian induk belum diakhiri titik (memang ada yang dilanjutkan)
+ *  5. baris induk DAN anak di halaman yang sama (kkolom tabel satu area)
+ */
+function bolehDilanjut(r, induk) {
+  const u = String(r.uraian || '').trim()
+  if (!u) return false
+  const pecahanKata = POLA_PECAHAAN.test(u)
+  const sisaAngka = /^\d{1,3}$/.test(u)
+  if (!pecahanKata && !sisaAngka) return false
+  const samaKode = (!r.kodeRekening || r.kodeRekening === induk.kodeRekening) &&
+    (!r.kodeKegiatan || r.kodeKegiatan === induk.kodeKegiatan)
+  if (!samaKode) return false
+  if (r.noBukti && r.noBukti !== induk.noBukti) return false
+  // noBukti sah -> milik transaksi sendiri, bukan pecahan uraian.
+  if (r.noBukti && /^[A-Z]{2,4}\d{1,3}$/.test(r.noBukti)) return false
+  // Baris pecahan tidak mungkin berada jauh di halaman berbeda.
+  if (r.row !== induk.row) return false
+  if (!bisaDilanjutUraian(induk.uraian)) return false
+  return true
+}
+
+export default { hariMaks, modusTahun, perbaikiTanggalTakWajar, saringBarisRingkasan, perbaikiNominalDariSaldo, gabungBarisLanjutan }

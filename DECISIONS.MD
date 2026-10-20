@@ -1121,3 +1121,65 @@ Field baru: `saldoAkhir`, `totalPenerimaanSemua`, `totalPengeluaranSemua`, `byTy
 - PDF: `totalPengeluaran` = `PEMBAYARAN` (130.549.500), `isBalanced` = `false` — **benar**,
   karena tahun penuh masih menyisakan saldo Rp 32.723.000 (bukan defisit).
 - `RISKS.MD` entri double counting → **CLOSED** oleh §T.
+
+---
+
+## U. Jalur TEKS ASLI untuk PDF ber-text-layer — OCR jadi cadangan (2026-10-20)
+
+**Status: BERLAKU.** Melengkapi §Q/§R (yang mengatur OCR). §Q/§R **tidak** diubah: OCR tetap
+satu-satunya jalur untuk PDF hasil print-to-PDF / scan.
+
+### Kenapa
+
+Dua file yang tampak sama ternyata berbeda secara fundamental:
+
+| Ciri | print-to-PDF / scan | **unduh langsung ARKAS** |
+|---|---|---|
+| Item teks halaman 1 | **0** | **277–306** |
+| Jalur | OCR `tesseract.js` | `getTextContent()` |
+| Uraian | rusak / terpotong | **utuh** |
+| `noBukti` bocor ke `uraian` | ya | **tidak** |
+
+Dua keluhan user (BNU07/BNU08 bercampur di uraian, uraian terpotong) **bukan bug parser**,
+melainkan artefak OCR. Menambal parser untuk kasus itu terbukti **mengubah `tipe`** beberapa
+baris dan menggeser total beku (132.541.000) → patch **dibatalkan**.
+
+### Keputusan
+
+**U1 — Deteksi otomatis, bukan penolakan file.** `ukurTextLayer(halaman1)` (sudah ada,
+`AMBANG_TEXT = 40`) menentukan jalur:
+- `hasText` → `bacaTeksNative(pdf)` — `bacaTeksHalaman()` per halaman
+- tidak ada teks → jalur OCR lama apa adanya (file lama tetap bisa dipakai)
+
+**U2 — Koordinat native diskalakan `dpi/72` (= 200/72).** Tujuannya agar heuristik kolom
+yang sudah terkalibrasi (`CELAH_KOLOM 80`, `TOL_Y 18`) berlaku **tanpa perubahan**. Parser
+hilir (`parseBkuFixture`) tetap **satu** untuk kedua jalur — tidak ada parser kedua.
+
+**U3 — Angka mentah tidak boleh berubah.** Diverifikasi: jumlah baris **420 = 420**,
+Σ penerimaan **182.305.000 = 182.305.000**, Σ pengeluaran **149.582.000 = 149.582.000**,
+saldo **32.723.000 = 32.723.000**. Tidak ada baris hilang/bertambah.
+
+**U4 — `totalPengeluaran` native BERBEDA dan itu benar.** Native **132.397.000** vs OCR
+**130.549.500**. Sebabnya klasifikasi: OCR memecah 8 baris jadi potongan
+`LAINNYA`/`PUNGGUT_PPH` sehingga nominalnya tidak masuk `PEMBAYARAN`; native membaca utuh.
+Total mentah identik → tidak ada uang hilang. **Oracle OCR tetap menuntut 130.549.500 dan
+tetap PASS** — dua jalur punya angka ringkasan sendiri, didokumentasikan bukan disamakan paksa.
+
+**U5 — `ringkasPerBulan()` memakai definisi riil §T, bukan jumlah mentah.**
+Masuk = `PENERIMAAN_BOSP`, Keluar = `PEMBAYARAN`. Alasan konkret: Agustus memuat BOSP Tahap 2
+**82.560.000** + PPh 23 **54.000 + 107.000**, sehingga jumlah mentah tampil **82.721.000**.
+Dengan definisi §T, Agustus Masuk = **82.560.000** dan `BOSP − PEMBAYARAN = Δsaldo` berlaku
+**9 dari 9 bulan**. Ini juga menghapus inkonsistensi lama: kartu ringkasan memakai definisi
+riil sementara tabel memakai jumlah mentah.
+
+**U6 — `gabungBarisLanjutan()` tidak boleh menggabung baris bernominal.**
+Baris lanjutan yang punya `penerimaan`/`pengeluaran` adalah transaksi terpisah. Menggabungnya
+membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` hilang
+(regresi **−72.000**). Hanya baris **teks murni** yang digabung.
+
+### Dampak
+- PDF dari ARKAS: uraian & `noBukti` akurat tanpa OCR → lebih cepat (tanpa tesseract) dan
+  lebih tepat. `template-data/BKU tahunan.pdf` (scan) tetap berfungsi lewat OCR.
+- Oracle baru `test-bku-pdf-native.mjs` (12 asersi) mengunci fakta jalur native.
+- Tidak ada perubahan pada `bkuParser.js` (jalur Excel) — **0 diff**.
+

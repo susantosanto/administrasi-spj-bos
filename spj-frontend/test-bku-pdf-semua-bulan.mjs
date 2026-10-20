@@ -135,10 +135,17 @@ cek('duplikat buatan dikenali (2 baris, 1 ditandai)',
 // ── 6. Ringkasan per bulan ────────────────────────────────────────────────
 console.log('\n6. RINGKASAN PER BULAN')
 cek('Σ jumlah = total baris', perBulan.reduce((s, g) => s + g.jumlah, 0) === transaksi.length)
-cek('Σ masuk = totalPenerimaanSemua',
-  perBulan.reduce((s, g) => s + g.masuk, 0) === summary.totalPenerimaanSemua)
-cek('Σ keluar = totalPengeluaranSemua',
-  perBulan.reduce((s, g) => s + g.keluar, 0) === summary.totalPengeluaranSemua)
+// ringkasPerBulan (tabel preview) memakai DEFINISI RIIL yang sama dengan
+// ringkasan tersimpan: Masuk = PENERIMAAN_BOSP, Keluar = PEMBAYARAN.
+// Jadi dibandingkan ke totalPenerimaan/totalPengeluaran (riil), BUKAN ke
+// totalPenerimaanSemua (mentah, yang masih memuat PPh & pergeseran bank).
+cek('Σ masuk per bulan = totalPenerimaan (riil BOSP)',
+  perBulan.reduce((s, g) => s + g.masuk, 0) === summary.totalPenerimaan)
+cek('Σ keluar per bulan = totalPengeluaran (riil PEMBAYARAN)',
+  perBulan.reduce((s, g) => s + g.keluar, 0) === summary.totalPengeluaran)
+const ags = perBulan.find((g) => g.bulan === 8)
+cek('Agustus masuk = BOSP Rp 82.560.000 (PPh 23 tidak dihitung)',
+  ags && ags.masuk === 82560000, ags ? fmt(ags.masuk) : '(tidak ada)')
 cek('urut tahun lalu bulan',
   perBulan.every((g, i) => i === 0 ||
     perBulan[i - 1].tahun < g.tahun ||

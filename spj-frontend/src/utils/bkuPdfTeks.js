@@ -21,6 +21,62 @@ const RE_KODE_POLOS = /^\d{1,3}$/
 const titikKode = (s) => (s.replace(/\.$/, '').match(/\./g) || []).length
 
 /**
+ * Pola noBukti BKU yang sah: 2-4 huruf kapital diikuti 1-3 digit
+ * (BNU01, BBU02, BPU11, BNU100). Tidak ada spasi, huruf kecil, atau
+ * tanda baca lain. Pola ini dipakai untuk MENOLAK noBukti yang sebenarnya
+ * adalah kebocoran teks uraian (mis. "BNU12 Set)", "dalam pembelajaran",
+ * atau kalimat pajak utuh) yang masuk ke kolom bukti saat sel bukti kosong.
+ */
+const POLA_NOBUKTI = /^[A-Z]{2,4}\d{1,3}$/
+
+/** Tolak noBukti yang tercemar teks uraian; kembalikan '' bila tidak sah. */
+export function rapikanNoBukti(s) {
+  const v = String(s || '').trim()
+  if (!v) return ''
+  if (POLA_NOBUKTI.test(v)) return v
+  // Sel bukti kosong tapi ada teks uraian yang bocor ke kiri. Ambil HANYA
+  // kode yang sah di depan, buang sisa teksnya.
+  //
+  // PENTUNG: jangan jadi '' kalau ada kode sah. noBukti emptied = aturan
+  // deteksi tipe di bkuParser.js ikut berubah (BNU/BPU -> PEMBAYARAN
+  // jadi TARIK_TUNAI) sehingga total pengeluaran ikut turun. Bukti:
+  // "BNU12 Set)" harus tetap "BNU12".
+  const m = v.match(/^[A-Z]{2,4}\d{1,3}(?![\dA-Za-z])/)
+  return m ? m[0] : ''
+}
+
+/**
+ * Pemulihan spasi & koreksi artefak OCR pada uraian. OCR (DPI 200) sering
+ * melebur dua kata bila spasinya sempit, dan salah baca beberapa huruf.
+ * Semua koreksi di sini MURNI teks — tidak menyentuh kolom angka/saldo.
+ */
+const KOREKSI_URAIAN = [
+  // Frasa baku BKU yang sering melebur tanpa spasi (camelCase / huruf-digital).
+  [/SaldoBankBulanDesember/g, 'Saldo Bank Bulan Desember'],
+  [/SaldoTunaiBulanDesember/g, 'Saldo Tunai Bulan Desember'],
+  [/BungaBank/g, 'Bunga Bank'],
+  [/PajakBunga/g, 'Pajak Bunga'],
+  [/TerimaPPh/g, 'Terima PPh'],
+  [/SetorPPh/g, 'Setor PPh'],
+  // Kebingungan huruf (l kecil <-> I kapital) pada kependekan.
+  [/\bPAl\b/g, 'PAI'],
+  // Pemotongan kata oleh OCR.
+  [/\bTradisio\b/g, 'Tradisional'],
+]
+
+export function rapikanUraian(s) {
+  if (!s) return ''
+  let v = String(s)
+  // Sisip spasi: huruf kecil diikuti huruf kapital ("BulanDesember" -> "Bulan Desember").
+  v = v.replace(/([a-z])([A-Z])/g, '$1 $2')
+  // Sisip spasi: huruf diikuti tahun 4 digit ("Desember2025" -> "Desember 2025").
+  v = v.replace(/([A-Za-z])(\d{4})/g, '$1 $2')
+  // Koreksi frasa/kependekan yang sudah dikenali.
+  for (const [re, rep] of KOREKSI_URAIAN) v = v.replace(re, rep)
+  return v.replace(/\s+/g, ' ').trim()
+}
+
+/**
  * Pecah token teks satu baris jadi kode kegiatan / kode rekening /
  * no bukti / uraian.
  *
@@ -78,8 +134,8 @@ export function pisahTeks(baris, edges = []) {
   return {
     kodeKegiatan: keg.join('').replace(/\.$/, ''),
     kodeRekening,
-    noBukti: bukti.join(' ').trim(),
-    uraian: uraian.join(' ').replace(/\s+/g, ' ').trim(),
+    noBukti: rapikanNoBukti(bukti.join(' ')),
+    uraian: rapikanUraian(uraian.join(' ')),
   }
 }
 

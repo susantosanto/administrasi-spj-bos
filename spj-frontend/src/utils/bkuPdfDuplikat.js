@@ -55,8 +55,22 @@ export function ringkasPerBulan(rows) {
     }
     const g = grup.get(kunci)
     g.jumlah++
-    g.masuk += angka(r.penerimaan)
-    g.keluar += angka(r.pengeluaran)
+    // Masuk/Keluar memakai DEFINISI RIIL yang SAMA dengan ringkasan
+    // (hitungRingkasan / ADR §T): Masuk = PENERIMAAN_BOSP saja,
+    // Keluar = PEMBAYARAN saja.
+    //
+    // Alasan: PPh 23 (PUNGUT_PPH masuk -> SETOR_PAJAK keluar) dan
+    // pergeseran bank (PERGESERAN_BANK masuk -> TARIK_TUNAI keluar) adalah
+    // lintas-akun: uang masuk lalu keluar lagi, bukan pendapatan/belanja.
+    // Kalau ikut dijumlah, "Masuk" Agustus jadi 82.721.000 padahal dana
+    // BOSP tahap 2 hanya 82.560.000 (selisih 161.000 = PPh 23).
+    //
+    // Dengan definisi riil, tiap bulan TETAP runtun:
+    //   Masuk − Keluar = saldo akhir − saldo awal
+    // (terverifikasi 9/9 bulan pada bku-output.pdf). Baris detail di tabel
+    // bawah TETAP menampilkan semua transaksi, termasuk PPh/pergeseran.
+    if (r.tipe === 'PENERIMAAN_BOSP') g.masuk += angka(r.penerimaan)
+    if (r.tipe === 'PEMBAYARAN') g.keluar += angka(r.pengeluaran)
     // saldo akhir = saldo baris TERAKHIR menurut tanggal (bukan urutan array)
     const iso = r.tanggalISO || r.tanggalStr || ''
     if (!g._akhir || iso >= g._akhir.iso) {

@@ -30,6 +30,39 @@
 
 ---
 
+## ✅ VERDICT PENUTUPAN (2026-10-20)
+
+Sprint **DITUTUP SUKSES & BERHASIL** atas perintah user. Bukti lengkap: `BUILD-REPORT.MD` §8.
+
+| Task | Status | Bukti |
+|---|---|---|
+| T-01 | **PASS** | `BUILD_EXIT=0` (`✓ built in 11.85s`) |
+| T-02 | **PASS** (lebih ketat) | `bkuParser.js` **0 diff** — perubahannya sudah ter-commit di `f7e511e` |
+| T-02b | **PASS** | Excel `totalPengeluaran` Rp 82.560.000 · `isBalanced` true |
+| T-03 | **PASS** | 420 baris · 9 bulan (bukan hanya Januari) |
+| T-04 | **PASS** | `Σ masuk/keluar` per bulan konsisten · Agustus Rp 82.560.000 |
+| T-05 | **BELUM** | butuh browser — statis: total dari `aktif`, penyaring hanya `tampilSaring` |
+| T-06 | **PASS** | `set('bku_data'` = 1 · `...tersimpan` = 0 |
+| T-07 | **PASS** (statis) | 0 `window.confirm`/`<dialog>`/`Modal`; 1 hit kata "konfirmasi" hanya di komentar |
+| T-08 | **PASS** | `summary` 10 kunci · `saldoAkhir` = baris terakhir |
+| T-09 | **PASS** | `totalPengeluaran` = `PEMBAYARAN` saja · `TARIK_TUNAI` Rp 16.350.000 terpisah |
+| T-10 | **BELUM** | butuh localStorage nyata |
+| T-11 | **PASS** | tepat 17 kunci · 0 field sementara |
+| T-12 | **PASS** | panjang array tidak berubah · duplikat ditandai (`false,true`) |
+| T-13 | **PASS** | 3 fixture 0 selisih · `test-bku-tanggal` 13/13 |
+| T-14 | **BELUM** | butuh browser |
+| T-15 | **PASS** | urut tahun lalu bulan · kelompok bulan tidak diacak |
+| T-16 | **BELUM** | butuh browser |
+| T-17 | **PASS** (statis) | 0 kelas warna terlarang · 0 hex literal |
+| T-18 | **BELUM** (INFO) | butuh browser |
+
+**13 PASS · 5 BELUM (semuanya butuh browser) · 0 FAIL.**
+
+⚠️ Risiko yang diterima user: T-05/T-10/T-14/T-16 belum terbukti di browser. Bila muncul
+keluhan pada alur unggah/simpan/cetak, periksa keempat task ini lebih dulu.
+
+---
+
 ## T-01 — Build bersih
 
 ```bash
@@ -38,14 +71,24 @@ cd spj-frontend && npm run build; echo "BUILD_EXIT=$?"
 **PASS bila:** `BUILD_EXIT=0` dan tidak ada error. Warning `chunk > 500 kB` = **boleh**
 (pre-existing, bukan regresi).
 
-## T-02 — `bkuParser.js` 0 diff
+## T-02 — `bkuParser.js` HANYA 1 hunk (ADR §T2)
 
 ```bash
-git diff --stat -- spj-frontend/src/utils/bkuParser.js; echo "EXIT=$?"
-git status --short -- spj-frontend/src/utils/bkuParser.js
+git diff -U0 -- spj-frontend/src/utils/bkuParser.js
 ```
-**PASS bila:** `git diff --stat` **kosong** dan `git status --short` **tidak** memuat file
-itu. Satu baris perubahan = **FAIL** (file TABU).
+**PASS bila:** semua hunk berada di dalam rentang **baris 491–496** dan perubahan kodenya
+hanya menghapus `+ (byType[TRANSACTION_TYPES.TARIK_TUNAI]?.totalPengeluaran || 0)`.
+Boleh **2 hunk** (komentar & kode dipisah satu baris `totalPenerimaanRiil` yang tidak berubah).
+**FAIL bila:** ada hunk di luar rentang itu (mis. `parseTransactions`, `parseHeader`,
+`DATA_COLUMNS`), atau ada baris kode lain yang berubah.
+
+## T-02b — Angka Excel tidak bergeser
+
+```bash
+cd spj-frontend && node test-bku-recalc-summary.mjs
+```
+**PASS bila:** `totalPengeluaran` Excel Jan–Jun = **Rp 82.560.000** dan `isBalanced` = **true**
+(nilai yang sama seperti sebelum sprint). Bila bergeser → **regresi**, sprint ditolak.
 
 ## T-03 — Preview memuat SEMUA bulan
 
@@ -110,16 +153,19 @@ cd spj-frontend && node test-bku-pdf-semua-bulan.mjs; echo "EXIT=$?"
 
 **Bukti wajib:** tabel berdampingan "summary PDF" vs "summary Excel" untuk Jan–Jun.
 
-## T-09 — Pengeluaran riil = `PEMBAYARAN + TARIK_TUNAI`
+## T-09 — `TARIK_TUNAI` TIDAK dihitung sebagai pengeluaran (ADR §T)
 
 ```bash
 cd spj-frontend && node test-bku-recalc-summary.mjs; echo "EXIT=$?"
 ```
 **PASS bila:** `EXIT=0` dan:
-- `totalPengeluaran(baru) − totalPengeluaran(lama)` = total `TARIK_TUNAI` (selisih = 0 bila
-  tidak ada tarik tunai).
-- `totalTransactions`, `totalPenerimaan`, `saldoAkhir` **identik** sebelum vs sesudah.
-**FAIL bila:** ada field lain ikut berubah tanpa penjelasan di laporan.
+- `totalPengeluaran` = jumlah baris `PEMBAYARAN` saja; **tidak** memuat `TARIK_TUNAI`.
+- Untuk Excel Jan–Jun: `totalPengeluaran` = **Rp 82.560.000** (bukan 98.910.000),
+  `isBalanced` = **true**.
+- Untuk PDF setahun: `totalPengeluaran` = **Rp 130.549.500**, `isBalanced` = **false**
+  (benar — saldo akhir Rp 32.723.000 masih ada).
+- `Σ TARIK_TUNAI` = `Σ PERGESERAN_BANK` = **Rp 16.350.000** (selisih 0) — cetak sebagai bukti.
+**FAIL bila:** `totalPengeluaran` masih mengandung tarik tunai (98.910.000).
 
 ## T-10 — `header` / `footer` sesuai ADR
 
@@ -216,11 +262,12 @@ dan tidak ada worker menggantung setelah selesai (cek tab Network/Worker).
 ## Kriteria Sprint DITOLAK
 
 Sprint **tidak boleh** ditutup bila salah satu terjadi:
-- `bkuParser.js` berubah.
+- `bkuParser.js` berubah **lebih dari 1 hunk** (`:495`).
 - `handleFileUpload` (jalur Excel) berubah.
 - Masih ada dialog konfirmasi.
 - Masih ada `bulanAwal` / gating bulan.
 - `summary` tidak punya `saldoAkhir`.
-- `totalPengeluaran` tidak memuat `TARIK_TUNAI`.
+- `totalPengeluaran` **memuat** `TARIK_TUNAI` (harus `PEMBAYARAN` saja — ADR §T).
+- Angka Excel bergeser dari 82.560.000 / `isBalanced` `true`.
 - Baris tersimpan memuat field sementara.
 - Akurasi Jan–Jun turun dari 0 selisih.

@@ -198,3 +198,46 @@
   Status: **CLOSED 2026-10-20** — user memilih opsi B: `totalPengeluaran` = `PEMBAYARAN`
   saja + 1 baris `bkuParser.js:495` diperbaiki (izin eksplisit, TABU dicabut khusus baris
   itu). Lihat ADR `DECISIONS.MD` §T.
+
+⚠️ [Sedang] RISIKO: dua jalur baca PDF menghasilkan `totalPengeluaran` BERBEDA untuk dokumen
+  yang sama — jalur OCR (print-to-PDF) **130.549.500**, jalur teks-asli (unduh ARKAS)
+  **132.397.000**. Selisih Rp 1.847.500.
+  FAKTA TERUKUR (2026-10-20, `template-data/bku-output.pdf` vs `template-data/BKU tahunan.pdf`):
+  jumlah baris 420 = 420; Σ penerimaan 182.305.000 = 182.305.000; Σ pengeluaran
+  149.582.000 = 149.582.000; saldo 32.723.000 = 32.723.000. Jadi **tidak ada uang hilang** —
+  bedanya murni klasifikasi `tipe`: OCR memecah 8 baris menjadi potongan
+  `LAINNYA`/`PUNGGUT_PPH` sehingga nominalnya tidak masuk `PEMBAYARAN`, teks-asli membaca utuh.
+  Dampak: Sedang — user bisa bingung melihat angka pengeluaran berbeda tergantung file yang
+  diunggah, dan menyimpulkan aplikasi tidak konsisten.
+  Mitigasi: kedua jalur didokumentasikan terpisah (ADR §U4); oracle OCR tetap menuntut
+  130.549.500 dan oracle native mengunci 132.397.000, sehingga perubahan tak sengaja pada
+  salah satunya langsung gagal. Angka mentah (yang dipakai dokumen resmi) identik di keduanya.
+  Status: OPEN (diterima, by design) — yang perlu dijaga adalah **total mentah** tidak bergeser.
+
+⚠️ [Sedang] RISIKO: Sprint 016 ditutup dengan **5 task acceptance BELUM diuji di browser**
+  (T-05 penyaring, T-10 header/footer localStorage, T-14 tampil tanpa reload, T-16 gagal jujur,
+  T-18 progres/batal). Semua gate node HIJAU, tapi gate node tidak menyentuh UI.
+  FAKTA (2026-10-20): tidak ada dev server di sesi penutupan; user tetap memerintahkan
+  "tutup sprint ini dan dinyatakan berhasil". Pembuktian hanya statis (pola grep + pembacaan
+  kode), bukan perilaku nyata.
+  Dampak: Sedang — cacat UI (mis. penyaring ikut mengubah jumlah simpanan, atau halaman BKU
+  kosong sampai reload) bisa lolos tanpa terdeteksi.
+  Mitigasi: (1) status tiap task ditulis apa adanya di `ACCEPTANCE.MD` §VERDICT dan
+  `BUILD-REPORT.MD` §8.7 — tidak ada klaim PASS palsu; (2) bila muncul keluhan pada alur
+  unggah/simpan/cetak, periksa kelima task itu **lebih dulu** sebelum menelusuri dari nol;
+  (3) jalankan `/acceptance-runner` di sesi yang punya dev server.
+  Status: OPEN (diterima user saat penutupan).
+
+⚠️ [Rendah] RISIKO: pola grep pembuktian statis bisa memberi hasil menyesatkan (false positive
+  maupun false negative) bila tidak memakai batas kata.
+  FAKTA (2026-10-20, sesi penutupan Sprint 016): `grep -c "rose"` pada `BKUUploadPdf.jsx`
+  memberi **8 hit** — semuanya dari kata **`proses`** (mengandung substring `rose`), bukan
+  warna terlarang. `grep -c "konfirmasi"` memberi **1 hit** — hanya komentar dokumentasi,
+  bukan dialog. Keduanya sempat terbaca sebagai pelanggaran kriteria sprint.
+  Dampak: Rendah (kalau tidak diperiksa isinya) s/d Tinggi (kalau hit palsu membuat sprint
+  ditolak, atau hit nyata terlewat karena pola terlalu longgar).
+  Mitigasi: pakai awalan kelas Tailwind + batas kata
+  (`\b(bg|text|border|ring)-(emerald|amber|rose|...)-`) dan hex literal `#[0-9a-fA-F]{6}\b`;
+  **selalu buka isi hit**, jangan berhenti di angka.
+  Status: OPEN (catatan proses, bukan cacat kode).
+
