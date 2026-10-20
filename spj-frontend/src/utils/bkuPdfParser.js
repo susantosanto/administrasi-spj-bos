@@ -2,40 +2,35 @@
  * bkuPdfParser.js — Sprint 015 · M3b: baris → TransactionRow (≤200 baris)
  *
  * Masukan : fixture / hasil OCR engine  { items:[{str,x,y,w,h,page}], meta }
- * Keluaran: { transactions, problems, reconcile, kop, meta }
+ * Keluaran: { transactions, problems, dilewati, reconcile, kop, meta }
  *
  * Bentuk baris WAJIB 17 field identik jalur Excel (bkuParser.js:346-366).
  * `problems` TIDAK ikut ke baris — hanya untuk badge di layar preview.
  * Deteksi tipe/kategori TIDAK disalin: memakai API publik redetectTypes()
  * milik bkuParser.js (file itu TABU — harus 0 diff).
  * Bentuk kolom/baris: bkuPdfLayout.js · kolom teks: bkuPdfTeks.js ·
- * pembacaan tanggal: bkuPdfTanggal.js.
+ * pembacaan tanggal: bkuPdfTanggal.js · perapian baris: bkuPdfRapi.js.
  */
 import { redetectTypes } from './bkuParser.js'
 import { kalibrasiNominal, barisPerHalaman, kolomAngka } from './bkuPdfLayout.js'
 import { pisahTeks } from './bkuPdfTeks.js'
-import { bacaTanggal, tanggalPemisah, tanggalPolos } from './bkuPdfTanggal.js'
-
+import { bacaTanggal, tanggalPemisah, tanggalGabung, tanggalPolos } from './bkuPdfTanggal.js'
+import { perbaikiTanggalTakWajar, saringBarisRingkasan, modusTahun, perbaikiNominalDariSaldo } from './bkuPdfRapi.js'
 const pad = (n) => String(n).padStart(2, '0')
 
 /**
- * Buang label footer tabel (bukan milik sekolah).
- *
- * Label HEADER tabel ("TANGGAL", "URAIAN", "SALDO", ...) TIDAK dibuang di
- * sini: "SALDO" bisa jadi kata sah di uraian ("Saldo Bank Bulan Desember
- * 2025"). Area kop/header sudah terpisah oleh filter yData di
- * barisPerHalaman — label header ada di atas jangkai data pertama.
+ * Buang label footer ("HALAMAN ..."). Label HEADER tabel sengaja TIDAK
+ * dibuang di sini — "SALDO" bisa jadi kata sah di uraian; area kop sudah
+ * terpisah oleh filter yData di barisPerHalaman.
  */
 function buangHeader(items) {
   return items.filter((it) => !/^HALAMAN\b/i.test(it.str.trim()))
 }
 
 /**
- * Identitas sekolah dari blok kop: nama, NPSN, tahun.
- * Urutan item OCR tidak tepercaya, jadi dicari lewat KEDEKATAN — token berlabel
- * lalu token paling dekat di kanannya. Label ditulis toleran tanda baca karena
- * OCR bisa mengubah "Nama Sekolah" jadi "Nama,Sekolah.". Tidak ada nama
- * sekolah yang di-hardcode di modul ini.
+ * Identitas sekolah dari blok kop: nama, NPSN, tahun. Urutan item OCR tidak
+ * tepercaya, jadi dicari lewat KEDEKATAN (token berlabel + token terdekat di
+ * kanannya). Tidak ada nama sekolah yang di-hardcode di modul ini.
  */export function bacaKop(items) {
   const hal1 = items.filter((it) => it.page === 1 && it.y < 560)
   const bersih = (v) => v.replace(/^[^:]{0,4}:\s*/, '').replace(/[\s,._-]+$/, '').trim()
@@ -80,12 +75,14 @@ export function potongNominal(s) {
 }
 
 /**
- * Token tanggal pada satu baris. Bentuk berpemisah ("01-01-2026")
- * didahulukan; bentuk tanpa pemisah ("01012026)") dipakai sebagai cadangan
- * supaya baris tidak hilang.
+ * Token tanggal satu baris. Urutan = paling tepercaya dulu: berpemisah
+ * ("01-01-2026"), hari+bulan menyatu ("0802-2026"), lalu tanpa pemisah
+ * ("01012026)"). Dua bentuk terakhir mencegah baris hilang saat OCR
+ * menghilangkan tanda hubung.
  */
 function cariTokenTanggal(items) {
   for (const it of items) if (tanggalPemisah(it.str.trim())) return it
+  for (const it of items) if (tanggalGabung(it.str.trim())) return it
   for (const it of items) if (tanggalPolos(it.str.trim())) return it
   return null
 }
@@ -102,12 +99,8 @@ function barisMentah(baris, edges) {
 
   const [penerimaan, pengeluaran, saldo] = kolomAngka(baris, edges, potongNominal)
 
-  // Tanggal tak terbaca -> baris TETAP dibuat supaya angka di bawahnya
-  // tidak bergeser, tapi ditandai supaya user mengoreksinya di preview.
-  // Men-drop baris justru menggeser semua saldo. Tanggal yang perlu
-  // DITEBAK (pemisah hilang saat OCR) tetap dipakai supaya baris tidak
-  // hilang, tapi ditandai 'tanggal_perlu_dikoreksi' — tebakan tidak boleh
-  // diam-diam dianggap benar; user memeriksa ulang di tabel preview.
+  // Tanggal tak terbaca -> baris TETAP dibuat (men-drop baris menggeser
+  // semua saldo), ditandai 'tanggal_perlu_dikoreksi' untuk diperiksa user.
   const oke = !!dibaca
   if (!dibaca) problems.push('tanggal_tidak_valid')
   else if (!dibaca.pasti) problems.push('tanggal_perlu_dikoreksi')
@@ -178,9 +171,16 @@ export function parseBkuFixture(fixture) {
   const itemsData = baris.flatMap((b) => b.items)
   const edges = kalibrasiNominal(itemsData)
   const mentah = baris.map((b) => barisMentah(b, edges)).filter(Boolean)
-  const bertipe = redetectTypes(mentah)
+  // Perapian sebelum jadi transaksi (bkuPdfRapi.js): tahun salah baca
+  // dipulihkan dari urutan dokumen, nominal salah digit dari rantai saldo,
+  // lalu baris total tahunan ("... Jumlah") dibuang.
+  const tahunDok = Number(kop.tahun) || modusTahun(mentah)
+  perbaikiTanggalTakWajar(mentah, tahunDok)
+  perbaikiNominalDariSaldo(mentah)
+  const { rows: rapi, dilewati } = saringBarisRingkasan(mentah)
+  const bertipe = redetectTypes(rapi)
 
-  const problems = []
+  const problems = [...dilewati]
   const transactions = bertipe.map(({ problems: p, ...row }) => {
     for (const jenis of p || []) {
       problems.push({ tanggal: row.tanggalStr, halaman: row.row, jenis })
@@ -191,9 +191,10 @@ export function parseBkuFixture(fixture) {
   return {
     transactions,
     problems,
+    dilewati,
     reconcile: reconcile(transactions),
     kop,
-    meta: { ...(fixture.meta || {}), kolomAngka: edges, totalBaris: baris.length },
+    meta: { ...(fixture.meta || {}), kolomAngka: edges, totalBaris: baris.length, tahunDokumen: tahunDok },
   }
 }
 

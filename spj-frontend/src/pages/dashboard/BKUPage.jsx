@@ -8,6 +8,7 @@ import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import { kategoriDenganKoreksi, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
 import BKUSidebar from '../../components/bku/BKUSidebar'
+import { hitungRingkasan } from '../../utils/bkuSummary'
 import BKUUploadPdf from '../../components/bku/BKUUploadPdf'
 
 // Label badge kategori BKU (Sprint 004 A.2)
@@ -85,63 +86,9 @@ export default function BKUPage() {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
-  // Recalculate real summary from transactions
-  // Handle BOTH old format (no tipe field) and new format (with tipe field)
-  const recalcSummary = (transactions) => {
-    const hasTipe = transactions.some(t => t.tipe)
-
-    if (!hasTipe) {
-      // ── OLD DATA (sebelum parser fix) — tidak punya field tipe ──
-      // Deteksi penerimaan BOSP dari text: "Dana BOSP" atau noBukti "BBU01"
-      const bosp = transactions.filter(t => {
-        const u = (t.uraian || '').toLowerCase()
-        const nb = (t.noBukti || '').toUpperCase()
-        return t.penerimaan > 0 && (nb === 'BBU01' || u.includes('dana bosp') || u.includes('bosp tahap'))
-      }).reduce((s, t) => s + (t.penerimaan || 0), 0)
-
-      // Pengeluaran riil = total pengeluaran - setor pajak - internal
-      const totalKredit = transactions.reduce((s, t) => s + (t.pengeluaran || t.kredit || 0), 0)
-      const setorPajak = transactions.filter(t => {
-        const nb = (t.noBukti || '').toUpperCase()
-        const u = (t.uraian || '').toLowerCase()
-        return nb.startsWith('BPU') || u.includes('setor pph') || u.includes('setor pajak') || u.includes('pajak bunga')
-      }).reduce((s, t) => s + (t.pengeluaran || t.kredit || 0), 0)
-      const saldoAwal = transactions.filter(t => {
-        const u = (t.uraian || '').toLowerCase()
-        return u.includes('saldo bank') || u.includes('saldo tunai')
-      }).reduce((s, t) => s + (t.pengeluaran || t.kredit || 0), 0)
-      const internalLain = transactions.filter(t => {
-        const u = (t.uraian || '').toLowerCase()
-        return u.includes('bunga bank')
-      }).reduce((s, t) => s + (t.pengeluaran || t.kredit || 0), 0)
-
-      const totalPengeluaranRiil = totalKredit - setorPajak - saldoAwal - internalLain
-
-      return {
-        totalPenerimaan: bosp,
-        totalPengeluaran: totalPengeluaranRiil,
-        totalTransactions: transactions.length,
-        isBalanced: bosp === totalPengeluaranRiil,
-        months: [...new Set(transactions.map(t => t.bulan))].sort((a, b) => a - b),
-      }
-    }
-
-    // ── NEW DATA (dengan field tipe) — filter langsung oleh tipe ──
-    // PENERIMAAN RIIL = hanya Dana BOSP (PENERIMAAN_BOSP)
-    // PENGELUARAN RIIL = BNU + BPU (PEMBAYARAN) — Tarik Tunai adalah pemindahan dana, bukan pengeluaran riil
-    const bosp = transactions.filter(t => t.tipe === 'PENERIMAAN_BOSP')
-      .reduce((s, t) => s + (t.penerimaan || 0), 0)
-    const pembayaran = transactions.filter(t => t.tipe === 'PEMBAYARAN')
-      .reduce((s, t) => s + (t.pengeluaran || 0), 0)
-    
-    return {
-      totalPenerimaan: bosp,
-      totalPengeluaran: pembayaran,
-      totalTransactions: transactions.length,
-      isBalanced: bosp === pembayaran,
-      months: [...new Set(transactions.map(t => t.bulan))].sort((a, b) => a - b),
-    }
-  }
+  // Satu definisi ringkasan untuk KEDUA pintu masuk (Excel & PDF).
+  // Definisi & bentuknya ada di utils/bkuSummary.js — ADR §T.
+  const recalcSummary = hitungRingkasan
 
   // ─── Load from Storage (shared) ──────────────────────────────
 
@@ -447,7 +394,6 @@ export default function BKUPage() {
         {showUploadPdf && (
           <BKUUploadPdf
             recalcSummary={recalcSummary}
-            bulanAwal={filterBulan !== 'Semua' ? Number(filterBulan) : 1}
             onSelesai={() => loadFromStorage(true)}
           />
         )}

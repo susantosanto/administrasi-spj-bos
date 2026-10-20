@@ -177,3 +177,24 @@
   Dampak: Rendah — bukan cacat data, tapi pengalaman buruk kalau user pindah tab.
   Mitigasi: progres per halaman sudah tampil ("Membaca halaman N dari 21") + tombol "Batalkan proses" tersedia.
   Status: OPEN (non-blocking, diterima user).
+
+⚠️ [Tinggi] RISIKO: definisi `totalPengeluaran` di `bkuParser.js:494-495` (= `PEMBAYARAN +
+  TARIK_TUNAI`) berpotensi **menghitung uang yang sama dua kali**. `TARIK_TUNAI` adalah
+  pemindahan dana bank → kas (bukan belanja); kas yang sama lalu dibelanjakan lewat baris
+  `PEMBAYARAN` (BPU/BNU). Kode lama `recalcSummary` (`BKUPage.jsx:136-138`) sudah menulis
+  komentar eksplisit: *"Tarik Tunai adalah pemindahan dana, bukan pengeluaran riil"* —
+  jadi pengecualian itu disengaja, bukan kelalaian.
+  FAKTA TERUKUR (dry run Sprint 016, 2026-10-20): data Excel Jan–Jun 2026 —
+  `TARIK_TUNAI` = 2 baris / Rp 16.350.000; `totalPengeluaran` 82.560.000 → 98.910.000;
+  `isBalanced` **true → false**. Di level "semua transaksi" BKU tetap seimbang
+  (`totalPenerimaanSemua` = `totalPengeluaranSemua` = Rp 99.524.000), jadi
+  ketidakseimbangan "riil" itu persis sebesar tarik tunai — indikasi kuat double counting.
+  Dampak: Tinggi — indikator "Balance" bisa menampilkan "Tidak Balance" pada data yang
+  sebenarnya sehat, dan angka pengeluaran yang dilaporkan ke dokumen bisa terlalu besar.
+  Mitigasi: ADR §S1 (2026-10-20) menyamakan ke Excel agar kedua pintu masuk konsisten
+  (bkuParser TABU, jadi definisi Excel tidak bisa diubah di Sprint 016). Perbaikan definisi
+  yang benar butuh sprint sendiri yang diizinkan menyentuh `bkuParser.js` — kandidat:
+  `totalPengeluaran` = `PEMBAYARAN` saja, `TARIK_TUNAI` disimpan di field terpisah.
+  Status: **CLOSED 2026-10-20** — user memilih opsi B: `totalPengeluaran` = `PEMBAYARAN`
+  saja + 1 baris `bkuParser.js:495` diperbaiki (izin eksplisit, TABU dicabut khusus baris
+  itu). Lihat ADR `DECISIONS.MD` §T.

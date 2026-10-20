@@ -1024,3 +1024,100 @@ menghasilkan data Excel-identik di engine yang benar-benar dipakai**".
 - Modul baru: `bkuPdfTanggal.js`, `bkuPdfBersih.js`, `bkuPdfTeks.js`
   (masing-masing ≤200 baris) + `bkuPdfLayout.js`/`bkuPdfOcr.js`/
   `bkuPdfPages.js`/`bkuPdfParser.js` yang direfactor.
+
+## S. Sprint 016 — impor PDF SEMUA bulan + definisi pengeluaran riil + data meta (2026-10-20)
+
+**Konteks.** Idea Brief 2026-10-20 (dikonfirmasi user) meminta jalur impor PDF menampilkan
+**semua bulan sekaligus**, "sama persis identik" dengan jalur Excel. Saat menyusun PRD
+(`planning/sprints/sprint-016/PRD.md`) ditemukan tiga hal yang tidak boleh diputuskan agent
+sendiri. Ketiganya sudah dijawab user 2026-10-20.
+
+### Keputusan
+
+**S1 — Definisi pengeluaran riil = `PEMBAYARAN + TARIK_TUNAI` (sama dengan Excel).**
+- Alasan: dua pintu masuk (Excel vs PDF) tidak boleh menghasilkan angka "Balance" berbeda
+  untuk data yang sama. Sebelum ini, `bkuParser.js:494-495` menghitung `TARIK_TUNAI`,
+  sedangkan `recalcSummary` (`BKUPage.jsx:136-138`) tidak — akibatnya angka di layar bahkan
+  bisa **berubah setelah reload** untuk data Excel yang sama (`handleFileUpload` menyimpan
+  `result.summary`, `loadFromStorage` menghitung ulang dengan `recalcSummary`).
+- Cakupan perubahan: **hanya** fungsi `recalcSummary`. `handleFileUpload` (jalur Excel)
+  tidak diubah. Ini pengecualian yang disetujui user secara eksplisit, bukan pelanggaran
+  aturan "jalur Excel tidak disentuh".
+
+**S2 — `footer` pada `spj_bku_data` TIDAK dipertahankan saat impor PDF (ditulis kosong).**
+- Alasan (kata user): *"selama tidak berkorelasi dengan nilai belanja di BKU tidak perlu
+  dipertahankan, karena saya memerlukan nilai-nilai yang digunakan untuk data pembuatan
+  dokumen saja."*
+- Bukti aman (diverifikasi `grep`):
+  1. `bku_data.footer` hanya dipakai di `previewDocs.js:379` (`footer?.tempat`), **dengan
+     fallback** `sekolah.kabupaten` → `tempat` tetap terisi.
+  2. Nama & NIP kepala sekolah/bendahara untuk cetak berasal dari `getSignatureRoles()`
+     (`signatureRoles.js:40` → `getPejabat()`), **bukan** dari `footer` → blok tanda tangan
+     dokumen tidak kosong.
+  3. `kasKonteks()` mengembalikan `footer` tetapi `kasDocs()` tidak mendestrukturnya →
+     data mati.
+
+**S3 — `header.alamat` / `kabupaten` / `provinsi` TIDAK dipertahankan; `header.tahunAnggaran` WAJIB diisi.**
+- Alasan: alasan sama dengan S2. Field alamat/kabupaten/provinsi hanya dipakai tampilan
+  kosmetik (`BKUPage.jsx:512-513`); identitas sekolah untuk dokumen diambil dari
+  `getSchoolData()` (`sekolahData.js:53`).
+- **Pengecualian wajib:** `tahunAnggaran` harus terisi dari `kop.tahun` PDF, karena
+  `previewDocs.js:242` memakainya untuk judul dokumen. Kalau kosong, dokumen cetak diam-diam
+  memakai `new Date().getFullYear()` → tahun salah tanpa peringatan.
+
+### Dampak
+- `spj_bku_data` hasil impor PDF **mengganti seluruh objek** (tidak lagi `...tersimpan`),
+  konsisten dengan keputusan Idea Brief #5.
+- `summary` hasil impor PDF wajib berbentuk sama dengan jalur Excel: `totalTransactions`,
+  `totalPenerimaan`, `totalPengeluaran`, `saldoAkhir`, `isBalanced`, `months`,
+  `totalPenerimaanSemua`, `totalPengeluaranSemua`, `byType`, `monthlySummaries`.
+- Impor PDF **menghapus** `footer` lama dan `header.alamat/kabupaten/provinsi` lama —
+  ini disengaja, bukan regresi. Bila user menginginkan nilai itu kembali, isi ulang lewat
+  Data Sekolah / Peran Tanda Tangan, atau impor ulang lewat Excel.
+- Pertanyaan ditutup di `QUESTIONS.MD` (3 entri CLOSED 2026-10-20).
+
+## T. REVISI ADR §S1 — `TARIK_TUNAI` TIDAK dihitung sebagai pengeluaran riil (2026-10-20)
+
+**Status: MENGGANTIKAN §S1.** §S1 dibiarkan apa adanya sebagai jejak audit (aturan: ADR lama
+tidak diedit). Yang berlaku sekarang adalah §T.
+
+### Kenapa §S1 direvisi
+
+§S1 memutuskan "samakan ke Excel" (= `PEMBAYARAN + TARIK_TUNAI`) **sebelum** ada data
+pendukung. Setelah diukur, ternyata keputusan itu keliru. Bukti (Excel **dan** PDF, angka
+identik):
+
+| Tanggal | Uraian | Tipe | Keluar | Masuk | Saldo |
+|---|---|---|---|---|---|
+| 09-02-2026 | Tarik Tunai | `TARIK_TUNAI` | 14.650.000 | 0 | 68.510.000 → 53.860.000 |
+| 09-02-2026 | Pergeseran Uang di Bank | `PERGESERAN_BANK` | 0 | 14.650.000 | 53.860.000 → **68.510.000** |
+| 09-06-2026 | Tarik Tunai | `TARIK_TUNAI` | 1.700.000 | 0 | 8.041.400 → 6.341.400 |
+| 09-06-2026 | Pergeseran Uang di Bank | `PERGESERAN_BANK` | 0 | 1.700.000 | 6.341.400 → **8.041.400** |
+
+`Σ TARIK_TUNAI` = `Σ PERGESERAN_BANK` = **Rp 16.350.000**, selisih **Rp 0**.
+→ Tarik tunai adalah **pemindahan bank ↔ kas**, bukan belanja. Menghitung sisi keluarnya saja
+membuat pengeluaran membengkak Rp 16.350.000 padahal tidak ada uang yang dibelanjakan
+(uang yang sama nanti dibelanjakan lewat baris `PEMBAYARAN` → **double counting**).
+
+### Keputusan
+
+**T1 — `totalPengeluaran` = `PEMBAYARAN` saja** (definisi `recalcSummary` yang lama, yang benar).
+`TARIK_TUNAI` **tidak** masuk. `isBalanced` kembali `true` untuk data Excel contoh.
+
+**T2 — `bkuParser.js` BOLEH diubah 1 baris (izin eksplisit user 2026-10-20).**
+Baris 495: hapus `+ (byType[TRANSACTION_TYPES.TARIK_TUNAI]?.totalPengeluaran || 0)`.
+Status TABU `bkuParser.js` **dicabut khusus untuk perubahan ini**; perubahan lain tetap dilarang
+(file tetap 0 diff di luar baris tersebut). Komentar baris 491 ikut dikoreksi agar tidak
+menyesatkan ("Tarik Tunai ... menguras dana" → "pemindahan dana, bukan belanja").
+
+**T3 — `recalcSummary` hanya DITAMBAH field, definisi tidak diubah.**
+Field baru: `saldoAkhir`, `totalPenerimaanSemua`, `totalPengeluaranSemua`, `byType`,
+`monthlySummaries` — agar bentuknya sama dengan `bkuParser` (keputusan Idea Brief #1 "identik").
+
+### Dampak
+- **Angka Excel: 0 perubahan** (`totalPengeluaran` tetap 82.560.000; `isBalanced` tetap `true`).
+  Yang berubah hanya: `bkuParser` tidak lagi menambahkan tarik tunai, sehingga `summary` hasil
+  upload Excel **tidak lagi berubah setelah reload** (bug "angka berubah setelah reload" hilang).
+- PDF: `totalPengeluaran` = `PEMBAYARAN` (130.549.500), `isBalanced` = `false` — **benar**,
+  karena tahun penuh masih menyisakan saldo Rp 32.723.000 (bukan defisit).
+- `RISKS.MD` entri double counting → **CLOSED** oleh §T.

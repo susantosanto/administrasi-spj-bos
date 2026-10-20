@@ -108,3 +108,33 @@
 ❓ [CLOSED] Pertanyaan: nomor sprint untuk upload PDF BKU = **013** (012 sudah dipesan WIP Cover/Sekat) — benar, atau tunggu 012 selesai dulu?
   Jawaban: **Nomor akhirnya 015** — sprint 013 (versi lama) dibatalkan total & di-reset 2026-09-19 (kebijakan user: PRD baru ditulis dari nol), 014 dipakai laporan rincian pajak, dan upload PDF BKU dilanjutkan sebagai **Sprint 015** dengan pack `planning/sprints/sprint-015/` + salinan audit `architect-packs/architect-pack-015-bku-pdf-import.md`. Sprint 012 (WIP Cover/Sekat + dokumen kas) tidak lagi memblokir — Sprint 015 berdiri sendiri.
   Ditutup: 2026-10-19 (sprint 015 ditutup)
+
+❓ [CLOSED] Pertanyaan: Sprint 016 (impor PDF semua bulan) — definisi **pengeluaran riil** mana yang dipakai? Jalur Excel menghitung `TARIK_TUNAI` (`bkuParser.js:494-495`: `PEMBAYARAN + TARIK_TUNAI`), sedangkan `recalcSummary` di `BKUPage.jsx:136-138` hanya `PEMBAYARAN`. Akibatnya indikator "Balance" bisa berbeda untuk data yang sama tergantung pintu masuk (Excel vs PDF).
+  Jawaban: **"(a) samakan ke Excel"** — pengeluaran riil = `PEMBAYARAN + TARIK_TUNAI`. `recalcSummary` WAJIB diperbaiki agar ikut menghitung `TARIK_TUNAI`, sehingga kedua pintu masuk menghasilkan `summary` identik. Konsekuensi yang diterima user: `BKUPage.jsx` (jalur Excel) ikut tersentuh — dibatasi HANYA pada fungsi `recalcSummary`, `handleFileUpload` tidak diubah.
+  Bukti pendukung: sebelum perbaikan, angka "Balance" di layar bisa **berubah setelah reload** untuk data Excel yang sama (`handleFileUpload` menyimpan `result.summary` dari `bkuParser`, tetapi `loadFromStorage` menghitung ulang dengan `recalcSummary`).
+  Ditutup: 2026-10-20 (perintah user langsung) — ADR di `DECISIONS.MD`
+
+❓ [CLOSED] Pertanyaan: Sprint 016 — `footer` (nama kepala sekolah & bendahara, NIP, tempat, tanggal penutupan) **tidak bisa** dibaca dari PDF (tidak ada parser footer PDF). Karena keputusan #5 = "ganti seluruhnya" `spj_bku_data`, footer lama: **dipertahankan** atau **dikosongkan**?
+  Jawaban: **TIDAK dipertahankan** — "selama tidak berkorelasi dengan nilai belanja di BKU tidak perlu dipertahankan, karena saya memerlukan nilai-nilai yang digunakan untuk data pembuatan dokumen saja". Impor PDF menulis `footer` kosong.
+  Bukti bahwa ini aman (diverifikasi `grep`, bukan asumsi):
+  (1) `bku_data.footer` hanya dipakai di **satu** tempat — `previewDocs.js:379`
+      (`bku?.footer?.tempat || sekolah.kabupaten || ''`) — dan punya **fallback** ke
+      `getSchoolData().kabupaten`, jadi `tempat` tetap terisi.
+  (2) Nama & NIP kepala sekolah/bendahara untuk cetak **tidak** berasal dari `footer`,
+      melainkan dari `getSignatureRoles()` (`signatureRoles.js:40`) → `getPejabat()`.
+      Jadi blok tanda tangan dokumen TIDAK kosong.
+  (3) `kasKonteks()` mengembalikan `footer`, tetapi `kasDocs()` **tidak** mendestruktur
+      field itu → benar-benar data mati.
+  Ditutup: 2026-10-20 (perintah user langsung) — ADR di `DECISIONS.MD`
+
+❓ [CLOSED] Pertanyaan: Sprint 016 — `header.alamat` / `kabupaten` / `provinsi` juga tidak terbaca dari kop PDF (kop hanya memberi `nama_sekolah`, `npsn`, `tahunAnggaran`). Pertahankan nilai lama atau kosongkan?
+  Jawaban: **TIDAK dipertahankan** (alasan sama dengan footer) — hanya field yang benar-benar terbaca dari kop PDF yang diisi. **PENGECUALIAN PENTING:** `header.tahunAnggaran` WAJIB tetap terisi (dari `kop.tahun`), karena `previewDocs.js:242` memakainya untuk judul dokumen (`bku?.header?.tahunAnggaran`); kalau kosong, dokumen cetak jatuh ke `new Date().getFullYear()` — tahun salah tanpa peringatan.
+  Bukti: `header.alamat/kabupaten/provinsi` hanya dipakai untuk tampilan kosmetik di
+  `BKUPage.jsx:512-513`; identitas sekolah untuk dokumen diambil dari `getSchoolData()`
+  (`sekolahData.js:53`), bukan dari `bku_data.header`.
+  Ditutup: 2026-10-20 (perintah user langsung) — ADR di `DECISIONS.MD`
+
+❓ [CLOSED] Pertanyaan: Q1 Sprint 016 DIREVISI — apakah benar `TARIK_TUNAI` dihitung sebagai pengeluaran riil (jawaban awal "samakan ke Excel")? Setelah diukur, `Σ TARIK_TUNAI` = `Σ PERGESERAN_BANK` = Rp 16.350.000 (selisih Rp 0) di Excel **dan** PDF → tarik tunai murni pemindahan bank↔kas, bukan belanja.
+  Jawaban: **TIDAK dihitung** — `totalPengeluaran` = `PEMBAYARAN` saja. User memilih **opsi B**: perbaiki `recalcSummary` (tambah field saja) **dan** ubah 1 baris `bkuParser.js:495` (hapus `+ TARIK_TUNAI`). Status TABU `bkuParser.js` dicabut **khusus** untuk baris itu.
+  Alasan: menghitung sisi keluar tarik tunai membuat uang yang sama terhitung dua kali (kasnya nanti dibelanjakan lewat `PEMBAYARAN`), sehingga indikator "Balance" menampilkan "Tidak Balance" pada data yang sehat.
+  Ditutup: 2026-10-20 (perintah user langsung: "setuju B") — ADR `DECISIONS.MD` §T (menggantikan §S1)

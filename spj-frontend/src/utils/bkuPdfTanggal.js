@@ -80,6 +80,19 @@ export function tanggalPolos(s) {
 }
 
 /**
+ * Tanggal dari bentuk "hari+bulan menyatu, tahun terpisah": "0802-2026"
+ * (= 08-02-2026). Tesseract menghilangkan satu tanda hubung; bentuk ini
+ * tidak cocok RE_PEMISAH (grup pertama 4 digit) maupun tanggalPolos
+ * (ada "-" di tengah) sehingga barisnya hilang sebagai yatim.
+ * Terbukti 8 kemunculan di file user (Feb/Apr/Jun/Agu).
+ */
+export function tanggalGabung(s) {
+  const m = String(s).trim().match(/^(\d{2})(\d{2})[-/.](\d{4})$/)
+  if (!m) return null
+  return susun(m[1], m[2], m[3])
+}
+
+/**
  * Baca satu token sebagai tanggal.
  * @param {string} s
  * @returns {{day:number,month:number,year:number,pasti:boolean}|null}
@@ -88,6 +101,10 @@ export function bacaTanggal(s) {
   const t = String(s).trim()
   const denganPemisah = tanggalPemisah(t)
   if (denganPemisah) return { ...denganPemisah, pasti: true }
+  // Bentuk rusak ("0802-2026") -> ditandai pasti:false supaya user
+  // memeriksa barisnya; bentuknya tidak persis seperti yang tercetak.
+  const gabung = tanggalGabung(t)
+  if (gabung) return { ...gabung, pasti: false }
   const polos = tanggalPolos(t)
   if (polos) return { ...polos, pasti: false }
   return null

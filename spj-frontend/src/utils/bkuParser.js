@@ -488,10 +488,12 @@ export function parseBKUExcel(file) {
         // ── PERHITUNGAN RIIL ──
         // Transaksi internal (PPh, Pajak, Pergeseran) tidak dihitung sebagai penerimaan/pengeluaran riil
         // PENERIMAAN RIIL = hanya Dana BOSP (PENERIMAAN_BOSP)
-        // PENGELUARAN RIIL = Pembayaran ke pihak ke-3 + Tarik Tunai (yang benar-benar menguras dana)
+        // PENGELUARAN RIIL = Pembayaran ke pihak ke-3 (BNU + BPU).
+        // Tarik Tunai TIDAK dihitung: ia pemindahan bank->kas yang berpasangan dengan
+        // PERGESERAN_BANK masuk senilai sama (terverifikasi 2026-10-20, ADR §T) —
+        // menghitungnya membuat uang yang sama terhitung dua kali.
         const totalPenerimaanRiil = byType[TRANSACTION_TYPES.PENERIMAAN_BOSP]?.totalPenerimaan || 0;
-        const totalPengeluaranRiil = (byType[TRANSACTION_TYPES.PEMBAYARAN]?.totalPengeluaran || 0)
-          + (byType[TRANSACTION_TYPES.TARIK_TUNAI]?.totalPengeluaran || 0);
+        const totalPengeluaranRiil = byType[TRANSACTION_TYPES.PEMBAYARAN]?.totalPengeluaran || 0;
 
         // ── ALL TOTALS (untuk verifikasi balance BKU) ──
         const totalPenerimaanSemua = transactions.reduce((s, t) => s + t.penerimaan, 0);

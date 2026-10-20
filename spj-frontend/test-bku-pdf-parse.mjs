@@ -209,13 +209,18 @@ try {
 }
 
 const bulanList = wantAllMonths ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] : [1]
+const bulanBeda = []
+let annualOk = true
 
 console.log('--- BANDINGAN PDF vs EXCEL ---')
 for (const bl of bulanList) {
   const p = ringkas(pdf.transactions, bl, 2026)
   const e = ringkas(excel.transaksi, bl, 2026)
-  if (!e.jumlah && !p.jumlah) {
-    console.log(`${MONTH_NAMES[bl - 1].padEnd(10)} N/A - tidak ada pembanding`)
+  if (!e.jumlah) {
+    // Baseline Excel hanya Jan–Jun 2026. Bulan lain TIDAK punya pembanding —
+    // mencetak "selisih vs 0" akan menyesatkan (terlihat seperti error).
+    console.log(`${MONTH_NAMES[bl - 1].padEnd(10)} N/A - tidak ada pembanding Excel` +
+      (p.jumlah ? ` (PDF: n=${p.jumlah})` : ''))
     continue
   }
   const dJ = p.jumlah - e.jumlah
@@ -226,10 +231,28 @@ for (const bl of bulanList) {
   console.log(`${MONTH_NAMES[bl - 1].padEnd(10)} ` +
     `jumlah ${tanda(dJ)}${dJ} | masuk ${tanda(dM)}${fmt(dM)} | ` +
     `keluar ${tanda(dK)}${fmt(dK)} | saldo ${tanda(dS)}${fmt(dS)}`)
+  if (dJ || dM || dK || dS) bulanBeda.push(MONTH_NAMES[bl - 1])
   if (bl === 1) {
     console.log(`             excel: n=${e.jumlah} masuk=${fmt(e.masuk)} keluar=${fmt(e.keluar)} saldo=${fmt(e.saldoAkhir)}`)
     console.log(`             pdf  : n=${p.jumlah} masuk=${fmt(p.masuk)} keluar=${fmt(p.keluar)} saldo=${fmt(p.saldoAkhir)}`)
   }
+}
+
+// ── Total tahunan vs baris "Jumlah" milik PDF sendiri ─────────────────────
+// Baris total sengaja dilewati parser (bukan transaksi) dan dikembalikan di
+// `dilewati`. Nilainya = self-check dokumen, bukan angka hafalan: kalau
+// parser menghilangkan/menggandakan baris, total tidak akan cocok.
+const jum = (pdf.dilewati || []).find((d) => d.jenis === 'baris_ringkasan_dilewati')
+if (jum) {
+  const M = pdf.transactions.reduce((a, t) => a + t.penerimaan, 0)
+  const K = pdf.transactions.reduce((a, t) => a + t.pengeluaran, 0)
+  const okM = Math.abs(M - jum.penerimaan) <= 1
+  const okK = Math.abs(K - jum.pengeluaran) <= 1
+  annualOk = okM && okK
+  console.log()
+  console.log('--- TOTAL TAHUNAN vs BARIS "JUMLAH" PDF ---')
+  console.log(`masuk : ${fmt(M)} vs ${fmt(jum.penerimaan)}  ${okM ? 'OK' : 'BEDA'}`)
+  console.log(`keluar: ${fmt(K)} vs ${fmt(jum.pengeluaran)}  ${okK ? 'OK' : 'BEDA'}`)
 }
 
 console.log()
@@ -275,4 +298,10 @@ for (const p of (pdf.problems || []).slice(0, 12)) console.log('   -', JSON.stri
 const semuaNol = Object.values(selisih).every((v) => v === 0)
 console.log()
 console.log(semuaNol ? 'HASIL: 0 selisih' : 'HASIL: ada selisih')
-process.exit(semuaNol ? 0 : 2)
+if (wantAllMonths) {
+  console.log(bulanBeda.length
+    ? `SEMUA BULAN: BEDA di ${bulanBeda.join(', ')}`
+    : 'SEMUA BULAN: 0 selisih (Jan–Jun)')
+  console.log(annualOk ? 'TOTAL TAHUNAN: cocok' : 'TOTAL TAHUNAN: BEDA')
+}
+process.exit(semuaNol && bulanBeda.length === 0 && annualOk ? 0 : 2)
