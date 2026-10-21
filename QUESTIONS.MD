@@ -138,3 +138,64 @@
   Jawaban: **TIDAK dihitung** — `totalPengeluaran` = `PEMBAYARAN` saja. User memilih **opsi B**: perbaiki `recalcSummary` (tambah field saja) **dan** ubah 1 baris `bkuParser.js:495` (hapus `+ TARIK_TUNAI`). Status TABU `bkuParser.js` dicabut **khusus** untuk baris itu.
   Alasan: menghitung sisi keluar tarik tunai membuat uang yang sama terhitung dua kali (kasnya nanti dibelanjakan lewat `PEMBAYARAN`), sehingga indikator "Balance" menampilkan "Tidak Balance" pada data yang sehat.
   Ditutup: 2026-10-20 (perintah user langsung: "setuju B") — ADR `DECISIONS.MD` §T (menggantikan §S1)
+
+## Sprint 017 — Panel Dokumen LPJ di Sidebar BKU (D-1…D-4, BLOCKING)
+
+❓ [OPEN] D-1 — Definisi **field wajib** untuk gate preview. PRD mengusulkan aturan
+  deterministik: field wajib = `header.nomor` (bila `nomor !== false`) + semua
+  `table-fields[].key` + `table-letter-header` kiri/kanan + minimal 1 baris `table-dinamis`,
+  **kecuali** key yang punya nilai non-kosong di `templateConfig.defaults`.
+  Ditanya: 2026-10-21 | Dari: agent (PRD Sprint 017 §10) | Status: Menunggu keputusan —
+  opsi (a) setujui aturan, daftar konkret disusun di BLUEPRINT; (b) user menulis daftar sendiri.
+  Memblok: T-06 + gate preview.
+
+❓ [OPEN] D-2 — Baris **ATK/Penggandaan** tidak punya form (`hasTemplate:false, infoOnly:true`,
+  `DokumenSPJPage.jsx:92-101`). Opsi: (a) dianggap non-LPJ → sidebar sempit (dipakai pack);
+  (b) full width + panel info tanpa form/preview; (c) ditunda.
+  Ditanya: 2026-10-21 | Status: Menunggu keputusan — pack memakai (a) sebagai A-2.
+
+❓ [OPEN] D-3 — Nama kunci storage & bentuk payload untuk simpan per NoBukti.
+  Usulan pack: `spj_lpj_bku` dengan kunci `<kategori>|<noBukti>`. Alternatif: menumpang
+  `spj_dokumen_lpj` (risiko bercampur dengan data status). Ditanya: 2026-10-21 |
+  Status: Menunggu keputusan — pack memakai usulan sebagai A-3.
+
+❓ [OPEN] D-4 — Menu Dokumen LPJ **tidak menyimpan** (`storageHelper.set` 0 hit). Bila sidebar
+  menyimpan dan menu LPJ tidak, ada dua perilaku untuk dokumen yang sama. Opsi: (a) biarkan,
+  sprint lain menyelaraskan (dipakai pack); (b) sekalian tambahkan simpan ke LPJ di sprint 017
+  (scope bertambah ±2 task + 1 risiko besar). Ditanya: 2026-10-21 | Status: Menunggu keputusan.
+
+❓ [OPEN] D-5 (Sprint 017, muncul saat eksekusi) — **gate preview untuk Mamin**. Sub-kategori
+  Mamin semuanya `templateId: null` (form disusun dari beberapa template sekaligus), sehingga
+  aturan A-1 tidak punya satu config acuan. Opsi: (a) gate Mamin = `readinessCheck` yang sudah
+  ada (nomor · tanggal dana masuk · minimal 1 baris); (b) gabungan field wajib semua template
+  Mamin (undangan+pesanan+buku tamu+daftar hadir+notulen → ±30 field, praktis tak pernah
+  lengkap); (c) gate Mamin ditangguhkan (preview selalu tampil untuk Mamin).
+  Ditanya: 2026-10-21 | Status: Menunggu keputusan — memblok T-07 untuk kategori Mamin.
+
+### Sprint 017 — pembaruan status setelah eksekusi (2026-10-21)
+
+↻ D-1 — **DIPAKAI sebagai aturan A-1**, diperiksa lewat oracle: 30 asersi
+  `test-lpj-fieldwajib.mjs` PASS (`defaults` dikecualikan, `0` = terisi, `rows: []` belum lengkap,
+  meta key `bkuSumber`/`kunciPejabat` dikecualikan). Belum ada keberatan user.
+
+↻ D-2 — **DIPAKAI opsi (a)**: ATK/Penggandaan = non-LPJ → sidebar sempit. Terverifikasi oracle
+  `test-lpj-sidebar.mjs` (baris ATK: `max-w-xl`, tanpa tab Dokumen LPJ).
+
+↻ D-3 — **DIPAKAI usulan**: kunci `spj_lpj_bku`, entri `<cardId>|<noBukti>`. Terverifikasi
+  `test-lpj-store.mjs` 18 asersi (NoBukti kosong ditolak, storage tidak bertambah, data rusak → null).
+
+↻ D-4 — **DIPAKAI opsi (a)**: menu LPJ dibiarkan tanpa simpan. Halaman LPJ kini memakai komponen
+  panel yang sama (`layout="side"`, tanpa `gate`) → tanpa banner peringatan, perilaku lama utuh.
+
+↻ D-5 — **BELUM DIPUTUSKAN, tetapi tidak lagi memblok.** Implementasi memakai fallback sementara:
+  Mamin (tanpa `templateId`) → `peringatanDariPelanggaran()` (hasil `readinessCheck` yang lama).
+  Kategori ber-`templateId` memakai `cekKelengkapan()` (aturan A-1). Ini keputusan teknis sementara,
+  **bukan** persetujuan user. Keputusan user 2026-10-21 ("Selalu tampil + peringatan") membuat
+  perbedaan gate hanya terlihat pada isi banner, bukan pada muncul/hilangnya preview.
+  **Saat penutupan Sprint 017 (2026-10-21): tetap terbuka, dibawa ke sprint berikutnya.**
+
+↻ D-6 — **KEPUTUSAN SEMENTARA: DIPERTAHANKAN** (perintah user "Tetap ada dulu", 2026-10-21;
+  ditegaskan saat penutupan sprint). Halaman Dokumen LPJ tetap hidup bersama sidebar sebagai
+  jaring pengaman. Pertanyaan final (hapus / dua pintu masuk / arsip) **ditinjau ulang setelah
+  uji browser manual `ACCEPTANCE.MD` §7 lulus** — belum ada bukti manual sampai sprint ditutup.
+  Catatan: menghapus menu = menyentuh routing + sidebar aplikasi, bukan hanya satu komponen.

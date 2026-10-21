@@ -10,126 +10,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
-import { prefillDariBKU, pejabatPada, parseMamin, kupasPrefiksKonsumsi, denganKegiatan, bacaGTKUntukHadir } from '../../utils/bkuKategori'
-import { templateUndanganMamin, templateUndanganPerjDinas, drafNotulen, snapshotSebelumTimpa, urungkanTimpa, hariDariISO, tanggalPanjang, keISO } from '../../utils/aturanUndangan'
-import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen } from '../../utils/aturanMamin'
-import { getSchoolData, getPejabat } from '../../utils/sekolahData'
-import { getNamaKegiatan } from '../../data/kodeReferensi'
+import { snapshotSebelumTimpa, urungkanTimpa } from '../../utils/aturanUndangan'
+import { bangunPrefillLpj } from '../../utils/prefillLpj'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
-import TemplateEngine from '../../components/templates/TemplateEngine'
-import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
-import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
-import PaperSizeSelector from '../../components/templates/PaperSizeSelector'
 import { readinessCheck, sorotPelanggaran } from '../../components/templates/SummaryCard'
 import { buildPreviewDocs } from '../../utils/previewDocs'
-import MenuGuide from '../../components/guide/MenuGuide'
-import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CARD DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
-const CARDS = [
-  {
-    id: 'honor',
-    nama: 'Honorarium',
-    deskripsi: 'Honor/Gaji Guru, Tendik, Perpustakaan, Penjaga, Pelaksana',
-    kategori: 'BKU Utama',
-    icon: 'payments',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'guru', label: 'Guru', templateId: 'honor_guru' },
-      { id: 'tendik', label: 'Tendik', templateId: 'honor_tendik' },
-      { id: 'perpus', label: 'Perpustakaan', templateId: 'honor_perpus' },
-      { id: 'penjaga', label: 'Penjaga', templateId: 'honor_penjaga' },
-      { id: 'pelaksana', label: 'Pelaksana', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'perjalanan_dinas',
-    nama: 'Perjalanan Dinas',
-    deskripsi: 'Transport Rapat, Koordinasi, Bank, Pendamping + SPPD Otomatis',
-    kategori: 'BKU Utama',
-    icon: 'flight_takeoff',
-    hasTemplate: true,
-    isTransport: true,
-    subKategori: [
-      { id: 'rapat', label: 'Rapat', templateId: 'transpor_rapat' },
-      { id: 'koordinasi', label: 'Koordinasi', templateId: 'transpor_koordinasi' },
-      { id: 'bank', label: 'Bank', templateId: 'transpor_bank' },
-      { id: 'pendamping', label: 'Pendamping', templateId: 'transpor_pendamping' },
-      { id: 'workshop', label: 'Workshop', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'mamin',
-    nama: 'Makan & Minum',
-    deskripsi: 'Rapat, Kegiatan, Tamu — Undangan, Daftar Hadir, Resume, Foto',
-    kategori: 'BKU Utama',
-    icon: 'restaurant',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'rapat', label: 'Rapat', templateId: null },
-      { id: 'kegiatan', label: 'Kegiatan', templateId: null },
-      { id: 'tamu', label: 'Tamu', templateId: null },
-    ],
-  },
-  {
-    id: 'pemeliharaan',
-    nama: 'Pemeliharaan',
-    deskripsi: 'Upah Kerja, Mebeler, Bangunan',
-    kategori: 'BKU Utama',
-    icon: 'handyman',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'alat', label: 'Alat (Upah)', templateId: 'upah' },
-      { id: 'mebeler', label: 'Mebeler', templateId: null, comingSoon: true },
-      { id: 'bangunan', label: 'Bangunan', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'penggandaan',
-    nama: 'Penggandaan',
-    deskripsi: 'Master, Jumlah Lembar, Bukti Pembayaran',
-    kategori: 'Dokumen Pendukung',
-    icon: 'content_copy',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Master Penggandaan', 'Jumlah Lembar', 'Bukti Pembayaran'],
-  },
-  {
-    id: 'cetak_foto',
-    nama: 'Cetak Foto',
-    deskripsi: 'Daftar Foto, Bukti Cetak',
-    kategori: 'Dokumen Pendukung',
-    icon: 'photo_camera',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Daftar Foto', 'Bukti Cetak'],
-  },
-  {
-    id: 'cetak_banner',
-    nama: 'Cetak Banner',
-    deskripsi: 'Desain Banner, Bukti Pemasangan',
-    kategori: 'Dokumen Pendukung',
-    icon: 'panorama',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Desain Banner', 'Bukti Pemasangan'],
-  },
-  {
-    id: 'tagihan',
-    nama: 'Tagihan',
-    deskripsi: 'Listrik, Air, Internet (Pulsa)',
-    kategori: 'Dokumen Pendukung',
-    icon: 'bolt',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Invoice Listrik', 'Invoice Air', 'Invoice Pulsa Internet'],
-  },
-]
+// Sprint 017 AD-1/AD-3: definisi kartu & panel dipindah ke modul bersama agar
+// halaman LPJ dan sidebar BKU memakai sumber yang sama (satu panel, dua layout).
+import { CARDS } from '../../data/kategoriLpj'
+import DetailDokumenLpj from '../../components/dokumen/DetailDokumenLpj'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -177,113 +68,15 @@ export default function DokumenSPJPage() {
     prefillTs.current = st.ts
     const card = CARDS.find((c) => c.id === st.menu)
     if (!card) return
-    const firstValidSub = card.subKategori?.find((s) => !s.comingSoon) || null
-    // T3: kegiatan kode → nama untuk parser Mamin (fallback bila kegiatanNama kosong).
-    const bkuIn = { ...(st.bku || {}) }
-    if (!String(bkuIn.kegiatanNama || '').trim() && bkuIn.kegiatan) {
-      const nm = getNamaKegiatan(bkuIn.kegiatan)
-      const normal = String(bkuIn.kegiatan).replace(/\.$/, '')
-      if (nm && nm !== normal && nm !== '-') bkuIn.kegiatanNama = nm
-    }
-    const { tambahan, diisi, dilewati, tertimpa } = prefillDariBKU(bkuIn, st.menu, formData, st.subId || '')
-    // T3: pilih sub-jenis Mamin dari parser (rapat/kegiatan); fallback jujur = default.
-    let subPilih = firstValidSub
-    if (st.menu === 'mamin') {
-      const jenis = tambahan.maminJenis || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
-      const cocok = card.subKategori?.find((s) => !s.comingSoon && s.id === jenis)
-      if (cocok) subPilih = cocok
-      delete tambahan.maminJenis
-    }
-    // Sprint 005 B/C: template aturan per kategori (hasil editable di form).
-    const isoTgl = keISO(bkuIn.tanggal || '')
-    const hari = hariDariISO(isoTgl)
-    const tglPanjang = tanggalPanjang(bkuIn.tanggal || '')
-    let sppdTambahan = null
-    if (st.menu === 'mamin') {
-      const jenis = (st.subId === 'kegiatan' ? 'kegiatan' : '') || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
-      const bersihMentah = kupasPrefiksKonsumsi(tambahan.acara || bkuIn.uraian || '')
-      const bersih = jenis === 'kegiatan' ? bersihMentah.replace(/^rapat\s+/i, '').trim() : bersihMentah
-      const acara = bersih && jenis === 'kegiatan' ? denganKegiatan(bersih) : (tambahan.acara && jenis !== 'kegiatan' ? tambahan.acara : bersih)
-      Object.assign(tambahan, templateUndanganMamin({ acara, hari, tanggal: tglPanjang, tempat: '', waktu: '', jenis }))
-      Object.assign(tambahan, drafNotulen({ acara, jenis, tanggal: bkuIn.tanggal || '' }))
-    } else if (st.menu === 'perjalanan_dinas') {
-      const maksud = tambahan.sptUntuk || ''
-      const tpl = templateUndanganPerjDinas({ maksud, hari, tanggal: tglPanjang, tempat: '' })
-      tambahan.sptUntuk = tpl.sptUntuk
-      tambahan.kepadaUndangan = tpl.kepadaUndangan
-      tambahan.perihalUndangan = tpl.perihalUndangan
-      tambahan.isiUndangan = tpl.isiUndangan
-      tambahan.hariUndangan = hari
-      tambahan.tanggalAcara = tglPanjang
-      tambahan.penutupUndangan1 = tpl.penutupUndangan1
-      tambahan.penutupUndangan2 = tpl.penutupUndangan2
-      Object.assign(tambahan, drafNotulen({ acara: maksud, jenis: 'perjalanan dinas', tanggal: bkuIn.tanggal || '' }))
-      sppdTambahan = {
-        maksud: tpl.sppdMaksud, tujuan: tpl.sppdTujuan, alat: tpl.sppdAlat,
-        lama: tpl.sppdLama, tanggal: isoTgl, tanggalBerangkat: tpl.sppdTanggalBerangkat,
-        tanggalKembali: tpl.sppdTanggalKembali, tempatTujuan: tpl.sppdTempatTujuan,
-        skpd: tpl.sppdSkpd, akun: tpl.sppdAkun, keterangan: tpl.sppdKeterangan,
-      }
-    }
-    // Sprint 004 C.2 — kunci pejabat per tanggal BKU: nilai riwayat ditulis
-    // ke field TTD (prioritas formData-first di DokumenFormPreview membuat
-    // periode baru TIDAK mengubah dokumen ini). Hanya nilai tak-kosong.
-    // Revisi 2026-10-06 (task 39): '' dihitung kosong (dulu `== null` saja,
-    // sehingga field bawaan template '' tidak pernah terisi prefill);
-    // bila riwayat kosong, jatuh ke Data Sekolah saat ini agar TTD terisi.
-    const tglBku = st.bku?.tanggal || ''
-    const kunci = {}
-    const ksRw = pejabatPada(tglBku, 'ks')
-    const kgRw = pejabatPada(tglBku, 'ketuaGugus')
-    const nlRw = pejabatPada(tglBku, 'notulen')
-    const ks = ksRw.nama ? ksRw : getPejabat('ks')
-    const kg = kgRw.nama ? kgRw : getPejabat('ketuaGugus')
-    const nl = nlRw.nama ? nlRw : getPejabat('notulen')
-    const kosong = (v) => v == null || (typeof v === 'string' && v.trim() === '')
-    const pasang = (field, v) => { if (v && kosong(tambahan[field])) { tambahan[field] = v; diisi.push(field) } }
-    pasang('namaPenandatangan', ks.nama)
-    pasang('nipPenandatangan', ks.nip)
-    pasang('namaPihakKesatu', ks.nama)
-    pasang('nipPihakKesatu', ks.nip)
-    pasang('namaMengetahui', kg.nama)
-    pasang('nipMengetahui', kg.nip)
-    pasang('namaKetuaGugus', kg.nama)
-    pasang('nipKetuaGugus', kg.nip)
-    pasang('ttd_pimpinan_nama', ks.nama)
-    pasang('ttd_pimpinan_nip', ks.nip)
-    pasang('ttd_notulen_nama', nl.nama)
-    pasang('ttd_notulen_nip', nl.nip)
-    // Sprint 006: template semua tab Mamin (hasil editable di form).
-    // Dijalankan SEBELUM snapshot agar field baru A–D ikut snapshot + Urungkan.
-    // drafNotulen 005 di atas TIDAK diubah (pembuka kalimat baku + resume, T-06).
-    if (st.menu === 'mamin') {
-      const jenis006 = (st.subId === 'kegiatan' ? 'kegiatan' : '') || bkuIn.maminJenis || parseMamin(bkuIn.uraian || '', bkuIn.kegiatanNama || '').jenis
-      const bersihMentah006 = kupasPrefiksKonsumsi(tambahan.acara || bkuIn.uraian || '')
-      const bersih006 = jenis006 === 'kegiatan' ? bersihMentah006.replace(/^rapat\s+/i, '').trim() : bersihMentah006
-      const acara006 = bersih006 && jenis006 === 'kegiatan' ? denganKegiatan(bersih006) : (tambahan.acara && jenis006 !== 'kegiatan' ? tambahan.acara : bersih006)
-      tambahan.acara = acara006
-      const tglBku006 = bkuIn.tanggal || ''
-      Object.assign(tambahan, templatePesananMamin({ acara: acara006, tanggal: tglBku006, uraian: '', jenis: jenis006 }))
-      // Sprint 007 B.1: rows hadir dari storage Guru→Tendik (bacaGTKUntukHadir);
-      // kosong → rows[] jujur (0 karangan), TTD kosong via templateDaftarHadir.
-      const gtk006 = bacaGTKUntukHadir()
-      const hadir006 = templateDaftarHadir({ acara: acara006, orang: gtk006, jenis: jenis006 })
-      // Rework-8 (3)(4): judul SELALU acara bersih walau rows kosong jujur.
-      tambahan.judulDaftarHadir = hadir006.judulDaftarHadir
-      if (hadir006.rows.length > 0) tambahan.rows = hadir006.rows
-      tambahan.bukuTamu = templateBukuTamu({ tanggal: tglBku006, uraian: acara006, jenis: jenis006 }).bukuTamu
-      let tempat006 = ''
-      try { tempat006 = getSchoolData()?.namaSekolah || '' } catch { /* tanpa data sekolah = jujur kosong */ }
-      const namaHadir006 = hadir006.rows.map((r) => r.nama).filter(Boolean).join(', ')
-      Object.assign(tambahan, lengkapiNotulen({
-        acara: acara006, tanggal: tglBku006, tempat: tempat006,
-        pimpinanNama: ks.nama, notulenNama: nl.nama,
-        pesertaNama: namaHadir006, pesertaJumlah: hadir006.rows.length > 0 ? String(hadir006.rows.length) : '',
-        jenis: jenis006,
-      }))
-    }
-    if (tglBku) kunci.tanggal = tglBku
-    tambahan.kunciPejabat = kunci
+    // Sprint 017 AD-3: isi otomatis dipindah ke utils/prefillLpj.js (fungsi murni)
+    // agar sidebar BKU memakai jalur yang sama. Snapshot & setState tetap di sini.
+    const { tambahan, diisi, dilewati, tertimpa, subPilih, sppdTambahan } = bangunPrefillLpj({
+      card,
+      bku: st.bku,
+      menu: st.menu,
+      subId: st.subId || '',
+      formData,
+    })
     // Sprint 005 D.1: snapshot SELURUH form + sppd SEBELUM timpa (1 slot terakhir).
     const snap = snapshotSebelumTimpa(
       { ...formData, sppdData: { ...sppdData } },
@@ -706,341 +499,44 @@ export default function DokumenSPJPage() {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RENDER: DETAIL PANEL (PREMIUM ACCORDION)
+  // Sprint 017 AD-1: JSX panel dipindah ke components/dokumen/DetailDokumenLpj.jsx
+  // agar sidebar BKU memakai komponen yang SAMA. layout='side' = perilaku lama.
   // ═══════════════════════════════════════════════════════════════════════════
 
   const renderDetailPanel = () => {
     if (!selectedCard) return null
-
-    const isTransport = selectedCard?.isTransport
-    const isSpecial = ['honor', 'perjalanan_dinas', 'mamin', 'pemeliharaan'].includes(selectedCard?.id)
-    const isTransportSub = isTransport && selectedSubKategori?.templateId !== null && selectedSubKategori?.templateId !== 'sppd'
-    const hasSppdData = isTransportSub && sppdData && sppdData.rows && sppdData.rows.length > 0
-
     return (
-      <div 
-        ref={detailRef}
-        className={`transition-all duration-700 ease-out ${
-          isAnimating 
-            ? 'opacity-0 translate-y-8 scale-[0.98]' 
-            : 'opacity-100 translate-y-0 scale-100'
-        }`}
-      >
-        <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
-          {/* Premium Decorative Elements */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
-          
-          <div className="relative p-6 space-y-5">
-            {/* Header Panel */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                    <span className="material-symbols-outlined text-3xl text-white">{selectedCard.icon}</span>
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
-                    Detail Dokumen
-                  </span>
-                  <h3 className="text-lg font-bold text-slate-800 mt-2">{selectedCard.nama}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{selectedCard.deskripsi}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {/* Sprint 003 FASE 4 (US-26): pill Panduan sadar-state di 4 menu LPJ.
-                    key={menuId} → remount per menu: popover TIDAK kebawa antar menu
-                    (revisi 2026-10-01, aturan c) */}
-                {isSpecial && (
-                  <MenuGuide
-                    key={selectedCard.id}
-                    menuId={selectedCard.id}
-                    ctx={guideCtx}
-                    onJump={handleGuideJump}
-                  />
-                )}
-                <button
-                  onClick={handleCloseDetail}
-                  className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Badge prefill BKU (Sprint 004 B.3) */}
-            {prefillBadge && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
-                <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
-                <span className="font-semibold text-slate-800" title={prefillBadge.bku?.tanggal ? `Pejabat dikunci per tanggal ${prefillBadge.bku.tanggal} — periode baru tidak mengubah dokumen ini` : 'Isian dari BKU'}>
-                  dari BKU{prefillBadge.bku?.noBukti ? ` ${prefillBadge.bku.noBukti}` : ''}{prefillBadge.bku?.grupCount > 1 ? ` · ${prefillBadge.bku.grupCount} rincian` : ''}{prefillBadge.bku?.tanggal ? ` · pejabat per ${prefillBadge.bku.tanggal}` : ''}{prefillBadge.diisi.length > 0 ? ` · ${prefillBadge.diisi.length} field terisi` : ''}
-                  {(prefillBadge.tertimpa?.length || 0) > 0 ? ` · ${prefillBadge.tertimpa.length} ditimpa (bisa Urungkan)` : ''}
-                </span>
-                <button
-                  onClick={handleUndoPrefill}
-                  className="ml-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold hover:border-slate-300"
-                >
-                  Urungkan
-                </button>
-              </div>
-            )}
-
-            {/* Sub-Kategori Tabs (non-special cards) */}
-            {!isSpecial && selectedCard.subKategori && (
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {selectedCard.subKategori.map((sub, index) => {
-                  const subStatus = getStatus(selectedCard.id, sub.id)
-                  const isActive = selectedSubKategori?.id === sub.id
-
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => !sub.comingSoon && handleSubKategoriChange(sub)}
-                      disabled={sub.comingSoon}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-300 ${
-                        isActive
-                          ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105'
-                          : sub.comingSoon
-                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:scale-105'
-                      }`}
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      {subStatus === 'Lengkap' && <span className="text-emerald-400 text-[10px]">✓</span>}
-                      {subStatus === 'Draft' && <span className="text-amber-400 text-[10px]">◐</span>}
-                      {sub.label}
-                      {sub.comingSoon && <span className="text-slate-400 text-[10px]">(Soon)</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-
-            {/* Content Area */}
-            {isSpecial ? (
-            <div className="space-y-4">
-              {/* Sprint 008: split-view — form kiri + Panel Preview Document kanan (desktop);
-                  mobile menumpuk (panel di bawah form, sticky mati).
-                  Sprint 009 Fase B: sticky di ASIDE (grid child) agar panel tetap
-                  terlihat saat form panjang di-scroll; panel-root scroll internal
-                  sendiri via max-h + overflow-y-auto. <lg static menumpuk. */}
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
-                <section aria-label="Zona A — Form dokumen">
-                  <DokumenFormPreview
-                    card={selectedCard}
-                    selectedSub={selectedSubKategori}
-                    onSubChange={handleSubKategoriChange}
-                    formData={formData}
-                    setFormData={setFormData}
-                    sppdData={sppdData}
-                    setSppdData={setSppdData}
-                    viewMode={viewMode}
-                    setViewMode={setViewMode}
-                    formTab={formTab}
-                    setFormTab={setFormTab}
-                    previewTab={previewTab}
-                    setPreviewTab={setPreviewTab}
-                    onClose={handleCloseDetail}
-                  />
-                </section>
-                <aside className="print:hidden min-w-0 lg:sticky lg:top-[88px] self-start">
-                  <section aria-label="Zona B — Panel Preview Document">
-                    <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h2>
-                    <PanelPreviewDocument
-                      title={`Panel Preview Document — ${selectedCard?.nama || ''}${selectedSubKategori?.label ? ` — ${selectedSubKategori.label}` : ''}`}
-                      docs={previewDocs}
-                      status={{ perlu: panelPelanggaran.length, violations: panelPelanggaran }}
-                      onCek={handleCekPanel}
-                      onCetak={handleCetakGate}
-                    />
-                  </section>
-                </aside>
-              </div>
-              {/* Revisi 2026-10-06 (task 37): Zona C (gate pra-cetak) DIHAPUS —
-                  satu alur lengkapi-cek-cetak langsung di panel (Zona B),
-                  tanpa duplikasi tombol Cetak. */}
-            </div>
-            ) : (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              {selectedCard.infoOnly && !selectedCard.subKategori ? (
-                // Info Only View
-                <div className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-slate-300 text-4xl">{selectedCard.icon}</span>
-                  </div>
-                  <p className="text-lg font-bold text-slate-800 mb-2">{selectedCard.nama}</p>
-                  <div className="flex flex-wrap justify-center gap-2 mt-4">
-                    {selectedCard.infoItems?.map((item, i) => (
-                      <span key={i} className="px-4 py-2 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 border border-slate-200">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : selectedCard.infoOnly && selectedCard.subKategori ? (
-                // Info Only with Sub-Kategori (Tagihan)
-                selectedSubKategori?.templateId ? (
-                  <div className="p-6">
-                    <div className="mb-3 flex justify-end print:hidden">
-                      <PaperSizeSelector ringkas />
-                    </div>
-                    <TemplateEngine
-                      templateConfig={getTemplateConfig()}
-                      data={formData}
-                      onDataChange={setFormData}
-                      mode="edit"
-                    />
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">{selectedCard.icon}</span>
-                    <p className="text-base font-bold text-slate-800 mb-2">{selectedSubKategori?.label}</p>
-                    <p className="text-sm text-slate-500 mb-4">{selectedSubKategori?.info}</p>
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
-                      <p className="text-xs text-amber-700">Template belum tersedia.</p>
-                    </div>
-                  </div>
-                )
-              ) : selectedSubKategori?.templateId ? (
-                // Template View
-                <div className="p-6 space-y-6">
-                  {/* Auto-Fill Button */}
-                  <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-amber-600">auto_awesome</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-800">Auto-Fill Data</p>
-                        <p className="text-xs text-slate-500">Isi dari profil guru/tendik otomatis</p>
-                      </div>
-                    </div>
-                    <AutoFillHonorButton 
-                      templateId={selectedSubKategori?.templateId}
-                      onAutoFill={handleAutoFill}
-                    />
-                  </div>
-
-                  {/* Kertas cetak A4/F4 — satu pengaturan global semua dokumen */}
-                  <div className="flex justify-end print:hidden">
-                    <PaperSizeSelector ringkas />
-                  </div>
-
-                  {/* Transport: Show Transport Template */}
-                  {isTransportSub && (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-primary">
-                        <span className="material-symbols-outlined text-xl">receipt_long</span>
-                        <h4 className="font-bold">Daftar Penerima Transport</h4>
-                      </div>
-                      <TemplateEngine
-                        templateConfig={getTemplateConfig()}
-                        data={formData}
-                        onDataChange={setFormData}
-                        mode="edit"
-                      />
-                    </div>
-                  )}
-
-                  {/* SPPD Template (Auto-fill dari transport) */}
-                  {isTransportSub && hasSppdData && (
-                    <div className="relative">
-                      {/* Divider */}
-                      <div className="flex items-center gap-4 my-6">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
-                          <span className="material-symbols-outlined text-lg">description</span>
-                          <span className="text-sm font-bold">Surat Perintah Tugas (SPPD)</span>
-                        </div>
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                      </div>
-
-                      {/* Info Banner */}
-                      <div className="bg-gradient-to-r from-blue-50 to-primary/5 rounded-xl p-4 border border-blue-200 mb-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                            <span className="material-symbols-outlined text-blue-600">auto_awesome</span>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-blue-800">Surat Perintah Tugas (SPPD)</p>
-                            <p className="text-xs text-blue-600 mt-1">
-                              Daftar nama penerima tugas terisi otomatis dari daftar penerima transport di atas. 
-                              Nomor surat di-generate terpisah melalui popup di header dokumen.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* SPPD Content - TemplateEngine handles its own nomor surat via HeaderDokumen popup */}
-                      <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl border border-blue-200 p-6">
-                        <TemplateEngine
-                          templateConfig={TEMPLATE_CONFIGS.sppd}
-                          data={sppdData}
-                          onDataChange={setSppdData}
-                          mode="edit"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Non-transport: Show single template */}
-                  {!isTransportSub && (
-                    <TemplateEngine
-                      templateConfig={getTemplateConfig()}
-                      data={formData}
-                      onDataChange={setFormData}
-                      mode="edit"
-                    />
-                  )}
-                </div>
-              ) : (
-                // Coming Soon View
-                <div className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-slate-300 text-4xl">construction</span>
-                  </div>
-                  <p className="text-base font-bold text-slate-800 mb-2">
-                    {selectedSubKategori?.label || selectedCard.nama}
-                  </p>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Template belum tersedia untuk sub-kategori ini.
-                  </p>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
-                    <p className="text-xs text-amber-700">
-                      Upload file template ke folder <code className="bg-amber-100 px-1 rounded">/template</code>
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-            {/* Footer Actions */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={handleCloseDetail}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-lg">arrow_back</span>
-                Kembali ke Daftar
-              </button>
-              
-              {!isSpecial && (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-lg">print</span>
-                  Cetak Dokumen
-                </button>
-              </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DetailDokumenLpj
+        card={selectedCard}
+        selectedSub={selectedSubKategori}
+        onSubChange={handleSubKategoriChange}
+        getStatus={getStatus}
+        formData={formData}
+        setFormData={setFormData}
+        sppdData={sppdData}
+        setSppdData={setSppdData}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        formTab={formTab}
+        setFormTab={setFormTab}
+        previewTab={previewTab}
+        setPreviewTab={setPreviewTab}
+        onClose={handleCloseDetail}
+        onCek={handleCekPanel}
+        onCetak={handleCetakGate}
+        onPrint={handlePrint}
+        onAutoFill={handleAutoFill}
+        previewDocs={previewDocs}
+        pelanggaran={panelPelanggaran}
+        prefillBadge={prefillBadge}
+        onUndoPrefill={handleUndoPrefill}
+        guideCtx={guideCtx}
+        onGuideJump={handleGuideJump}
+        getTemplateConfig={getTemplateConfig}
+        isAnimating={isAnimating}
+        detailRef={detailRef}
+        layout="side"
+      />
     )
   }
 

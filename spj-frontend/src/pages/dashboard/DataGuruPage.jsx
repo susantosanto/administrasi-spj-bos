@@ -193,28 +193,35 @@ export default function DataGuruPage() {
               </button>
             </div>
 
-            {/* Upload Form — Hidden by default */}
+            {/* Upload Form — kanon premium seragam dengan form upload lain di app */}
             {showUploadGuru && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
+                                hover:border-primary/40 transition-all duration-300
+                                bg-gradient-to-b from-slate-50/50 to-transparent">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
+                                  flex items-center justify-center mx-auto mb-5 shadow-inner">
+                    <span className="material-symbols-outlined text-4xl text-primary">school</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Guru</h3>
-                  <p className="text-sm text-slate-500 mb-4">File Excel Dapodik — data akan langsung terisi otomatis</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Guru</h3>
+                  <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
+                    File Excel Dapodik — data guru akan langsung terisi otomatis
+                  </p>
 
                   <input type="file" ref={guruFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'guru')} className="hidden" id="guru-upload" />
                   <label
                     htmlFor="guru-upload"
-                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
+                                transition-all duration-300 cursor-pointer ${
                       isUploading
-                        ? 'bg-slate-400 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
+                        ? 'bg-slate-300 text-white cursor-not-allowed'
+                        : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
                     {isUploading ? 'Memproses...' : 'Pilih File Excel Guru'}
                   </label>
+                  <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
                 </div>
               </div>
             )}
@@ -289,28 +296,35 @@ export default function DataGuruPage() {
               </button>
             </div>
 
-            {/* Upload Form — Hidden by default */}
+            {/* Upload Form — kanon premium seragam dengan form upload lain di app */}
             {showUploadTendik && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                    <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
+              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
+                                hover:border-primary/40 transition-all duration-300
+                                bg-gradient-to-b from-slate-50/50 to-transparent">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
+                                  flex items-center justify-center mx-auto mb-5 shadow-inner">
+                    <span className="material-symbols-outlined text-4xl text-primary">groups</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-1">Upload Data Tendik</h3>
-                  <p className="text-sm text-slate-500 mb-4">File Excel Dapodik — data akan langsung terisi otomatis</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Tendik</h3>
+                  <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
+                    File Excel Dapodik — data pegawai akan langsung terisi otomatis
+                  </p>
 
                   <input type="file" ref={tendikFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'tendik')} className="hidden" id="tendik-upload" />
                   <label
                     htmlFor="tendik-upload"
-                    className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
+                                transition-all duration-300 cursor-pointer ${
                       isUploading
-                        ? 'bg-slate-400 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
+                        ? 'bg-slate-300 text-white cursor-not-allowed'
+                        : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
                     {isUploading ? 'Memproses...' : 'Pilih File Excel Tendik'}
                   </label>
+                  <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
                 </div>
               </div>
             )}

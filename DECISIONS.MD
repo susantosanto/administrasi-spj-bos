@@ -1183,3 +1183,39 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
 - Oracle baru `test-bku-pdf-native.mjs` (12 asersi) mengunci fakta jalur native.
 - Tidak ada perubahan pada `bkuParser.js` (jalur Excel) — **0 diff**.
 
+
+[2026-10-21] Keputusan: Sprint 017 — sidebar BKU memakai komponen panel LPJ yang SAMA dengan halaman (ekstraksi, bukan salinan)
+  Status: accepted
+  Alasan: user minta "sama persis seperti di menu Halaman Dokumen LPJ"; menyalin JSX akan membuat dua kebenaran yang menyimpang. `renderDetailPanel()` dipindah APA ADANYA ke `components/dokumen/DetailDokumenLpj.jsx` dengan prop `layout` ('side' = halaman, 'stack' = sidebar)
+  Dibuat oleh: user + agent
+  Dampak: `DokumenSPJPage.jsx` 1107 → 570 baris; file baru `kategoriLpj.js` (CARDS), `DetailDokumenLpj{Header,Body,Info}.jsx`, `BKUSidebarLpj.jsx`. Halaman LPJ tidak berubah (`layout="side"`, tanpa `gate`)
+
+[2026-10-21] Keputusan: Sprint 017 — dokumen LPJ per-kategori DISIMPAN baru di kunci baru `spj_lpj_bku` (sebelumnya halaman LPJ tidak menyimpan apa pun)
+  Status: accepted
+  Alasan: temuan kode: halaman Dokumen LPJ 0 kali memanggil `storageHelper.set` — "simpan per NoBukti" berarti fitur BARU, bukan perbaikan. Kunci terpisah agar tidak mengotori `dokumen_lpj` milik halaman lama dan tidak mengubah gate cetak LPJ
+  Dibuat oleh: user + agent
+  Dampak: `utils/lpjBkuStore.js` (kunci `<cardId>|<noBukti>`); NoBukti kosong/`-` ditolak dengan alasan; data rusak → `null` (panel tetap terbuka dengan prefill). Simpan hanya lewat tombol Simpan (AD-5)
+
+[2026-10-21] Keputusan: Sprint 017 — aturan field wajib baru di `utils/fieldWajib.js`, `readinessCheck`/`SummaryCard` TIDAK disentuh
+  Status: accepted
+  Alasan: `readinessCheck` menggerakkan Cek + gate cetak di halaman LPJ dan di banyak template; mengubahnya akan mengubah perilaku cetak yang sudah terverifikasi. Modul baru mengikuti AD-4
+  Dibuat oleh: agent (persetujuan pack)
+  Dampak: `fieldWajibDariConfig(cfg)` + `cekKelengkapan(cfg, formData)`; `0` dihitung terisi; key meta (`bkuSumber`, `kunciPejabat`) dikecualikan. Mamin (tanpa `templateId`) memakai fallback `readinessCheck` — pertanyaan D-5 masih terbuka
+
+[2026-10-21] Keputusan: Sprint 017 — preview dokumen SELALU tampil; field wajib belum lengkap hanya memunculkan banner peringatan (rencana awal "sembunyikan preview" DIBATALKAN)
+  Status: accepted (menggantikan rancangan A-1/AF-05)
+  Alasan: perintah user langsung 2026-10-21 — "Selalu tampil + peringatan". Menyembunyikan preview membuat user tidak bisa melihat perkembangan isian dan menambah state yang tidak diminta
+  Dibuat oleh: user
+  Dampak: `DetailDokumenLpjBody.jsx` merender Zona B tanpa syarat; `gate` hanya memberi banner "n field wajib belum terisi: <label> — dokumen tetap bisa dilihat". Oracle `test-lpj-panel.mjs` diperbarui (2 asersi lama diganti)
+
+[2026-10-21] Keputusan: Sprint 017 — halaman Dokumen LPJ DIPERTAHANKAN sementara (keputusan hapusnya menyusul)
+  Status: accepted
+  Alasan: user: "Tetap ada dulu" — semua alih fungsi ke sidebar masih butuh pembuktian; menghapus halaman sekarang akan membuang jaring pengaman bila sidebar bermasalah
+  Dibuat oleh: user
+  Dampak: kedua jalur hidup bersamaan (halaman + sidebar) berbagi satu komponen panel; potensi penghapusan halaman dicatat di QUESTIONS.
+
+[2026-10-21] Keputusan: Revisi tampilan — hapus glassmorphism dari sidebar navigasi + panel detail BKU; tab bar pakai underline indicator (bukan pill segment)
+  Status: accepted (permintaan user 2026-10-21: "ubah desain ... menjadi minimalis premium modern header; untuk sidebar hilangkan efek glassmorph nya")
+  Alasan: glassmorphism (`bg-white/60|70|85` + `backdrop-blur-2xl`, blob blur dekoratif, border `white/40|50`) di dua elemen terasa berat dan tanggal; permukaan solid + hairline lebih bersih dan kontrasnya lebih tinggi untuk dokumen. Tab underline (teks + garis 2px biru di border header) menggantikan pill segment karena tidak menambah "kotak di dalam kotak"
+  Dibuat oleh: user + agent
+  Dampak: `components/layout/Sidebar.jsx` 285 → 251 baris (blob & divider gradien dihapus; kelas item nav disatukan via helper `navClass`/`iconClass`; titik status emerald dekoratif di logo dihapus). `components/bku/BKUSidebar.jsx` 953 baris: panel/header/content jadi solid putih + hairline + shadow lembut; tab `rounded-full` pill → underline (tersembunyi bila 1 tab); tombol prev/next jadi `rounded-full h-9 w-9`; judul `text-[15px] font-semibold`. Scrim gelap (di belakang panel & modal foto) TIDAK diubah — bukan glassmorphism elemen itu sendiri. Oracle tetap 47 PASS (`test-lpj-sidebar.mjs` mengunci struktur baru), computed-style diverifikasi `backdropFilter: none` + `backgroundColor: rgb(255,255,255)`; screenshot bukti di `.workbuddy-ai/bukti-ui-20261021/`

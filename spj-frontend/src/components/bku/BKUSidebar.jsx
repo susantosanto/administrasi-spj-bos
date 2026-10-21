@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom'
  * Animasi smooth, navigasi prev/next, informasi transaksi lengkap
  * Tab: Detail + Dokumentasi (auto-detect template)
  *
- * Design 2026 — minimalis, kontras tinggi, mudah dibaca.
- * Efek glassmorphism dipertahankan pada panel & header.
+ * Design 2026 — minimalis premium: permukaan solid putih, header tanpa blur,
+ * tab pakai underline indicator (revisi user 2026-10-21).
  */
 import { detectTemplate } from '../../utils/templateDetector'
 import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan } from '../../utils/bkuKategori'
@@ -16,6 +16,9 @@ import { isBpuBnu, SPJ_REQUIREMENTS, SPJ_PBJ_DOCS, SPJ_WAJIB_LUAR_ARKAS, detectS
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
 import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
+// Sprint 017: tab "Dokumen LPJ" — panel bersama, disimpan per NoBukti.
+import BKUSidebarLpj from './BKUSidebarLpj'
+import { cardBerpanel } from '../../data/kategoriLpj'
 
 // ─── Constants ─────────────────────────────────────────────────
 
@@ -58,7 +61,29 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const navigate = useNavigate()
   const sidebarRef = useRef(null)
   const fileInputRef = useRef(null)
-  const [activeTab, setActiveTab] = useState('detail')
+
+  // ─── Guard kategori LPJ (Sprint 017) ─────────────────────────────────────
+  // Dihitung SEBELUM useState supaya tab awal bisa langsung 'lpj': tanpa ini,
+  // baris berkategori LPJ sempat memunculkan tampilan Detail satu frame sebelum
+  // efek reset berpindah (kedip yang sama seperti bug prefill BKUSidebarLpj).
+  // Semua fungsi di bawah murni (transaction + allTransactions), tanpa state.
+  const katRekening = transaction
+    ? kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti)
+    : null
+  const grupSaya = katRekening?.kategori === 'mamin'
+    ? gabungKonsumsi(allTransactions || []).grup.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
+    : null
+  const grupSeBukti = (() => {
+    if (!transaction) return null
+    try {
+      return grupDenganDominan(allTransactions || []).find((g) => g.rows.some((r) => r.row === transaction.row)) || null
+    } catch { return null }
+  })()
+  const katEfektif = (grupSeBukti && grupSeBukti.dominan) || katRekening
+  const cardLpj = cardBerpanel(katEfektif?.kategori)
+  const isLpj = !!cardLpj
+
+  const [activeTab, setActiveTab] = useState(isLpj ? 'lpj' : 'detail')
   const [spjOpen, setSpjOpen] = useState(false)
   const [spjChecked, setSpjChecked] = useState({})
   const [uploadedPhotos, setUploadedPhotos] = useState([])
@@ -76,15 +101,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
     return () => window.removeEventListener('addGeneratedPhoto', handler)
   }, [])
 
-  useEffect(() => {
-    sidebarRef.current?.focus()
-    setActiveTab('detail')
-    setSpjOpen(false)
-    setSpjChecked({})
-    setUploadedPhotos([])
-    setShowPhotoPreview(false)
-  }, [transaction])
-
   if (!transaction) return null
 
   const badge = TYPE_BADGES[transaction.tipe] || TYPE_BADGES.LAINNYA
@@ -93,8 +109,8 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const hasNext = currentIdx < allTransactions.length - 1
   const saldoAwal = getSaldoAwal(allTransactions)
 
-  // Sprint 004 B.1 — kategori rekening otoritatif + koreksi manual
-  const katRekening = kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti)
+  // Sprint 004 B.1 — koreksi manual kategori (koreksiTick memicu render ulang
+  // karena `kategoriDenganKoreksi` membaca storage; memori lihat MEMORY.md).
   const [koreksiTick, setKoreksiTick] = useState(0)
   void koreksiTick
   const handleKoreksi = (idx) => {
@@ -113,19 +129,16 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const atkFlagKey = String(transaction.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')
   const atkFlag = atkFlagKey ? (loadAtkFlag()[atkFlagKey] || null) : null
 
-  // Sprint 004 C.1 — grup konsumsi untuk transaksi ini (bila ada)
-  const grupSaya = katRekening?.kategori === 'mamin'
-    ? gabungKonsumsi(allTransactions || []).grup.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
-    : null
-
-  // T2 — grup se-NoBukti + dominan (satu bukti satu kelompok, label/header/deep-link pakai dominan)
-  const grupSeBukti = (() => {
-    try {
-      const semua = grupDenganDominan(allTransactions || [])
-      return semua.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
-    } catch { return null }
-  })()
-  const katEfektif = (grupSeBukti && grupSeBukti.dominan) || katRekening
+  // Reset tampilan tiap ganti baris. Sengaja SETELAH `isLpj` dihitung:
+  // K-2 — baris berkategori LPJ langsung membuka tab Dokumen LPJ.
+  useEffect(() => {
+    sidebarRef.current?.focus()
+    setActiveTab(isLpj ? 'lpj' : 'detail')
+    setSpjOpen(false)
+    setSpjChecked({})
+    setUploadedPhotos([])
+    setShowPhotoPreview(false)
+  }, [transaction, isLpj])
 
   // Tab Pajak/setor: baris SETOR pajak tidak punya dokumen LPJ — tombol aksi
   // mengarah ke pembayaran Coretax, bukan ke halaman dokumen LPJ.
@@ -152,14 +165,41 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const maminParsed = katEfektif?.kategori === 'mamin'
     ? parseMamin(transaction.uraian || '', namaKegiatanSaya)
     : null
+
+  // Sprint 017: satu sumber data prefill untuk tab "Dokumen LPJ" dan deep-link lama,
+  // supaya bentuk objek `bku` tidak pernah berbeda antara dua jalur.
+  const nominalBaris = transaction.pengeluaran || transaction.kredit || 0
+  const bkuPrefill = {
+    uraian: transaction.uraian,
+    nominal: nominalBaris,
+    tanggal: transaction.tanggalStr,
+    noBukti: transaction.noBukti,
+    kegiatan: transaction.kodeKegiatan,
+    kegiatanNama: namaKegiatanSaya,
+    maminJenis: maminParsed?.jenis || '',
+    kodeRekening: transaction.kodeRekening,
+    grupCount: grupSeBukti ? grupSeBukti.rows.length : (grupSaya ? grupSaya.rows.length : 1),
+    grupTotal: grupSeBukti ? grupSeBukti.total : (grupSaya ? grupSaya.total : nominalBaris),
+  }
+
+  // Daftar tab. Baris berkategori LPJ membuka "Dokumen LPJ" lebih dulu dan TIDAK
+  // lagi memakai tab "Detail" (permintaan user 2026-10-21) — isinya sudah terwakili
+  // oleh panel LPJ (toolbar NoBukti · nominal · uraian) + kartu Ringkasan di panel.
+  // Baris non-LPJ tetap "Detail" supaya tidak ada informasi yang hilang.
+  const tabs = [
+    ...(isLpj
+      ? [{ id: 'lpj', label: 'Dokumen LPJ', icon: 'description' }]
+      : [{ id: 'detail', label: 'Detail', icon: 'info' }]),
+    { id: 'dokumentasi', label: 'Dokumentasi', icon: 'photo_library' },
+  ]
+
   const handleDeepLink = () => {
     if (!katEfektif) return
-    const nominal = transaction.pengeluaran || transaction.kredit || 0
     const tujuan = katEfektif.route === 'dokumen-kelengkapan'
       ? '/dashboard/dokumen-kelengkapan'
       : '/dashboard/dokumen-lpj'
     navigate(tujuan, {
-      state: { fromBKU: true, ts: Date.now(), kategori: katEfektif.kategori, menu: katEfektif.menu, bku: { uraian: transaction.uraian, nominal, tanggal: transaction.tanggalStr, noBukti: transaction.noBukti, kegiatan: transaction.kodeKegiatan, kegiatanNama: namaKegiatanSaya, maminJenis: maminParsed?.jenis || '', kodeRekening: transaction.kodeRekening, grupCount: grupSeBukti ? grupSeBukti.rows.length : (grupSaya ? grupSaya.rows.length : 1), grupTotal: grupSeBukti ? grupSeBukti.total : (grupSaya ? grupSaya.total : nominal) } },
+      state: { fromBKU: true, ts: Date.now(), kategori: katEfektif.kategori, menu: katEfektif.menu, bku: bkuPrefill },
     })
     if (onClose) onClose()
   }
@@ -272,106 +312,92 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
         onClick={onClose}
       />
 
-      {/* ══ PREMIUM GLASS SIDEBAR (efek glass dipertahankan) ══ */}
+      {/* ══ PANEL DETAIL — permukaan solid putih, tanpa glassmorphism ══ */}
       <div
         ref={sidebarRef}
-        className="fixed top-0 right-0 h-full w-full max-w-xl bg-white/70 backdrop-blur-2xl shadow-2xl z-[110] overflow-y-auto animate-slide-in-left border-l border-white/40 outline-none"
+        className={`fixed top-0 right-0 h-full w-full ${isLpj ? 'max-w-none' : 'max-w-xl'} bg-white shadow-[-8px_0_32px_rgba(15,23,42,0.10)] z-[110] overflow-y-auto animate-slide-in-left border-l border-slate-200/80 outline-none`}
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        {/* ── Sticky Glass Header ── */}
-        <div className="sticky top-0 z-20 bg-white/85 backdrop-blur-xl border-b border-slate-200/70">
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
+        {/* ── Sticky Header — solid, tab underline ── */}
+        <div className="sticky top-0 z-20 bg-white border-b border-slate-200/80">
+          <div className="flex items-center justify-between px-5 py-3.5">
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={onClose}
-                className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"
+                className="p-2 -ml-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"
                 title="Tutup"
               >
-                <span className="material-symbols-outlined text-2xl">close</span>
+                <span className="material-symbols-outlined text-[22px]">close</span>
               </button>
-              <div>
-                <h3 className="text-base font-bold text-slate-900 leading-tight">Detail Transaksi</h3>
-                <p className="text-xs text-slate-500">
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-semibold text-slate-900 tracking-tight leading-tight">Detail Transaksi</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   {transaction.tanggalStr} · Baris {transaction.row} / {allTransactions.length}
                 </p>
               </div>
             </div>
             {/* Navigation */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <button
                 onClick={handlePrev}
                 disabled={!hasPrev}
-                className={`p-2 rounded-xl transition-all ${
+                className={`h-9 w-9 grid place-items-center rounded-full transition-all ${
                   hasPrev
-                    ? 'text-slate-700 hover:bg-slate-100 active:scale-95'
+                    ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-95'
                     : 'text-slate-300 cursor-not-allowed'
                 }`}
                 title="Sebelumnya (←)"
               >
-                <span className="material-symbols-outlined text-2xl">chevron_left</span>
+                <span className="material-symbols-outlined text-[22px]">chevron_left</span>
               </button>
-              <span className="text-xs text-slate-400 font-mono min-w-[2.5rem] text-center">
+              <span className="text-[11px] text-slate-400 font-mono tabular-nums min-w-[2.5rem] text-center">
                 {currentIdx + 1}/{allTransactions.length}
               </span>
               <button
                 onClick={handleNext}
                 disabled={!hasNext}
-                className={`p-2 rounded-xl transition-all ${
+                className={`h-9 w-9 grid place-items-center rounded-full transition-all ${
                   hasNext
-                    ? 'text-slate-700 hover:bg-slate-100 active:scale-95'
+                    ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-95'
                     : 'text-slate-300 cursor-not-allowed'
                 }`}
                 title="Berikutnya (→)"
               >
-                <span className="material-symbols-outlined text-2xl">chevron_right</span>
+                <span className="material-symbols-outlined text-[22px]">chevron_right</span>
               </button>
             </div>
           </div>
-          {/* Quick summary bar */}
-          <div className="px-5 pb-3 flex items-center gap-2 text-xs">
-            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${badge.bg}`}>
-              {badge.label}
-            </span>
-            {transaction.noBukti && (
-              <span className="font-mono text-slate-500">#{transaction.noBukti}</span>
-            )}
-            {transaction.kodeKegiatan && (() => {
-              const namaKeg = getNamaKegiatan(transaction.kodeKegiatan)
-              const normalized = transaction.kodeKegiatan.replace(/\.$/, '')
-              if (!namaKeg || namaKeg === normalized || namaKeg === '-') return null
-              return (
-                <span className="text-[11px] text-slate-500 truncate max-w-[160px] inline-flex items-center gap-1" title={namaKeg}>
-                  <span className="material-symbols-outlined text-[14px] text-slate-400">meeting_room</span>
-                  {namaKeg.substring(0, 30)}
-                </span>
-              )
-            })()}
-          </div>
-          {/* ── Tabs ── */}
-          <div className="px-5 flex gap-1">
-            {[
-              { id: 'detail', label: 'Detail', icon: 'info' },
-              { id: 'dokumentasi', label: 'Dokumentasi', icon: 'description' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`flex-1 px-3 py-2.5 rounded-t-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === t.id
-                    ? 'bg-white text-slate-900 border border-b-white border-slate-200 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
-                }`}
-              >
-                <span className="material-symbols-outlined text-base">{t.icon}</span>
-                {t.label}
-              </button>
-            ))}
-          </div>
+          {/* ── Tabs (underline indicator minimalis) ── */}
+          {tabs.length > 1 && (
+            <div className="flex items-center gap-1 px-4">
+              {tabs.map((t) => {
+                const aktif = activeTab === t.id
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    aria-pressed={aktif}
+                    className={`relative flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] transition-colors ${
+                      aktif
+                        ? 'font-semibold text-primary'
+                        : 'font-medium text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">{t.icon}</span>
+                    {t.label}
+                    {aktif && (
+                      <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-primary" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* ── Content ── */}
-        <div className="p-5 space-y-4 bg-white/40">
+        <div className="p-5 space-y-4 bg-white">
 
         {activeTab === 'detail' ? (
           <>
@@ -728,7 +754,15 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </div>
           )}
           </>
-        ) : (
+        ) : activeTab === 'lpj' ? (
+          <BKUSidebarLpj
+            key={transaction.row}
+            transaction={transaction}
+            kategori={katEfektif?.kategori}
+            bkuPrefill={bkuPrefill}
+            onClose={onClose}
+          />
+        ) : activeTab === 'dokumentasi' ? (
           <>
           {/* ════════════════════════════════════════════════════════════ */}
           {/* TAB: DOKUMENTASI                                        */}
@@ -909,7 +943,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </div>
           )}
           </>
-        )}
+        ) : null}
 
           <div className="h-12" />
         </div>
