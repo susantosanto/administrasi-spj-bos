@@ -91,8 +91,19 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
     }
   }
 
+  /**
+   * Baris kanan "tanpa label & tanpa nilai" (mis. Alamat / Instansi penerima
+   * yang memang tidak ada) TIDAK dicetak.
+   * ⚠️ TEMUAN USER 2026-10-22: dulu sel seperti ini merender
+   * `<PlaceholderText label="">` → tercetak "[ isi]" pada Surat Pesanan, dan
+   * baris kosong menambah jarak antara "Bapak/Ibu Guru" dan "di".
+   * Di mode edit inputnya TETAP dirender supaya masih bisa diisi.
+   */
+  const kosongTanpaLabel = (r) =>
+    Boolean(r) && !String(r.label || '').trim() && !String(data[r.key] || '').trim()
+
   return (
-    <table className="w-full text-xs mb-4 border-collapse table-fixed">
+    <table className="surat-polos w-full text-xs mb-4 border-collapse table-fixed">
       <colgroup>
         <col style={{ width: '18%' }} />
         <col style={{ width: '4%' }} />
@@ -127,6 +138,9 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
           const rightIdx = i - rightStartRow
           const right = rightIdx >= 0 ? rightFields[rightIdx] : undefined
 
+          // Baris kanan kosong tanpa label & tanpa pasangan kiri → tidak dicetak.
+          if (!left && mode !== 'edit' && kosongTanpaLabel(right)) return null
+
           return (
             <tr key={i} className="border-b border-dashed border-outline-variant align-top">
               {/* Left side: Label : Value */}
@@ -160,7 +174,7 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
                       value={data[right.key]}
                       onChange={(v) => onChange(right.key, v)}
                     />
-                  ) : (
+                  ) : kosongTanpaLabel(right) ? null : (
                     <span>{data[right.key] || <PlaceholderText label={right.label} />}</span>
                   )
                 ) : null}

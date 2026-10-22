@@ -83,7 +83,11 @@ export const TEMPLATE_CONFIGS = {
           { key: 'kepadaUndangan', label: 'Kepada Yth,', type: 'text' },
           { key: 'alamatUndangan', label: '', type: 'text' },
           { key: 'instansiUndangan', label: '', type: 'text' },
-          { key: 'diUndangan', label: 'Di', type: 'text' },
+          // ⚠️ TEMUAN USER 2026-10-22: label 'Di' + nilai default 'Di' mencetak
+          // "Di Di"; label 'di' tanpa nilai mencetak "[ di]". Kunci: label
+          // dikosongkan, NILAI inilah yang tercetak → baris "di" di atas baris
+          // "tempat" (bentuk baku surat dinas, sama seperti blok gugus).
+          { key: 'diUndangan', label: '', type: 'text' },
           { key: 'tempatUndangan', label: '', type: 'text' },
         ],
       },
@@ -105,8 +109,12 @@ export const TEMPLATE_CONFIGS = {
     defaults: {
       sifatUndangan: 'Biasa',
       lampiranUndangan: '-',
-      diUndangan: 'Di',
-      tempatUndangan: 'Tempat',
+      // `diUndangan`/`tempatUndangan`: label di config dikosongkan, jadi nilai
+      // default inilah yang tercetak → "di" lalu "tempat" di dua baris.
+      // (Dulu label 'Di' + nilai 'Di' → "Di Di"; nilai 'Di tempat' →
+      // "Di Di tempat" — temuan user 2026-10-22.)
+      diUndangan: 'di',
+      tempatUndangan: 'tempat',
     },
   },
 
@@ -138,7 +146,12 @@ export const TEMPLATE_CONFIGS = {
         rightFields: [
           { key: 'kepadaPesanan', label: 'Kepada Yth,', type: 'text' },
           { key: 'alamatToko', label: '', type: 'text' },
-          { key: 'diPesanan', label: 'Di', type: 'text' },
+          // Sama seperti Undangan: label dikosongkan, nilai default 'di' /
+          // 'tempat' yang tercetak → dua baris "di" lalu "tempat" (bentuk baku
+          // surat dinas). Dulu label 'Di' + nilai 'Di tempat' → "Di Di tempat"
+          // (temuan 2026-10-22).
+          { key: 'diPesanan', label: '', type: 'text' },
+          { key: 'tempatPesanan', label: '', type: 'text' },
         ],
       },
       {
@@ -170,7 +183,9 @@ export const TEMPLATE_CONFIGS = {
       sifatPesanan: 'Biasa',
       lampiranPesanan: '-',
       perihalPesanan: 'Surat Pesanan',
-      diPesanan: 'Di tempat',
+      // Label dikosongkan → nilai inilah yang tercetak: "di" lalu "tempat".
+      diPesanan: 'di',
+      tempatPesanan: 'tempat',
     },
   },
 
@@ -264,8 +279,11 @@ export const TEMPLATE_CONFIGS = {
         showIndex: true,
         columns: [
           { key: 'no', label: 'NO', width: 6 },
-          { key: 'nama', label: 'NAMA', width: 30 },
-          { key: 'jabatan', label: 'JABATAN', width: 25 },
+          { key: 'nama', label: 'NAMA', width: 26 },
+          // Sprint 018 (K-9): kolom NIP ditambahkan; kolom TANDA TANGAN tetap
+          // ada (ditulis tangan di kertas — input TTD dihapus dari form).
+          { key: 'nip', label: 'NIP', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 20 },
           { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
           { key: 'ttd2', label: '', width: 15 },
         ],
@@ -893,7 +911,9 @@ export const TEMPLATE_CONFIGS = {
       namaPihakKesatu: '',
       nipPihakKesatu: '',
       jabatanPihakKesatu: 'Kepala Sekolah',
-      tempatTtd: 'Bandung Barat',
+      // ⚠️ TEMUAN USER 2026-10-22: tempat di atas TTD default "Cikalongwetan"
+      // untuk SEMUA dokumen (sebelumnya "Bandung Barat").
+      tempatTtd: 'Cikalongwetan',
     },
   },
 

@@ -65,6 +65,8 @@ export default function MaminPreview({ formData, setViewMode, selectedSub, print
   const HADIR_COLS = [
     { key: 'no', label: 'No' },
     { key: 'nama', label: 'Nama' },
+    // Sprint 018 (K-9): NIP ikut tampil di ringkasan layar.
+    { key: 'nip', label: 'NIP' },
     { key: 'jabatan', label: 'Jabatan' },
   ]
   const maminAcaraSections = () => ([
@@ -78,7 +80,7 @@ export default function MaminPreview({ formData, setViewMode, selectedSub, print
     ] },
     { title: `Daftar Hadir (${rows.length})`, table: {
       columns: HADIR_COLS,
-      rows: rows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', jabatan: r.jabatan || '' })),
+      rows: rows.map((r) => ({ id: r.id, no: r.no, nama: r.nama || '', nip: r.nip || '', jabatan: r.jabatan || '' })),
     } },
   ])
 

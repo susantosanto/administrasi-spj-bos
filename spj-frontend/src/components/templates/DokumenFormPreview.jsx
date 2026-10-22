@@ -14,6 +14,8 @@
 import { useState, useEffect } from 'react'
 import TemplateEngine from './TemplateEngine'
 import MaminPreview from './MaminPreview'
+import MaminForm6Seksi from '../dokumen/mamin/MaminForm6Seksi'
+import MaminPesananRincian from '../dokumen/mamin/MaminPesananRincian'
 import SkHonorerEditor from './blocks/SkHonorerEditor'
 import TabelDinamis from './blocks/TabelDinamis'
 import { loadSkPasal, saveSkPasal, cloneDefaultPasal } from '../../data/skPasal'
@@ -247,6 +249,10 @@ export default function DokumenFormPreview({
   previewTab,
   setPreviewTab,
   onClose,
+  // Sprint 018 (AD-3): varian form. 'lama' = jalur HALAMAN Dokumen LPJ (default,
+  // TIDAK berubah). 'sidebar6' = form Mamin 6 seksi, HANYA untuk sidebar BKU.
+  varianForm = 'lama',
+  bkuInfo = null,
 }) {
   const [showRecipients, setShowRecipients] = useState(false)
   const [showNomorPopup, setShowNomorPopup] = useState(false)
@@ -260,6 +266,9 @@ export default function DokumenFormPreview({
 
   const isTransport = card.id === 'perjalanan_dinas'
   const isMamin = card.id === 'mamin'
+  // Sprint 018: varian sidebar (6 seksi) — hanya Mamin & hanya sidebar BKU.
+  const varianSidebar = varianForm === 'sidebar6'
+  const pakaiSeksi6 = varianSidebar && isMamin
   const isPemeliharaan = card.id === 'pemeliharaan'
   const isPemeliharaanUpah = card.id === 'pemeliharaan' && selectedSub?.id === 'alat'
   const isRecipientBased = card.id === 'honor' || isTransport
@@ -414,17 +423,8 @@ export default function DokumenFormPreview({
 
     return (
       <div className="space-y-5">
-        {/* Sprint 005 B.3/C.2: penanda isian aturan dari BKU (nilai diisi
-            templateUndanganMamin/templateUndanganPerjDinas + drafNotulen via
-            prefill di DokumenSPJPage; semua field di bawah tetap editable). */}
-        {formData.bkuSumber && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[11px]">
-            <span className="material-symbols-outlined text-primary text-sm">move_to_inbox</span>
-            <span className="font-semibold text-slate-700">
-              dari BKU{formData.bkuSumber?.noBukti ? ` ${formData.bkuSumber.noBukti}` : ''} Â· draf aturan â€” silakan edit
-            </span>
-          </div>
-        )}
+        {/* Revisi UI 2026-10-22: chip "dari BKU … draf aturan" dihapus.
+            Nilai prefill tetap masuk ke field (semua tetap editable). */}
         {/* Sub-kategori (all cards) */}
         {hasSubTabs && (
           <div>
@@ -535,8 +535,11 @@ export default function DokumenFormPreview({
             )}
 
             {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
-                Ditulis ke formData yang sama; dibaca Panel Preview Document Zona B + gate Zona C. */}
-            {(!isTransport || formTab === 'daftar') && (
+                Ditulis ke formData yang sama; dibaca Panel Preview Document Zona B + gate Zona C.
+                Sprint 018 (K-10): input ini DIHAPUS di sidebar BKU — field-nya hanya
+                "menagih" (tidak tercetak di template mana pun), jadi otomatis dari
+                tanggal baris BKU (lihat utils/maminOtomatis.js). Halaman LPJ: utuh. */}
+            {(!isTransport || formTab === 'daftar') && !varianSidebar && (
             <div>
               <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                 Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
@@ -1020,6 +1023,10 @@ export default function DokumenFormPreview({
               )
             })()}
           </>
+        ) : pakaiSeksi6 ? (
+          /* Sprint 018 (AD-3): form Mamin 6 seksi — HANYA sidebar BKU.
+             Halaman Dokumen LPJ (layout 'side') tetap memakai cabang lama di bawah. */
+          <MaminForm6Seksi formData={formData} setFormData={setFormData} bku={bkuInfo || {}} />
         ) : isMaminOrUpah ? (
           <>
             {/* Periode (khusus Upah / Pemeliharaan Alat) */}
@@ -1076,7 +1083,9 @@ export default function DokumenFormPreview({
 
             {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
                 Cabang Mamin/Upah â€” sama seperti cabang recipient-based di atas;
-                tanpa ini gate Zona C tak pernah lolos untuk Mamin/Upah. */}
+                tanpa ini gate Zona C tak pernah lolos untuk Mamin/Upah.
+                Sprint 018 (K-10): disembunyikan di varian sidebar BKU. */}
+            {!varianSidebar && (
             <div>
               <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                 Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
@@ -1093,6 +1102,7 @@ export default function DokumenFormPreview({
                 Langsung tercetak di surat â€” perhatikan Panel Preview Document kanan.
               </p>
             </div>
+            )}
 
             {/* Detail Acara (khusus Makan & Minum) */}
             {isMamin && (
@@ -1303,121 +1313,7 @@ export default function DokumenFormPreview({
                     <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
                     <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder={bakuPesanan006?.isiPesanan?.slice(0, 90) || 'Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan...'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
                   </div>
-                  {/* Rincian Pesanan â€” Rework-8 (5): 2 seksi (Nasi 6 + Snack 4), tiap seksi bisa disable */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Rincian Pesanan</label>
-                      <button type="button" onClick={() => {
-                        const rows = formData.pesananRows || []
-                        const seksiDef = (formData.seksiPesanan?.nasi ?? true) ? 'Nasi Box' : ((formData.seksiPesanan?.snack ?? true) ? 'Snack Box' : '')
-                        setFormData({ ...formData, pesananRows: [...rows, { id: Date.now(), no: rows.length + 1, seksi: seksiDef, uraian: '', satuan: '', jumlah: '' }] })
-                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
-                        <span className="material-symbols-outlined text-xs">add</span> Tambah Item
-                      </button>
-                    </div>
-                    {/* Toggle seksi â€” sumber tunggal MENU_PESANAN */}
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {[
-                        { id: 'nasi', label: `Seksi Nasi Box (${(MENU_PESANAN['nasi box'] || []).length})` },
-                        { id: 'snack', label: `Seksi Snack Box (${(MENU_PESANAN['snack box'] || []).length})` },
-                      ].map((s) => {
-                        const aktif = formData.seksiPesanan ? (formData.seksiPesanan[s.id] ?? true) : true
-                        return (
-                          <label key={s.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-semibold cursor-pointer transition-all ${aktif ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
-                            <input
-                              type="checkbox"
-                              checked={aktif}
-                              onChange={() => {
-                                const next = { nasi: formData.seksiPesanan?.nasi ?? true, snack: formData.seksiPesanan?.snack ?? true, [s.id]: !aktif }
-                                let rows = [...(formData.pesananRows || [])]
-                                const seksiNama = s.id === 'nasi' ? 'Nasi Box' : 'Snack Box'
-                                if (!aktif) {
-                                  // Nyalakan lagi: tambah menu baku seksi itu yg belum ada
-                                  const ada = new Set(rows.filter((r) => (r.seksi || '') === seksiNama).map((r) => (r.uraian || '').toLowerCase()))
-                                  const kunci = s.id === 'nasi' ? 'nasi box' : 'snack box'
-                                  const satuanDef = rows[0]?.satuan || bakuPesanan006?.pesananRows?.[0]?.satuan || 'Box'
-                                  const jumlahDef = formData.jumlahPesanan || bakuPesanan006?.jumlahPesanan || rows[0]?.jumlah || ''
-                                  for (const nama of (MENU_PESANAN[kunci] || [])) {
-                                    if (!ada.has(nama.toLowerCase())) rows.push({ id: Date.now() + Math.random(), no: 0, seksi: seksiNama, uraian: nama, satuan: satuanDef, jumlah: jumlahDef })
-                                  }
-                                  rows = rows.map((r, i) => ({ ...r, no: i + 1 }))
-                                } else {
-                                  rows = rows.filter((r) => (r.seksi || seksiNama) !== seksiNama).map((r, i) => ({ ...r, no: i + 1 }))
-                                }
-                                setFormData({ ...formData, seksiPesanan: next, pesananRows: rows })
-                              }}
-                              className="w-3 h-3 accent-primary"
-                            />
-                            {s.label}
-                          </label>
-                        )
-                      })}
-                    </div>
-                    {(formData.pesananRows || []).length === 0 && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-[10px] text-slate-400 italic flex-1">Belum ada item pesanan.</p>
-                        <button type="button" onClick={() => {
-                          const satuanDef = bakuPesanan006?.pesananRows?.[0]?.satuan || 'Box'
-                          const jumlahDef = formData.jumlahPesanan || bakuPesanan006?.jumlahPesanan || ''
-                          setFormData({ ...formData, seksiPesanan: { nasi: true, snack: true }, pesananRows: bangunPesananDuaSeksi({ jumlah: jumlahDef, satuan: satuanDef }) })
-                        }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
-                          <span className="material-symbols-outlined text-xs">restaurant_menu</span> Isi menu baku
-                        </button>
-                      </div>
-                    )}
-                    {['Nasi Box', 'Snack Box'].map((seksiNama) => {
-                      const daftar = (formData.pesananRows || []).map((r, i) => ({ ...r, _idx: i })).filter((r) => (r.seksi || seksiNama) === seksiNama)
-                      if (daftar.length === 0) return null
-                      return (
-                        <div key={seksiNama} className="mb-2">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{seksiNama} ({daftar.length})</p>
-                          {daftar.map((row) => (
-                            <div key={row.id} className="flex items-center gap-2 mb-2">
-                              <span className="text-[10px] font-bold text-slate-400 w-4">{row._idx + 1}</span>
-                              <input type="text" value={row.uraian} onChange={(e) => {
-                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
-                                setFormData({ ...formData, pesananRows: rows })
-                              }} placeholder="Uraian" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                              <input type="text" value={row.satuan} onChange={(e) => {
-                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, satuan: e.target.value } : r)
-                                setFormData({ ...formData, pesananRows: rows })
-                              }} placeholder="Satuan" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                              <input type="text" value={row.jumlah} onChange={(e) => {
-                                const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, jumlah: e.target.value } : r)
-                                setFormData({ ...formData, pesananRows: rows })
-                              }} placeholder="Jumlah" className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                              <button type="button" onClick={() => {
-                                const rows = formData.pesananRows.filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
-                                setFormData({ ...formData, pesananRows: rows })
-                              }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
-                            </div>
-                          ))}
-                        </div>
-                      )
-                    })}
-                    {/* Rows tanpa seksi (warisan) tetap tampil editable */}
-                    {(formData.pesananRows || []).filter((r) => r.seksi && r.seksi !== 'Nasi Box' && r.seksi !== 'Snack Box').map((row, idx) => (
-                      <div key={row.id} className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 w-4">â€¢</span>
-                        <input type="text" value={row.uraian} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Uraian" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <input type="text" value={row.satuan} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, satuan: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Satuan" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <input type="text" value={row.jumlah} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, jumlah: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Jumlah" className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <button type="button" onClick={() => {
-                          const rows = formData.pesananRows.filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
-                      </div>
-                    ))}
-                  </div>
+                  <MaminPesananRincian formData={formData} setFormData={setFormData} baku={bakuPesanan006} />
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Hari/Tanggal</label>

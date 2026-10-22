@@ -16,6 +16,7 @@
  */
 import { getSignatureRoles, KS_ROLES } from '../../../utils/signatureRoles'
 import { formatDate } from '../../../utils/templateHelpers'
+import { TEMPAT_TTD, tempatTtdDari } from '../../../utils/tempatTtd'
 
 /**
  * Identitas penandatangan: 4 baris utk peran KS, 3 baris utk peran lain.
@@ -74,7 +75,10 @@ function TtdIdentitas({ role, roleConfig, data, onChange, mode }) {
 
 export default function SignatureFooter({ blockConfig, data = {}, onChange, mode }) {
   const roles = blockConfig.roles || ['kepala-sekolah']
-  const tempat = data.tempat || 'Cikalongwetan'
+  // ⚠️ TEMUAN USER 2026-10-22: tempat di atas TTD TIDAK boleh meminjam
+  // `data.tempat` (itu tempat ACARA → "Ruang Rapat SD …"). Pakai kunci sendiri
+  // `tempatTtd`, default "Cikalongwetan" untuk semua dokumen.
+  const tempat = tempatTtdDari(data)
   const tanggal = data.tanggalCetak || formatDate(new Date())
 
   // Dibaca saat render — sumber nama/NIP pejabat (tanpa fallback hardcoded).
@@ -85,7 +89,7 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
   const useTwoColumn = roles.length === 2
 
   return (
-    <div className="mt-8">
+    <div className="surat-polos mt-8">
       {/* Tempat, Tanggal */}
       <div className="text-xs text-right mb-4">
         {mode === 'edit' ? (
@@ -93,9 +97,9 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
             <input
               type="text"
               className="border-b border-dashed border-primary/30 outline-none text-xs w-32 bg-transparent"
-              value={data.tempat || ''}
-              onChange={(e) => onChange('tempat', e.target.value)}
-              placeholder="Cikalongwetan"
+              value={data.tempatTtd || ''}
+              onChange={(e) => onChange('tempatTtd', e.target.value)}
+              placeholder={TEMPAT_TTD}
             />
             <span>, </span>
             <input

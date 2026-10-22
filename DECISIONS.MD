@@ -1219,3 +1219,111 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Alasan: glassmorphism (`bg-white/60|70|85` + `backdrop-blur-2xl`, blob blur dekoratif, border `white/40|50`) di dua elemen terasa berat dan tanggal; permukaan solid + hairline lebih bersih dan kontrasnya lebih tinggi untuk dokumen. Tab underline (teks + garis 2px biru di border header) menggantikan pill segment karena tidak menambah "kotak di dalam kotak"
   Dibuat oleh: user + agent
   Dampak: `components/layout/Sidebar.jsx` 285 → 251 baris (blob & divider gradien dihapus; kelas item nav disatukan via helper `navClass`/`iconClass`; titik status emerald dekoratif di logo dihapus). `components/bku/BKUSidebar.jsx` 953 baris: panel/header/content jadi solid putih + hairline + shadow lembut; tab `rounded-full` pill → underline (tersembunyi bila 1 tab); tombol prev/next jadi `rounded-full h-9 w-9`; judul `text-[15px] font-semibold`. Scrim gelap (di belakang panel & modal foto) TIDAK diubah — bukan glassmorphism elemen itu sendiri. Oracle tetap 47 PASS (`test-lpj-sidebar.mjs` mengunci struktur baru), computed-style diverifikasi `backdropFilter: none` + `backgroundColor: rgb(255,255,255)`; screenshot bukti di `.workbuddy-ai/bukti-ui-20261021/`
+
+[2026-10-21] Keputusan: Sprint 017 DITUTUP tanpa uji browser manual — item runtime diterima sebagai sisa (bukan "lulus")
+  Status: accepted (perintah user "tutup sprint ini", 2026-10-21 malam)
+  Alasan: seluruh gate statik hijau (build ✓ 12.62s · G-0…G-6 · 7 oracle exit 0: baseline 1 · panel 23 · guard 24 · sidebar 47 · prefill 7 · store 18 · fieldwajib 30) dan skrip uji sementara sudah dihapus setelah hasil dikutip (C-05, cadangan `.workbuddy-ai/backup-sprint017-tests/`). Uji browser butuh data BKU nyata (unggah PDF/Excel) yang tidak bisa dibuat fixture di repo; user memilih menutup dengan sisa tercatat jujur
+  Dibuat oleh: user
+  Dampak: `ACCEPTANCE.MD` §8 mencatat penutupan + daftar BELUM apa adanya; `STATE.MD` entri 017 → ✅ DITUTUP dengan commit `c149a28` (43 berkas, +4276/−748, main lokal, BELUM di-push) + Langkah Selanjutnya berisi 7 butir lanjutan (push · uji browser · nilai tampilan · keputusan tab Detail · D-5/D-6 · flag basi ARCHITECTURE.MD · antrean acceptance-runner). Risiko baru dicatat di `RISKS.MD` (pola sama seperti penutupan Sprint 016)
+
+[2026-10-21] Keputusan: Sprint 018 scope — dropdown NoBukti mirip (kode rekening + kode kegiatan sama) · form Mamin 6 seksi di sidebar saja · Dokumen PBJ per NoBukti di sidebar
+  Status: **accepted (keputusan user 2026-10-21, Idea Brief + 20 pertanyaan klarifikasi)** — detail implementasi (A-1…A-9) & D-1/D-2 masih menunggu approval pack
+  Alasan: (1) kegiatan rutin tiap bulan terulang di baris berbeda → operator harus mengetik ulang; (2) form Mamin punya isian dobel → data tidak sinkron antar surat; (3) dokumen PBJ terpisah dari konteks baris belanja. Prinsip yang dikunci user: **satu data satu sumber** (field yang datanya sudah ada di seksi sebelumnya / Data Sekolah / BKU tidak punya input; teks bawaan pindah ke preview)
+  Dibuat oleh: user
+  Dampak: pack `planning/sprints/sprint-018/` (PRD 328 · REQUIREMENTS 179 · BLUEPRINT 455 · ACCEPTANCE 237 · HANDOFF 132 baris) + salinan `architect-packs/architect-pack-018-mirin-seksi-pbj-*`; 20 task (T-01…T-20), 4 fase, 10 gate (G-0…G-9), 4 STOP, 0 dependency baru. **Izin khusus** (di luar tabu biasa Sprint 017): `data/templateConfig.js` hanya blok `daftar_hadir` (kolom NIP) dan `utils/previewDocs.js` hanya `buildPreviewDocs`/`maminDocs`. **Tetap 0 diff**: `bkuParser.js` · `SummaryCard.jsx` (gate halaman LPJ) · `DokumenSPJPage.jsx` · `DokumenKelengkapanPage.jsx` (PBJ global). Risiko utama: nilai otomatis harus masuk lapisan `formData` (preview & area cetak = dua builder terpisah) → AD-4
+
+[2026-10-21] Keputusan: "Tanggal dana masuk" dihapus dari form sidebar untuk SEMUA kategori LPJ; gate sidebar berhenti menagihnya
+  Status: accepted (keputusan user 2026-10-21: "input tanggal dana masuk tidak diperlukan di dalam semua dokumen LPJ (Makan & Minum, Honorarium, Perjalanan Dinas, Pemeliharaan)")
+  Alasan: **temuan kode terverifikasi** — `tanggalDanaMasuk` tidak ada di `templateConfig.js`/`blocks/` (grep `src/` = 9 hit, semuanya form + gate) → field itu hanya "menagih", tidak pernah tercetak. User tetap meminta dihapus karena membingungkan. Konsekuensi: gate sidebar **wajib** berhenti menagihnya (fungsi baru `readinessSidebar`), `SummaryCard.readinessCheck` **0 diff** (dipakai halaman LPJ), dan nilainya tetap terisi otomatis dari tanggal baris BKU supaya tidak ada data yang hilang
+  Dibuat oleh: user + agent
+  Dampak: `components/templates/DokumenFormPreview.jsx` 2 blok input disembunyikan **hanya** pada varian sidebar (`varianForm='sidebar6'`); `utils/readinessSidebar.js` baru; `utils/prefillLpj.js` mengisi `tanggalDanaMasuk` dari BKU. Halaman Dokumen LPJ (menu kiri) **tetap** memakai input tersebut (K-5/A-6) — bukan berarti gate halaman LPJ berubah (tetap `readinessCheck`)
+
+[2026-10-21] Keputusan: kolom NIP ditambahkan ke Daftar Hadir (cetak), input TTD dihapus dari form
+  Status: accepted (keputusan user 2026-10-21: "hapus input form ttd tambah input form NIP setelah Nama" + "TTD hilang dari form saja; di cetak tetap ada (kosong); NIP ikut tercetak")
+  Alasan: NIP dibutuhkan untuk pengecekan absensi; tanda tangan tetap ditulis tangan di kertas (dokumen resmi bertanda tangan basah) → kolom TANDA TANGAN tidak boleh hilang dari cetak
+  Dibuat oleh: user
+  Dampak: `data/templateConfig.js` blok `daftar_hadir` + kolom `{ key: 'nip', label: 'NIP', width: 18 }` (lebar NAMA/JABATAN/TTD disetel ulang); `utils/aturanMamin.templateDaftarHadir` mengisi `nip` dari Data Guru/Tendik (`bacaGTKUntukHadir`); peserta tanpa NIP (honorer) → kolom kosong (jujur, bukan dikarang)
+
+[2026-10-22] Keputusan: Sprint 018 DIEKSEKUSI — D-1 = satu field `tanggalSurat` (A-9), D-2 = sufiks " PBJ" (K-12)
+  Status: accepted (dijawab lewat implementasi 2026-10-22; kode + verifikasi tuntas)
+  Alasan: (D-1) `MaminSeksi3Undangan.jsx:26` dan `MaminSeksi4Pesanan.jsx:72` sama-sama menulis `formData.tanggalSurat` → satu field dipakai Undangan & Pesanan, sesuai asumsi A-9; tidak ada field kedua yang dibuat. (D-2) `utils/previewDocs.js:442-454` memberi sufiks `' PBJ'` pada setiap label PBJ lalu menyaring bentrok dengan `Set` label LPJ → LPJ menang bila tetap bentrok, sesuai K-12
+  Dibuat oleh: agent (dieksekusi), keputusan arah oleh user (K-1…K-12)
+  Dampak: A-1 (kandidat = rekening + kegiatan sama, bulan beda) · A-2 (pindah via `onNavigate`) · A-3 (dialog "simpan dulu?") · A-4 (merge di `formData`) · A-5 (`spj_pbj_bku`) · A-6 (Mamin 6 seksi hanya `layout='stack'`) · A-7 (NIP tercetak) · A-8 (`hariPesanan` default dari Tanggal Surat + penanda `hariPesananManual`) · A-9 (satu `tanggalSurat`) — semuanya terpasang dan lulus oracle. Bukti: `planning/sprints/sprint-018/BUILD-REPORT.MD`
+
+[2026-10-22] REVISI implementasi ADR "Tanggal dana masuk": diisi `utils/maminOtomatis.js`, BUKAN `utils/prefillLpj.js`
+  Status: accepted (koreksi faktual terhadap entri 2026-10-21 di atas)
+  Alasan: `prefillLpj.js` **tidak diubah** sama sekali (0 diff). Pengisian otomatis dilakukan `terapkanOtomatisMamin()` → `isi(fd, 'tanggalDanaMasuk', bku.tanggal || bku.tanggalISO)` (`maminOtomatis.js:83`), lalu merge dijalankan pada inisialisasi `useState` di `BKUSidebarLpj.jsx:104` dan pada setiap `setFormData`
+  Dibuat oleh: agent (eksekusi)
+  Dampak: hanya ada SATU jalur pengisian (bukan dua). Entri 2026-10-21 yang menyebut `prefillLpj.js` tetap dibiarkan sebagai catatan sejarah; yang berlaku adalah entri ini
+
+[2026-10-22] Keputusan: `buildPreviewDocs` menerima `formPbj` (bukan `varianSidebar`/`docsPbj` seperti kontrak BLUEPRINT §2/§3)
+  Status: accepted (deviasi kontrak, perilaku AD-7 tetap)
+  Alasan: penggabungan butuh data form PBJ, bukan flag tampilan. `buildPreviewDocs({…, formPbj})` mengembalikan `[...docsLpj, ...docsPbj]` dengan sufiks " PBJ" + filter bentrok; `docsPbj` dibangun dari `pbjDocs(formPbj,'non')` di dalam fungsi. Kalau `formPbj` null → hanya docs LPJ (halaman LPJ tidak berubah)
+  Dibuat oleh: agent (eksekusi)
+  Dampak: nama parameter berbeda dari dokumen (dicatat sebagai deviasi D-1 di `BUILD-REPORT.MD` §6). Gate G-6 (halaman LPJ 0 diff + hash 4/4) dan G-9 (halaman Kelengkapan 0 diff) tetap hijau
+
+[2026-10-22] Keputusan: revisi UI 6 butir — kata "Seksi" dibuang, banner "dari BKU" dihapus, Daftar Hadir jadi tabel, Rincian Pesanan disamakan dengan halaman LPJ, PBJ dapat toggle SIPLAH/NON-SIPLAH
+  Status: accepted (permintaan user 2026-10-22 17:0x, dieksekusi + diverifikasi)
+  Alasan: (1) "NoBukti mirip" dinilai tidak profesional → diganti **"Baris Serupa"**; (2) dua banner `…dari BKU …` dinilai berisik → dihapus, termasuk chip `bkuSumber` di preview; (3) penomoran "Seksi 1 — Data Dasar" diganti judul fungsional + chip angka; (4) tabel Daftar Hadir berbasis flex membuat kolom bertumpuk → diganti `<table table-fixed>` + `<colgroup>`; (5) form Rincian Pesanan sidebar berbeda dari halaman LPJ → disamakan strukturnya; (6) sidebar PBJ tidak punya konsep SIPLAH → ditambahkan mengikuti halaman Dokumen Kelengkapan
+  Dibuat oleh: user (arahan) + agent (eksekusi)
+  Dampak: `DropdownNoBuktiMirip` · `DetailDokumenLpjHeader` · `DokumenFormPreview` · `MaminSeksiCard` + 6 seksi · `SidebarPbj` · `BKUSidebarLpj` · `pbjTabs` · `previewDocs` · 2 berkas baru hasil pemecahan (`MaminDaftarHadirTabel`, `MaminPesananRincian`). Bukti: `ACCEPTANCE.MD` §7 (126 PASS / 0 FAIL) + `BUILD-REPORT.MD` §9
+
+[2026-10-22] Keputusan: mode SIPLAH/NON-SIPLAH di sidebar memakai kunci `pbj_mode` yang SAMA dengan halaman Dokumen Kelengkapan
+  Status: accepted
+  Alasan: user meminta konsepnya "sama" dengan halaman itu. Memakai kunci yang sama berarti pilihan mode konsisten lintas halaman; tidak ada kunci baru yang perlu dijelaskan ke user. SIPLAH = hanya tab `perencanaan` (1 dokumen) — `tabsUntukMode(mode)` menyaring `PBJ_TABS`; NON-SIPLAH = keenam tab
+  Dibuat oleh: agent (mengikuti konsep halaman Kelengkapan)
+  Dampak: `SidebarPbj` menerima `mode`/`onModeChange` (controlled — state di `BKUSidebarLpj` agar preview memakai data sama); `tabsUntukMode` di `utils/pbjTabs.js`; gate halaman Kelengkapan **0 diff** (konsepnya ditiru, bukan diimpor paksa)
+
+[2026-10-22] REVISI ADR `buildPreviewDocs`: parameter kedua `pbjDocs` sekarang `pbjMode`, bukan konstanta `'non'`
+  Status: accepted (koreksi terhadap entri `buildPreviewDocs` di atas)
+  Alasan: setelah mode SIPLAH ada, preview harus ikut menyaring dokumen PBJ. `pbjDocs(formPbj, pbjMode)` dengan `pbjMode='siplah'` hanya mengembalikan `perencanaan`. Kalau `pbjMode` tidak diberikan, default `'non'` sehingga perilaku lama tetap
+  Dibuat oleh: agent (eksekusi)
+  Dampak: `utils/previewDocs.js` — `buildPreviewDocs({…, formPbj, pbjMode='non'})`. Diuji R6.4 (SIPLAH → preview hanya `PERENCANAAN PBJ`) dan R6.7 (NON-SIPLAH → lengkap)
+
+[2026-10-22] Keputusan: grid tabel abu-abu global DIHAPUS dari dokumen; garis hanya dipakai tabel yang menyatakannya sendiri
+  Status: accepted (permintaan user 2026-10-22 17:3x: "di dokumen yg non tabel nya ada garis2 tipis, apakah bisa anda hilangkan? untuk semua format dokumen yg non tabel")
+  Alasan: `.template-engine th, td { border: 1px solid #d1d5db }` memasang grid ke SETIAP sel, sehingga blok label:nilai pada SURAT UNDANGAN / SURAT TUGAS / SK / BUKU TAMU tampil seperti tabel penuh. Diperiksa: semua tabel yang MEMANG perlu garis sudah menyatakan sendiri (`TabelDinamis` = `border border-gray-300` per sel, `.spd-tabel` = hitam 1px, `.kas-tabel` = titik inline, `.pajak-tabel` = hitam) → grid global tidak dibutuhkan siapa pun
+  Dibuat oleh: user (arahan) + agent (eksekusi)
+  Dampak: `index.css` (border dihapus dari aturan global; aturan `.surat-polos` baru berlaku di LAYAR, bukan hanya cetak) · `TabelLetterHeader` · `TabelFields` · `InfoKeuangan` · `HeaderDokumen` · `SignatureFooter` · `UraianKegiatan` diberi kelas `surat-polos` · garis bawah field jadi transparan dan hanya muncul saat hover/fokus (petunjuk edit tidak hilang). Garis kop surat (`kop-ganda` 4px) DIPERTAHANKAN — itu bagian resmi surat. Invarian dijaga `cek-019-garis.cjs` (7/7 PASS, audit 15 kertas / 2 kategori)
+
+[2026-10-22] Keputusan: editor Rincian Pesanan memakai SATU komponen (`MaminPesananRincian`) untuk sidebar BKU dan halaman Dokumen LPJ
+  Status: accepted (permintaan user 2026-10-22: "input form rincian pesanan masih acak acakan sekali")
+  Alasan: versi `flex` membuat kolom Uraian menelan ±85% lebar (1163px dari 1367px) dan kolom Satuan/Jumlah jadi serpihan 64/56px di ujung kanan → terbaca sebagai tumpukan kotak, bukan form. Dua salinan markup (sidebar + `DokumenFormPreview`) juga membuat perbaikan tampilan harus dikerjakan dua kali
+  Dibuat oleh: agent (eksekusi), arah oleh user
+  Dampak: `MaminPesananRincian.jsx` ditulis ulang sebagai `<table table-fixed>` + `<colgroup>` (32 / auto / 72 / 72 / 32 px) dengan kepala kolom No·Uraian·Satuan·Jumlah, grup seksi sebagai baris `colSpan`, input tanpa kotak (hover/fokus saja), prop `baku` untuk default dari `templatePesananMamin`. `DokumenFormPreview.jsx` 2078 → 1965 baris. Konsekuensi: label toggle di halaman LPJ ikut jadi `Nasi Box (6)` → **Q-7 dijawab pilihan C** (kedua halaman tanpa kata "Seksi"). Dijaga `cek-018-paritas.cjs` (8/8) + `R5.1b`
+
+[2026-10-22] Keputusan: judul tombol dropdown menjadi "Kode Rekening / Kode Kegiatan Serupa"
+  Status: accepted (permintaan user 2026-10-22 17:3x)
+  Alasan: "Baris Serupa" dinilai belum menjelaskan dasar pencocokan. Label baru menyebut kriteria sesungguhnya: kode rekening DAN kode kegiatan yang sama
+  Dibuat oleh: user
+  Dampak: `DropdownNoBuktiMirip.jsx` — teks tombol diganti (`whitespace-nowrap` agar tidak patah), chip jumlah kandidat tetap. Skrip uji T-17/T-18/T-19 + revisi diperbarui ke label baru
+
+[2026-10-22] Keputusan: kartu panel preview setinggi KERTAS (A4 297mm / F4 330mm), bukan setinggi viewport
+  Status: accepted (permintaan user 2026-10-22 18:0x)
+  Alasan: batas `max-h-[calc(100vh-104px)]` membuat satu lembar A4 (1123px) terpotong di layar 1000px dan harus di-scroll di dalam kartu — user melihat "kartu tidak setinggi kertas"
+  Dibuat oleh: user (arahan), agent (eksekusi)
+  Dampak: `PanelPreviewDocument.jsx` — state `kertas` dinaikkan ke induk, area dokumen `maxHeight: calc(tinggiKertas + 30px)`; kartu ikut memanjang sehingga HALAMAN yang men-scroll. Konsekuensi: `sticky top-0` pada toolbar dilepas (menempel viewport → menabrak header app) dan kolom preview layout `side` diberi `max-h + overflow-y-auto` agar `sticky` tidak memaku kartu lebih tinggi dari layar. Dijaga `cek-020-revisi.cjs` P2–P3
+
+[2026-10-22] Keputusan: kertas digeser `translateX((avail − lebar×scale)/2)` di DEPAN `scale`
+  Status: accepted (permintaan user 2026-10-22 18:0x — "posisi dokumen di pinggir bukan di tengah")
+  Alasan: `transform-origin: top left` + `scale()` tanpa geser selalu menempelkan kertas ke tepi kiri (terukur kiri 8px vs kanan 575px). Alternatif `margin:0 auto` GAGAL saat kertas lebih lebar dari wadah (auto margin jadi 0), dan `transform-origin: top center` gagal saat kotak meluber ke kanan
+  Dibuat oleh: agent (eksekusi)
+  Dampak: satu baris di `measure()` milik `ScaledPaper`; terukur kiri/kanan 291/293px, stabil di F4 dan viewport 700–1500px. Dijaga `cek-020-revisi.cjs` P1/P6
+
+[2026-10-22] Keputusan: field dengan SUMBER TUNGGAL tidak dirender sebagai input (Tanggal & Kegiatan/Pekerjaan PBJ)
+  Status: accepted (permintaan user 2026-10-22 18:0x — "duplikat lagi untuk input form Tanggal")
+  Alasan: prinsip "satu data satu sumber" yang sudah dipakai form Mamin 6 seksi. Tanggal ← baris BKU, Kegiatan/Pekerjaan ← "Nama Kegiatan". Input kedua membuat user mengisi dua kali dan bisa berbeda nilainya
+  Dibuat oleh: user (arahan), agent (eksekusi)
+  Dampak: `pbjTabs.js` menandai `turunan` + `fieldsTampil()`; `SidebarPbjForm` memfilter & menampilkan keterangan sumber; `pbjPrefill.sinkronPbjDariSumber()` MENIMPA nilai turunan (beda dari `prefillPbjDariBku` yang hanya mengisi kosong) dan mempertahankan nilai lama bila sumber kosong. Nilai tetap ada di state → dokumen PBJ tetap tercetak. Halaman Dokumen Kelengkapan TIDAK terpengaruh (tidak memakai `pbjTabs.js`, G-9)
+
+[2026-10-22] Keputusan: tempat di atas TTD punya kunci SENDIRI (`tempatTtd`), default "Cikalongwetan"
+  Status: accepted (permintaan user 2026-10-22 18:2x)
+  Alasan: `SignatureFooter` membaca `data.tempat` yang artinya tempat ACARA → dokumen Undangan/Pesanan/Daftar Penerima mencetak "Ruang Rapat SD NEGERI LEBAKLEUNGSIR, 22 Oktober 2026" di atas TTD (bocor dari `terapkanOtomatisMamin` yang jalan untuk semua kategori). Satu field tidak boleh punya dua arti
+  Dibuat oleh: user (arahan), agent (eksekusi)
+  Dampak: `utils/tempatTtd.js` baru (`TEMPAT_TTD`, `tempatTtdDari()`); `SignatureFooter` + input mode edit pindah ke `tempatTtd`; `previewDocs.js` Lembar Pengaduan/Kritik memakai `TEMPAT_TTD`; default SK Honorer 'Bandung Barat' → 'Cikalongwetan'. Konsekuensi: entri lama yang dulu mengetik tempat TTD di field `tempat` akan kembali ke default (lihat RISKS.MD). Dijaga `cek-021-revisi.cjs` (6/6, 17 dokumen × 4 kategori)
+
+[2026-10-22] Keputusan: pada blok kanan "di / tempat" yang katanya tetap, LABEL dikosongkan dan NILAI default yang dicetak — bukan label
+  Status: accepted (permintaan user 2026-10-22 18:4x — "kenapa ada nama jl raya setelah Kepada Yth, Bapak/Ibu Guru? biasanya itu default di tempat saja")
+  Alasan: tiga cacat bertumpuk di blok penerima `TabelLetterHeader`: (1) `terapkanOtomatisMamin()` mengisi `alamatUndangan` + `instansiUndangan` dengan alamat sekolah → tercetak 2x mentah di bawah "Bapak/Ibu Guru" (labelnya `''`); (2) label `'Di'` + nilai default `'Di'` → "Di Di"; (3) `diPesanan` default `'Di tempat'` → "Di Di tempat". Plus `<PlaceholderText label="">` → literal "[ isi]"
+  Dibuat oleh: user (arahan), agent (eksekusi)
+  Dampak: `maminOtomatis.js` — `alamatUndangan`/`instansiUndangan` tidak lagi diisi otomatis (variabel `alamatSekolah` dicabut) · `templateConfig.js` — `diUndangan`/`tempatUndangan`/`diPesanan` label `''`, default nilai `'di'`/`'tempat'`; field baru `tempatPesanan` · `TabelLetterHeader.jsx` — helper `kosongTanpaLabel()` menyembunyikan baris/sel kanan tanpa label DAN tanpa nilai (mode edit tetap render). `pbj_pesanan` (kartu Kelengkapan) sengaja TIDAK diberi baris "di/tempat" — struktur asli sheet xlsx PBJ. Dijaga `cek-022-revisi.cjs` (35/35)

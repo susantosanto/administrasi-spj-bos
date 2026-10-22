@@ -199,3 +199,77 @@
   jaring pengaman. Pertanyaan final (hapus / dua pintu masuk / arsip) **ditinjau ulang setelah
   uji browser manual `ACCEPTANCE.MD` §7 lulus** — belum ada bukti manual sampai sprint ditutup.
   Catatan: menghapus menu = menyentuh routing + sidebar aplikasi, bukan hanya satu komponen.
+
+---
+
+## Sprint 018 — Dropdown NoBukti Mirip + Form Mamin 6 Seksi + Dokumen PBJ (D-1…D-2, ✅ TERJAWAB 2026-10-22)
+
+❓ **D-1** — **Satu field `tanggalSurat` atau dua?** Surat Undangan (Seksi 3) dan Surat Pesanan
+  (Seksi 4) sama-sama memakai field "Tanggal Surat". Usulan pack **A-9**: **satu** field
+  (`tanggalSurat`) untuk keduanya — sesuai prinsip sprint ini "satu data satu sumber" (K-6),
+  dan label Seksi 4 jadi "Tanggal Surat (sama dengan Surat Undangan)". Alternatif: dua field
+  terpisah (`tanggalSurat` + `tanggalSuratPesanan`) supaya Undangan & Pesanan boleh beda tanggal.
+  Ditanya: 2026-10-21 | Status: ✅ **DIJAWAB 2026-10-22 — satu field `tanggalSurat` (A-9)**
+  Bukti: `MaminSeksi3Undangan.jsx:26` + `MaminSeksi4Pesanan.jsx:72` sama-sama menulis
+  `formData.tanggalSurat`; tidak ada field kedua. | Dampak: 1 field dipakai Undangan & Pesanan.
+
+❓ **D-2** — **Label dokumen PBJ di panel preview.** Usulan pack: semua label PBJ diberi
+  sufiks **" PBJ"** ("Surat Pesanan PBJ", "Data Rekap PBJ", "BAHP PBJ", …) → nama dokumen
+  selalu unik, jadi aturan "LPJ menang" (K-12) tidak pernah dipakai dan **tidak ada dokumen
+  PBJ yang tersembunyi**. Alternatif: label apa adanya + aturan "LPJ menang" → sebagian
+  dokumen PBJ (mis. "Surat Pesanan") **tidak terlihat** di panel.
+  Ditanya: 2026-10-21 | Status: ✅ **DIJAWAB 2026-10-22 — sufiks " PBJ" dipakai (K-12)**
+  Bukti: `utils/previewDocs.js:442-454` (sufiks + filter bentrok, LPJ menang); browser
+  `T-17.22` melihat "PERENCANAAN PBJ" & "SURAT PESANAN PBJ" di panel preview, 0 nama dobel.
+  | Dampak: seluruh dokumen PBJ terlihat di daftar preview.
+
+### Catatan asumsi (menunggu konfirmasi dry run, BUKAN keputusan)
+
+A-1…A-9 (REQUIREMENTS §5 / PRD §10) masih **asumsi pack** — WAJIB disebut di dry run builder
+dan dikonfirmasi user sebelum coding (STOP-4). Ringkasan: A-1 kriteria kandidat dropdown ·
+A-2 perpindahan via `onNavigate` yang sudah ada · A-3 dialog "simpan dulu" · A-4 nilai otomatis
+di lapisan `formData` & ikut tersimpan · A-5 kunci PBJ baru `spj_pbj_bku` · A-6 perubahan form
+Mamin hanya untuk sidebar · A-7 kolom NIP ikut tercetak · A-8 "Hari/Tanggal" Seksi 4 tetap ada
+(default dari Tanggal Surat) · A-9 satu field `tanggalSurat`.
+
+### Temuan kode yang mengubah asumsi brief (2026-10-21)
+
+1. **"Tanggal dana masuk" tidak tercetak di template mana pun** (grep `src/` = 9 hit, **0** di
+   `templateConfig.js`/`blocks/`). Field itu **hanya gate** → begitu inputnya dihapus dari
+   sidebar, gate sidebar **wajib** ikut berhenti menagihnya (fungsi baru; `SummaryCard.jsx` 0 diff).
+2. **Sidebar sudah punya** `allTransactions` + `onNavigate` (`BKUSidebar.jsx:60`, tombol ‹ ›)
+   → "berpindah ke baris lain" tidak butuh state/callback baru.
+3. **Preview Mamin & area cetak Mamin = dua builder terpisah** (`maminDocs()` vs
+   `MaminPreview.jsx:198-253`) → nilai otomatis wajib diterapkan di lapisan `formData`,
+   kalau tidak layar ≠ cetakan.
+4. **`readinessCheck` dipakai halaman LPJ** → gate sidebar harus fungsi baru (`readinessSidebar`).
+
+---
+
+## Revisi UI 2026-10-22 17:0x — 1 pertanyaan terbuka
+
+### Q-7 — Label toggle "Rincian Pesanan": buang kata "Seksi" atau samakan persis dengan halaman LPJ?
+
+**Latar:** dua permintaan user bertabrakan di satu label.
+- Poin 3: buang kata "Seksi" dari UI (dinilai tidak premium).
+- Poin 5: "samakan dengan yg di halaman LPJ untuk input form rincian pesanan".
+
+Halaman LPJ menulis **`Seksi Nasi Box (6)`**; sidebar sekarang menulis **`Nasi Box (6)`**.
+
+**Yang sudah sama (dibuktikan `cek-018-paritas.cjs`, 8/8 PASS):** jumlah baris menu baku (10) ·
+placeholder kolom (`Uraian`/`Satuan`/`Jumlah`) · penomoran global 1…10 · judul grup
+(`NASI BOX (6)` / `SNACK BOX (4)`) · jumlah toggle (2) · "Isi menu baku" hanya saat kosong ·
+uraian menu baku identik · tombol "Tambah Item".
+
+**Pilihan:**
+- **A (sekarang, default)** — biarkan `Nasi Box (6)`. Konsisten dengan poin 3.
+- **B** — ubah 1 baris di `MaminPesananRincian.jsx` jadi `Seksi Nasi Box (…)` → persis LPJ,
+  tapi kata "Seksi" muncul lagi di sidebar.
+- **C** — biarkan sidebar bersih, dan rapikan juga label di `DokumenFormPreview.jsx:1330`
+  supaya kedua halaman sama-sama tanpa "Seksi".
+
+**Status: ✅ TERJAWAB 2026-10-22 17:3x — pilihan C (dieksekusi, tanpa perlu tanya lagi).**
+Alasannya bukan preferensi, tapi konsekuensi teknis: form rincian pesanan sekarang **satu
+komponen** (`MaminPesananRincian`) yang dipakai sidebar DAN halaman LPJ, jadi labelnya
+mustahil berbeda. Yang dipilih = versi bersih (tanpa kata "Seksi"), sesuai permintaan
+poin 3. Diverifikasi `cek-018-paritas.cjs` (8/8 PASS) + `R5.1b`.

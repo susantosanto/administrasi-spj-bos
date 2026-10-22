@@ -761,6 +761,8 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             kategori={katEfektif?.kategori}
             bkuPrefill={bkuPrefill}
             onClose={onClose}
+            allTransactions={allTransactions || []}
+            onNavigate={onNavigate}
           />
         ) : activeTab === 'dokumentasi' ? (
           <>

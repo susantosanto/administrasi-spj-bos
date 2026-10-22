@@ -14,6 +14,7 @@ import { bagiPesananPerSeksi } from './aturanMamin'
 import { pbjFormKosong } from './aturanPbj'
 import { ringkasanKasPerBulan, bulanNameToNum, teksTanggalPanjang, formatTanggalContoh, lembarPecahan } from './dokKas'
 import { barisPajakDariBku, tahunPajak, totalKolomPajak } from './dokPajak'
+import { TEMPAT_TTD } from './tempatTtd'
 
 const isKosong = (v) => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0)
 const docPbjKosong = (d = {}) => Object.values(d).every(isKosong)
@@ -376,7 +377,7 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
   } })
 
   // ─── Pengaduan + Kritik (sheet "Lbr. Pengaduan Masyarakat" / "Lbr. Kritik-Saran") ───
-  const tempatBku = bku?.footer?.tempat || sekolah.kabupaten || ''
+  // Tempat TTD = default Cikalongwetan (temuan user 2026-10-22), bukan kabupaten.
   const tglTutupKas = formatTanggalContoh(ring.tglTutupISO) || ''
   const up = f.PP || {}
   const bp = up.bulan || u.bulan || ''
@@ -384,7 +385,7 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     ...TEMPLATE_CONFIGS.pengaduan_masyarakat.defaults, ...up,
     judulDana: judulDanaKas(tahun), namaSekolahKet: sekolahKetKas(sekolah),
     periode: bp ? `PERIODE : BULAN ${String(bp).toUpperCase()} TAHUN ${tahun}` : '',
-    tempatTtd: up.tempatTtd || (tglTutupKas ? `${tempatBku}, ${tglTutupKas}` : ''),
+    tempatTtd: up.tempatTtd || (tglTutupKas ? `${TEMPAT_TTD}, ${tglTutupKas}` : TEMPAT_TTD),
     namaMelaporkan: up.namaMelaporkan || ksNama,
     nipMelaporkan: up.nipMelaporkan || nipKs,
   } })
@@ -394,7 +395,7 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     ...TEMPLATE_CONFIGS.kritik_saran.defaults, ...uk,
     judulDana: judulDanaKas(tahun), namaSekolahKet: sekolahKetKas(sekolah),
     periode: bk ? `PERIODE : BULAN ${String(bk).toUpperCase()} TAHUN ${tahun}` : '',
-    tempatTtd: uk.tempatTtd || (tglTutupKas ? `${tempatBku}, ${tglTutupKas}` : ''),
+    tempatTtd: uk.tempatTtd || (tglTutupKas ? `${TEMPAT_TTD}, ${tglTutupKas}` : TEMPAT_TTD),
     namaMelaporkan: uk.namaMelaporkan || ksNama,
     nipMelaporkan: uk.nipMelaporkan || nipKs,
   } })
@@ -442,8 +443,20 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
  * buildPreviewDocs — satu sumber daftar dokumen formal utk panel.
  * Kembalikan [] bila templateId tak dikenal (panel tampil pesan jujur).
  */
-export function buildPreviewDocs({ cardId, templateId, subId, formData = {}, sppdData = {} }) {
+export function buildPreviewDocs({ cardId, templateId, subId, formData = {}, sppdData = {}, formPbj = null, pbjMode = 'non' }) {
   const sig = getSignatureRoles()
+  const docsLpj = buildDocsLpj({ cardId, templateId, subId, formData, sppdData, sig })
+  if (!formPbj) return docsLpj
+  // Sprint 018 (AD-7): dokumen PBJ menyusul dokumen LPJ dalam SATU daftar.
+  // Label PBJ diberi sufiks " PBJ" (D-2) → nama surat tidak pernah dobel;
+  // bila tetap bentrok, dokumen LPJ yang menang (K-12).
+  const docsPbj = pbjDocs(formPbj, pbjMode).map((d) => ({ ...d, label: `${d.label} PBJ` }))
+  const dipakai = new Set(docsLpj.map((d) => d.label))
+  return [...docsLpj, ...docsPbj.filter((d) => !dipakai.has(d.label))]
+}
+
+/** Dokumen LPJ saja (tanpa PBJ) — dipakai halaman LPJ & sidebar. */
+function buildDocsLpj({ cardId, templateId, subId, formData = {}, sppdData = {}, sig }) {
   if (cardId === 'mamin') return maminDocs(formData, sig)
   if (cardId === 'perjalanan_dinas') {
     if (!TEMPLATE_CONFIGS[templateId]) return []

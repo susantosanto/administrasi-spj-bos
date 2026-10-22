@@ -124,13 +124,13 @@ export default function InfoKeuangan({ blockConfig, data = {}, onChange, mode })
 
   return (
     <div className="mb-4">
-      <table className="w-full border-collapse">
+      <table className="surat-polos w-full border-collapse">
         <tbody>
           {Array.from({ length: rows }).map((_, i) => (
             <tr key={i}>
               {/* Left side */}
               <td className="align-top pr-4" style={{ width: '50%' }}>
-                <table className="w-full border-collapse">
+                <table className="surat-polos w-full border-collapse">
                   <tbody>
                     <tr>
                       {leftFields[i] === 'nomor' ? (
@@ -150,7 +150,7 @@ export default function InfoKeuangan({ blockConfig, data = {}, onChange, mode })
               </td>
               {/* Right side */}
               <td className="align-top pl-4" style={{ width: '50%' }}>
-                <table className="w-full border-collapse">
+                <table className="surat-polos w-full border-collapse">
                   <tbody>
                     <tr>
                       {rightFields[i] ? (

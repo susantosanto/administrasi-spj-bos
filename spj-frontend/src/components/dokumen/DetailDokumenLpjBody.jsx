@@ -34,6 +34,9 @@ export default function DetailDokumenLpjBody({
   getTemplateConfig,
   layout = 'side',
   gate = null,
+  varianForm = 'lama',
+  bkuInfo = null,
+  blokTambahan = null,
   isSpecial = false,
 }) {
   const isTransport = card?.isTransport
@@ -43,7 +46,16 @@ export default function DetailDokumenLpjBody({
   const gridClass = layout === 'stack'
     ? 'grid gap-4 grid-cols-1 items-start'
     : 'grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start'
-  const asideClass = `print:hidden min-w-0 self-start${layout === 'side' ? ' lg:sticky lg:top-[88px]' : ''}`
+  // Revisi 2026-10-22: kartu preview kini setinggi kertas (A4 297mm / F4 330mm),
+  // jadi bisa lebih tinggi dari viewport. Pada layout 'side' kolom preview
+  // dibatasi setinggi layar dan digulir sendiri — kalau tidak, `sticky` akan
+  // memaku kartu yang lebih tinggi dari layar sehingga bagian bawahnya tak
+  // pernah bisa dilihat.
+  const asideClass = `print:hidden min-w-0 self-start${
+    layout === 'side'
+      ? ' lg:sticky lg:top-[88px] lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]'
+      : ''
+  }`
 
   return (
     <div className="space-y-4">
@@ -64,8 +76,15 @@ export default function DetailDokumenLpjBody({
             previewTab={previewTab}
             setPreviewTab={setPreviewTab}
             onClose={onClose}
+            varianForm={varianForm}
+            bkuInfo={bkuInfo}
           />
         </section>
+
+        {/* Sprint 018 (AD-6): blok tambahan (Dokumen PBJ) — DI BAWAH form LPJ
+            dan DI ATAS Panel Preview Document. Halaman LPJ tidak mengoper
+            `blokTambahan` → blok ini tidak muncul di sana. */}
+        {blokTambahan}
 
         <aside className={asideClass}>
           <section aria-label="Zona B — Panel Preview Document">

@@ -59,22 +59,17 @@ export default function DetailDokumenLpjHeader({
         </div>
       </div>
 
-      {/* Badge prefill BKU (Sprint 004 B.3) */}
-      {prefillBadge && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
-          <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
-          <span className="font-semibold text-slate-800" title={prefillBadge.bku?.tanggal ? `Pejabat dikunci per tanggal ${prefillBadge.bku.tanggal} — periode baru tidak mengubah dokumen ini` : 'Isian dari BKU'}>
-            dari BKU{prefillBadge.bku?.noBukti ? ` ${prefillBadge.bku.noBukti}` : ''}{prefillBadge.bku?.grupCount > 1 ? ` · ${prefillBadge.bku.grupCount} rincian` : ''}{prefillBadge.bku?.tanggal ? ` · pejabat per ${prefillBadge.bku.tanggal}` : ''}{prefillBadge.diisi.length > 0 ? ` · ${prefillBadge.diisi.length} field terisi` : ''}
-            {(prefillBadge.tertimpa?.length || 0) > 0 ? ` · ${prefillBadge.tertimpa.length} ditimpa (bisa Urungkan)` : ''}
-          </span>
-          {onUndoPrefill && (
-            <button
-              onClick={onUndoPrefill}
-              className="ml-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold hover:border-slate-300"
-            >
-              Urungkan
-            </button>
-          )}
+      {/* Revisi UI 2026-10-22: chip "dari BKU …" dihapus (dinilai tidak premium).
+          Fungsi Urungkan prefill tetap ada — hanya muncul bila ada field yang tertimpa. */}
+      {prefillBadge && onUndoPrefill && (prefillBadge.tertimpa?.length || 0) > 0 && (
+        <div className="flex justify-end">
+          <button
+            onClick={onUndoPrefill}
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500 hover:text-primary transition-colors"
+          >
+            <span className="material-symbols-outlined text-sm">undo</span>
+            Urungkan isian otomatis ({prefillBadge.tertimpa.length} field)
+          </button>
         </div>
       )}
 

@@ -241,3 +241,81 @@
   **selalu buka isi hit**, jangan berhenti di angka.
   Status: OPEN (catatan proses, bukan cacat kode).
 
+
+⚠️ [Sedang] RISIKO: Sprint 017 ditutup dengan seluruh item runtime BELUM diuji di browser (tab otomatis terbuka, interaksi Simpan/cetak, banner tanpa reload, `sorotPelanggaran`, persistensi `spj_lpj_bku` setelah reload, grup se-NoBukti lintas kategori).
+  FAKTA (2026-10-21, penutupan atas perintah user "tutup sprint ini"): semua gate node HIJAU (build ✓ 12.62s · 7 oracle exit 0 · G-0…G-6), tapi gate node memakai `renderToStaticMarkup` yang **tidak menjalankan `useEffect`** → perilaku pasca-efek (termasuk tab awal langsung `lpj`) tidak terbukti. Skrip uji sudah dihapus (C-05) dengan cadangan di `.workbuddy-ai/backup-sprint017-tests/`.
+  Dampak: Sedang — cacat UI (mis. isian tidak tersimpan setelah reload, tab salah terbuka, preview LPJ kosong) bisa lolos tanpa terdeteksi sampai user sekolah memakainya.
+  Mitigasi: (1) daftar BELUM ditulis apa adanya di `ACCEPTANCE.MD` §7/§8 dan `STATE.MD` Langkah Selanjutnya — tidak ada klaim PASS palsu; (2) bila ada keluhan pada alur klik baris → Simpan → reload, periksa butir §7 itu **lebih dulu**; (3) `/acceptance-runner` di sesi dengan dev server + data BKU nyata; (4) oracle bisa dibangkitkan ulang dari cadangan bila perlu regresi.
+  Status: OPEN (diterima user saat penutupan — pola sama seperti Sprint 016).
+
+⚠️ [Sedang] RISIKO: dokumen LPJ punya DUA pintu masuk dengan perilaku simpan BERBEDA — halaman Dokumen LPJ (menu kiri) tidak menyimpan apa pun (`storageHelper.set` 0×), sidebar BKU menyimpan per NoBukti (kunci baru `spj_lpj_bku`). Keduanya berbagi satu komponen panel (`DetailDokumenLpj.jsx`, `layout` side/stack).
+  FAKTA (temuan eksekusi Sprint 017, tercatat D-4 di `QUESTIONS.MD`): user memilih opsi (a) — biarkan, jangan tambah simpan ke halaman LPJ di Sprint 017 (scope + risiko). Panel versi sidebar memuat entri tersimpan lewat `muatAwal` di inisialisasi `useState`; versi halaman tanpa `gate` → tanpa banner.
+  Dampak: Sedang — user bisa mengisi di satu pintu, mengira tersimpan, lalu ke pintu lain dan mendapati isian kosong/tanpa banner. Perilaku persis = keputusan user, tapi membingungkan bila tidak dilabeli.
+  Mitigasi: (1) keputusan final D-6 (hapus menu / dua pintu / arsip) ditinjau setelah uji browser manual lulus — tercatat di `QUESTIONS.MD` + `STATE.MD`; (2) kalau dibiarkan dua pintu, pertimbangkan label/penanda di UI pada sprint berikut.
+  Status: OPEN (by design, keputusan user D-4).
+
+⚠️ [Sedang] RISIKO: Sprint 018 lulus browser test dengan **fixture sintetis**, bukan data BKU nyata xcode.
+  FAKTA (2026-10-22): 89 asersi browser PASS (T-17 31 · T-18 51 · T-19 7) memakai 15 transaksi seed di `localStorage` (kode rekening/kegiatan buatan, 3 guru + 1 tendik). Data asli ARKAS punya variasi yang tidak tercakup: NoBukti sama lintas bulan, uraian multi-baris, kode rekening belum dipetakan, nominal besar, bulan tanpa data.
+  Dampak: Sedang — bug bisa muncul hanya pada bentuk data tertentu (mis. kandidat dropdown kosong padahal ada baris mirip, prefill nominal salah).
+  Mitigasi: (1) uji ulang alur T-17 dengan data BKU asli sebelum dipakai sekolah; (2) fixture bisa direproduksi dari `D:/project/scratch-pw/cek-018-seed.cjs` (di luar repo); (3) bila kandidat tak muncul, periksa `kodeKegiatan` baris (kriteria A-1) lebih dulu.
+  Status: OPEN.
+
+⚠️ [Rendah] RISIKO: dua file melewati batas modul yang disepakati — `utils/previewDocs.js` 486 baris (batas 480) dan `utils/aturanMamin.js` 202 (batas 200).
+  FAKTA (2026-10-22, gate G-5): kelebihan 5 dan 2 baris; tidak dirapikan karena perbaikan menyentuh kode yang sudah lulus oracle + hash baseline.
+  Dampak: Rendah — batas modul adalah konvensi keterbacaan, bukan perilaku.
+  Mitigasi: rapikan pada sprint berikutnya yang memang menyentuh dua file itu (jangan refactor di luar cakupan).
+  Status: OPEN (diterima sebagai deviasi D-5 di `BUILD-REPORT.MD`).
+
+⚠️ [Sedang] RISIKO: klaim "preview = cetakan" (R-1) BELUM dibuktikan untuk Sprint 018 — tidak ada perbandingan PDF cetak vs Panel Preview.
+  FAKTA (2026-10-22): AF-03 & AF-04 butir cetak bertanda `[ ]` di `ACCEPTANCE.MD`; yang terbukti baru urutan dokumen (LPJ→PBJ), sufiks " PBJ", dan isi preview (NIP, kolom TTD, nominal).
+  Dampak: Sedang — area cetak Mamin dan `maminDocs()` adalah dua builder terpisah (temuan 2026-10-21). Kalau merge otomatis hanya masuk satu jalur, layar dan kertas bisa berbeda tanpa terdeteksi.
+  Mitigasi: (1) cetak satu set Mamin (Undangan · Pesanan ×2 · Notulen · Daftar Hadir · Buku Tamu) ke PDF lalu bandingkan teksnya dengan panel preview; (2) pola uji cetak tanpa server sudah ada di memori proyek (`renderToStaticMarkup` + CSS `dist/` → `file://` → `page.pdf`).
+  Status: OPEN.
+
+⚠️ [Sedang] RISIKO: label toggle "Rincian Pesanan" BEDA antara sidebar BKU dan halaman Dokumen LPJ — `Nasi Box (6)` vs `Seksi Nasi Box (6)`.
+  FAKTA (2026-10-22 17:0x): permintaan user poin 3 = buang kata "Seksi" dari UI; poin 5 = samakan form rincian pesanan dengan halaman LPJ. Dua permintaan ini bertabrakan tepat di satu label. Keputusan yang diambil: buang kata "Seksi" (deviasi D-7). Struktur, penomoran global, kolom, dan isi menu IDENTIK — dibuktikan uji paritas P2–P8 (8/8 PASS).
+  Dampak: Sedang — user bisa melihatnya sebagai "belum sama" saat membandingkan dua halaman berdampingan, lalu meminta perbaikan lagi.
+  Mitigasi: satu baris di `MaminPesananRincian.jsx` (`SEKSI[].label`). Kalau user memilih "persis sama", ubah ke `Seksi Nasi Box (…)`; kalau memilih konsisten premium, rapikan juga label di `DokumenFormPreview.jsx:1330`. Keputusan dititipkan di `STATE.MD` Langkah Selanjutnya butir 4.
+  Status: OPEN (menunggu keputusan user).
+
+⚠️ [Rendah] RISIKO: dua komponen dipecah (`MaminDaftarHadirTabel`, `MaminPesananRincian`) → perubahan tabel/rincian kini menyentuh 2 berkas.
+  FAKTA (2026-10-22): `MaminSeksi2DaftarHadir` 212 dan `MaminSeksi4Pesanan` 213 melewati batas 200 (G-5) setelah revisi UI. Dipecah menjadi 131+119 dan 100+134.
+  Dampak: Rendah — risiko "lupa mengubah pasangannya" saat menyetel tampilan tabel/rincian.
+  Mitigasi: komponen baru bersifat presentational (state tetap di induk), jadi logika tidak terduplikasi. Uji `cek-018-revisi.cjs` (R4/R5) + `cek-018-paritas.cjs` menjaga keduanya.
+  Status: MITIGATED.
+
+✅ [Sedang → SELESAI] RISIKO: kolom input lentur (`flex-1`) menyusut ~18px sehingga teks tidak terlihat — kolom tampak kosong walau datanya ada.
+  FAKTA (2026-10-22 17:2x): `MaminPesananRincian` (Uraian) & `MaminSeksi5BukuTamu` (Nama) memakai `${INPUT_SM} flex-1` padahal `INPUT_SM` mengandung `w-full`. Ukur DOM: `width:18px`, `clientWidth:16`, `scrollWidth:119` → teks "Ayam Goreng Kremes" terpotong total. Sumber LPJ (`DokumenFormPreview.jsx:1389`) hanya memakai `flex-1` tanpa `w-full`.
+  Dampak: Sedang bila lolos — user melihat 10 baris pesanan kosong dan menganggap data hilang, padahal tersimpan.
+  Mitigasi: kelas dasar dipisah dari utilitas lebar (`DASAR` + `flex-1 min-w-0` / `w-16` / `w-14`); asersi penjaga R5.8/R5.9 (lebar ≥300px DAN `scrollWidth <= clientWidth + 2`) ditambahkan ke `cek-018-revisi.cjs`.
+  Status: RESOLVED (diverifikasi: lebar kolom Uraian >800px, teks tampil; 128 PASS / 0 FAIL).
+
+⚠️ [Rendah] RISIKO: grid global `.template-engine td/th { border: 1px solid #d1d5db }` dihapus — baru diverifikasi di LAYAR, hasil CETAK/PDF belum dibandingkan.
+  FAKTA (2026-10-22 17:3x): akar "garis tipis" = aturan grid global itu, bukan kelas di tiap komponen. Dihapus dari `index.css`; tabel sah tetap bergaris karena punya kelas sendiri (`border-gray-300`, `.spd-tabel`, `.kas-tabel`, `.pajak-tabel`). Audit 15 kertas hasil render × 2 kategori → 0 sel bergaris tanpa kelas tabel (uji `cek-019-garis.cjs` G1–G7, 7/7 PASS).
+  Dampak: Rendah — bila ada komponen yang ternyata MENGANDALKAN grid global untuk cetak (mis. tabel yang lupa diberi kelas), ia akan tercetak tanpa garis. Di layar sudah 0 temuan.
+  Mitigasi: cetak satu set dokumen bertabel (DAFTAR HADIR · SURAT PESANAN · Register Kas · SPD) ke PDF, pastikan garis tabel masih ada dan dokumen surat (UNDANGAN/NOTULEN/BUKU TAMU) bersih tanpa garis. Belum dikerjakan.
+  Status: OPEN.
+
+⚠️ [Sedang] RISIKO: kartu panel preview kini setinggi KERTAS (297/330mm) sehingga lebih tinggi dari viewport biasa.
+  FAKTA (2026-10-22 18:0x): permintaan user "tinggi card panel preview = tinggi kertas". Kartu A4 terukur 1305px (area dokumen 1153px) pada viewport 1000px. Sudah ditangani: toolbar `sticky` dilepas (menempel viewport → menabrak header app), kolom preview layout `side` diberi `max-h-[calc(100vh-104px)] + overflow-y-auto` supaya `sticky` tidak memaku kartu yang lebih tinggi dari layar.
+  Dampak: Sedang — pada layout `stack` (sidebar BKU) dengan 3 dokumen, area dokumen menampung 1 lembar dan sisanya digulir di dalam; halaman jadi lebih panjang. Pada layar pendek (<800px) area kertas bisa mendominasi layar.
+  Mitigasi: uji di viewport 768×800 dan 1366×768; bila terlalu tinggi, ubah `tinggiArea` menjadi `min(calc(kertas+30px), calc(100vh-140px))` — satu baris di `PanelPreviewDocument.jsx`.
+  Status: OPEN (sebagian ditangani, belum diuji di layar kecil).
+
+⚠️ [Rendah] RISIKO: `sinkronPbjDariSumber` MENIMPA nilai turunan PBJ (tanggalSurat, kegiatan) — entri PBJ lama yang sudah disimpan bisa berubah saat dibuka lagi.
+  FAKTA (2026-10-22 18:0x): field turunan sengaja ditimpa (bukan hanya diisi bila kosong) supaya PBJ mengikuti Nama Kegiatan. Entri tersimpan yang `kegiatan`-nya diketik manual akan diganti `formData.acara` saat baris dibuka.
+  Dampak: Rendah — perilaku ini yang diminta user ("Kegiatan/Pekerjaan bisa diambil dari nama kegiatan sebelumnya"), tetapi user yang pernah mengetik berbeda akan melihat nilainya berubah tanpa pemberitahuan.
+  Mitigasi: bila user ingin nilai manual dipertahankan, ubah `sinkronPbjDariSumber` menjadi hanya-mengisi-kosong (seperti `prefillPbjDariBku`) — satu baris, dan tambahkan tombol "kembalikan ke Nama Kegiatan".
+  Status: OPEN (menunggu keputusan user bila keberatan).
+
+⚠️ [Rendah] RISIKO: tempat TTD pindah kunci `tempat` → `tempatTtd` — isian lama bisa "hilang".
+  FAKTA (2026-10-22 18:2x): `SignatureFooter` dulu membaca `data.tempat`. Entri yang tersimpan dan sempat diubah tempat TTD-nya lewat input mode edit akan menampilkan "Cikalongwetan" lagi setelah perubahan ini (nilai lamanya masih ada di `tempat`, hanya tidak dibaca lagi).
+  Dampak: Rendah — perilaku baru sesuai permintaan user (default Cikalongwetan), tetapi user yang pernah mengubah manual akan melihat perubahannya.
+  Mitigasi: bila perlu, migrasi sekali jalan: `formData.tempatTtd = formData.tempatTtd || formData.tempat` saat memuat entri lama. Belum dikerjakan karena justru akan mengembalikan bug "Ruang Rapat …" untuk data lama.
+  Status: OPEN (diterima sadar).
+
+⚠️ [Rendah] RISIKO: baris "di"/"tempat" kini dicetak dari NILAI default, bukan label — user yang sengaja mengosongkannya akan melihat "[ di]" lagi.
+  FAKTA (2026-10-22 18:4x): field `diUndangan`/`tempatUndangan`/`diPesanan`/`tempatPesanan` diberi label `''` + default nilai `'di'`/`'tempat'` agar blok penerima surat tidak lagi mencetak "Di Di" / "Di Di tempat". Bila user mengosongkan nilai di mode edit, `TabelLetterHeader` merender `<PlaceholderText label="">` → "[ di]" muncul lagi (persis gejala lama, sebab berbeda).
+  Dampak: Rendah — hanya pada entri yang sengaja dikosongkan; cetakan baku tetap "di"/"tempat".
+  Mitigasi: bila placeholder kosong terlihat lagi, tambahkan penjaga di `TabelLetterHeader` — nilai `''` pada field ini jatuh kembali ke `'di'`/`'tempat'` saat render (satu baris, belum dikerjakan karena belum diminta).
+  Status: OPEN (diterima sadar).

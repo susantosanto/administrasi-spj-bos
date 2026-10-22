@@ -43,6 +43,10 @@ export default function DetailDokumenLpj({
   getTemplateConfig = () => null,
   layout = 'side',
   gate = null,
+  // Sprint 018: varian form + info baris BKU (form Mamin 6 seksi di sidebar).
+  varianForm = 'lama',
+  bkuInfo = null,
+  blokTambahan = null,
   isAnimating = false,
   detailRef = null,
   tampilkanFooter = true,
@@ -104,6 +108,9 @@ export default function DetailDokumenLpj({
               getTemplateConfig={getTemplateConfig}
               layout={layout}
               gate={gate}
+              varianForm={varianForm}
+              bkuInfo={bkuInfo}
+              blokTambahan={blokTambahan}
               isSpecial={isSpecial}
             />
           ) : (

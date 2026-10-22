@@ -17,22 +17,17 @@ import PaperSizeSelector from './PaperSizeSelector'
 import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 import { sorotPelanggaran } from './SummaryCard'
 
-function ScaledPaper({ doc, zoom }) {
+/** Tinggi/lebar kertas terpilih (A4 / F4) untuk satu orientasi. */
+function ukuranKertas(kertas, landscape) {
+  if (landscape) return { lebar: '297mm', tinggi: '210mm' }
+  return kertas === 'F4' ? { lebar: '215.9mm', tinggi: '330mm' } : { lebar: '210mm', tinggi: '297mm' }
+}
+
+function ScaledPaper({ doc, zoom, kertas }) {
   const wrapRef = useRef(null)
   const paperRef = useRef(null)
   const landscape = doc.templateConfig?.orientation === 'landscape'
-  const [kertas, setKertas] = useState(getPaperSize())
-
-  // Ikut pilihan kertas user (A4/F4) tanpa reload.
-  useEffect(() => {
-    const sinkron = (e) => {
-      if (e?.detail?.paper) setKertas(e.detail.paper)
-    }
-    window.addEventListener(PAPER_EVENT, sinkron)
-    return () => window.removeEventListener(PAPER_EVENT, sinkron)
-  }, [])
-  const lebar = landscape ? '297mm' : (kertas === 'F4' ? '215.9mm' : '210mm')
-  const tinggi = landscape ? '210mm' : (kertas === 'F4' ? '330mm' : '297mm')
+  const { lebar, tinggi } = ukuranKertas(kertas, landscape)
 
   // Skala-agar-muat via mutasi DOM langsung (tanpa React state) — anti-loop
   // by design: tak ada setState sehingga tak mungkin nested-update storm.
@@ -50,7 +45,14 @@ function ScaledPaper({ doc, zoom }) {
       const avail = Math.max(1, wrap.clientWidth - padX - 2)
       const natural = paper.offsetWidth || 1
       const scale = +(Math.min(1, avail / natural) * zoom).toFixed(4)
-      paper.style.transform = `scale(${scale})`
+      // ⚠️ TEMUAN USER 2026-10-22: "posisi dokumen di pinggir bukan di tengah".
+      // `transform-origin: top left` + scale membuat kertas selalu menempel di
+      // tepi kiri (terukur: jarak kiri 8px, kanan 575px). Digeser sebesar sisa
+      // ruang dibagi dua supaya kertas benar-benar di tengah kiri-kanan.
+      // translateX di DEPAN scale → satuan px induk (tidak ikut diperkecil).
+      const sisa = avail - natural * scale
+      const geser = landscape ? Math.max(0, sisa / 2) : sisa / 2
+      paper.style.transform = `translateX(${geser.toFixed(2)}px) scale(${scale})`
       wrap.style.height = `${Math.round(paper.offsetHeight * scale) + Math.round(padY)}px`
     }
     measure()
@@ -106,6 +108,26 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
   const [fsGagal, setFsGagal] = useState(false)
   const [isFs, setIsFs] = useState(false)
   const panelRef = useRef(null)
+
+  // ⚠️ TEMUAN USER 2026-10-22: "tinggi card panel preview = tinggi kertas
+  // (A4/F4) sesuai pilihan". Sebelumnya tinggi kartu dipatok
+  // `100vh - 104px` sehingga satu lembar A4 (297mm ≈ 1123px) TERPOTONG di
+  // tengah dan harus di-scroll di dalam kartu. Sekarang area dokumen memakai
+  // tinggi kertas terpilih; kartu ikut memanjang, halaman yang men-scroll.
+  const [kertas, setKertas] = useState(getPaperSize())
+  useEffect(() => {
+    const sinkron = (e) => {
+      if (e?.detail?.paper) setKertas(e.detail.paper)
+    }
+    window.addEventListener(PAPER_EVENT, sinkron)
+    return () => window.removeEventListener(PAPER_EVENT, sinkron)
+  }, [])
+  // Orientasi ikut dokumen pertama (kartu ini menampung satu set dokumen yang
+  // orientasinya sama). +30px = baris judul dokumen (figcaption) di atas kertas.
+  const lanskap = docs[0]?.templateConfig?.orientation === 'landscape'
+  const tinggiKertas = ukuranKertas(kertas, lanskap).tinggi
+  const tinggiArea = `calc(${tinggiKertas} + 30px)`
+
   const zoomIn = () => setZoom((z) => Math.min(1.5, +(z + 0.25).toFixed(2)))
   const zoomOut = () => setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))
   const bukaFullscreen = () => {
@@ -149,7 +171,7 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
   const bisaCetak = cetakAktif ?? lengkap
 
   return (
-    <div ref={panelRef} className="panel-preview-root print:hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
+    <div ref={panelRef} className="panel-preview-root print:hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <style>{`.panel-preview-root .template-engine input,.panel-preview-root .template-engine textarea,.panel-preview-root .template-engine select{pointer-events:none}
 .sprint008-dot{width:8px;height:8px;border-radius:9999px;background-color:#004ac6;animation:sprint008-pulse 1.6s ease-in-out infinite}
 @keyframes sprint008-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
@@ -194,7 +216,10 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
         </div>
       )}
       {status && (
-        <div className="sticky top-0 z-10 px-4 py-3 border-b border-slate-100 space-y-2 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.02)]">
+        // ⚠️ `sticky top-0` DILEPAS 2026-10-22: sejak kartu tidak lagi menjadi
+        // wadah scroll (tingginya = tinggi kertas), sticky menempel ke VIEWPORT
+        // dan bertabrakan dengan header aplikasi (terlihat di screenshot).
+        <div className="relative z-10 px-4 py-3 border-b border-slate-100 space-y-2 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.02)]">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500" aria-live="polite">
               <span className="sprint008-dot" aria-hidden="true" />
@@ -249,12 +274,16 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
           )}
         </div>
       )}
-      <div className="p-3 space-y-4 bg-slate-100/60">
+      <div
+        className="p-3 space-y-4 bg-slate-100/60 overflow-y-auto [scrollbar-gutter:stable]"
+        style={{ maxHeight: tinggiArea }}
+        data-area-dokumen=""
+      >
         {docs.length === 0 && (
           <p className="text-sm text-slate-500 bg-white rounded-xl border border-slate-200 p-4">Template belum tersedia untuk panel ini.</p>
         )}
         {docs.map((d) => (
-          <ScaledPaper key={d.key} doc={d} zoom={zoom} />
+          <ScaledPaper key={d.key} doc={d} zoom={zoom} kertas={kertas} />
         ))}
       </div>
     </div>

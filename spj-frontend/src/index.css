@@ -485,7 +485,14 @@ body {
 
 .template-engine th,
 .template-engine td {
-  border: 1px solid #d1d5db;
+  /* ⚠️ TEMUAN USER 2026-10-22 ("di dokumen yang non tabel ada garis-garis tipis,
+     hilangkan untuk semua format dokumen non tabel"): grid abu-abu #d1d5db
+     dulu dipasang ke SETIAP sel, sehingga SURAT UNDANGAN / SURAT TUGAS / SK
+     tampil seperti tabel penuh (blok label:nilai ikut bergaris).
+     Sekarang TIDAK ada grid global. Tabel yang MEMANG perlu garis menyatakan
+     sendiri: `.spd-tabel` (hitam 1px), `.pajak-tabel` (hitam), `.kas-tabel`
+     (titik, inline), dan `TabelDinamis` (`border border-gray-300` per sel).
+     Blok surat memakai `.surat-polos` (lihat aturan di bawah). */
   padding: 4px 8px;
   text-align: left;
 }
@@ -507,6 +514,38 @@ body {
 .template-engine .kas-tabel th,
 .template-engine .kas-tabel td {
   border: 0;
+}
+
+/* ═══ SURAT POLOS — dokumen NON-TABEL tanpa garis tipis (2026-10-22) ═══
+   Dipakai blok surat: `SuratUndangan`, `SuratTugas`, `TabelLetterHeader`,
+   `TabelFields`, `InfoKeuangan`, `HeaderDokumen`, `SignatureFooter`,
+   `UraianKegiatan`. Grid sel, garis putus-putus antar baris, dan garis
+   bawah field semuanya DIHILANGKAN — di layar MAUPUN di cetak, supaya
+   pratinjau = hasil cetak. Garis field muncul lagi saat hover/fokus saja
+   (petunjuk bahwa field bisa diklik), jadi tidak hilang fungsinya. */
+.template-engine .surat-polos th,
+.template-engine .surat-polos td,
+.template-engine .surat-polos tr {
+  border: 0;
+}
+
+.template-engine .surat-polos input,
+.template-engine .surat-polos textarea,
+.template-engine .surat-polos select {
+  border-color: transparent;
+}
+
+.template-engine .surat-polos input:hover,
+.template-engine .surat-polos textarea:hover,
+.template-engine .surat-polos input:focus,
+.template-engine .surat-polos textarea:focus {
+  border-color: #94a3b8;
+}
+
+/* Garis putus-putus dekoratif (bukan tabel) di dokumen surat */
+.template-engine .surat-polos .border-dashed {
+  border-style: solid;
+  border-color: transparent;
 }
 
 /* RINCIAN PAJAK (sprint-014): sumber PAKAI grid hitam — tepi MEDIUM (2px),

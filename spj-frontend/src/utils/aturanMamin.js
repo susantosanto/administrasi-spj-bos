@@ -125,6 +125,9 @@ export function templateDaftarHadir({ acara = '', orang = [], jenis = '' } = {})
     rows.push({
       id: o.nip || o.nuptk || nama,
       nama,
+      // Sprint 018 (K-9): NIP ikut ke baris (tercetak di Daftar Hadir).
+      // Honorer tanpa NIP → kosong (jujur, bukan dikarang).
+      nip: o.nip || o.nuptk || '',
       jabatan: satuBaris(o.jabatan),
       ttd: '',
       ttd2: '',
