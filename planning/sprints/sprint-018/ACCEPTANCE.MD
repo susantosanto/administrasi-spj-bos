@@ -462,5 +462,4 @@ karena `indexOf` polos menemukan kata "Buku Tamu" di teks penjelas seksi 1
 
 ### 11.5 Keadaan repo saat penutupan
 
-- Branch `main` @ `c149a28` (**ahead 1, belum di-push**); working tree **22 file berubah + 21 untracked** (kode baru sprint, pack sprint-018, 2 scratch encoding `diag-encoding.mjs`/`fix-encoding.mjs` — alat perbaikan mojibake sekali-pakai, tidak direferensi kode mana pun).
-- **Belum di-commit** — menunggu kuasa user (aturan repo: dry run → lapor → tunggu user).
+- **COMMIT PENUTUPAN: `6fb9970`** — 59 berkas (+6053/−266), badan pesan mencantumkan 3 fitur inti + 5 putaran revisi + bukti gate + catatan scope (2 scratch encoding & pack masuk commit). Branch `main` **ahead 1, BELUM di-push** (kuasa user).

@@ -517,8 +517,7 @@ folder backup diperbarui; salinan sementara di `spj-frontend/` dihapus lagi (C-0
 
 ### 14.3 Keadaan repo
 
-`main` @ `c149a28` (ahead 1, belum di-push) · 22 file berubah + 21 untracked.
-**Belum di-commit** — menunggu kuasa user (aturan repo: dry run → lapor → tunggu user).
+**COMMIT PENUTUPAN: `6fb9970`** (2026-10-22 20:1x, kuasa user) — 59 berkas (+6053/−266). Branch `main` **ahead 1, BELUM di-push** (kuasa user; `git push` butuh pola retry karena credential helper rusak).
 
 ### 14.4 Baseline render halaman LPJ — hash BARU (referensi sprint berikutnya)
 
