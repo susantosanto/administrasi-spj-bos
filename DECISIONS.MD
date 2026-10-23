@@ -9,6 +9,18 @@
 
 ## Daftar Keputusan
 
+[2026-10-23] Keputusan: Sprint 019 — hapus 4 pintu mati sidebar/topbar, rename "Data BKU"→"Kas & Dokumen", tab Dokumentasi dihapus total (blok pindah ke tab Dokumen LPJ), toolbar sticky + chip progres/banner clickable
+  Status: accepted
+  Alasan: keputusan user eksplisit di pack Sprint 019 (K-1/K-2/K-3/K-9 hapus; K-4 rename; K-5 tab dihapus untuk SEMUA baris termasuk pajak; K-6 blok sebelum Panel Preview; D-1 "setuju" tanpa reorder penuh — prioritas via chip + sorotPelanggaran + banner clickable)
+  Dibuat oleh: user (pack) + builder (eksekusi)
+  Dampak: BKUSidebar.jsx 823→539 baris; komponen baru BKUSidebarDokumentasi.jsx (232); prop baru `blokDokumentasi`/`onSorot` (BKUSidebarLpj→DetailDokumenLpj→Body — halaman LPJ tidak mengoper → hash utuh); BKUSidebarLpjToolbar sticky top-16 + chip; `id="f-nomor"` di MaminSeksi1Dasar; Coretax tetap (K-8); string konsep-data "Data BKU" (toast/aiConfig/intentClassifier/BKUUploadPdf) tidak di-rename
+
+[2026-10-23] Keputusan: chip/banner kelengkapan memakai `pelanggaran` (readinessSidebar, punya fieldId), bukan `gate.kurang` (cekKelengkapan, hanya {key,label})
+  Status: accepted
+  Alasan: `sorotPelanggaran(v)` butuh `v.fieldId` untuk `getElementById`; `gate.kurang` tidak punya fieldId sehingga chip dari sana tidak bisa menyorot
+  Dibuat oleh: builder (temuan saat verifikasi)
+  Dampak: banner Zona B & chip toolbar menyorot field yang BENAR-benar punya input di sidebar; field tanpa target DOM (mis. "Daftar isi/penerima", fieldId null) → fallback toast (perilaku jujur sorotPelanggaran)
+
 [2026-10-01] Keputusan: Setiap uji browser wajib tawarkan 2 mode — otomatis (agent) atau manual (user checklist)
   Status: accepted
   Alasan: perintah user langsung; backend browser agent tidak stabil (mati tengah sesi Sprint 003); uji manual user terbukti jadi jaring pengaman (001/002/003)

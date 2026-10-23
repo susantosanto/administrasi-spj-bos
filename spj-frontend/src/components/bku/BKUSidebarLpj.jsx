@@ -47,6 +47,9 @@ export default function BKUSidebarLpj({
   allTransactions = [],
   onNavigate = null,
   blokPbj = null,
+  blokDokumentasi = null,
+  // Sprint 019 revisi: dokumen foto (upload + generate AI) → Panel Preview utama.
+  fotoDocs = [],
 }) {
   const card = cardBerpanel(kategori)
   const toast = useToast()
@@ -193,6 +196,12 @@ export default function BKUSidebarLpj({
     if (!sorotPelanggaran(pertama)) toast.info(pertama.label)
   }
 
+  // Sprint 019 (D-1): chip/banner klik → sorot field pertama yang bermasalah.
+  const sorot = (v) => {
+    if (!v) return
+    if (!sorotPelanggaran(v)) toast.info(v.label)
+  }
+
   const handleCetak = () => {
     snapshotSebelumTimpa(
       { ...formData, sppdData: { ...sppdData } },
@@ -224,6 +233,8 @@ export default function BKUSidebarLpj({
         savedAt={savedAt}
         bisaSimpan={bisaSimpan}
         onSimpan={handleSimpan}
+        pelanggaran={pelanggaran}
+        onSorot={sorot}
       />
 
       <DetailDokumenLpj
@@ -268,6 +279,9 @@ export default function BKUSidebarLpj({
             onModeChange={ubahModePbj}
           />
         )}
+        blokDokumentasi={blokDokumentasi}
+        fotoDocs={fotoDocs}
+        onSorot={sorot}
       />
     </div>
   )

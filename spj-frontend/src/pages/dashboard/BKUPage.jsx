@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -83,7 +82,6 @@ export default function BKUPage() {
   const [grupExpand, setGrupExpand] = useState({})
   const toggleGrup = (key) => setGrupExpand((prev) => ({ ...prev, [key]: !prev[key] }))
   const toast = useToast()
-  const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
   // Satu definisi ringkasan untuk KEDUA pintu masuk (Excel & PDF).
@@ -350,10 +348,10 @@ export default function BKUPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-100/80">
-      <Topbar title="Data BKU" subtitle="Upload BKU Excel sebagai referensi pembuatan dokumen" />
+      <Topbar title="Kas & Dokumen" subtitle="Kelola kas BKU dan dokumen LPJ, Kelengkapan, Pajak dari baris belanja" />
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
-        {/* ── Upload Toggle Buttons + Sprint 011 titik Kirim ke PBJ ──
+        {/* ── Upload Toggle Buttons ──
             Dua pintu upload (Excel & PDF) SALING EKSKLUSIF: hanya satu
             panel hero yang tampil. Dua kotak upload bertumpuk terasa/nonpremium. */}
         <div className="flex flex-wrap items-center gap-2">
@@ -379,14 +377,6 @@ export default function BKUPage() {
         >
           <span className="material-symbols-outlined text-lg">{showUploadPdf ? 'close' : 'picture_as_pdf'}</span>
           {showUploadPdf ? 'Tutup Import PDF' : 'Upload PDF'}
-        </button>
-        <button
-          onClick={() => navigate('/dashboard/dokumen-kelengkapan?dok=PBJ')}
-          title="Buka keranjang PBJ — kandidat dari transaksi PEMBAYARAN"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
-        >
-          <span className="material-symbols-outlined text-lg">move_to_inbox</span>
-          Kirim ke PBJ
         </button>
         </div>
 

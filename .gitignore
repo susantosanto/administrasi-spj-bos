@@ -68,6 +68,7 @@ Nul.*
 .intent/
 .playwright-mcp/
 pencil.dev/
+.ijfw/
 
 # Log dev server + screenshot bukti (artefak kerja agent, bukan bagian repo)
 *.log

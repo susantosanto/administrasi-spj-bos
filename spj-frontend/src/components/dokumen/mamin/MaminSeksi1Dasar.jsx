@@ -66,6 +66,7 @@ export default function MaminSeksi1Dasar({ formData = {}, setFormData, bku = {},
         <div className="flex items-center gap-2">
           <input
             type="text"
+            id="f-nomor"
             value={formData.nomor || ''}
             onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
             placeholder="422.1/UND-001/SDN-PSR/VII/2026"

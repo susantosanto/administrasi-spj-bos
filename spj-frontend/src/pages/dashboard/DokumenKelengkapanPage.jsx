@@ -1566,7 +1566,7 @@ export default function DokumenKelengkapanPage() {
               Hanya yang belum berdokumen {bkuHanyaBaru ? '(aktif)' : '(mati — tampil semua)'}
             </label>
             {bkuCache.length === 0 ? (
-              <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Belum ada data BKU — upload BKU Excel dulu di halaman Data BKU.</p>
+              <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Belum ada data BKU — upload BKU Excel dulu di halaman Kas & Dokumen.</p>
             ) : bkuGrup.length === 0 ? (
               <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Tidak cocok — ubah kata kunci, rentang tanggal, atau matikan toggle belum-berdokumen.</p>
             ) : (

@@ -37,6 +37,14 @@ export default function DetailDokumenLpjBody({
   varianForm = 'lama',
   bkuInfo = null,
   blokTambahan = null,
+  // Sprint 019 (K-6): blok Dokumentasi foto (BKUSidebarDokumentasi) — render
+  // setelah blok PBJ, sebelum Panel Preview. Halaman LPJ tidak mengoper.
+  blokDokumentasi = null,
+  // Sprint 019 revisi: dokumen foto (upload + generate AI) — digabung ke
+  // Panel Preview utama (setelah dokumen LPJ). Halaman LPJ tidak mengoper.
+  fotoDocs = [],
+  // Sprint 019 (D-1): chip banner gate klik → sorotPelanggaran(v).
+  onSorot = null,
   isSpecial = false,
 }) {
   const isTransport = card?.isTransport
@@ -86,16 +94,35 @@ export default function DetailDokumenLpjBody({
             `blokTambahan` → blok ini tidak muncul di sana. */}
         {blokTambahan}
 
+        {/* Sprint 019 (K-6): blok Dokumentasi foto — pindahan tab "Dokumentasi".
+            Hanya sidebar yang mengoper; halaman LPJ tidak → hash tidak berubah. */}
+        {blokDokumentasi}
+
         <aside className={asideClass}>
           <section aria-label="Zona B — Panel Preview Document">
             {/* Peringatan kelengkapan (keputusan user 2026-10-21: preview SELALU tampil,
-                gate hanya memberi tahu field wajib yang belum terisi). */}
+                gate hanya memberi tahu field wajib yang belum terisi).
+                Sprint 019 (D-1): kalau `onSorot` dioper, daftar field jadi chip
+                yang bisa diklik → sorotPelanggaran (field pertama yang bermasalah).
+                `pelanggaran` dipakai (bukan gate.kurang) karena punya fieldId. */}
             {gate && !gate.lengkap && (
               <div className="print:hidden mb-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-600 flex items-start gap-2">
                 <span className="material-symbols-outlined text-slate-400 text-base">info</span>
                 <span>
                   <span className="font-semibold text-slate-700">{gate.kurang.length} field wajib belum terisi</span>
-                  {gate.kurang.length > 0 ? `: ${gate.kurang.map((k) => k.label).join(', ')}` : ''}
+                  {onSorot && pelanggaran.length > 0 ? (
+                    <span className="flex flex-wrap gap-1.5 mt-1.5">
+                      {pelanggaran.map((p, i) => (
+                        <button
+                          key={`${p.fieldId || 'f'}-${i}`}
+                          onClick={() => onSorot(p)}
+                          className="px-2 py-0.5 rounded-full bg-white border border-slate-300 text-slate-700 hover:border-blue-400 hover:text-blue-700 transition-colors"
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </span>
+                  ) : gate.kurang.length > 0 ? `: ${gate.kurang.map((k) => k.label).join(', ')}` : ''}
                   {' — dokumen tetap bisa dilihat.'}
                 </span>
               </div>
@@ -103,7 +130,7 @@ export default function DetailDokumenLpjBody({
             <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h2>
             <PanelPreviewDocument
               title={`Panel Preview Document — ${card?.nama || ''}${selectedSub?.label ? ` — ${selectedSub.label}` : ''}`}
-              docs={previewDocs}
+              docs={[...previewDocs, ...fotoDocs]}
               status={{ perlu: pelanggaran.length, violations: pelanggaran }}
               onCek={onCek}
               onCetak={onCetak}

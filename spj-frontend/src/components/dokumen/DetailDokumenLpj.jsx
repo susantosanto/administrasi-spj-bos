@@ -47,6 +47,13 @@ export default function DetailDokumenLpj({
   varianForm = 'lama',
   bkuInfo = null,
   blokTambahan = null,
+  // Sprint 019 (K-6): blok Dokumentasi foto — hanya sidebar yang mengoper
+  // (BKUSidebarDokumentasi). Halaman LPJ tidak mengoper → hash tidak berubah.
+  blokDokumentasi = null,
+  // Sprint 019 revisi: dokumen foto digabung ke Panel Preview utama.
+  fotoDocs = [],
+  // Sprint 019 (D-1): chip/banner gate klik → sorot field (sorotPelanggaran).
+  onSorot = null,
   isAnimating = false,
   detailRef = null,
   tampilkanFooter = true,
@@ -111,6 +118,9 @@ export default function DetailDokumenLpj({
               varianForm={varianForm}
               bkuInfo={bkuInfo}
               blokTambahan={blokTambahan}
+              blokDokumentasi={blokDokumentasi}
+              fotoDocs={fotoDocs}
+              onSorot={onSorot}
               isSpecial={isSpecial}
             />
           ) : (

@@ -48,7 +48,7 @@ const FEATURES = [
   },
   {
     id: 'bku',
-    title: 'Data BKU',
+    title: 'Kas & Dokumen',
     subtitle: 'Import data dari ARKAS',
     description: 'Upload file BKU Excel untuk referensi pembuatan dokumen. Otomatis terdeteksi transaksi.',
     icon: 'upload_file',
@@ -256,7 +256,7 @@ export default function DashboardHome() {
                 to="/dashboard/bku"
                 className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
               >
-                Kelola di Data BKU
+                Kelola di Kas & Dokumen
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
             </div>
@@ -277,7 +277,7 @@ export default function DashboardHome() {
               </div>
               <div className="flex items-center justify-between mt-2">
                 <p className="text-[11px] text-slate-400">
-                  Centang checklist di halaman Data BKU untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
+                  Centang checklist di halaman Kas & Dokumen untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
                 </p>
                 <span className="text-xs font-bold text-primary">
                   {lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%
@@ -427,7 +427,7 @@ export default function DashboardHome() {
                   {[
                     { label: 'Dokumen LPJ', path: '/dashboard/dokumen-lpj' },
                     { label: 'Dokumen Kelengkapan', path: '/dashboard/dokumen-kelengkapan' },
-                    { label: 'Data BKU', path: '/dashboard/bku' },
+                    { label: 'Kas & Dokumen', path: '/dashboard/bku' },
                     { label: 'Data Sekolah', path: '/dashboard/data-sekolah' },
                   ].map((item) => (
                     <Link key={item.path} to={item.path} className="flex items-center gap-2 text-sm text-slate-600 hover:text-[#004ac6] transition-colors">

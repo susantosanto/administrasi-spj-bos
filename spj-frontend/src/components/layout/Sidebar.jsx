@@ -18,7 +18,7 @@ const MENU_GROUPS = [
     items: [
       { label: 'Data Sekolah', icon: 'school', path: '/dashboard/data-sekolah' },
       { label: 'Data Guru & Tendik', icon: 'groups', path: '/dashboard/data-guru' },
-      { label: 'Data BKU', icon: 'upload_file', path: '/dashboard/bku' },
+      { label: 'Kas & Dokumen', icon: 'upload_file', path: '/dashboard/bku' },
     ],
   },
   {

@@ -16,6 +16,7 @@ import { SKHonorer } from './blocks'
 import PaperSizeSelector from './PaperSizeSelector'
 import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 import { sorotPelanggaran } from './SummaryCard'
+import FotoDokumenPaper from './FotoDokumenPaper'
 
 /** Tinggi/lebar kertas terpilih (A4 / F4) untuk satu orientasi. */
 function ukuranKertas(kertas, landscape) {
@@ -94,6 +95,10 @@ function ScaledPaper({ doc, zoom, kertas }) {
         >
           {doc.kind === 'sk' ? (
             <SKHonorer data={doc.data} mode="preview" />
+          ) : doc.kind === 'foto' ? (
+            /* Sprint 019 revisi: dokumen foto (upload + generate AI) — satu
+               set dengan dokumen LPJ lain di panel utama (keputusan user). */
+            <FotoDokumenPaper data={doc.data} />
           ) : (
             <TemplateEngine templateConfig={doc.templateConfig} data={doc.data} mode="print" />
           )}

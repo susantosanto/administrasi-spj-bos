@@ -14,7 +14,7 @@ export const CONTEXT_MAP = {
     ],
   },
   bku: {
-    title: 'Data BKU', icon: 'account_balance',
+    title: 'Kas & Dokumen', icon: 'account_balance',
     quickChips: [
       { icon: '📊', label: 'Total pengeluaran Januari', question: 'Berapa total pengeluaran bulan Januari?' },
       { icon: '📊', label: 'Total pengeluaran Februari', question: 'Berapa total pengeluaran bulan Februari?' },

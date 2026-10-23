@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 /**
  * BKU Premium Sidebar
@@ -10,14 +9,15 @@ import { useNavigate } from 'react-router-dom'
  * Design 2026 — minimalis premium: permukaan solid putih, header tanpa blur,
  * tab pakai underline indicator (revisi user 2026-10-21).
  */
-import { detectTemplate } from '../../utils/templateDetector'
 import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan } from '../../utils/bkuKategori'
-import { isBpuBnu, SPJ_REQUIREMENTS, SPJ_PBJ_DOCS, SPJ_WAJIB_LUAR_ARKAS, detectSpjCategory } from '../../data/spjRequirements'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
-import DokumentasiAIGenerate from '../dokumentasi/DokumentasiAIGenerate'
 // Sprint 017: tab "Dokumen LPJ" — panel bersama, disimpan per NoBukti.
 import BKUSidebarLpj from './BKUSidebarLpj'
+// Sprint 019: blok Dokumentasi pindah ke tab "Dokumen LPJ" (tab Dokumentasi dihapus).
+import BKUSidebarDokumentasi from './BKUSidebarDokumentasi'
+// Sprint 019 revisi: state foto bersama (upload + AI) → Panel Preview utama.
+import useFotoDokumen from './useFotoDokumen'
 import { cardBerpanel } from '../../data/kategoriLpj'
 
 // ─── Constants ─────────────────────────────────────────────────
@@ -37,17 +37,6 @@ const TYPE_BADGES = {
 
 const fmt = (n) => (n ?? 0).toLocaleString('id-ID')
 
-// Peta kategori BKU → kategori dokumen SPJ (dinamis, bukan statis).
-// Kunci kiri = kategori dari bkuKategori (katEfektif.kategori).
-// Kunci kanan = key di SPJ_REQUIREMENTS.
-const KATEGORI_KE_SPJ = {
-  honor: 'HONOR',
-  perjalanan_dinas: 'PERJALANAN_DINAS',
-  mamin: 'MAMIN',
-  atk: 'PENGGANDAAN',
-  pemeliharaan: 'PEMELIHARAAN',
-}
-
 // ─── Helper: extract Saldo Awal ────────────────────────────────
 
 function getSaldoAwal(items) {
@@ -58,9 +47,7 @@ function getSaldoAwal(items) {
 // ─── Component ─────────────────────────────────────────────────
 
 export default function BKUSidebar({ transaction, allTransactions, onClose, onNavigate, showToast, onOpenMamin, onUpdateTransaction }) {
-  const navigate = useNavigate()
   const sidebarRef = useRef(null)
-  const fileInputRef = useRef(null)
 
   // ─── Guard kategori LPJ (Sprint 017) ─────────────────────────────────────
   // Dihitung SEBELUM useState supaya tab awal bisa langsung 'lpj': tanpa ini,
@@ -84,22 +71,11 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const isLpj = !!cardLpj
 
   const [activeTab, setActiveTab] = useState(isLpj ? 'lpj' : 'detail')
-  const [spjOpen, setSpjOpen] = useState(false)
-  const [spjChecked, setSpjChecked] = useState({})
-  const [uploadedPhotos, setUploadedPhotos] = useState([])
-  const [showPhotoPreview, setShowPhotoPreview] = useState(false)
-  const spjCardRef = useRef(null)
 
-  useEffect(() => {
-    const handler = (e) => {
-      const photo = e.detail
-      if (photo) {
-        setUploadedPhotos((prev) => [...prev, photo])
-      }
-    }
-    window.addEventListener('addGeneratedPhoto', handler)
-    return () => window.removeEventListener('addGeneratedPhoto', handler)
-  }, [])
+  // Sprint 019 revisi — foto dokumentasi (upload + AI), satu sumber kebenaran:
+  // daftar foto → blok Dokumentasi; dokumen A4 foto → Panel Preview (fotoDocs).
+  // Reset otomatis tiap ganti baris (di dalam hook, dep = transaction.row).
+  const foto = useFotoDokumen(transaction)
 
   if (!transaction) return null
 
@@ -134,10 +110,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   useEffect(() => {
     sidebarRef.current?.focus()
     setActiveTab(isLpj ? 'lpj' : 'detail')
-    setSpjOpen(false)
-    setSpjChecked({})
-    setUploadedPhotos([])
-    setShowPhotoPreview(false)
   }, [transaction, isLpj])
 
   // Tab Pajak/setor: baris SETOR pajak tidak punya dokumen LPJ — tombol aksi
@@ -186,75 +158,18 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   // lagi memakai tab "Detail" (permintaan user 2026-10-21) — isinya sudah terwakili
   // oleh panel LPJ (toolbar NoBukti · nominal · uraian) + kartu Ringkasan di panel.
   // Baris non-LPJ tetap "Detail" supaya tidak ada informasi yang hilang.
+  // Sprint 019 (K-5): tab "Dokumentasi" DIHAPUS untuk semua baris — bloknya pindah
+  // ke tab "Dokumen LPJ" (BKUSidebarDokumentasi). Tiap baris kini 1 tab → baris
+  // tab hilang otomatis (guard `tabs.length > 1`).
   const tabs = [
     ...(isLpj
       ? [{ id: 'lpj', label: 'Dokumen LPJ', icon: 'description' }]
       : [{ id: 'detail', label: 'Detail', icon: 'info' }]),
-    { id: 'dokumentasi', label: 'Dokumentasi', icon: 'photo_library' },
   ]
 
-  const handleDeepLink = () => {
-    if (!katEfektif) return
-    const tujuan = katEfektif.route === 'dokumen-kelengkapan'
-      ? '/dashboard/dokumen-kelengkapan'
-      : '/dashboard/dokumen-lpj'
-    navigate(tujuan, {
-      state: { fromBKU: true, ts: Date.now(), kategori: katEfektif.kategori, menu: katEfektif.menu, bku: bkuPrefill },
-    })
-    if (onClose) onClose()
-  }
-
-  // Auto-detect template (warisan — read-only)
-  const detectedTemplate = detectTemplate(transaction.kodeRekening)
-
-  // ── SPJ checklist DINAMIS ikut kategori transaksi ──
-  // Peta: kategori BKU (katEfektif) → SPJ_REQUIREMENTS; fallback ke deteksi
-  // kata-kunci/kode via detectSpjCategory agar selalu ada isi (bukan statis).
-  const spjCatKey = (katEfektif?.kategori && KATEGORI_KE_SPJ[katEfektif.kategori])
-    || detectSpjCategory(transaction)
-    || 'UMUM'
-  const spjCategory = SPJ_REQUIREMENTS[spjCatKey] || SPJ_REQUIREMENTS.UMUM
-  const spj = {
-    catKey: spjCatKey,
-    category: spjCategory,
-    groups: [
-      {
-        title: `Bukti Fisik — ${spjCategory.label}`,
-        icon: spjCategory.icon,
-        keterangan: spjCategory.keterangan,
-        items: spjCategory.items,
-      },
-      {
-        title: SPJ_PBJ_DOCS.label,
-        icon: SPJ_PBJ_DOCS.icon,
-        keterangan: SPJ_PBJ_DOCS.keterangan,
-        items: SPJ_PBJ_DOCS.items,
-      },
-      {
-        title: 'Dokumen Wajib (Luar Arkas)',
-        icon: 'folder_special',
-        keterangan: 'Hanya jika TIDAK melalui SIPLAH. Jika SIPLAH, cukup Dokumen PBJ di atas.',
-        items: SPJ_WAJIB_LUAR_ARKAS,
-      },
-    ],
-  }
-  // Tampil untuk belanja (PEMBAYARAN) atau BPU/BNU atau berkategori.
-  // Penerimaan murni tanpa kategori tetap dapat UMUM agar informatif.
-  const spjApplicable = Boolean(
-    transaction.tipe === 'PEMBAYARAN' || isBpuBnu(transaction) || katEfektif || spjCategory
-  )
-  const spjTotalItems = spj ? spj.groups.reduce((s, g) => s + g.items.length, 0) : 0
-  const spjCheckedCount = Object.values(spjChecked).filter(Boolean).length
-  const spjProgress = spjTotalItems ? Math.round((spjCheckedCount / spjTotalItems) * 100) : 0
-  // Nominal ringkasan + aksi Lihat Dokumen (scroll ke card SPJ)
+  // Nominal ringkasan
   const nominalRingkasan = transaction.pengeluaran || transaction.kredit
     || transaction.penerimaan || transaction.debet || 0
-  const handleLihatDokumen = () => {
-    setSpjOpen(true)
-    requestAnimationFrame(() => {
-      spjCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
 
   const handlePrev = () => {
     if (hasPrev && onNavigate) onNavigate(allTransactions[currentIdx - 1])
@@ -268,40 +183,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
     if (e.key === 'ArrowLeft') handlePrev()
     if (e.key === 'ArrowRight') handleNext()
     if (e.key === 'Escape') onClose()
-  }
-
-  // ── Foto bukti (Upload Dokumen Pendukung) ──
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files || [])
-    files.forEach((file) => {
-      if (!file.type.startsWith('image/')) return
-      const reader = new FileReader()
-      reader.onload = () => {
-        setUploadedPhotos((prev) => [
-          ...prev,
-          { id: `${Date.now()}-${Math.random()}`, name: file.name, dataUrl: reader.result, caption: '' },
-        ])
-      }
-      reader.readAsDataURL(file)
-    })
-    e.target.value = ''
-  }
-
-  const updatePhotoCaption = (id, val) => {
-    setUploadedPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, caption: val } : p)))
-  }
-
-  const removePhoto = (id) => {
-    setUploadedPhotos((prev) => prev.filter((p) => p.id !== id))
-  }
-
-  const printPhotoDoc = () => {
-    const printContainer = document.querySelector('.print-container')
-    if (printContainer) {
-      printContainer.classList.remove('portrait', 'landscape')
-      printContainer.classList.add('portrait')
-    }
-    window.print()
   }
 
   return (
@@ -425,70 +306,24 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                 <dd className="text-sm font-semibold text-slate-900 font-mono">{transaction.noBukti || '-'}</dd>
               </div>
             </dl>
-            <div className="grid grid-cols-2 gap-2.5 mt-3">
-              {isSetorPajak ? (
-                <>
-                  <a
-                    href={CORETAX_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Bayar pajak via Coretax DJP (tab baru)"
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-                  >
-                    <span className="material-symbols-outlined text-lg">open_in_new</span>
-                    Bayar via Coretax
-                  </a>
-                  {/* Tampilkan jenis pajak hasil deteksi dari uraian */}
-                  <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 text-primary text-sm font-semibold border border-primary/20">
-                    <span className="material-symbols-outlined text-lg">receipt_long</span>
-                    {deteksiJenisPajak(transaction.uraian) || 'Jenis pajak tidak dikenali'}
-                  </div>
-                </>
-              ) : katEfektif ? (
-                <button
-                  onClick={handleDeepLink}
-                  title={`Buka di ${katEfektif.menu}`}
+            {isSetorPajak && (
+              <div className="grid grid-cols-2 gap-2.5 mt-3">
+                <a
+                  href={CORETAX_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Bayar pajak via Coretax DJP (tab baru)"
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
                 >
                   <span className="material-symbols-outlined text-lg">open_in_new</span>
-                  Buka di LPJ
-                </button>
-              ) : (
-                <button
-                  disabled
-                  title="Kategori belum dipetakan"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-400 text-sm font-semibold cursor-not-allowed"
-                >
-                  <span className="material-symbols-outlined text-lg">open_in_new</span>
-                  Buka di LPJ
-                </button>
-              )}
-              <button
-                onClick={handleLihatDokumen}
-                title="Lihat kelengkapan dokumen SPJ"
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-primary border border-primary/30 text-sm font-semibold hover:bg-primary-fixed/30 active:scale-[0.98] transition-all"
-              >
-                <span className="material-symbols-outlined text-lg">description</span>
-                Lihat Dokumen
-              </button>
-            </div>
-            {/* Sprint 010: deep-link prefill PBJ khusus baris PEMBAYARAN */}
-            {transaction.tipe === 'PEMBAYARAN' && !isSetorPajak && (
-              <button
-                onClick={() => {
-                  navigate('/dashboard/dokumen-kelengkapan?dok=PBJ', {
-                    state: { fromBKU: true, dok: 'PBJ', ts: Date.now(),
-                      transaksi: { noBukti: transaction.noBukti || '', tanggal: transaction.tanggalStr || '',
-                        uraian: transaction.uraian || '', nominal: transaction.pengeluaran || transaction.kredit || 0 } },
-                  })
-                  if (onClose) onClose()
-                }}
-                title="Lengkapi 5 dokumen PBJ dari transaksi ini"
-                className="w-full mt-2.5 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-primary border border-primary/30 text-sm font-semibold hover:bg-primary-fixed/30 active:scale-[0.98] transition-all min-h-[44px]"
-              >
-                <span className="material-symbols-outlined text-lg">folder_shared</span>
-                Lengkapi PBJ
-              </button>
+                  Bayar via Coretax
+                </a>
+                {/* Tampilkan jenis pajak hasil deteksi dari uraian */}
+                <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 text-primary text-sm font-semibold border border-primary/20">
+                  <span className="material-symbols-outlined text-lg">receipt_long</span>
+                  {deteksiJenisPajak(transaction.uraian) || 'Jenis pajak tidak dikenali'}
+                </div>
+              </div>
             )}
           </div>
           {/* ── Hero Card: Uraian + Angka Kunci ── */}
@@ -651,11 +486,11 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
                 <span className="font-mono"> &#183; Kode: {(grupSeBukti.kodeList || []).join(', ') || '-'}</span>
               </p>
               <ul className="divide-y divide-slate-100">
-                {grupSeBukti.rows.map((r) => {
+                {grupSeBukti.rows.map((r, gi) => {
                   const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti)
                   const aktif = r.row === transaction.row
                   return (
-                    <li key={r.row}>
+                    <li key={`${r.row}-${r.uraian || 'x'}-${gi}`}>
                       <button
                         onClick={() => { if (onNavigate && !aktif) onNavigate(r) }}
                         className={`w-full text-left py-2 flex items-center gap-2 ${aktif ? '' : 'hover:bg-slate-50'} rounded-lg px-1`}
@@ -689,70 +524,6 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               </div>
             </div>
           )}
-          {/* ── Dokumen SPJ DINAMIS ikut kategori transaksi ── */}
-          {spjApplicable && spj && (
-            <div ref={spjCardRef} id="bku-spj-card" className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <button
-                onClick={() => setSpjOpen((o) => !o)}
-                className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-all text-left"
-                aria-expanded={spjOpen}
-              >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-primary text-xl">description</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900">Lihat Dokumen SPJ</p>
-                  <p className="text-[11px] text-slate-500 truncate">Kelengkapan untuk {spj.category.label}</p>
-                </div>
-                <span className={`text-xs font-bold mr-1 ${spjProgress === 100 ? 'text-primary' : 'text-slate-400'}`}>
-                  {spjProgress}%
-                </span>
-                <span className={`material-symbols-outlined text-slate-400 transition-transform duration-300 ${spjOpen ? 'rotate-180' : ''}`}>
-                  expand_more
-                </span>
-              </button>
-
-              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${spjOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="px-5 pb-5 pt-0 space-y-4 border-t border-slate-100">
-                  {spj.groups.map((group, gi) => (
-                    <div key={gi}>
-                      <div className="flex items-center gap-2 mt-4 mb-2">
-                        <span className="material-symbols-outlined text-primary text-base">{group.icon}</span>
-                        <p className="text-sm font-bold text-slate-800">{group.title}</p>
-                      </div>
-                      {group.keterangan && (
-                        <p className="text-[11px] text-slate-500 mb-2 -mt-1 leading-relaxed">{group.keterangan}</p>
-                      )}
-                      <ul className="space-y-1">
-                        {group.items.map((item, ii) => {
-                          const key = `${gi}-${ii}`
-                          const checked = !!spjChecked[key]
-                          return (
-                            <li key={ii}>
-                              <button
-                                onClick={() => setSpjChecked((c) => ({ ...c, [key]: !c[key] }))}
-                                className="w-full flex items-start gap-2.5 text-left py-1 rounded-lg hover:bg-slate-50 transition-colors"
-                              >
-                                <span className={`material-symbols-outlined text-[18px] mt-0.5 flex-shrink-0 ${checked ? 'text-primary' : 'text-slate-300'}`}>
-                                  {checked ? 'check_circle' : 'radio_button_unchecked'}
-                                </span>
-                                <span className={`text-sm leading-relaxed ${checked ? 'line-through text-slate-400' : 'text-slate-700'}`}>
-                                  {item}
-                                </span>
-                              </button>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    </div>
-                  ))}
-                  <p className="text-[11px] text-slate-400 pt-1">
-                    Centang dokumen yang sudah tersedia. Dokumen wajib luar Arkas berlaku jika tidak melalui SIPLAH.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
           </>
         ) : activeTab === 'lpj' ? (
           <BKUSidebarLpj
@@ -763,188 +534,19 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             onClose={onClose}
             allTransactions={allTransactions || []}
             onNavigate={onNavigate}
-          />
-        ) : activeTab === 'dokumentasi' ? (
-          <>
-          {/* ════════════════════════════════════════════════════════════ */}
-          {/* TAB: DOKUMENTASI                                        */}
-          {/* ════════════════════════════════════════════════════════════ */}
-          <div className="space-y-4">
-            {/* Template Terdeteksi */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-                </span>
-                Template Dokumen Terdeteksi
-              </h4>
-              {detectedTemplate ? (
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                    <span className={`material-symbols-outlined ${detectedTemplate.color} text-xl`}>{detectedTemplate.icon}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-900">{detectedTemplate.label}</p>
-                    <p className="text-[11px] text-slate-400">Template: {detectedTemplate.templateId}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-slate-400 text-xl">help_outline</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">Tidak ada template spesifik</p>
-                    <p className="text-[11px] text-slate-400">Transaksi ini tidak perlu dokumen tambahan</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Upload Dokumen Pendukung (Foto) */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>upload_file</span>
-                </span>
-                Upload Dokumen Pendukung (Foto)
-              </h4>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handlePhotoUpload}
+            fotoDocs={foto.fotoDocs}
+            blokDokumentasi={(
+              <BKUSidebarDokumentasi
+                transaction={transaction}
+                fotoDokumen={foto.fotoDokumen}
+                onTambahFotos={foto.tambahFotos}
+                onUpdateCaption={foto.updateCaption}
+                onHapusFoto={foto.hapusFoto}
+                onFotoBaru={foto.tambahFotoAi}
+                onRegenerasiFoto={foto.regenerasiFotoAi}
               />
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="rounded-xl border border-dashed border-slate-300 bg-slate-50 text-center cursor-pointer hover:bg-slate-100 hover:border-blue-300 transition-colors p-5"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mx-auto mb-2">
-                  <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
-                </div>
-                <p className="text-sm font-semibold text-slate-700 mb-0.5">Upload Foto Bukti</p>
-                <p className="text-[11px] text-slate-400 mb-3">JPG, PNG — bisa pilih banyak</p>
-                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-all shadow-md shadow-blue-600/20">
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  Pilih File
-                </div>
-              </div>
-
-              {uploadedPhotos.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {uploadedPhotos.map((p) => (
-                    <div key={p.id} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2">
-                      <img src={p.dataUrl} alt={p.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0" />
-                      <input
-                        type="text"
-                        value={p.caption}
-                        onChange={(e) => updatePhotoCaption(p.id, e.target.value)}
-                        placeholder="Keterangan foto"
-                        className="flex-1 px-2.5 py-1.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
-                      />
-                      <button
-                        onClick={() => removePhoto(p.id)}
-                        className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg flex-shrink-0"
-                        title="Hapus"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => setShowPhotoPreview(true)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-md shadow-blue-600/20 hover:brightness-110 transition-all active:scale-95"
-                  >
-                    <span className="material-symbols-outlined text-lg">visibility</span>
-                    Preview Dokumen Foto
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* ═══════════════════════════════════════════════════════════════ */}
-            {/* GENERATE FOTO DOKUMENTASI AI                                   */}
-            {/* ═══════════════════════════════════════════════════════════════ */}
-            <DokumentasiAIGenerate transaction={transaction} uploadedPhotos={uploadedPhotos} />
-
-            {/* Quick Actions */}
-            <button
-              onClick={() => showToast?.('Buka halaman Dokumen untuk mencetak')}
-              className="w-full flex items-center gap-3 px-5 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl hover:bg-slate-50 transition-all group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:scale-110 transition-all">
-                <span className="material-symbols-outlined text-blue-600 group-hover:text-white text-lg transition-colors">print</span>
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-slate-900">Cetak Dokumen</p>
-                <p className="text-[11px] text-slate-400">Buka halaman Cetak Dokumen</p>
-              </div>
-              <span className="material-symbols-outlined text-slate-300 group-hover:text-slate-500 transition-colors text-lg">arrow_forward</span>
-            </button>
-          </div>
-
-          {/* ══ PREVIEW DOKUMEN FOTO (modal) ══ */}
-          {showPhotoPreview && (
-            <div
-              className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-              onClick={() => setShowPhotoPreview(false)}
-            >
-              <div
-                className="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="sticky top-0 z-10 bg-white border-b border-slate-200 flex items-center justify-between p-4">
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <span className="material-symbols-outlined">visibility</span>
-                    <span className="text-sm font-bold">Preview Dokumen Foto</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={printPhotoDoc}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/20 hover:brightness-110 transition-all"
-                    >
-                      <span className="material-symbols-outlined text-lg">print</span>
-                      Cetak
-                    </button>
-                    <button
-                      onClick={() => setShowPhotoPreview(false)}
-                      className="p-2 rounded-xl hover:bg-slate-100 transition-all"
-                    >
-                      <span className="material-symbols-outlined text-slate-500">close</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <div className="print-container portrait bg-white">
-                    <h1 className="text-center font-bold text-lg uppercase tracking-wide mb-1">Dokumentasi Foto Kegiatan</h1>
-                    <p className="text-center text-xs text-slate-600 mb-4">
-                      {transaction.uraian || '-'}{transaction.tanggalStr ? ` — ${transaction.tanggalStr}` : ''}
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {uploadedPhotos.map((p) => (
-                        <div key={p.id} className="border border-slate-300 rounded-lg p-1">
-                          <img src={p.dataUrl} alt={p.name} className="w-full h-44 object-cover rounded" />
-                          <p className="text-[11px] text-slate-700 mt-1 px-1 pb-1">{p.caption || 'Tanpa keterangan'}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-10 flex justify-between text-xs font-semibold text-slate-700">
-                      <div className="text-center">
-                        <div className="border-t border-slate-500 pt-1 w-40">Kepala Sekolah</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="border-t border-slate-500 pt-1 w-40">Bendahara</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          </>
+            )}
+          />
         ) : null}
 
           <div className="h-12" />
