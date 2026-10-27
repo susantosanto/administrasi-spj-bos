@@ -130,9 +130,9 @@ function DashboardMockup({ palette: P, isDark }) {
   const labelSolid = isDark ? "#33415C" : P.muted;
   // Mockup selalu ber-permukaan terang, jadi aksen harus cukup gelap juga di dark mode
   const M = {
-    primary: isDark ? "#2457A7" : M.primary,
-    success: isDark ? "#16835D" : M.success,
-    warning: isDark ? "#D97706" : "#D97706",
+    primary: isDark ? "#2457A7" : P.primary,
+    success: isDark ? "#16835D" : P.success,
+    warning: isDark ? "#D97706" : (P.warning || "#D97706"),
   };
   // Auto-cycling demo content (visual only, dummy data)
   const MENU = [
