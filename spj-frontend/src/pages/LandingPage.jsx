@@ -514,7 +514,7 @@ backgroundColor: scrolled
         </section>
 
         {/* ── KENAPA MEMILIH KAMI ( Tentang ) ──────────────────────────── */}
-        <section id="tentang" className="py-14 lg:py-16 scroll-mt-20" style={{ backgroundColor: P.bg }}>
+        <section id="tentang" className="py-8 lg:py-10 scroll-mt-20" style={{ backgroundColor: P.bg }}>
           <div className="max-w-[1280px] mx-auto px-6">
             <div className="max-w-2xl mb-10">
               <h2
@@ -528,7 +528,7 @@ backgroundColor: scrolled
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-3 gap-4">
               {[
                 {
                   icon: "psychology",
@@ -548,7 +548,7 @@ backgroundColor: scrolled
               ].map((item, i) => (
                 <Reveal key={item.title} delay={i * 120}>
                   <div
-                    className="rounded-xl border p-6 h-full"
+                    className="rounded-xl border p-5 h-full"
                     style={{ borderColor: P.border, backgroundColor: P.surface }}
                   >
                     <div
@@ -576,7 +576,7 @@ backgroundColor: scrolled
         </section>
 
         {/* ── CTA ──────────────────────────────────────────────────────── */}
-        <section className="py-14" style={{ backgroundColor: P.bg }}>
+        <section className="py-6" style={{ backgroundColor: P.bg }}>
           <div className="max-w-[1280px] mx-auto px-6">
             <div
               className="rounded-2xl border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6"
@@ -665,7 +665,7 @@ backgroundColor: scrolled
 
       {/* ── FOOTER ────────────────────────────────────────────────────── */}
       <footer
-        className="border-t py-10 pb-28"
+        className="border-t py-6 pb-24"
         style={{ borderColor: P.border, backgroundColor: P.surface }}
         id="kontak"
       >
