@@ -120,7 +120,7 @@ export default function Sidebar() {
               {/* Logo Icon — breathing */}
               <div className="relative living-breathing" style={{ animationDuration: '4s' }}>
                 <div className="w-11 h-11 rounded-xl bg-white/90 flex items-center justify-center shadow-lg shadow-primary/25 living-gradient" style={{ backgroundSize: '200% 200%' }}>
-                  <img src="/asik-logo.png" alt="Asik" className="h-7 w-auto" draggable="false" />
+                  <img src="/asik-logo.png" alt="Asik" className="h-6 w-auto object-contain" draggable="false" />
                 </div>
                 {/* Online dot — live pulse */}
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white live-dot" />
