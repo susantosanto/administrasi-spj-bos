@@ -10,12 +10,15 @@ const STORAGE_KEY = 'spj_theme' // 'light' | 'dark'
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light'
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'light' || stored === 'dark') return stored
-  // system preference
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark'
-  }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored === 'light' || stored === 'dark') return stored
+  } catch (e) {}
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark'
+    }
+  } catch (e) {}
   return 'light'
 }
 
@@ -31,7 +34,9 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark')
     }
-    localStorage.setItem(STORAGE_KEY, theme)
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+    } catch (e) {}
     // for CSS variables sync
     root.setAttribute('data-theme', theme)
     setMounted(true)
@@ -39,12 +44,19 @@ export function ThemeProvider({ children }) {
 
   // listen system change if user hasn't manually set
   useEffect(() => {
-    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    let mql
+    try {
+      mql = window.matchMedia('(prefers-color-scheme: dark)')
+    } catch (e) {
+      return
+    }
     const handler = (e) => {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (!stored) {
-        setTheme(e.matches ? 'dark' : 'light')
-      }
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (!stored) {
+          setTheme(e.matches ? 'dark' : 'light')
+        }
+      } catch (err) {}
     }
     mql.addEventListener?.('change', handler)
     return () => mql.removeEventListener?.('change', handler)
