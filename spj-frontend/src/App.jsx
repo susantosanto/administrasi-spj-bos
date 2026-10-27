@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -33,6 +34,59 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
+  // Boot splash — keluar sesuai kesiapan NYATA, bukan timer buta:
+  //  - efek ini berjalan berarti bundle JS sudah selesai & React ter-render
+  //  - document.fonts.ready : font (termasuk Inter untuk teks splash) siap
+  //  - gambar logo /asik-logo.png selesai termuat
+  // + batas bawah 1.4s (agar loader tidak cuma kedip) dan pengaman 6s.
+  // Tidak menyentuh routing/logika bisnis.
+  useEffect(() => {
+    const splash = document.getElementById('boot-splash')
+    if (!splash) return
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const t0 = window.__BOOT_T0 || performance.now()
+    const MIN_SPIN = reduced ? 250 : 1400
+    const CAP = 6000
+    let done = false
+
+    const finish = () => {
+      if (done) return
+      done = true
+      splash.classList.add('boot-hide')
+      setTimeout(() => splash.remove(), 600)
+    }
+
+    // kesiapan logo mini (resolve juga bila error, jangan menggantung)
+    const logoReady = () => {
+      const img = splash.querySelector('.asik-loader__logo')
+      if (!img || img.complete) return Promise.resolve()
+      return new Promise((res) => {
+        img.addEventListener('load', res, { once: true })
+        img.addEventListener('error', res, { once: true })
+      })
+    }
+    // kesiapan font (cap 2.5s supaya splash tidak terjebak bila CDN tersendat)
+    const fontsReady = Promise.race([
+      document.fonts?.ready ?? Promise.resolve(),
+      new Promise((r) => setTimeout(r, 2500)),
+    ])
+
+    const elapsed = performance.now() - t0
+    const waitMore = Math.max(0, MIN_SPIN - elapsed)
+    const cap = setTimeout(finish, CAP)            // pengaman terakhir
+    Promise.all([
+      fontsReady,
+      logoReady(),
+      new Promise((r) => setTimeout(r, waitMore)),
+    ]).then(finish)
+
+    // cleanup: kalau komponen App unmount (mis. hot reload), splash ikut dibersihkan
+    return () => {
+      clearTimeout(cap)
+      splash.remove()
+    }
+  }, [])
+
   return (
     <ThemeProvider>
       <ToastProvider>

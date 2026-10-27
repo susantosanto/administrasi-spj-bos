@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
 import ThemeToggle from '../ui/ThemeToggle'
+import BrandedLoader from '../ui/BrandedLoader'
 
 export default function Topbar({ title, subtitle }) {
   const { isOpen, toggle } = useSidebar()
@@ -28,11 +29,22 @@ export default function Topbar({ title, subtitle }) {
     }
   }, [showDropdown])
 
+  // Logout → loader ASIK (fullscreen) dulu, lalu fade-out, baru bersihkan & keluar.
+  // Isi bersihkan + navigate PERSIS versi lama — hanya diberi urutan loader.
+  const [logoutStage, setLogoutStage] = useState(null) // null | 'show' | 'exit'
   const handleLogout = () => {
-    localStorage.removeItem('spj_auth')
-    localStorage.removeItem('spj_auth_user')
-    localStorage.removeItem('spj_auth_token')
-    navigate('/')
+    if (logoutStage) return
+    setShowDropdown(false)
+    setLogoutStage('show')
+    setTimeout(() => {
+      setLogoutStage('exit')
+      setTimeout(() => {
+        localStorage.removeItem('spj_auth')
+        localStorage.removeItem('spj_auth_user')
+        localStorage.removeItem('spj_auth_token')
+        navigate('/')
+      }, 320)
+    }, 850)
   }
 
   const menuItems = [
@@ -167,6 +179,16 @@ export default function Topbar({ title, subtitle }) {
           )}
         </div>
       </div>
+
+      {/* Logout overlay — loader ASIK (satu bahasa visual dengan boot splash) */}
+      {logoutStage && (
+        <BrandedLoader
+          variant="fullscreen"
+          title="Tunggu sebentar..."
+          subtitle="Keluar dari aplikasi"
+          exiting={logoutStage === 'exit'}
+        />
+      )}
     </header>
   )
 }

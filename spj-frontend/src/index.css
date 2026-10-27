@@ -79,14 +79,13 @@
 }
 .dark body {
   color: #ffffff;
-  /* Body gradasi animasi — meniru Dark Mode.jpeg (biru → ungu → pink) */
+  /* Body gradasi statis — meniru Dark Mode.jpeg (biru → ungu → pink) */
   background: linear-gradient(135deg, #0f0cc0 0%, #3a00b8 18%, #6d00c2 32%, #9a00a8 48%, #c8007a 62%, #e6006b 78%, #1a1a6c 90%, #0f0cc0 100%) !important;
-  background-size: 400% 400% !important;
-  animation: dark-body-gradient 18s ease infinite !important;
+  background-size: 100% 100% !important;
   position: relative;
   min-height: 100vh;
 }
-/* Layer aura tambahan — blur wave di belakang body (dark) — override light — blur dihapus */
+/* Layer aura tambahan (dark) — statis, tanpa animasi agar tidak berat */
 .dark body::before {
   content: '';
   position: fixed;
@@ -97,30 +96,11 @@
     radial-gradient(ellipse 800px 600px at 15% 20%, rgba(26,0,255,0.55) 0%, transparent 60%),
     radial-gradient(ellipse 700px 500px at 85% 30%, rgba(196,0,122,0.45) 0%, transparent 60%),
     radial-gradient(ellipse 900px 700px at 50% 85%, rgba(255,0,107,0.35) 0%, transparent 65%),
-    radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%) !important;
-  filter: saturate(1.2) !important;
-  animation: dark-aura-drift 22s ease-in-out infinite !important;
-  opacity: 0.9 !important;
+    radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%);
+  filter: saturate(1.2);
+  opacity: 0.9;
 }
-.dark body::after {
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.03) 50%, transparent 70%) !important;
-  background-size: 200% 100% !important;
-  animation: dark-wave-sweep 14s ease-in-out infinite !important;
-  opacity: 0.6 !important;
-  filter: none !important;
-}
-/* Layer kedua — wave halus */
-.dark body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.03) 50%, transparent 70%);
-  background-size: 200% 100%;
-  animation: dark-wave-sweep 14s ease-in-out infinite;
-  opacity: 0.6;
-}
+/* Hapus layer wave kedua yang duplikat (penyebab double background) */
 @keyframes dark-body-gradient {
   0% { background-position: 0% 50%; }
   25% { background-position: 100% 50%; }
@@ -139,16 +119,21 @@
   50% { background-position: 200% 0; }
   100% { background-position: -100% 0; }
 }
+/* glass-input — field kaca asli untuk kartu login glassmorphism (tembus, bukan solid).
+   Sengaja bukan bg-slate-50 karena global .dark .bg-slate-50 memaksa opaque 0.88 !important. */
+.glass-input { background-color: rgba(255, 255, 255, 0.55); }
+.dark .glass-input { background-color: rgba(255, 255, 255, 0.08); }
+
 /* Global dark overrides — body gradasi terlihat, card jadi glass (bukan solid hitam) */
-.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; backdrop-filter: blur(10px); }
-.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; backdrop-filter: blur(8px); }
-.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; backdrop-filter: blur(8px); }
-.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; backdrop-filter: blur(10px); }
-.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; backdrop-filter: blur(12px); }
-.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; backdrop-filter: blur(16px); }
-.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; backdrop-filter: blur(8px); }
-.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; border-color: rgba(255,255,255,0.08) !important; }
+.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; }
+.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; }
+.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; }
+.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; }
+.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; }
+.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; }
+.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; }
+.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; }
 .dark .bg-slate-100\/80 { background-color: rgba(26,38,66,0.75) !important; }
 .dark .bg-slate-200 { background-color: rgba(26,38,66,0.9) !important; }
 .dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
@@ -246,10 +231,9 @@ html, body, #root {
 }
 
 body {
-  /* Light Mode gradasi animasi — TEBAL dari Light Mode.jpeg (biru → cyan → putih pekat) */
+  /* Light Mode gradasi statis — TEBAL dari Light Mode.jpeg (biru → cyan → putih pekat) */
   background: linear-gradient(135deg, #7fbfe0 0%, #4aa3d1 14%, #b8e0f0 28%, #ffffff 42%, #d0eaf8 58%, #6fb9e3 76%, #4aa3d1 88%, #7fbfe0 100%);
-  background-size: 400% 400%;
-  animation: light-body-gradient 18s ease infinite;
+  background-size: 100% 100%;
   color: #191c1e;
   min-height: 100vh;
   overflow-x: hidden;
@@ -269,9 +253,7 @@ body::before {
     radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.75) 0%, transparent 65%),
     radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.70) 0%, transparent 60%),
     radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.80) 0%, transparent 60%);
-  /* blur dihapus sesuai request */
   filter: saturate(1.35) contrast(1.08);
-  animation: light-aura-drift 16s ease-in-out infinite;
   opacity: 1;
 }
 body::after {
@@ -281,10 +263,8 @@ body::after {
   z-index: -1;
   pointer-events: none;
   background: linear-gradient(110deg, transparent 22%, rgba(255,255,255,0.75) 46%, rgba(74,163,209,0.45) 52%, transparent 74%);
-  background-size: 280% 100%;
-  animation: light-wave-sweep 12s ease-in-out infinite;
+  background-size: 100% 100%;
   opacity: 0.90;
-  /* blur dihapus */
   filter: none;
 }
 @keyframes light-body-gradient {
@@ -482,9 +462,6 @@ textarea:focus-visible {
 
 /* Theme transition — smooth, tidak statis */
 html { transition: background-color 0.35s ease, color 0.35s ease; }
-html * { transition-property: background-color, border-color, color, fill, stroke; transition-duration: 0.25s; transition-timing-function: ease; }
-/* Kecualikan elemen yang animasinya sendiri */
-.magnetic-card, .magnetic-card *, .metaball, .floating-particle, .living-gradient, .living-shimmer, .marquee-track { transition: none !important; }
 
 /* ============================================
    Component Primitives — Premium Blue
@@ -756,7 +733,7 @@ html * { transition-property: background-color, border-color, color, fill, strok
   .metaball, .animate-metaball-1, .animate-metaball-2, .animate-metaball-3, .animate-metaball-drift,
   .animate-card-glow, .animate-accent-flow,
   .living-gradient, .living-shimmer::after, .living-breathing, .marquee-track, .marquee-track-reverse,
-  .floating-particle, .pulse-ring::before, .live-dot { animation: none !important; }
+  .floating-particle, .pulse-ring::before, .live-dot, .animate-pulse { animation: none !important; }
   .metaball { filter: blur(22px) !important; opacity: 0.5 !important; }
   .living-shimmer::after { display: none !important; }
 }
@@ -1013,3 +990,78 @@ html * { transition-property: background-color, border-color, color, fill, strok
   }
 }
 
+
+/* ═══ Landing motion (subtle tapi terlihat) ═══ */
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-soft { animation: float-soft 6s ease-in-out infinite; }
+/* view switch untuk mockup dashboard (ganti menu/tab otomatis) */
+@keyframes view-switch {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-view-switch { animation: view-switch 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+/* text-shimmer — sapuan highlight lembut pada aksen heading (font terasa "hidup") */
+@keyframes text-shimmer {
+  0% { background-position: 250% 0; }
+  100% { background-position: -150% 0; }
+}
+.text-shimmer {
+  /* warna dasar teks = color elemen; glint disapu lewat background-clip: text */
+  background-color: currentColor;
+  background-image: linear-gradient(
+    110deg,
+    transparent 42%,
+    var(--ts-glint, rgba(199, 221, 248, 0.95)) 50%,
+    transparent 58%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 6.5s ease-in-out 1.4s infinite;
+}
+.dark .text-shimmer { --ts-glint: rgba(255, 255, 255, 0.85); }
+/* batik-drift — motif batik bergerak pelan dari atas ke bawah (1 siklus = 1 tile 360px → loop mulus) */
+@keyframes batik-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(360px); }
+}
+.animate-batik-drift {
+  animation: batik-drift 40s linear infinite;
+  will-change: transform;
+}
+/* ── BrandedLoader (ASIK) — layar penuh & overlay proses di dalam aplikasi ──
+   Animasi .asik-* (ring, halo, dots) hidup global dari <style> index.html. */
+@keyframes app-loader-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes app-loader-fade-out { to { opacity: 0; } }
+.app-loader-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: #F3F5F9;
+  animation: app-loader-fade-in 0.25s ease both;
+}
+html.dark .app-loader-screen { background: #0F172A; }
+.app-loader-overlay {
+  position: absolute; inset: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(243, 245, 249, 0.78);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  animation: app-loader-fade-in 0.25s ease both;
+}
+html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
+.app-loader-screen.is-exiting,
+.app-loader-overlay.is-exiting { animation: app-loader-fade-out 0.3s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-float-soft, .animate-view-switch, .text-shimmer, .animate-batik-drift,
+  .app-loader-screen, .app-loader-overlay { animation: none !important; }
+}

@@ -1,13 +1,14 @@
 /**
- * Landing Page — Ultra Premium White & Blue Design
+ * Landing Page — LPJ BOS/BOSP
+ * Professional Minimalism + Modern SaaS + Subtle Sundanese Cultural Identity
+ * Desktop-first. No mobile-specific layout.
  */
 import { Link } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { useTheme } from "../contexts/ThemeContext";
 
 function ThemeToggleLanding({ variant }) {
-  // wrapper agar tidak error jika ThemeProvider belum ready di public route (sudah ada)
   try {
     return <ThemeToggle variant={variant} />;
   } catch {
@@ -15,727 +16,653 @@ function ThemeToggleLanding({ variant }) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ANIMATED COUNTER
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function AnimatedCounter({ end, duration = 2500, suffix = '' }) {
-  const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+function Reveal({ children, delay = 0, className = "" }) {
   const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting && !isVisible) setIsVisible(true); },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [isVisible]);
-
-  useEffect(() => {
-    if (!isVisible) return;
-    let startTime;
-    const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
-    const animate = (currentTime) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      setCount(Math.floor(easeOutQuart(progress) * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [isVisible, end, duration]);
-
-  return <span ref={ref} className="tabular-nums">{count}{suffix}</span>;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PREMIUM TYPING CARD — Clean White Design, Matches App Theme
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function PremiumTypingCard() {
-  const texts = [
-    { text: 'Upload BKU dari ARKAS', icon: 'upload_file' },
-    { text: 'Cetak LPJ Satu Klik', icon: 'print' },
-    { text: 'Kelola Data Sekolah', icon: 'school' },
-    { text: 'Generate 13 Template', icon: 'description' },
-    { text: 'Generate Foto Dokumentasi', icon: 'auto_awesome' },
-    { text: 'Import Data Guru', icon: 'groups' },
-  ];
-
-  const [displayText, setDisplayText] = useState('');
-  const [textIndex, setTextIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) {
-      const pauseTimeout = setTimeout(() => setIsPaused(false), 2500);
-      return () => clearTimeout(pauseTimeout);
-    }
-
-    const currentText = texts[textIndex].text;
-    const speed = isDeleting ? 25 : 50;
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayText(currentText.substring(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-        if (charIndex === currentText.length) {
-          setIsPaused(true);
-          setTimeout(() => setIsDeleting(true), 100);
-        }
-      } else {
-        setDisplayText(currentText.substring(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-        if (charIndex === 0) {
-          setIsDeleting(false);
-          setTextIndex(prev => (prev + 1) % texts.length);
-        }
-      }
-    }, speed);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, textIndex, isPaused]);
-
-  return (
-    <div className="relative perspective-1000 animate-fly-in animate-fly-continuous">
-      {/* Background stack of documents - visible shadows */}
-      <div className="absolute -bottom-5 -right-5 w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-3xl rotate-3 shadow-xl" />
-      <div className="absolute -bottom-2.5 -right-2.5 w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl rotate-2 shadow-lg" />
-
-      {/* Main document card */}
-      <div className="premium-typing-card relative bg-white/90 backdrop-blur-xl rounded-3xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden">
-
-        {/* Document header - soft premium gradient */}
-        <div className="bg-gradient-to-r from-primary via-blue-500 to-primary px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  description
-                </span>
-              </div>
-              <div>
-                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.2em]">Laporan Pertanggungjawaban</p>
-                <p className="text-white font-bold text-sm">LPJ BOS/BOSP</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-3 py-2 rounded-xl">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/70 text-xs font-medium">Aktif</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Document body */}
-        <div className="p-6 md:p-8 relative">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/[0.06] to-transparent rounded-bl-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-400/[0.04] to-transparent rounded-tr-[100px] pointer-events-none" />
-
-          {/* Subtle dot pattern */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
-            backgroundSize: '24px 24px'
-          }} />
-
-          {/* Decorative accent */}
-          <div className="relative flex items-center gap-3 mb-6">
-            <div className="h-8 w-1 bg-gradient-to-b from-primary to-blue-300 rounded-full" />
-            <p className="text-[10px] text-primary/60 font-semibold uppercase tracking-[0.15em]">Fitur Utama</p>
-          </div>
-
-          {/* Typing text */}
-          <div className="min-h-[3rem] md:min-h-[4rem] mb-6">
-            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 flex items-center">
-              <span>{displayText}</span>
-              <span className="w-[3px] h-6 md:h-8 bg-primary ml-1 animate-pulse" />
-            </h3>
-          </div>
-
-          {/* Document metadata */}
-          <div className="flex items-center gap-5 pt-5 border-t border-slate-100">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary/60 text-xs">calendar_today</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">TA 2024/2025</span>
-            </div>
-            <div className="w-px h-4 bg-primary/10" />
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary/60 text-xs">schedule</span>
-              </div>
-              <span className="text-xs text-slate-500 font-medium">Update Real-time</span>
-            </div>
-          </div>
-
-          {/* Content lines */}
-          <div className="mt-6 space-y-2">
-            <div className="h-1.5 w-full bg-slate-100 rounded-full" />
-            <div className="h-1.5 w-4/5 bg-slate-100/80 rounded-full" />
-            <div className="h-1.5 w-5/6 bg-slate-100/60 rounded-full" />
-          </div>
-        </div>
-
-        {/* Document footer */}
-        <div className="px-6 md:px-8 py-4 bg-slate-50/50 border-t border-slate-100">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1.5">
-              {texts.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === textIndex ? 'w-7 bg-primary' : 'w-1.5 bg-slate-200'
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-[11px] text-slate-400 font-medium">Dokumen {textIndex + 1} dari {texts.length}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PREMIUM FEATURE PILLS — Minimalist Animated Dots
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function PremiumFeaturePills() {
-  const features = [
-    { icon: 'upload_file', label: 'Upload BKU' },
-    { icon: 'print', label: 'Cetak LPJ' },
-    { icon: 'school', label: 'Data Sekolah' },
-    { icon: 'groups', label: 'Data Guru' },
-    { icon: 'auto_awesome', label: 'Foto AI' },
-    { icon: 'description', label: '13 Template' },
-    { icon: 'verified', label: 'Resmi BOSP' },
-    { icon: 'speed', label: '85% Lebih Cepat' },
-  ];
-
-  // Gandakan untuk infinite marquee seamless
-  const loop = [...features, ...features];
-
-  return (
-    <div className="relative overflow-hidden py-2 group/marquee">
-      {/* Fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-      <div className="flex marquee-track gap-3 w-max" style={{ willChange: 'transform' }}>
-        {loop.map((feature, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2.5 px-5 py-2.5 bg-white rounded-full border border-slate-200/80 shadow-sm hover:shadow-md hover:border-primary/20 hover:bg-primary/5 transition-all duration-300 cursor-default group shrink-0 living-breathing"
-            style={{ animationDelay: `${(i % features.length) * 0.12}s`, animationDuration: '3.5s' }}
-          >
-            <span className="material-symbols-outlined text-primary/70 text-lg group-hover:text-primary transition-colors">
-              {feature.icon}
-            </span>
-            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors whitespace-nowrap">
-              {feature.label}
-            </span>
-            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full live-dot ml-1" />
-          </div>
-        ))}
-      </div>
-      <p className="text-center text-[10px] text-slate-400 mt-2 tracking-wide">⟷ Hover untuk pause • Tidak statis, terus berjalan</p>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// FEATURE CARD
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function FeatureCard({ feature, index }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), index * 150);
-          observer.disconnect();
+          setVisible(true);
+          obs.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.15 }
     );
-    if (cardRef.current) observer.observe(cardRef.current);
-    return () => observer.disconnect();
-  }, [index]);
-
-  // A1 — Magnetic spotlight + tilt (out-of-the-box)
-  const handleMouseMove = (e) => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateY = ((x - centerX) / rect.width) * 6; // max ±3deg
-    const rotateX = ((centerY - y) / rect.height) * 6;
-    card.style.setProperty('--x', `${x}px`);
-    card.style.setProperty('--y', `${y}px`);
-    card.style.setProperty('--rotateX', `${rotateX}deg`);
-    card.style.setProperty('--rotateY', `${rotateY}deg`);
-  };
-  const handleMouseLeave = (e) => {
-    const card = e.currentTarget;
-    card.style.setProperty('--x', `50%`);
-    card.style.setProperty('--y', `50%`);
-    card.style.setProperty('--rotateX', `0deg`);
-    card.style.setProperty('--rotateY', `0deg`);
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      className={`relative group cursor-pointer
-                  ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}
-                  transition-all duration-700 ease-out
-                  ${feature.isLarge ? 'md:col-span-2' : ''}`}
-    >
-      <div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="magnetic-card relative h-full bg-white rounded-3xl border border-slate-200/80 p-7
-                      shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-                      hover:shadow-[0_20px_60px_-15px_rgba(0,74,198,0.14)]
-                      hover:border-primary/20
-                      transition-all duration-500 overflow-hidden"
-      >
-        <div className="magnetic-card-inner h-full">
-        {/* A1 — Magnetic spotlight + glow */}
-        <div className="magnetic-spotlight" />
-        <div className="magnetic-glow" />
-
-        {/* Looping glow animation - different delay per card */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-blue-400/[0.02]
-                        rounded-3xl animate-card-glow pointer-events-none"
-             style={{ animationDelay: `${index * 1.5}s` }} />
-
-        {/* Top accent line - animated flow */}
-        <div className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient}
-                        animate-accent-flow rounded-t-3xl pointer-events-none`}
-             style={{ animationDelay: `${index * 1.5}s` }} />
-
-        {/* Content */}
-        <div className="relative">
-          <div className={`w-12 h-12 ${feature.iconBg} rounded-xl flex items-center justify-center mb-5
-                          group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}
-               style={{ animation: `card-float 3s ease-in-out infinite ${index * 0.5}s` }}>
-            <span className={`material-symbols-outlined text-xl ${feature.iconColor}`}
-                  style={{ fontVariationSettings: "'FILL' 1" }}>
-              {feature.icon}
-            </span>
-          </div>
-
-          <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors duration-300">
-            {feature.title}
-          </h3>
-          <p className="text-slate-500 text-sm leading-relaxed">{feature.desc}</p>
-
-          <div className="mt-5 flex items-center gap-2 text-primary font-semibold text-sm opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-            <span>Pelajari Selengkapnya</span>
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </div>
-        </div>
-
-        {feature.isLarge && feature.extra && (
-          <div className="relative mt-5 pt-4 border-t border-slate-100">{feature.extra}</div>
-        )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const FEATURES = [
-  {
-    icon: 'upload_file', title: 'Upload BKU', desc: 'Upload file Excel BKU dari ARKAS dan data akan langsung terparse otomatis.',
-    iconBg: 'bg-blue-50', iconColor: 'text-blue-600', gradient: 'from-blue-500 to-cyan-400', isLarge: true,
-    extra: (
-      <div className="flex flex-wrap gap-2">
-        {['BOSP', 'Honor', 'Mamin', 'Pajak'].map(tag => (
-          <span key={tag} className="px-3 py-1 bg-slate-100/80 text-slate-600 text-xs font-medium rounded-lg">{tag}</span>
-        ))}
-      </div>
-    ),
-  },
-  {
-    icon: 'auto_awesome', title: 'Generate Foto Dokumentasi', desc: 'Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali. Pilih pakaian, suasana, dan peserta.',
-    iconBg: 'bg-violet-50', iconColor: 'text-violet-600', gradient: 'from-violet-500 to-purple-400', isLarge: true,
-    extra: (
-      <div className="flex items-center gap-3">
-        <div className="flex -space-x-1.5">
-          {['bg-violet-400', 'bg-blue-400', 'bg-emerald-400'].map((color, i) => (
-            <div key={i} className={`w-7 h-7 rounded-full ${color} border-2 border-white flex items-center justify-center`}>
-              <span className="material-symbols-outlined text-white text-xs">{['checkroom', 'meeting_room', 'groups'][i]}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-slate-500 text-xs">Formal • Batik • Seragam • Ruang Rapat • Outdoor</span>
-      </div>
-    ),
-  },
-  {
-    icon: 'print', title: 'Cetak Otomatis', desc: 'Generate dokumen LPJ hanya dengan satu klik. Format A4 profesional.',
-    iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600', gradient: 'from-emerald-500 to-teal-400', isLarge: false,
-  },
-  {
-    icon: 'description', title: '13 Template', desc: 'Tersedia 13 template dokumen siap pakai untuk berbagai keperluan.',
-    iconBg: 'bg-violet-50', iconColor: 'text-violet-600', gradient: 'from-violet-500 to-purple-400', isLarge: false,
-  },
-  {
-    icon: 'school', title: 'Data Sekolah', desc: 'Upload profil sekolah dari file Dapodik secara otomatis.',
-    iconBg: 'bg-amber-50', iconColor: 'text-amber-600', gradient: 'from-amber-500 to-orange-400', isLarge: false,
-  },
-  {
-    icon: 'groups', title: 'Data Guru & Tendik', desc: 'Import data guru dan tenaga kependidikan dari Dapodik.',
-    iconBg: 'bg-rose-50', iconColor: 'text-rose-600', gradient: 'from-rose-500 to-pink-400', isLarge: false,
-  },
-  {
-    icon: 'edit_note', title: 'Catatan Penting', desc: 'Simpan catatan terkait BOS dengan kategori dan fitur pin.',
-    iconBg: 'bg-cyan-50', iconColor: 'text-cyan-600', gradient: 'from-cyan-500 to-blue-400', isLarge: true,
-    extra: (
-      <div className="flex items-center gap-3">
-        <div className="flex -space-x-1.5">
-          {['bg-blue-400', 'bg-emerald-400', 'bg-amber-400', 'bg-violet-400'].map((color, i) => (
-            <div key={i} className={`w-7 h-7 rounded-full ${color} border-2 border-white flex items-center justify-center`}>
-              <span className="material-symbols-outlined text-white text-xs">{['folder', 'event', 'payments', 'push_pin'][i]}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-slate-500 text-xs">5 kategori tersedia</span>
-      </div>
-    ),
-  },
-];
-
-const STATS = [
-  { number: 13, suffix: '+', label: 'Template Dokumen', icon: 'description', color: 'text-blue-600', iconBg: 'bg-blue-50' },
-  { number: 85, suffix: '%', label: 'Lebih Efisien', icon: 'speed', color: 'text-emerald-600', iconBg: 'bg-emerald-50' },
-  { number: 100, suffix: '%', label: 'Uptime Server', icon: 'cloud_done', color: 'text-violet-600', iconBg: 'bg-violet-50' },
-  { number: 24, suffix: '/7', label: 'Akses Kapan Saja', icon: 'schedule', color: 'text-amber-600', iconBg: 'bg-amber-50' },
-];
-
-const WHY_US = [
-  { icon: 'psychology', title: 'Dirancang untuk Operator', desc: 'Dibuat oleh operator sekolah yang memahami kebutuhan nyata.', iconBg: 'bg-blue-50', iconColor: 'text-blue-600' },
-  { icon: 'auto_fix_high', title: 'Otomatis & Cerdas', desc: 'Sistem otomatis mengenali pola transaksi secara akurat.', iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
-  { icon: 'shield', title: 'Keamanan Terjamin', desc: 'Semua data disimpan lokal di perangkat Anda.', iconBg: 'bg-violet-50', iconColor: 'text-violet-600' },
-];
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export default function LandingPage() {
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500);
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans overflow-x-hidden">
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out motion-reduce:transition-none ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
-      {/* TOP APP BAR */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrollY > 50 ? 'bg-white/95 dark:bg-[#0f0f3e]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.4)]' : 'bg-transparent dark:bg-transparent'
-      }`}>
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/25">
-              <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
+function getPalette(isDark) {
+  if (isDark) {
+    return {
+      primary: "#60A5FA",
+      primaryHover: "#3B82F6",
+      bg: "#0F172A",
+      surface: "#1E293B",
+      heading: "#F1F5F9",
+      body: "#CBD5E1",
+      muted: "#94A3B8",
+      border: "#334155",
+      softBlue: "#1E3A5F",
+      success: "#34D399",
+    };
+  }
+  return {
+    primary: "#2457A7",
+    primaryHover: "#1D4688",
+    bg: "#F3F5F9",
+    surface: "#FFFFFF",
+    heading: "#1D2939",
+    body: "#52627A",
+    muted: "#66758A",
+    border: "#E1E7EF",
+    softBlue: "#EAF1FB",
+    success: "#16835D",
+  };
+}
+
+const FEATURES = [
+  {
+    icon: "upload_file",
+    title: "Upload BKU",
+    desc: "Upload file Excel BKU dari ARKAS dan data akan langsung terparse otomatis.",
+  },
+  {
+    icon: "auto_awesome",
+    title: "Generate Foto Dokumentasi",
+    desc: "Upload foto personel & ruangan sekali, generate foto dokumentasi AI berulang kali. Pilih pakaian, suasana, dan peserta.",
+  },
+  {
+    icon: "print",
+    title: "Cetak Otomatis",
+    desc: "Generate dokumen LPJ hanya dengan satu klik. Format A4 profesional.",
+  },
+  {
+    icon: "description",
+    title: "13 Template",
+    desc: "Tersedia 13 template dokumen siap pakai untuk berbagai keperluan.",
+  },
+  {
+    icon: "school",
+    title: "Data Sekolah",
+    desc: "Upload profil sekolah dari file Dapodik secara otomatis.",
+  },
+  {
+    icon: "groups",
+    title: "Data Guru & Tendik",
+    desc: "Import data guru dan tenaga kependidikan dari Dapodik.",
+  },
+  {
+    icon: "edit_note",
+    title: "Catatan Penting",
+    desc: "Simpan catatan terkait BOS dengan kategori dan fitur pin.",
+  },
+];
+
+const VALUES = [
+  { icon: "verified_user", label: "Aman & Terpercaya" },
+  { icon: "touch_app", label: "Mudah Digunakan" },
+  { icon: "gavel", label: "Sesuai Regulasi" },
+];
+
+function DashboardMockup({ palette: P, isDark }) {
+  // Warna label "pekat" di dark mode — sidebar & header tabel mockup ber-bg terang tetap (#FAFBFD),
+  // jadi muted versi gelap (#94A3B8) terlihat pudar di atasnya
+  const labelSolid = isDark ? "#33415C" : P.muted;
+  // Auto-cycling demo content (visual only, dummy data)
+  const MENU = [
+    {
+      label: "Beranda",
+      stats: [["Total Dana", "Rp 125.000.000", P.primary], ["Realisasi", "Rp 87.500.000", P.success], ["Sisa Dana", "Rp 37.500.000", P.warning]],
+      rows: [["Honor Guru", "12 Jul 2026", "Selesai", P.success], ["Transport", "10 Jul 2026", "Proses", P.warning], ["Mamin", "08 Jul 2026", "Selesai", P.success]],
+    },
+    {
+      label: "Data Sekolah",
+      stats: [["Profil", "Terisi", P.success], ["Logo", "Terisi", P.success], ["Pejabat", "3 Jabatan", P.primary]],
+      rows: [["Profil Sekolah", "12 Jul 2026", "Terisi", P.success], ["Logo Sekolah", "10 Jul 2026", "Terisi", P.success], ["Data Pejabat", "08 Jul 2026", "Perlu Cek", P.warning]],
+    },
+    {
+      label: "Data Guru",
+      stats: [["Guru", "24 Orang", P.primary], ["Tendik", "6 Orang", P.primary], ["Aktif", "Seluruhnya", P.success]],
+      rows: [["Budi Santoso", "S-1 Pendidikan", "Aktif", P.success], ["Siti Aminah", "S-1 Ekonomi", "Aktif", P.success], ["Agus Wijaya", "S-1 Teknik", "Aktif", P.success]],
+    },
+    {
+      label: "Dokumen LPJ",
+      stats: [["Total Dokumen", "12 Dokumen", P.primary], ["Selesai", "8 Dokumen", P.success], ["Draft", "4 Dokumen", P.warning]],
+      rows: [["LPJ Honor Guru", "12 Jul 2026", "Selesai", P.success], ["LPJ Transport", "10 Jul 2026", "Proses", P.warning], ["LPJ Mamin", "08 Jul 2026", "Selesai", P.success]],
+    },
+    {
+      label: "BKU",
+      stats: [["Saldo", "Rp 37.500.000", P.primary], ["Transaksi", "46 Entri", P.primary], ["Belum Cek", "2 Entri", P.warning]],
+      rows: [["Kwitansi #0012", "12 Jul 2026", "Cek OK", P.success], ["Nota #0087", "10 Jul 2026", "Cek OK", P.success], ["SPJ #0034", "08 Jul 2026", "Ditindak", P.warning]],
+    },
+    {
+      label: "Pengaturan",
+      stats: [["Tampilan", "Light / Dark", P.primary], ["Notifikasi", "Aktif", P.success], ["Penyimpanan", "Lokal", P.success]],
+      rows: [["Preferensi Tema", "Terapkan", "Aktif", P.success], ["Backup Data", "Ekspor", "Aktif", P.success], ["Info Aplikasi", "v1.0", "Normal", P.success]],
+    },
+  ];
+
+  const [active, setActive] = useState(0);
+  const [reducedMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const t = setInterval(() => setActive((a) => (a + 1) % MENU.length), 3500);
+    return () => clearInterval(t);
+  }, [reducedMotion]);
+
+  const view = MENU[active];
+
+  return (
+    <div
+      className="relative rounded-2xl border overflow-hidden"
+      style={{
+        borderColor: P.border,
+        backgroundColor: P.surface,
+        boxShadow: "0 20px 50px -20px rgba(36,87,167,0.18)",
+      }}
+    >
+      {/* Top bar */}
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b"
+        style={{ borderColor: P.border, backgroundColor: P.softBlue }}
+      >
+        <div className="flex items-center gap-2">
+          <img src="/asik-logo.png" alt="Asik" className="h-4 w-auto" draggable="false" />
+          <span className="text-xs font-semibold" style={{ color: P.heading }}>Aplikasi Sistem Keuangan</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs" style={{ color: P.muted }}>Operator Sekolah</span>
+          <div className="w-7 h-7 rounded-full" style={{ backgroundColor: P.softBlue }} />
+        </div>
+      </div>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <div
+          className="w-40 shrink-0 border-r p-3 space-y-1 hidden md:block"
+          style={{ borderColor: P.border, backgroundColor: "#FAFBFD" }}
+        >
+          {MENU.map((item, i) => (
+            <div
+              key={item.label}
+              className="px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300"
+              style={{
+                backgroundColor: i === active ? P.softBlue : "transparent",
+                color: i === active ? P.primary : labelSolid,
+                transform: i === active ? "translateX(2px)" : "translateX(0)",
+              }}
+            >
+              {item.label}
             </div>
-            <span className="text-lg font-bold text-primary">LPJ BOS/BOSP</span>
+          ))}
+        </div>
+
+        {/* Main content — switches with active menu */}
+        <div key={active} className="flex-1 p-4 space-y-4 animate-view-switch">
+          <div>
+            <p className="text-xs font-medium" style={{ color: P.muted }}>Selamat datang,</p>
+            <p className="text-sm font-semibold" style={{ color: P.heading }}>Operator Sekolah</p>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3">
+            {view.stats.map(([label, value, color]) => (
+              <div
+                key={label}
+                className="rounded-xl border p-3"
+                style={{ borderColor: P.border, backgroundColor: P.surface }}
+              >
+                <p className="text-[10px] font-medium" style={{ color: P.muted }}>{label}</p>
+                <p className="text-xs font-bold mt-1" style={{ color }}>{value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Table */}
+          <div className="rounded-xl border overflow-hidden" style={{ borderColor: P.border }}>
+            <div
+              className="grid grid-cols-3 text-[10px] font-semibold px-3 py-2 border-b"
+              style={{ borderColor: P.border, backgroundColor: "#FAFBFD", color: labelSolid }}
+            >
+              <span>{view.label}</span>
+              <span>Detail</span>
+              <span>Status</span>
+            </div>
+            {view.rows.map(([doc, detail, status, color]) => (
+              <div
+                key={doc}
+                className="grid grid-cols-3 text-[11px] px-3 py-2 border-b last:border-b-0"
+                style={{ borderColor: P.border, color: P.body }}
+              >
+                <span className="font-medium" style={{ color: P.heading }}>{doc}</span>
+                <span>{detail}</span>
+                <span className="font-medium" style={{ color }}>{status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LandingPage() {
+  const { isDark } = useTheme();
+  const P = getPalette(isDark);
+  const heroRef = useRef(null);
+  const [scrolled, setScrolled] = useState(false);
+  // Dock = penanda bawah layar pertama. Dua syarat tampil:
+  //  1. masih di layar pertama — begitu digeser, dock disembunyikan supaya tidak
+  //     menutupi kartu/teks section berikutnya (fixed overlay selalu menempel
+  //     di bawah viewport, jadi section mana pun yang lewat bisa tertutup);
+  //  2. ada ruang kosong di bawah konten hero — di viewport pendek dock disembunyikan
+  //     daripada menimpa mockup.
+  const [atFirstScreen, setAtFirstScreen] = useState(true);
+  const [dockFits, setDockFits] = useState(true);
+  const dockVisible = atFirstScreen && dockFits;
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+      setAtFirstScreen(window.scrollY < 48);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Ukur ulang saat resize & setelah font siap (tinggi teks hero ikut berubah)
+  useEffect(() => {
+    const measure = () => {
+      const grid = heroRef.current?.querySelector(".grid");
+      if (!grid) return;
+      const gridBottom = grid.getBoundingClientRect().bottom + window.scrollY;
+      setDockFits(gridBottom <= window.innerHeight - 64);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    document.fonts?.ready?.then(measure).catch(() => {});
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  return (
+    <div
+      className="min-h-screen font-sans overflow-x-hidden"
+      style={{ backgroundColor: P.bg, color: P.body }}
+    >
+      {/* ── HEADER ─────────────────────────────────────────────────────── */}
+      <header
+        className="fixed top-0 w-full z-50 transition-all duration-200"
+        style={{
+backgroundColor: scrolled
+            ? isDark
+              ? "rgba(30,41,59,0.92)"
+              : "rgba(255,255,255,0.92)"
+            : P.surface,
+          borderBottom: `1px solid ${P.border}`,
+          backdropFilter: scrolled ? "blur(8px)" : "none",
+        }}
+      >
+        <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <img src="/asik-logo.png" alt="Asik" className="h-8 w-auto" draggable="false" />
+            <span className="text-base font-bold" style={{ color: P.heading }}>
+              Aplikasi Sistem Keuangan
+            </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#fitur">Fitur</a>
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#tentang">Tentang</a>
-            <a className="text-slate-600 font-medium hover:text-primary transition-colors cursor-pointer text-sm" href="#kontak">Kontak</a>
+
+          <nav className="hidden md:flex items-center gap-7">
+            {[
+              { label: "Beranda", href: "#" },
+              { label: "Fitur", href: "#fitur" },
+              { label: "Tentang", href: "#tentang" },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="text-sm font-medium transition-colors hover:opacity-80"
+                style={{ color: P.body }}
+              >
+                {item.label}
+              </a>
+            ))}
             <ThemeToggleLanding />
-            <Link to="/login" className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95 text-sm">
+            <Link
+              to="/login"
+              className="text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+              style={{ backgroundColor: P.primary, color: "#ffffff" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+            >
               Mulai Sekarang
             </Link>
           </nav>
-          {/* Mobile Theme Toggle */}
+
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggleLanding variant="icon" />
           </div>
         </div>
       </header>
 
-      <main className="pt-20">
+      <main className="pt-16">
+        {/* ── HERO ─────────────────────────────────────────────────────── */}
+        <section
+          ref={heroRef}
+          className="relative overflow-hidden flex items-center min-h-[calc(100vh-64px)]"
+          style={{ backgroundColor: P.bg }}
+        >
+          {/* Batik motif — subtle accent + drift lembut dari atas ke bawah
+              (elemen melebar 360px ke atas & bawah; geser tepat 1 tile → loop mulus) */}
+          <div
+            className="absolute inset-x-0 -inset-y-[360px] pointer-events-none animate-batik-drift"
+            style={{
+              backgroundImage: "url('/floral-pattern.jpg')",
+              backgroundSize: "360px 360px",
+              backgroundRepeat: "repeat",
+              opacity: isDark ? 0.07 : 0.3,
+              mixBlendMode: isDark ? "normal" : "multiply",
+            }}
+          />
+          {/* Mesh gradient — blue (top-left) & purple (bottom-right), very subtle */}
+          <div
+            className="absolute -top-32 -left-32 w-[420px] h-[420px] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(36,87,167,0.12) 0%, transparent 70%)" }}
+          />
+          <div
+            className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.10) 0%, transparent 70%)" }}
+          />
 
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* HERO SECTION                                                       */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="relative min-h-[750px] flex items-center overflow-hidden px-6 bg-slate-50 dark:bg-transparent">
-          {/* Floral ornamental seamless pattern — paskan 4 sisi + motion — tanpa blur */}
-          <div className="absolute inset-0 hero-bg-floral" style={{
-            backgroundImage: "url('/floral-pattern.jpg')",
-            backgroundSize: '420px 420px',
-            backgroundRepeat: 'repeat',
-            backgroundPosition: '0 0',
-            opacity: 0.45,
-          }} />
-          {/* Base wash agar pattern tidak terlalu ramai — tanpa blur */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/88 via-white/75 to-white/60 dark:from-[#0f0f3e]/88 dark:via-[#1a1a5c]/75 dark:to-[#0f0f3e]/65 pointer-events-none" />
-          {/* Overlay — biar teks tetap terbaca — tanpa blur */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/15 dark:to-black/15 pointer-events-none" />
-          {/* Living background — LIGHT: tidak statis (di atas wavy, subtle) */}
-          <div className="absolute inset-0 living-gradient dark:hidden opacity-40" style={{ background: "radial-gradient(circle at top right, rgba(255,255,255,0.6), transparent 55%), radial-gradient(circle at bottom left, rgba(255,255,255,0.4), transparent 60%)", backgroundSize: '200% 200%' }} />
-          {/* Living background — DARK: gradasi animasi (di atas wavy) */}
-          <div className="absolute inset-0 hidden dark:block living-gradient opacity-30" style={{ background: "radial-gradient(ellipse 900px 600px at 20% 15%, rgba(26,0,255,0.18) 0%, transparent 65%), radial-gradient(ellipse 700px 500px at 85% 30%, rgba(202,0,122,0.12) 0%, transparent 65%)", backgroundSize: '200% 200%' }} />
-          {/* Floating particles — halus, tidak statis */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            <div className="absolute w-2 h-2 bg-primary/20 dark:bg-white/20 rounded-full top-[18%] left-[12%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
-            <div className="absolute w-1.5 h-1.5 bg-blue-400/30 dark:bg-white/20 rounded-full top-[32%] left-[8%] floating-particle" style={{ animationDelay: '1.2s', animationDuration: '7s' }} />
-            <div className="absolute w-1 h-1 bg-violet-400/40 dark:bg-white/15 rounded-full top-[65%] left-[15%] floating-particle" style={{ animationDelay: '0.6s', animationDuration: '8s' }} />
-            <div className="absolute w-2 h-2 bg-emerald-400/20 dark:bg-white/10 rounded-full top-[22%] right-[18%] floating-particle" style={{ animationDelay: '2s', animationDuration: '6.5s' }} />
-            <div className="absolute w-1.5 h-1.5 bg-primary/15 dark:bg-white/10 rounded-full top-[55%] right-[10%] floating-particle" style={{ animationDelay: '1.8s', animationDuration: '7.5s' }} />
-            <div className="absolute w-1 h-1 bg-blue-500/30 dark:bg-white/20 rounded-full bottom-[20%] right-[22%] floating-particle" style={{ animationDelay: '0.9s', animationDuration: '9s' }} />
-          </div>
+          <div className="max-w-[1280px] mx-auto px-6 py-16 lg:py-20">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left column */}
+              <div>
+                <span
+                  className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-5 animate-fade-up"
+                  style={{ backgroundColor: P.softBlue, color: P.primary, animationDelay: "0s" }}
+                >
+                  Sistem Informasi LPJ BOS/BOSP
+                </span>
 
-          <div className="container mx-auto relative z-10">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              {/* Left: Text Content */}
-              <div className="text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 dark:bg-white/10 backdrop-blur-sm rounded-full mb-6 border border-primary/10 dark:border-white/10">
-                  <span className="material-symbols-outlined text-primary dark:text-white text-lg">verified</span>
-                  <span className="text-primary dark:text-white text-sm font-semibold">Resmi & Terpercaya</span>
-                </div>
-
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-tight mb-6 drop-shadow-sm">
-                  <span className="text-slate-900 dark:text-white">Sampurasun!</span>
+                <h1
+                  className="text-[44px] lg:text-[52px] font-bold leading-tight mb-5 animate-fade-up"
+                  style={{ color: P.heading, letterSpacing: "-0.02em", animationDelay: "0.1s" }}
+                >
+                  <span className="text-shimmer" style={{ color: P.primary, animationDelay: "1.6s" }}>Sampurasun!</span>
                   <br />
-                  <span className="text-blue-900 dark:text-white">Selamat Datang di Aplikasi LPJ BOS/BOSP</span>
+                  Selamat Datang di{" "}
+                  <span className="text-shimmer" style={{ color: P.primary, animationDelay: "2.4s" }}>
+                    Aplikasi Sistem Keuangan
+                  </span>
                 </h1>
 
-                <p className="text-lg text-slate-600 dark:text-white/80 max-w-xl mb-8 leading-relaxed">
+                <p
+                  className="text-base lg:text-lg leading-relaxed mb-7 max-w-xl animate-fade-up"
+                  style={{ color: P.body, animationDelay: "0.2s" }}
+                >
                   Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan.
-                  Kelola dana BOS/BOSP dengan standar profesionalisme tinggi.
+                  Kelola dokumen dan laporan BOS/BOSP secara lebih tertib dan profesional.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                  <Link to="/login" className="hero-cta-primary living-shimmer living-breathing bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/25 hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden border-2 border-transparent">
-                    <span className="hero-cta-text">Mulai Sekarang</span>
-                    <span className="material-symbols-outlined hero-cta-icon">arrow_forward</span>
+                <div className="flex flex-wrap gap-3 mb-8 animate-fade-up" style={{ animationDelay: "0.3s" }}>
+                  <Link
+                    to="/login"
+                    className="text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
+                    style={{ backgroundColor: P.primary, color: "#ffffff" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+                  >
+                    Mulai Sekarang
                   </Link>
-                  <a href="#fitur" className="hero-cta-secondary bg-white dark:bg-white/10 dark:backdrop-blur-md dark:border-white/20 dark:text-white text-primary px-8 py-4 rounded-2xl font-semibold border-2 border-primary/20 hover:bg-primary/5 dark:hover:bg-white/20 transition-all flex items-center justify-center gap-2 living-breathing" style={{ animationDelay: '0.6s' }}>
-                    <span className="material-symbols-outlined">play_circle</span>
+                  <a
+                    href="#fitur"
+                    className="text-sm font-semibold px-6 py-3 rounded-lg border transition-colors"
+                    style={{ borderColor: P.border, color: P.primary, backgroundColor: P.surface }}
+                  >
                     Lihat Fitur
                   </a>
                 </div>
               </div>
 
-              {/* Right: PREMIUM TYPING CARD */}
-              <div className="relative">
-                <PremiumTypingCard />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PREMIUM FEATURE PILLS                                              */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <section className="py-10 px-6 bg-white dark:bg-[#131d33]/60 dark:backdrop-blur-md border-y border-slate-100 dark:border-white/5">
-          <div className="container mx-auto">
-            <PremiumFeaturePills />
-          </div>
-        </section>
-
-        {/* STATS — living, tidak statis */}
-        <section className="py-14 px-6 bg-slate-50 dark:bg-transparent relative overflow-hidden">
-          <div className="absolute inset-0 living-gradient opacity-40 dark:opacity-20 pointer-events-none" style={{ background: 'linear-gradient(100deg, rgba(239,246,255,0) 0%, rgba(0,74,198,0.03) 50%, rgba(239,246,255,0) 100%)', backgroundSize: '200% 100%' }} />
-          <div className="container mx-auto relative">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {STATS.map((stat, i) => (
-                <div key={i} className="text-center group cursor-default living-breathing" style={{ animationDelay: `${i * 0.3}s`, animationDuration: '3.8s' }}>
-                  <div className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform relative pulse-ring`}>
-                    <span className={`material-symbols-outlined text-xl ${stat.color}`}>{stat.icon}</span>
-                  </div>
-                  <div className="text-3xl md:text-4xl font-bold text-slate-900 mb-1">
-                    <AnimatedCounter end={stat.number} suffix={stat.suffix} />
-                  </div>
-                  <p className="text-slate-500 text-xs uppercase tracking-wider">{stat.label}</p>
+              {/* Right column — dashboard mockup */}
+              <Reveal delay={200}>
+                <div className="animate-float-soft">
+                  <DashboardMockup palette={P} isDark={isDark} />
                 </div>
-              ))}
+              </Reveal>
             </div>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section id="fitur" className="py-20 px-6 bg-white">
-          <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
-                Fitur Unggulan
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Fitur Unggulan Sistem</h2>
-              <p className="text-base text-slate-500 max-w-xl mx-auto">Dirancang untuk memudahkan pekerjaan operator sekolah.</p>
-            </div>
-            <div className="md:hidden overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6">
-              <div className="flex gap-4 w-max">
-                {FEATURES.map((feature, i) => (
-                  <div key={i} className="w-[300px] snap-center"><FeatureCard feature={feature} index={i} /></div>
-                ))}
-              </div>
-            </div>
-            <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5">
-              {FEATURES.map((feature, i) => (
-                <FeatureCard key={i} feature={feature} index={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* WHY US */}
-        <section id="tentang" className="py-20 px-6 bg-slate-50">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full mb-4 uppercase tracking-widest">Tentang Kami</span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Kenapa Memilih Kami?</h2>
-              <p className="text-base text-slate-500 max-w-xl mx-auto">Dikembangkan oleh operator sekolah, untuk operator sekolah.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 mb-14">
-              {WHY_US.map((item, i) => (
-                <div key={i} className="group bg-white rounded-2xl p-7 border border-slate-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <div className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
-                    <span className={`material-symbols-outlined text-2xl ${item.iconColor}`}>{item.icon}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white rounded-2xl p-10 text-center border border-slate-100 shadow-sm">
-              <span className="material-symbols-outlined text-4xl text-primary/40 mb-4 block">format_quote</span>
-              <p className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed max-w-3xl mx-auto mb-6">
-                Kami percaya setiap sekolah berhak mendapatkan <span className="text-primary font-bold">alat terbaik</span> untuk mengelola keuangan dengan <span className="text-primary font-bold">transparan dan profesional</span>.
+        {/* ── FEATURES ─────────────────────────────────────────────────── */}
+        <section id="fitur" className="py-16 lg:py-20 scroll-mt-20" style={{ backgroundColor: P.surface }}>
+          <div className="max-w-[1280px] mx-auto px-6">
+            <div className="max-w-2xl mb-10">
+              <h2
+                className="text-[28px] lg:text-[32px] font-bold mb-3"
+                style={{ color: P.heading, letterSpacing: "-0.01em" }}
+              >
+                Semua yang Anda Butuhkan dalam{" "}
+                <span className="text-shimmer" style={{ color: P.primary, animationDelay: "3s" }}>
+                  Satu Aplikasi
+                </span>
+              </h2>
+              <p className="text-base leading-relaxed" style={{ color: P.body }}>
+                Dirancang untuk membantu sekolah mengelola dokumen dan laporan pertanggungjawaban
+                dana BOS/BOSP secara lebih tertib, efisien, dan mudah ditelusuri.
               </p>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-lg">verified</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-slate-900 font-bold text-sm">Tim Pengembang</p>
-                  <p className="text-slate-500 text-xs">LPJ BOS/BOSP Indonesia</p>
-                </div>
-              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+              {FEATURES.map((f, i) => (
+                <Reveal key={f.title} delay={i * 120} className="h-full">
+                  <div
+                    className="group h-full rounded-xl border p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-1"
+                    style={{ borderColor: P.border, backgroundColor: P.bg }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+                      style={{ backgroundColor: P.softBlue }}
+                    >
+                      <span
+                        className="material-symbols-outlined text-xl"
+                        style={{ color: P.primary, fontVariationSettings: "'FILL' 1" }}
+                      >
+                        {f.icon}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-semibold mb-2" style={{ color: P.heading }}>
+                      {f.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: P.body }}>
+                      {f.desc}
+                    </p>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-16 px-6 bg-white">
-          <div className="container mx-auto">
-            <div className="bg-gradient-to-r from-primary to-blue-600 p-10 md:p-14 rounded-2xl text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-              <div className="relative z-10">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-5">Siap Mendigitalisasi Keuangan Sekolah?</h2>
-                <p className="text-white/75 max-w-lg mx-auto mb-8">Mulai sekarang dan rasakan kemudahan dalam mengelola laporan pertanggungjawaban BOS/BOSP.</p>
-                <Link to="/login" className="bg-white text-primary px-8 py-3.5 rounded-xl font-bold shadow-lg hover:bg-slate-50 hover:shadow-xl transition-all active:scale-95 inline-flex items-center gap-2">
-                  Mulai Sekarang <span className="material-symbols-outlined">arrow_forward</span>
-                </Link>
+        {/* ── KENAPA MEMILIH KAMI ( Tentang ) ──────────────────────────── */}
+        <section id="tentang" className="py-14 lg:py-16 scroll-mt-20" style={{ backgroundColor: P.bg }}>
+          <div className="max-w-[1280px] mx-auto px-6">
+            <div className="max-w-2xl mb-10">
+              <h2
+                className="text-[28px] lg:text-[32px] font-bold mb-3"
+                style={{ color: P.heading, letterSpacing: "-0.01em" }}
+              >
+                Kenapa Memilih Kami?
+              </h2>
+              <p className="text-base leading-relaxed" style={{ color: P.body }}>
+                Aplikasi ini dibangun dari kebutuhan nyata sekolah, bukan sekadar tampilan.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-5">
+              {[
+                {
+                  icon: "psychology",
+                  title: "Dirancang untuk Operator",
+                  desc: "Dibuat oleh operator sekolah yang memahami kebutuhan nyata.",
+                },
+                {
+                  icon: "auto_fix_high",
+                  title: "Otomatis & Cerdas",
+                  desc: "Sistem otomatis mengenali pola transaksi secara akurat.",
+                },
+                {
+                  icon: "shield",
+                  title: "Keamanan Terjamin",
+                  desc: "Semua data disimpan lokal di perangkat Anda.",
+                },
+              ].map((item, i) => (
+                <Reveal key={item.title} delay={i * 120}>
+                  <div
+                    className="rounded-xl border p-6 h-full"
+                    style={{ borderColor: P.border, backgroundColor: P.surface }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                      style={{ backgroundColor: P.softBlue }}
+                    >
+                      <span
+                        className="material-symbols-outlined text-xl"
+                        style={{ color: P.primary, fontVariationSettings: "'FILL' 1" }}
+                      >
+                        {item.icon}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-semibold mb-2" style={{ color: P.heading }}>
+                      {item.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: P.body }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ──────────────────────────────────────────────────────── */}
+        <section className="py-14" style={{ backgroundColor: P.bg }}>
+          <div className="max-w-[1280px] mx-auto px-6">
+            <div
+              className="rounded-2xl border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6"
+              style={{ borderColor: P.border, backgroundColor: P.surface }}
+            >
+              <div>
+                <h2 className="text-xl lg:text-2xl font-bold mb-2" style={{ color: P.heading }}>
+                  Siap Mendigitalisasi Keuangan Sekolah?
+                </h2>
+                <p className="text-sm" style={{ color: P.body }}>
+                  Mulai sekarang dan rasakan kemudahan dalam mengelola laporan pertanggungjawaban BOS/BOSP.
+                </p>
               </div>
+              <Link
+                to="/login"
+                className="shrink-0 text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
+                style={{ backgroundColor: P.primary, color: "#ffffff" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+              >
+                Mulai Sekarang
+              </Link>
             </div>
           </div>
         </section>
       </main>
 
-      {/* FOOTER — Premium Elegant */}
-      <footer className="bg-white border-t border-slate-100" id="kontak">
-        {/* Main footer content */}
-        <div className="container mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                  <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
+      {/* ── FLOATING DOCK — nilai utama (tengah bawah, ikut batas layar pertama) ── */}
+      <div
+        className={`fixed inset-x-0 bottom-3 sm:bottom-5 z-40 flex justify-center pointer-events-none transition-opacity duration-300 ${dockVisible ? "opacity-100" : "opacity-0"}`}
+      >
+        <div
+          className={`${dockVisible ? "pointer-events-auto" : "pointer-events-none"} animate-fade-up`}
+          style={{ animationDelay: "0.6s" }}
+        >
+          <div
+            className="flex items-center p-1 sm:p-1.5 rounded-2xl sm:rounded-full border"
+            style={{
+              borderColor: P.border,
+              backgroundColor: isDark ? "rgba(30,41,59,0.85)" : "rgba(255,255,255,0.85)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              boxShadow: "0 10px 30px -12px rgba(36,87,167,0.28)",
+            }}
+          >
+            {VALUES.map((v, i) => (
+              <Fragment key={v.label}>
+                {i > 0 && (
+                  <span
+                    className="hidden sm:block w-px h-5"
+                    style={{ backgroundColor: P.border }}
+                  />
+                )}
+                <div
+                  className="flex items-center gap-1.5 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-full transition-all duration-200 hover:-translate-y-0.5"
+                  style={{ backgroundColor: "transparent" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.softBlue)}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  title={v.label}
+                >
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ color: P.primary, fontSize: "16px", fontVariationSettings: "'FILL' 1" }}
+                  >
+                    {v.icon}
+                  </span>
+                  <span className="hidden sm:inline text-xs font-medium whitespace-nowrap" style={{ color: P.body }}>
+                    {v.label}
+                  </span>
                 </div>
-                <span className="text-xl font-bold text-slate-900">LPJ BOS/BOSP</span>
-              </div>
-              <p className="text-slate-500 text-sm leading-relaxed max-w-sm mb-6">
-                Solusi administrasi keuangan sekolah yang cerdas, efisien, dan transparan untuk seluruh sekolah di Indonesia.
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-xs text-slate-400 font-medium">Semua sistem berjalan normal</span>
-              </div>
-            </div>
-
-            {/* Links */}
-            <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Navigasi</p>
-              <ul className="space-y-3">
-                {['Fitur', 'Tentang', 'Kontak', 'Masuk'].map((item, i) => (
-                  <li key={i}>
-                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <p className="text-xs font-bold text-slate-900 uppercase tracking-widest mb-4">Legal</p>
-              <ul className="space-y-3">
-                {['Syarat & Ketentuan', 'Kebijakan Privasi', 'Kebijakan Cookie'].map((item, i) => (
-                  <li key={i}>
-                    <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors duration-200">{item}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              </Fragment>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-slate-100">
-          <div className="container mx-auto px-6 py-5">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-xs text-slate-400">
-                © {new Date().getFullYear()} LPJ BOS/BOSP Indonesia. All rights reserved.
-              </p>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-slate-400">Dibuat dengan</span>
-                <span className="material-symbols-outlined text-red-400 text-sm">favorite</span>
-                <span className="text-xs text-slate-400">untuk sekolah Indonesia</span>
-              </div>
+      {/* ── FOOTER ────────────────────────────────────────────────────── */}
+      <footer
+        className="border-t py-10 pb-28"
+        style={{ borderColor: P.border, backgroundColor: P.surface }}
+        id="kontak"
+      >
+        <div className="max-w-[1280px] mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <img src="/asik-logo.png" alt="Asik" className="h-7 w-auto" draggable="false" />
+              <span className="text-sm font-bold" style={{ color: P.heading }}>
+                Aplikasi Sistem Keuangan
+              </span>
             </div>
+            <p className="text-xs" style={{ color: P.muted }}>
+              © {new Date().getFullYear()} Aplikasi Sistem Keuangan. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
-
-      {/* Back to Top */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-6 right-6 w-11 h-11 bg-primary text-white rounded-full shadow-lg shadow-primary/25 flex items-center justify-center transition-all duration-300 z-50 hover:scale-110 ${
-          showBackToTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
-        }`}
-      >
-        <span className="material-symbols-outlined text-lg">arrow_upward</span>
-      </button>
     </div>
   );
 }
