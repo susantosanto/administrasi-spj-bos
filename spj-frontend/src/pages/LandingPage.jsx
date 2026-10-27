@@ -486,7 +486,7 @@ backgroundColor: scrolled
               {FEATURES.map((f, i) => (
                 <Reveal key={f.title} delay={i * 120} className="h-full">
                   <div
-                    className="group h-full rounded-xl border p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-1"
+                    className="group h-full rounded-xl border p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-1 card-slash"
                     style={{ borderColor: P.border, backgroundColor: P.bg }}
                   >
                     <div
@@ -548,7 +548,7 @@ backgroundColor: scrolled
               ].map((item, i) => (
                 <Reveal key={item.title} delay={i * 120}>
                   <div
-                    className="rounded-xl border p-5 h-full"
+                    className="rounded-xl border p-5 h-full card-slash"
                     style={{ borderColor: P.border, backgroundColor: P.surface }}
                   >
                     <div
