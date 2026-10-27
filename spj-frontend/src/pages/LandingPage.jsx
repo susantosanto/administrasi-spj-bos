@@ -580,7 +580,17 @@ backgroundColor: scrolled
           <div className="max-w-[1280px] mx-auto px-6">
             <div
               className="rounded-2xl border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6"
-              style={{ borderColor: P.border, backgroundColor: P.surface }}
+              style={{
+                borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.65)",
+                background: isDark
+                  ? "linear-gradient(135deg, rgba(30,41,59,0.62), rgba(15,23,42,0.45))"
+                  : "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52))",
+                backdropFilter: "blur(18px) saturate(1.5)",
+                WebkitBackdropFilter: "blur(18px) saturate(1.5)",
+                boxShadow: isDark
+                  ? "0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10)"
+                  : "0 12px 40px rgba(36,87,167,0.12), inset 0 1px 0 rgba(255,255,255,0.65)",
+              }}
             >
               <div>
                 <h2 className="text-xl lg:text-2xl font-bold mb-2" style={{ color: P.heading }}>
