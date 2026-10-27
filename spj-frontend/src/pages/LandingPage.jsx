@@ -52,6 +52,8 @@ function getPalette(isDark) {
     return {
       primary: "#60A5FA",
       primaryHover: "#3B82F6",
+      cta: "#2563EB",
+      ctaHover: "#1D4ED8",
       bg: "#0F172A",
       surface: "#1E293B",
       heading: "#F1F5F9",
@@ -65,6 +67,8 @@ function getPalette(isDark) {
   return {
     primary: "#2457A7",
     primaryHover: "#1D4688",
+    cta: "#2457A7",
+    ctaHover: "#1D4688",
     bg: "#F3F5F9",
     surface: "#FFFFFF",
     heading: "#1D2939",
@@ -124,37 +128,43 @@ function DashboardMockup({ palette: P, isDark }) {
   // Warna label "pekat" di dark mode — sidebar & header tabel mockup ber-bg terang tetap (#FAFBFD),
   // jadi muted versi gelap (#94A3B8) terlihat pudar di atasnya
   const labelSolid = isDark ? "#33415C" : P.muted;
+  // Mockup selalu ber-permukaan terang, jadi aksen harus cukup gelap juga di dark mode
+  const M = {
+    primary: isDark ? "#2457A7" : M.primary,
+    success: isDark ? "#16835D" : M.success,
+    warning: isDark ? "#D97706" : "#D97706",
+  };
   // Auto-cycling demo content (visual only, dummy data)
   const MENU = [
     {
       label: "Beranda",
-      stats: [["Total Dana", "Rp 125.000.000", P.primary], ["Realisasi", "Rp 87.500.000", P.success], ["Sisa Dana", "Rp 37.500.000", P.warning]],
-      rows: [["Honor Guru", "12 Jul 2026", "Selesai", P.success], ["Transport", "10 Jul 2026", "Proses", P.warning], ["Mamin", "08 Jul 2026", "Selesai", P.success]],
+      stats: [["Total Dana", "Rp 125.000.000", M.primary], ["Realisasi", "Rp 87.500.000", M.success], ["Sisa Dana", "Rp 37.500.000", M.warning]],
+      rows: [["Honor Guru", "12 Jul 2026", "Selesai", M.success], ["Transport", "10 Jul 2026", "Proses", M.warning], ["Mamin", "08 Jul 2026", "Selesai", M.success]],
     },
     {
       label: "Data Sekolah",
-      stats: [["Profil", "Terisi", P.success], ["Logo", "Terisi", P.success], ["Pejabat", "3 Jabatan", P.primary]],
-      rows: [["Profil Sekolah", "12 Jul 2026", "Terisi", P.success], ["Logo Sekolah", "10 Jul 2026", "Terisi", P.success], ["Data Pejabat", "08 Jul 2026", "Perlu Cek", P.warning]],
+      stats: [["Profil", "Terisi", M.success], ["Logo", "Terisi", M.success], ["Pejabat", "3 Jabatan", M.primary]],
+      rows: [["Profil Sekolah", "12 Jul 2026", "Terisi", M.success], ["Logo Sekolah", "10 Jul 2026", "Terisi", M.success], ["Data Pejabat", "08 Jul 2026", "Perlu Cek", M.warning]],
     },
     {
       label: "Data Guru",
-      stats: [["Guru", "24 Orang", P.primary], ["Tendik", "6 Orang", P.primary], ["Aktif", "Seluruhnya", P.success]],
-      rows: [["Budi Santoso", "S-1 Pendidikan", "Aktif", P.success], ["Siti Aminah", "S-1 Ekonomi", "Aktif", P.success], ["Agus Wijaya", "S-1 Teknik", "Aktif", P.success]],
+      stats: [["Guru", "24 Orang", M.primary], ["Tendik", "6 Orang", M.primary], ["Aktif", "Seluruhnya", M.success]],
+      rows: [["Budi Santoso", "S-1 Pendidikan", "Aktif", M.success], ["Siti Aminah", "S-1 Ekonomi", "Aktif", M.success], ["Agus Wijaya", "S-1 Teknik", "Aktif", M.success]],
     },
     {
       label: "Dokumen LPJ",
-      stats: [["Total Dokumen", "12 Dokumen", P.primary], ["Selesai", "8 Dokumen", P.success], ["Draft", "4 Dokumen", P.warning]],
-      rows: [["LPJ Honor Guru", "12 Jul 2026", "Selesai", P.success], ["LPJ Transport", "10 Jul 2026", "Proses", P.warning], ["LPJ Mamin", "08 Jul 2026", "Selesai", P.success]],
+      stats: [["Total Dokumen", "12 Dokumen", M.primary], ["Selesai", "8 Dokumen", M.success], ["Draft", "4 Dokumen", M.warning]],
+      rows: [["LPJ Honor Guru", "12 Jul 2026", "Selesai", M.success], ["LPJ Transport", "10 Jul 2026", "Proses", M.warning], ["LPJ Mamin", "08 Jul 2026", "Selesai", M.success]],
     },
     {
       label: "BKU",
-      stats: [["Saldo", "Rp 37.500.000", P.primary], ["Transaksi", "46 Entri", P.primary], ["Belum Cek", "2 Entri", P.warning]],
-      rows: [["Kwitansi #0012", "12 Jul 2026", "Cek OK", P.success], ["Nota #0087", "10 Jul 2026", "Cek OK", P.success], ["SPJ #0034", "08 Jul 2026", "Ditindak", P.warning]],
+      stats: [["Saldo", "Rp 37.500.000", M.primary], ["Transaksi", "46 Entri", M.primary], ["Belum Cek", "2 Entri", M.warning]],
+      rows: [["Kwitansi #0012", "12 Jul 2026", "Cek OK", M.success], ["Nota #0087", "10 Jul 2026", "Cek OK", M.success], ["SPJ #0034", "08 Jul 2026", "Ditindak", M.warning]],
     },
     {
       label: "Pengaturan",
-      stats: [["Tampilan", "Light / Dark", P.primary], ["Notifikasi", "Aktif", P.success], ["Penyimpanan", "Lokal", P.success]],
-      rows: [["Preferensi Tema", "Terapkan", "Aktif", P.success], ["Backup Data", "Ekspor", "Aktif", P.success], ["Info Aplikasi", "v1.0", "Normal", P.success]],
+      stats: [["Tampilan", "Light / Dark", M.primary], ["Notifikasi", "Aktif", M.success], ["Penyimpanan", "Lokal", M.success]],
+      rows: [["Preferensi Tema", "Terapkan", "Aktif", M.success], ["Backup Data", "Ekspor", "Aktif", M.success], ["Info Aplikasi", "v1.0", "Normal", M.success]],
     },
   ];
 
@@ -349,9 +359,9 @@ backgroundColor: scrolled
             <Link
               to="/login"
               className="text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
-              style={{ backgroundColor: P.primary, color: "#ffffff" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+              style={{ backgroundColor: P.cta, color: "#ffffff" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
             >
               Mulai Sekarang
             </Link>
@@ -427,9 +437,9 @@ backgroundColor: scrolled
                   <Link
                     to="/login"
                     className="text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
-                    style={{ backgroundColor: P.primary, color: "#ffffff" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+                    style={{ backgroundColor: P.cta, color: "#ffffff" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
                   >
                     Mulai Sekarang
                   </Link>
@@ -583,9 +593,9 @@ backgroundColor: scrolled
               <Link
                 to="/login"
                 className="shrink-0 text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
-                style={{ backgroundColor: P.primary, color: "#ffffff" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.primaryHover)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.primary)}
+                style={{ backgroundColor: P.cta, color: "#ffffff" }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
               >
                 Mulai Sekarang
               </Link>
