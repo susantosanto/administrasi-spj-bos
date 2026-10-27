@@ -146,36 +146,6 @@ export default function DashboardHome() {
           {/* Background Layer — Deep Blue Gradient — living */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#003087] via-[#004ac6] to-[#0066ff] living-gradient" style={{ backgroundSize: '200% 200%' }} />
 
-          {/* A2 — METABALLS / GOOEY ORBS — out-of-the-box living gradient */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none metaballs-container" aria-hidden="true">
-            {/* Blob 1 — large primary, top-right */}
-            <div className="metaball metaball-primary animate-metaball-1 w-[520px] h-[520px] -top-28 -right-24 opacity-90" />
-            {/* Blob 2 — accent cyan, bottom-left */}
-            <div className="metaball metaball-accent animate-metaball-2 w-[480px] h-[480px] -bottom-36 -left-28 opacity-80" />
-            {/* Blob 3 — deep, center floating */}
-            <div className="metaball metaball-deep animate-metaball-3 w-[380px] h-[380px] top-1/2 left-[42%] -translate-x-1/2 -translate-y-1/2 opacity-60" />
-            {/* Blob 4 — small highlight, drift */}
-            <div className="metaball metaball-primary animate-metaball-drift w-[260px] h-[260px] top-[18%] right-[28%] opacity-50" style={{ animationDelay: '2s' }} />
-          </div>
-
-          {/* Floating particles — tidak statis */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            <div className="absolute w-1.5 h-1.5 bg-white/40 rounded-full top-[20%] left-[15%] floating-particle" style={{ animationDelay: '0s', animationDuration: '6s' }} />
-            <div className="absolute w-1 h-1 bg-white/30 rounded-full top-[45%] left-[8%] floating-particle" style={{ animationDelay: '1.1s', animationDuration: '7s' }} />
-            <div className="absolute w-2 h-2 bg-white/15 rounded-full top-[18%] right-[20%] floating-particle" style={{ animationDelay: '0.7s', animationDuration: '8s' }} />
-            <div className="absolute w-1 h-1 bg-white/25 rounded-full bottom-[25%] right-[18%] floating-particle" style={{ animationDelay: '1.5s', animationDuration: '6.5s' }} />
-          </div>
-
-          {/* Grid Pattern */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }} />
-
-          {/* Glass Pattern Top-Right — keep as foreground depth */}
-          <div className="absolute top-8 right-8 w-32 h-32 border border-white/10 rounded-3xl rotate-12 backdrop-blur-sm" />
-          <div className="absolute top-12 right-12 w-24 h-24 border border-white/10 rounded-2xl rotate-6 backdrop-blur-sm" />
-
           {/* Content */}
           <div className="relative p-5 sm:p-8 lg:p-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-8">
