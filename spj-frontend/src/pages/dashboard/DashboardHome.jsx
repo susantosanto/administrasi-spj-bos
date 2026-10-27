@@ -327,7 +327,7 @@ export default function DashboardHome() {
                     setSelectedDoc(doc)
                     setShowDocModal(true)
                   }}
-                  className={`relative overflow-hidden flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-lg hover:scale-[1.02] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-300 group text-left w-full`}
+                  className={`relative flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-lg hover:scale-[1.02] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-300 group text-left w-full`}
                 >
                   {/* Decorative blur */}
                   <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
@@ -342,6 +342,12 @@ export default function DashboardHome() {
                       {doc.judul}
                     </p>
                     <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
+                  </div>
+                  {/* Tooltip hover */}
+                  <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-xl bg-slate-900/95 text-white px-3 py-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl z-20">
+                    <p className="font-semibold leading-tight">{doc.judul}</p>
+                    <p className="text-slate-300 leading-tight mt-0.5">{doc.sub}</p>
+                    <p className="text-slate-400 leading-tight mt-0.5 truncate">{doc.file}</p>
                   </div>
                   <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1' : 'text-slate-300'} transition-all text-lg`}>
                     {available ? 'download' : 'block'}
