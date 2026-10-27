@@ -408,7 +408,7 @@ backgroundColor: scrolled
               <div>
                 <span
                   className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-5 animate-fade-up"
-                  style={{ backgroundColor: P.softBlue, color: P.primary, animationDelay: "0s" }}
+                  style={{ backgroundColor: P.primary, color: "#ffffff", animationDelay: "0s" }}
                 >
                   Sistem Informasi LPJ BOS/BOSP
                 </span>
