@@ -22,18 +22,19 @@ function DashboardContent() {
       className="flex min-h-screen relative"
       style={{ backgroundColor: isDark ? '#0F172A' : '#F3F5F9' }}
     >
-      {/* Batik motif beranimasi — sama seperti landing & login */}
-      <div
-        className="absolute inset-x-0 -inset-y-[360px] pointer-events-none animate-batik-drift"
-        style={{
-          backgroundImage: "url('/floral-pattern.jpg')",
-          backgroundSize: "360px 360px",
-          backgroundRepeat: "repeat",
-          opacity: isDark ? 0.07 : 0.18,
-          mixBlendMode: isDark ? "normal" : "multiply",
-        }}
-        aria-hidden="true"
-      />
+      {/* Batik motif beranimasi — sama seperti landing & login (clipped agar tidak menambah tinggi scroll) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div
+          className="absolute inset-x-0 -inset-y-[360px] animate-batik-drift"
+          style={{
+            backgroundImage: "url('/floral-pattern.jpg')",
+            backgroundSize: "360px 360px",
+            backgroundRepeat: "repeat",
+            opacity: isDark ? 0.07 : 0.18,
+            mixBlendMode: isDark ? "normal" : "multiply",
+          }}
+        />
+      </div>
       {/* Overlay agar konten tetap terbaca di atas batik */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#02052a]/20 via-transparent to-[#001a4d]/20 pointer-events-none" />
       <div className="absolute inset-0 bg-white/10 dark:bg-black/30 backdrop-blur-[0.5px] pointer-events-none" />
