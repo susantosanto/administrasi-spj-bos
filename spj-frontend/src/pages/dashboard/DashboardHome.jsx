@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
+import { useTheme } from '../../contexts/ThemeContext'
 import storageHelper from '../../utils/storageHelper'
 import { DOCUMENTS_REF, isDocAvailable } from '../../utils/docHelper'
 import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
@@ -93,6 +94,7 @@ const FEATURES = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DashboardHome() {
+  const { isDark } = useTheme()
   const [currentTime, setCurrentTime] = useState(new Date())
   const [lpjProgress, setLpjProgress] = useState({ checked: 0, total: 0 })
   const [selectedDoc, setSelectedDoc] = useState(null) // Dokumen yang dipilih untuk modal
@@ -144,7 +146,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-primary/20">
           {/* Background Layer — Deep Blue Gradient — living */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#003087] via-[#004ac6] to-[#0066ff] living-gradient" style={{ backgroundSize: '200% 200%' }} />
+          <div className={`absolute inset-0 bg-gradient-to-br living-gradient ${isDark ? 'from-[#001a4d] via-[#003087] to-[#004ac6]' : 'from-[#003087] via-[#004ac6] to-[#0066ff]'}`} style={{ backgroundSize: '200% 200%' }} />
 
           {/* Content */}
           <div className="relative p-5 sm:p-8 lg:p-10">
@@ -160,14 +162,14 @@ export default function DashboardHome() {
                     <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
                   </div>
                   <div>
-                    <p className="text-blue-200 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold mb-0.5 sm:mb-1">Sistem Informasi</p>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                    <p className="text-blue-100/80 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold mb-0.5 sm:mb-1">Sistem Informasi</p>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white/95 tracking-tight">
                       LPJ BOS/BOSP
                     </h1>
                   </div>
                 </div>
 
-                <p className="text-blue-100/80 text-sm sm:text-base max-w-xl mb-6 sm:mb-8 leading-relaxed">
+                <p className="text-blue-100/70 text-sm sm:text-base max-w-xl mb-6 sm:mb-8 leading-relaxed">
                   Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
                   Lengkapi semua dokumen Anda dengan mudah, cepat, dan profesional.
                 </p>
