@@ -232,6 +232,26 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* QUICK STATS — ringkasan progres operator                            */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Progress LPJ', value: `${lpjProgress.checked}/${lpjProgress.total}`, icon: 'checklist', color: 'text-primary' },
+            { label: 'Fitur', value: FEATURES.length, icon: 'auto_awesome', color: 'text-slate-700' },
+            { label: 'Dok. Referensi', value: DOCUMENTS_REF.length, icon: 'download', color: 'text-slate-700' },
+            { label: 'Transaksi BKU', value: (storageHelper.get('bku_data', null)?.transactions?.length || 0), icon: 'receipt_long', color: 'text-slate-700' },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white rounded-xl border border-slate-200 px-4 py-3 flex items-center gap-3">
+              <span className={`material-symbols-outlined ${stat.color}`}>{stat.icon}</span>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
+                <p className="text-[10px] text-slate-500 truncate">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {lpjProgress.total > 0 && (
@@ -277,56 +297,31 @@ export default function DashboardHome() {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* DOKUMEN REFERENSI                                                   */}
+        {/* KEGIATAN TERAKHIR                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-slate-700">download</span>
-              <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>
+              <span className="material-symbols-outlined text-slate-700">history</span>
+              <h3 className="text-base font-bold text-slate-900">Kegiatan Terakhir</h3>
             </div>
-            <span className="text-xs text-slate-500">Unduh dokumen regulasi BOS/BOSP</span>
+            <span className="text-xs text-slate-500">Aktivitas terbaru operator</span>
           </div>
-
-          <div className="p-3 sm:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            {DOCUMENTS_REF.map((doc) => {
-              const available = isDocAvailable(doc)
-              return (
-                <button
-                  key={doc.id}
-                  onClick={() => {
-                    if (!available) return // skip modal untuk file yang belum tersedia
-                    setSelectedDoc(doc)
-                    setShowDocModal(true)
-                  }}
-                  className={`relative flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-lg hover:scale-[1.02] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-300 group text-left w-full`}
-                >
-                  {/* Decorative blur */}
-                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/30 rounded-full blur-2xl pointer-events-none" />
-
-                  <div className={`relative w-11 h-11 rounded-xl ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-110' : ''} transition-all duration-300`}>
-                    <span className={`material-symbols-outlined ${doc.iconColor} text-xl transition-colors`}>
-                      {doc.icon}
-                    </span>
-                  </div>
-                  <div className="relative flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-800 truncate">
-                      {doc.judul}
-                    </p>
-                    <p className="text-[11px] text-slate-500 truncate">{doc.sub}</p>
-                  </div>
-                  {/* Tooltip hover */}
-                  <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-xl bg-slate-900/95 text-white px-3 py-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl z-20">
-                    <p className="font-semibold leading-tight">{doc.judul}</p>
-                    <p className="text-slate-300 leading-tight mt-0.5">{doc.sub}</p>
-                    <p className="text-slate-400 leading-tight mt-0.5 truncate">{doc.file}</p>
-                  </div>
-                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1' : 'text-slate-300'} transition-all text-lg`}>
-                    {available ? 'download' : 'block'}
-                  </span>
-                </button>
-              )
-            })}
+          <div className="p-4 space-y-2">
+            {[
+              { icon: 'upload_file', title: 'Upload BKU Januari', time: '2 jam lalu' },
+              { icon: 'description', title: 'Cetak Dokumen LPJ Honor', time: '5 jam lalu' },
+              { icon: 'school', title: 'Update Data Sekolah', time: '1 hari lalu' },
+              { icon: 'groups', title: 'Import Data Guru', time: '2 hari lalu' },
+            ].map((act, i) => (
+              <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors">
+                <span className="material-symbols-outlined text-slate-500">{act.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">{act.title}</p>
+                  <p className="text-[10px] text-slate-400">{act.time}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -361,6 +356,42 @@ export default function DashboardHome() {
                 </div>
               </Link>
             ))}
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-slate-700 text-lg">download</span>
+              <h3 className="text-sm font-bold text-slate-900">Dokumen Referensi</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              {DOCUMENTS_REF.map((doc) => {
+                const available = isDocAvailable(doc)
+                return (
+                  <button
+                    key={doc.id}
+                    onClick={() => {
+                      if (!available) return
+                      setSelectedDoc(doc)
+                      setShowDocModal(true)
+                    }}
+                    className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
+                  >
+                    <div className={`relative w-9 h-9 rounded-lg ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-105' : ''} transition-all duration-200 shrink-0`}>
+                      <span className={`material-symbols-outlined ${doc.iconColor} text-lg transition-colors`}>
+                        {doc.icon}
+                      </span>
+                    </div>
+                    <div className="relative flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">{doc.judul}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{doc.sub}</p>
+                    </div>
+                    <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'} transition-all text-base`}>
+                      {available ? 'download' : 'block'}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
 
