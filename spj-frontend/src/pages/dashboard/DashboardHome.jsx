@@ -217,7 +217,7 @@ export default function DashboardHome() {
                   <div className="absolute inset-0 bg-gradient-to-r from-white to-blue-100 rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity" />
 
                   {/* Button */}
-                  <div className="relative living-shimmer flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
+                  <div className="relative flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-white via-white to-blue-50 text-primary px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl shadow-black/20 group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 transition-all">
                       <span className="material-symbols-outlined text-lg sm:text-xl text-primary group-hover:text-white transition-colors">print</span>
                     </div>
