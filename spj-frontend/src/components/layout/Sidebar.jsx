@@ -56,6 +56,11 @@ const BOTTOM_ITEMS = [
 export default function Sidebar() {
   const navigate = useNavigate()
   const { isOpen, isMobile, close } = useSidebar()
+  const [expanded, setExpanded] = useState(() =>
+    Object.fromEntries(MENU_GROUPS.map((g) => [g.label, true]))
+  )
+  const toggleGroup = (label) =>
+    setExpanded((prev) => ({ ...prev, [label]: !prev[label] }))
 
   // Logout → loader ASIK (fullscreen) dulu, lalu fade-out, baru bersihkan & keluar.
   // Isi bersihkan + navigate PERSIS versi lama — hanya diberi urutan loader.
@@ -184,14 +189,25 @@ export default function Sidebar() {
 
             {MENU_GROUPS.map((group, groupIdx) => (
               <div key={group.label} className={groupIdx > 0 ? 'mt-2' : ''}>
-                {/* Group Header */}
-                <div className="px-3 mb-2.5">
+                {/* Group Header (collapsible) */}
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.label)}
+                  className="w-full flex items-center justify-between px-3 mb-2.5 group/header"
+                >
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
                     {group.label}
                   </span>
-                </div>
+                  <span
+                    className="material-symbols-outlined text-[14px] text-slate-400 transition-transform duration-200"
+                    style={{ transform: expanded[group.label] ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                  >
+                    expand_more
+                  </span>
+                </button>
 
                 {/* Group Items */}
+                {expanded[group.label] && (
                 <div className="space-y-1">
                   {group.items.map((item) => (
                     <NavLink
@@ -234,6 +250,7 @@ export default function Sidebar() {
                     </NavLink>
                   ))}
                 </div>
+                )}
               </div>
             ))}
           </nav>
@@ -280,6 +297,7 @@ export default function Sidebar() {
               </NavLink>
             ))}
 
+                )}
             {/* Theme Toggle */}
             <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 mb-1">
               <span className="flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-300">
