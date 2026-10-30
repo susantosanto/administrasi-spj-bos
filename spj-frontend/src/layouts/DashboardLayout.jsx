@@ -30,7 +30,7 @@ function DashboardContent() {
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.35 : 0.70,
+            opacity: isDark ? 0.06 : 0.10,
             mixBlendMode: isDark ? "normal" : "multiply",
           }}
         />

@@ -139,14 +139,14 @@ export default function DashboardHome() {
     <div className="flex flex-col min-h-screen bg-transparent">
       <Topbar title="Beranda Utama" subtitle="Ringkasan fitur aplikasi LPJ" />
 
-      <div className="p-6 space-y-6 flex-1 max-w-[1400px] mx-auto w-full">
+      <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* HERO — ULTRA PREMIUM HEADER                                         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden rounded-3xl shadow-2xl shadow-primary/20">
           {/* Background Layer — Deep Blue Gradient — living */}
-          <div className={`absolute inset-0 bg-gradient-to-br living-gradient ${isDark ? 'from-[#001a4d] via-[#003087] to-[#004ac6]' : 'from-[#003087] via-[#004ac6] to-[#0066ff]'}`} style={{ backgroundSize: '200% 200%' }} />
+          <div className={`absolute inset-0 bg-gradient-to-br living-gradient ${isDark ? 'from-[#0f172a] via-[#1e3a8a] to-[#2563eb]' : 'from-[#1e40af] via-[#2563eb] to-[#3b82f6]'}`} style={{ backgroundSize: '200% 200%' }} />
 
           {/* Content */}
           <div className="relative p-5 sm:p-8 lg:p-10">
@@ -241,7 +241,7 @@ export default function DashboardHome() {
             { label: 'Dok. Referensi', value: DOCUMENTS_REF.length, icon: 'download', color: 'text-slate-700' },
             { label: 'Transaksi BKU', value: (storageHelper.get('bku_data', null)?.transactions?.length || 0), icon: 'receipt_long', color: 'text-slate-700' },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/60 dark:border-white/15 rounded-xl px-4 py-3 flex items-center gap-3 shadow-sm">
+            <div key={stat.label} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 shadow-sm">
               <span className={`material-symbols-outlined ${stat.color}`}>{stat.icon}</span>
               <div className="min-w-0">
                 <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
@@ -255,7 +255,7 @@ export default function DashboardHome() {
         {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {lpjProgress.total > 0 && (
-          <div className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/60 dark:border-white/15 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">checklist</span>
@@ -298,7 +298,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN                                                      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/60 dark:border-white/15 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <span className="material-symbols-outlined text-slate-800">auto_awesome</span>
             <h2 className="text-lg font-bold text-slate-900">Fitur Unggulan</h2>
@@ -309,7 +309,7 @@ export default function DashboardHome() {
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group flex items-center gap-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/70 dark:border-white/15 rounded-xl px-3 py-2.5 hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                className="group flex items-center gap-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/50 dark:border-white/10 rounded-xl px-3 py-2.5 hover:shadow-md hover:border-slate-300 transition-all duration-200"
               >
                 <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:scale-105 transition-all duration-200 shrink-0">
                   <span className="material-symbols-outlined text-lg text-slate-700 group-hover:text-white transition-colors">
