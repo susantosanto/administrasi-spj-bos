@@ -294,6 +294,46 @@ export default function DashboardHome() {
         )}
         {/* ═══════════════════════════════════════════════════════════════════ */}
 
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* DOKUMEN REFERENSI                                                   */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="material-symbols-outlined text-slate-700">download</span>
+            <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+            {DOCUMENTS_REF.map((doc) => {
+              const available = isDocAvailable(doc)
+              return (
+                <button
+                  key={doc.id}
+                  onClick={() => {
+                    if (!available) return
+                    setSelectedDoc(doc)
+                    setShowDocModal(true)
+                  }}
+                  className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
+                >
+                  <div className={`relative w-9 h-9 rounded-lg ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-105' : ''} transition-all duration-200 shrink-0`}>
+                    <span className={`material-symbols-outlined ${doc.iconColor} text-lg transition-colors`}>
+                      {doc.icon}
+                    </span>
+                  </div>
+                  <div className="relative flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-800 truncate">{doc.judul}</p>
+                    <p className="text-[10px] text-slate-500 truncate">{doc.sub}</p>
+                  </div>
+                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'} transition-all text-base`}>
+                    {available ? 'download' : 'block'}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
       </div>
 
       {/* ─── MODAL KONFIRMASI DOWNLOAD ─── */}
