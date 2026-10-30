@@ -155,8 +155,8 @@ export default function DashboardHome() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div className="relative">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 shadow-lg shadow-black/10">
-                      <span className="material-symbols-outlined text-2xl sm:text-3xl text-white">school</span>
+                    <div className="w-24 h-12 sm:w-32 sm:h-16 rounded-xl sm:rounded-2xl bg-white/90 backdrop-blur-xl flex items-center justify-center border border-white/30 shadow-lg shadow-black/10">
+                      <img src="/asik-logo.png" alt="Asik" className="h-7 sm:h-9 w-auto object-contain" draggable="false" />
                     </div>
                     {/* Pulse dot */}
                     <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
