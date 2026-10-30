@@ -210,12 +210,11 @@ export default function DashboardHome() {
                 {/* CTA Button — Ultra Premium — shimmer + breathing */}
                 <Link
                   to="/dashboard/dokumen-lpj"
-                  className="group relative overflow-hidden living-breathing"
-                  style={{ animationDuration: '3.2s' }}
+                  className="group"
                 >
                   {/* Button Glow Effect */}
                   {/* Button */}
-                  <div className={`relative flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-2xl group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300 ${isDark ? 'bg-slate-800/90 text-white border border-slate-700 shadow-black/30' : 'bg-gradient-to-r from-white via-white to-blue-50 text-primary shadow-black/20'}`}>
+                  <div className={`relative flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-sm sm:text-base group-hover:scale-[1.02] group-active:scale-[0.98] transition-all duration-300 ${isDark ? 'bg-slate-800/90 text-white border border-slate-700' : 'bg-gradient-to-r from-white via-white to-blue-50 text-primary'}`}>
                     <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all ${isDark ? 'bg-white/10' : 'bg-primary/10 group-hover:bg-primary'}`}>
                       <span className={`material-symbols-outlined text-lg sm:text-xl transition-colors ${isDark ? 'text-white' : 'text-primary group-hover:text-white'}`}>print</span>
                     </div>
