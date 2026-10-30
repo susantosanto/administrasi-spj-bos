@@ -59,6 +59,7 @@ export default function Sidebar() {
   const [expanded, setExpanded] = useState(() =>
     Object.fromEntries(MENU_GROUPS.map((g) => [g.label, true]))
   )
+  const [settingsOpen, setSettingsOpen] = useState(true)
   const toggleGroup = (label) =>
     setExpanded((prev) => ({ ...prev, [label]: !prev[label] }))
 
@@ -262,50 +263,69 @@ export default function Sidebar() {
             {/* Divider */}
             <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-3" />
 
-            {/* Bottom Menu Items */}
-            {BOTTOM_ITEMS.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {isActive && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
-                    )}
-                    <span
-                      className={`material-symbols-outlined text-[20px] flex-shrink-0 ${
-                        isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'
-                      }`}
-                      style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-                    >
-                      {item.icon}
-                    </span>
-                    <span className={`text-[13px] truncate ${isActive ? 'font-semibold' : 'font-medium'}`}>
-                      {item.label}
-                    </span>
-                  </>
-                )}
-              </NavLink>
-            ))}
-
-                )}
-            {/* Theme Toggle */}
-            <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 mb-1">
-              <span className="flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-300">
-                <span className="material-symbols-outlined text-[18px]">contrast</span>
-                Tema Gelap
+            {/* Collapsible Pengaturan Group */}
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((o) => !o)}
+              className="w-full flex items-center justify-between px-3 mb-2.5"
+            >
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
+                Pengaturan
               </span>
-              <ThemeToggle />
-            </div>
+              <span
+                className="material-symbols-outlined text-[14px] text-slate-400 transition-transform duration-200"
+                style={{ transform: settingsOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+              >
+                expand_more
+              </span>
+            </button>
+
+            {settingsOpen && (
+              <>
+                {BOTTOM_ITEMS.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={handleNavClick}
+                    className={({ isActive }) =>
+                      `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                        )}
+                        <span
+                          className={`material-symbols-outlined text-[20px] flex-shrink-0 ${
+                            isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'
+                          }`}
+                          style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className={`text-[13px] truncate ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                          {item.label}
+                        </span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+
+                {/* Theme Toggle */}
+                <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 mb-1">
+                  <span className="flex items-center gap-2 text-[12px] font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="material-symbols-outlined text-[18px]">contrast</span>
+                    Tema Gelap
+                  </span>
+                  <ThemeToggle />
+                </div>
+              </>
+            )}
 
             {/* Logout Button */}
             <button
