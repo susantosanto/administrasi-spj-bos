@@ -3,6 +3,7 @@
  * Premium Blue: light #f8f9fb, dark #0f172a. Toggle adds class "dark" to <html>
  */
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { getItem, setItem } from '../utils/storageAdapter'
 
 const ThemeContext = createContext(null)
 
@@ -10,10 +11,8 @@ const STORAGE_KEY = 'spj_theme' // 'light' | 'dark'
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light'
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'light' || stored === 'dark') return stored
-  } catch (e) {}
+  const stored = getItem(STORAGE_KEY)
+  if (stored === 'light' || stored === 'dark') return stored
   try {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark'
@@ -34,9 +33,7 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark')
     }
-    try {
-      localStorage.setItem(STORAGE_KEY, theme)
-    } catch (e) {}
+    setItem(STORAGE_KEY, theme)
     // for CSS variables sync
     root.setAttribute('data-theme', theme)
     setMounted(true)
@@ -51,12 +48,10 @@ export function ThemeProvider({ children }) {
       return
     }
     const handler = (e) => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY)
-        if (!stored) {
-          setTheme(e.matches ? 'dark' : 'light')
-        }
-      } catch (err) {}
+      const stored = getItem(STORAGE_KEY)
+      if (!stored) {
+        setTheme(e.matches ? 'dark' : 'light')
+      }
     }
     mql.addEventListener?.('change', handler)
     return () => mql.removeEventListener?.('change', handler)

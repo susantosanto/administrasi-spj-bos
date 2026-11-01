@@ -8,6 +8,7 @@ import Sidebar from '../components/layout/Sidebar'
 import { SidebarProvider, useSidebar } from '../contexts/SidebarContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { seedMockData } from '../data/mockData'
+import storageHelper from '../utils/storageHelper'
 import LicenseBanner from '../components/layout/LicenseBanner'
 import { licenseService } from '../services/licenseService'
 
@@ -16,6 +17,7 @@ function DashboardContent() {
   const { isDark } = useTheme()
 
   useEffect(() => {
+    storageHelper.ensureSchemaVersion()
     seedMockData()
     // Refresh status lisensi saat masuk dashboard (REPLACES perlu klik manual)
     licenseService.refresh()

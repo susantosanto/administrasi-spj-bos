@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class",
   theme: {
     extend: {
       // ═══════════════════════════════════════════════════════════════════
@@ -14,7 +14,16 @@ export default {
       // Gradients & tertiary tokens yang tidak terpakai dihapus.
       // ═══════════════════════════════════════════════════════════════════
       colors: {
-        // ── Brand ──────────────────────────────────────────────────
+        // ── Brand (landing SaaS 2026-10-11) ──────────────────────────
+        brand: "#155EEF",                // Primary blue identitas utama
+        "brand-hover": "#0E4FD6",        // Hover CTA
+        "brand-soft": "#EAF2FF",         // Soft blue background
+        navy: "#102A56",                 // Dark navy heading/CTA panel
+        ink: "#101828",                  // Heading
+        muted: "#475467",                // Body text
+        canvas: "#F7F9FC",               // Page background
+        line: "#E4EAF3",                 // Border lembut
+        // ── Brand (lama, dipakai dashboard — jangan ubah) ────────────
         primary: "#004ac6",               // CTA, link, active state (539 usages)
         "primary-hover": "#003ea8",       // Hover — on-primary-fixed-variant
         "primary-light": "#dbe1ff",       // Soft bg — primary-fixed
@@ -43,7 +52,8 @@ export default {
         error: "#ba1a1a",                 // Form error (76 usages)
         danger: "#DC2626",                // Alias danger (7 usages)
         warning: "#EAB308",               // Warning (16 usages)
-        success: "#059669",               // NEW — konsisten untuk emerald states
+        success: "#059669",               // Konsisten untuk emerald states (dashboard)
+        "success-bright": "#12B76A",      // Success landing SaaS
         "text-high": "#111827",           // Heading (28 usages)
         "text-low": "#6B7280",            // Muted (31 usages)
         secondary: "#006c4a",             // Accent secondary (2 usages)

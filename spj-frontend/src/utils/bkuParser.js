@@ -130,7 +130,7 @@ function parseNumber(val) {
 
 // ─── Transaction Type Detection ────────────────────────────────
 
-const TRANSACTION_TYPES = {
+export const TRANSACTION_TYPES = {
   PENERIMAAN_BOSP: 'PENERIMAAN_BOSP',
   PUNGUT_PPH: 'PUNGUT_PPH',
   PERGESERAN_BANK: 'PERGESERAN_BANK',
@@ -143,7 +143,7 @@ const TRANSACTION_TYPES = {
   LAINNYA: 'LAINNYA',
 };
 
-const KATEGORI_BELANJA = {
+export const KATEGORI_BELANJA = {
   HONOR: { pattern: /^5\.1\.02\.02/, label: 'Honor/Gaji', color: 'purple' },
   LISTRIK: { pattern: /^5\.2\.05\.01\.01\.0001$/, label: 'Listrik', color: 'orange' },
   ATK: { pattern: /^5\.1\.02\.01\.01\.0024$/, label: 'ATK', color: 'blue' },

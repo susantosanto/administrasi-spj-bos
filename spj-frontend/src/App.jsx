@@ -7,6 +7,7 @@ import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import PratinjauPage from './pages/PratinjauPage'
 import DashboardLayout from './layouts/DashboardLayout'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import DataSekolahPage from './pages/dashboard/DataSekolahPage'
@@ -96,6 +97,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/daftar" element={<RegisterPage />} />
+            <Route path="/pratinjau" element={<PratinjauPage />} />
 
             {/* Protected Routes — AskAIButton hanya muncul di halaman dashboard */}
             <Route

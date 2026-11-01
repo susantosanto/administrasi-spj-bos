@@ -14,14 +14,21 @@ const TARGETS = {
   groq: {
     base: 'https://api.groq.com/openai/v1',
     rewrite: (path) => path.replace(/^groq\//, ''),
+    // Kunci server (Vercel env, TANPA prefix VITE_ agar tidak terbawa ke bundle klien)
+    serverKey: process.env.GROQ_API_KEY || '',
+    authStyle: 'bearer',
   },
   cerebras: {
     base: 'https://api.cerebras.ai/v1',
     rewrite: (path) => path.replace(/^cerebras\//, ''),
+    serverKey: process.env.CEREBRAS_API_KEY || '',
+    authStyle: 'bearer',
   },
   gemini: {
     base: 'https://generativelanguage.googleapis.com/v1beta',
     rewrite: (path) => path.replace(/^gemini\//, ''),
+    serverKey: process.env.GEMINI_API_KEY || '',
+    authStyle: 'query',
   },
 }
 
@@ -59,20 +66,36 @@ export default async function handler(req, res) {
 
   // Bangun URL target
   const restPath = target.rewrite(pathParts)
-  const targetUrl = `${target.base}/${restPath}`
+  let targetUrl = `${target.base}/${restPath}`
 
-  // Baca API key dari Authorization header (dikirim dari frontend)
+  // Kunci API: utamakan server env (tidak terekspos ke bundle klien),
+  // fallback ke Authorization header dari frontend (mode dev/VITE_*).
+  // Catatan: header Authorization TIDAK pernah di-log.
   const authHeader = req.headers['authorization'] || ''
-  const apiKey = authHeader.replace('Bearer ', '')
+  const clientKey = authHeader.replace(/^Bearer\s+/i, '')
+  const apiKey = target.serverKey || clientKey
+
+  if (!apiKey) {
+    return res.status(401).json({
+      error: 'API key tidak tersedia. Set env server atau isi API key di Pengaturan.',
+    })
+  }
+
+  // Gemini memakai ?key= di query param, bukan Bearer header
+  if (target.authStyle === 'query') {
+    const sep = targetUrl.includes('?') ? '&' : '?'
+    targetUrl = `${targetUrl}${sep}key=${encodeURIComponent(apiKey)}`
+  }
 
   try {
     // Forward request ke API provider
+    const upstreamHeaders = { 'Content-Type': 'application/json' }
+    if (target.authStyle === 'bearer') {
+      upstreamHeaders['Authorization'] = `Bearer ${apiKey}`
+    }
     const response = await fetch(targetUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
+      headers: upstreamHeaders,
       body: JSON.stringify(req.body),
     })
 

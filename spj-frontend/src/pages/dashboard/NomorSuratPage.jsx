@@ -247,15 +247,15 @@ const NomorSuratPage = () => {
     }
   };
 
-  // Save format
+  // Save format (quota-safe via storageHelper)
   const handleSaveFormat = () => {
     if (!requireWrite(toast)) return
-    try {
-      localStorage.setItem('spj_surat_custom_formats', JSON.stringify({ segments: formatSegments }));
+    const ok = set('surat_custom_formats', { segments: formatSegments })
+    if (ok) {
       toast.success('Format tersimpan!');
       setShowFormatModal(false);
-    } catch (e) {
-      toast.error('Gagal menyimpan format');
+    } else {
+      toast.error('Gagal menyimpan format (penyimpanan penuh?)');
     }
   };
 

@@ -611,6 +611,16 @@
 
 ---
 
+### 🏗️ Fondasi Fase 1–5 (2026-10-13, branch `feat/light-dark-living`)
+- [x] **Tema Light/Dark + living animations** — `ThemeContext`, `ThemeToggle`, `darkMode:class`, blok `.dark` di `index.css`, toggle di Topbar/Sidebar
+- [x] **Storage adapter + versioning** — `storageAdapter.js` (quota guard, `spj_schema_version`), `storageHelper.js` dialihkan ke adapter, toast peringatan kuota, migrasi `localStorage` langsung → nol sisa
+- [x] **Vitest + unit test** — `npm run test`, 18 test (bkuParser 10, storageAdapter 5, templateConfig 3)
+- [x] **TemplateEngine hardening** — `BlockErrorBoundary` per-blok, guard data null, fallback blok tak dikenal
+- [x] **Proxy AI aman** — `api/[...path].js` server-key first, fix bug Gemini (`?key=`), tanpa log key
+- [x] **Landing hero rombak + konsistensi 18 template** — hero `lg:grid-cols-12`, kontras teks, `13→18` di Landing/DashboardHome/Login
+- [x] **Bundel** — `manualChunks { pdfjs, xlsx-vendor }` di `vite.config.js`
+- [x] Detail eksekusi: `docs/LAPORAN_EKSEKUSI_FASE1-5.md`, analisis: `ANALISIS_PROYEK.md`
+
 ## 🔮 NEXT STEPS (jika ada)
 
 - [x] **Accordion/Toggle Card** — Ubah konsep card dokumen dari modal ke accordion (detail muncul di bawah) ✅ 2026-07-13
@@ -624,4 +634,4 @@
 
 ---
 
-*Last updated: 2026-07-31 | Session: Multi-foto Generate Dokumentasi AI*
+*Last updated: 2026-10-14 | Session: Commit fondasi Fase 1-5*
