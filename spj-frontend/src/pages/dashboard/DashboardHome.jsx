@@ -238,7 +238,7 @@ export default function DashboardHome() {
             { label: 'Dok. Referensi', value: DOCUMENTS_REF.length, icon: 'download', color: 'text-slate-700' },
             { label: 'Transaksi BKU', value: (storageHelper.get('bku_data', null)?.transactions?.length || 0), icon: 'receipt_long', color: 'text-slate-700' },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 shadow-sm">
+            <div key={stat.label} className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 flex items-center gap-3">
               <span className={`material-symbols-outlined ${stat.color}`}>{stat.icon}</span>
               <div className="min-w-0">
                 <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
@@ -252,7 +252,7 @@ export default function DashboardHome() {
         {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {lpjProgress.total > 0 && (
-          <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary">checklist</span>
@@ -298,7 +298,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700">download</span>
             <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>

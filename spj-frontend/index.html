@@ -113,6 +113,32 @@
       }
       html.dark .asik-loader__logo { filter: brightness(1.22) saturate(1.05); }
     </style>
+    <!-- ── FAIL-SAFE: splash tidak boleh bisa nyangkut selamanya, apa pun yang terjadi ──
+         Berjalan di HTML murni (tidak butuh React). Kalau React gagal mount (error module,
+         server dev lambat, cache tab), splash dipaksa hilang dan pesan diberikan. -->
+    <script>
+      (function () {
+        var armed = false;
+        function failSafe() {
+          armed = true;
+          var s = document.getElementById('boot-splash');
+          if (s) { s.classList.add('boot-hide'); setTimeout(function () { if (s.parentNode) s.remove(); }, 700); }
+          setTimeout(function () {
+            var root = document.getElementById('root');
+            if (root && !root.hasChildNodes()) {
+              var note = document.createElement('div');
+              note.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99998;background:#0F172A;color:#F1F5F9;padding:10px 16px;border-radius:10px;font:500 13px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+              note.textContent = 'Aplikasi gagal termuat — muat ulang halaman (Ctrl+Shift+R) atau jalankan ulang dev server.';
+              document.body.appendChild(note);
+            }
+          }, 1200);
+        }
+        setTimeout(failSafe, 6500);
+        window.addEventListener('error', function (e) {
+          if (!armed && document.getElementById('boot-splash')) failSafe();
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="boot-splash" aria-hidden="true">

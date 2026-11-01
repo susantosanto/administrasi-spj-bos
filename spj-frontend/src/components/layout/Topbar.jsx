@@ -54,7 +54,7 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full border-b border-slate-200/60">
+    <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
@@ -69,9 +69,9 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        <div className="min-w-0">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{title}</h2>
-          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 truncate">{subtitle}</p>}
+        <div className="min-w-0 bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-2 flex flex-col justify-center">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate leading-none">{title}</h2>
+          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-white/70 truncate leading-none mt-1">{subtitle}</p>}
         </div>
       </div>
 
