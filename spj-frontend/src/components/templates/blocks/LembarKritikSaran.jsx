@@ -3,93 +3,120 @@
  * Source: template/Contoh Template App_Register-BA Kas.xlsx
  *         (sheet "Lbr. Kritik-Saran", print area A2:D48, A4 portrait)
  *
- * Ekstraksi sumber (openpyxl):
- * - Kop judul 4 baris (centered):
- *     "LEMBAR PENCATATAN PERTANYAAN/KRITIK/SARAN" (bold 11pt)
- *     "DANA <JENIS DANA> TAHUN ANGGARAN <TAHUN>" (bold 14pt)
- *     "<NAMA SEKOLAH> KECAMATAN <KECAMATAN>" (bold 11pt)
- *     "PERIODE : BULAN <BULAN> TAHUN <TAHUN>" (bold 12pt + garis bawah tipis)
- * - 5 nomor bagian:
- *     1 Identitas Penanya/Pemberi Saran → a. Nama · b. Alamat (2 baris)
- *     2 Tanggal Penerimaan Pertanyaan/Saran
- *     3 Uraian Pertanyaan/Saran (9 baris titik)
- *     4 Penerima Pertanyaan/Saran
- *     5 Tindak Lanjut Saran (7 baris titik)
- * - Footer kanan (10pt): "<tempat>, <tanggal>" · "MELAPORKAN:" · "Kepala Sekolah,"
- *   · [ruang TTD] · nama (bold + garis bawah) · "NIP. <nip>".
+ * Layout = TABEL 4 kolom persis sumber (A:nomor ~4% · B:label ~35% ·
+ * C+D:isian ~61%), table-fixed + nowrap-clip seperti overflow Excel.
+ * Titik-titik = TEKS sumber (~113 kolom C, ~179 baris penuh) — MERAH.
+ * TANPA teks placeholder "[...]": dokumen tangan murni.
+ * Tinggi baris isi 27pt; judul 11pt polos · dana 14pt polos ·
+ * sekolah 11pt bold · periode 12pt BOLD bergaris bawah.
+ * Footer kanan 10pt: tempat-tanggal · MELAPORKAN: · Kepala Sekolah, ·
+ * nama bold+garis bawah · NIP.
  */
-import { PlaceholderText } from '../../../utils/templateHelpers'
+const DOTS_C = `.${'.'.repeat(112)}`
+const DOTS_B = `.${'.'.repeat(178)}`
+
+/** Sel titik-titik merah miring (nowrap + clip). value lama (bila ada) hitam di depan. */
+function Merah({ value, dots }) {
+  return (
+    <span className="block whitespace-nowrap overflow-hidden max-w-full">
+      {value ? <span className="text-black">{value}</span> : null}
+      <span className="text-red-600 italic">{dots}</span>
+    </span>
+  )
+}
 
 export default function LembarKritikSaran({ blockConfig, data = {} }) {
   const v = (key) => data[key] ?? ''
-  const isi = (value, label) => (value !== '' && value != null
-    ? <span>{value}</span>
-    : <PlaceholderText label={label} />)
+  const str = (value) => (value !== '' && value != null ? String(value) : '')
 
-  const titik = (key, jumlahBaris = 1, colon = true) => {
-    const value = v(key)
-    return (
-      <div className="flex-1">
-        {jumlahBaris > 1 && colon && <span>: </span>}
-        {Array.from({ length: jumlahBaris }, (_, i) => (
-          <div key={i} className="flex items-end gap-1 min-h-[15px]">
-            <span className="whitespace-pre-wrap break-words">{i === 0 ? value : ''}</span>
-            <span className="flex-1 border-b border-dotted border-black mb-[3px]" />
-          </div>
-        ))}
-      </div>
-    )
-  }
+  const tdA = (anak, kunci) => (
+    <td key={kunci} className="w-[4%] align-middle text-[11pt] text-black">{anak}</td>
+  )
+  const tdJudul = (anak, kunci, span = 3) => (
+    <td key={kunci} colSpan={span} className="align-middle text-[11pt] text-black">{anak}</td>
+  )
+  // Sprint 023-rev24: sel label kolom B SAJA (span 1) untuk baris field —
+  // default span 3 + tdIsi span 2 = 6 kolom > 4 sehingga sel isian terjepit
+  // nol dan titik tak tampil (temuan screenshot).
+  const tdB = (anak, kunci) => (
+    <td key={kunci} className="align-middle text-[11pt] text-black">{anak}</td>
+  )
+  const tdIsi = (anak, kunci, span = 2) => (
+    <td key={kunci} colSpan={span} className="align-middle text-[11pt] text-black overflow-hidden">{anak}</td>
+  )
+  const baris = (sel, kunci) => (
+    <tr key={kunci} className="h-[36px]">{sel}</tr>
+  )
 
-  const nomor = (no, label, children) => (
-    <div key={no} className="flex gap-2">
-      <div className="w-4 shrink-0">{no}</div>
-      <div className="flex-1">
-        <div className="mb-[3px]">{label}</div>
-        {children}
-      </div>
-    </div>
+  const fieldDots = (key) => (
+    <span className="block whitespace-nowrap overflow-hidden max-w-full">
+      <span className="text-black">: </span>
+      {str(v(key)) ? <span className="text-black">{str(v(key))}</span> : null}
+      <span className="text-red-600 italic">{DOTS_C}</span>
+    </span>
+  )
+  const lanjutDots = () => (
+    <span className="block whitespace-nowrap overflow-hidden max-w-full">
+      <span className="text-black">{'\u00A0\u00A0'}</span>
+      <span className="text-red-600 italic">{DOTS_C}</span>
+    </span>
   )
 
   return (
     <div className="lembar-dok text-[11pt] leading-snug text-black">
-      {/* A3 & A4 sumber TIDAK bold (A4 14pt, A6 PERIODE bold + garis bawah) */}
       <div className="text-center">LEMBAR PENCATATAN PERTANYAAN/KRITIK/SARAN</div>
-      <div className="text-center text-[14pt]">{isi(v('judulDana'), 'Dana dan tahun anggaran')}</div>
-      <div className="text-center font-bold">{isi(v('namaSekolahKet'), 'Nama sekolah dan kecamatan')}</div>
-      <div className="text-center font-bold text-[12pt] border-b border-black pb-1 mb-4">
-        {isi(v('periode'), 'Periode')}
+      <div className="text-center text-[14pt]">{str(v('judulDana'))}</div>
+      <div className="text-center font-bold">{str(v('namaSekolahKet'))}</div>
+      <div className="text-center font-bold text-[12pt] border-b border-black pb-1 mb-3">
+        {str(v('periode'))}
       </div>
 
-      <div className="space-y-1">
-        {nomor('1', 'Identitas Penanya/Pemberi Saran', (
-          <>
-            <div className="flex"><div className="w-14 shrink-0 pl-4">a. Nama</div><div className="flex-1">{titik('namaPemberi')}</div></div>
-            <div className="flex"><div className="w-14 shrink-0 pl-4">b. Alamat</div><div className="flex-1">{titik('alamatPemberi', 2)}</div></div>
-          </>
-        ))}
+      {/* Isi + stempel NIHIL + garis diagonal (sumber: PNG rot -43.3° +
+          connector accent2 #ED7D31). Selalu tampil seperti file sumber. */}
+      <div className="relative">
+      <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
+        <colgroup>
+          <col style={{ width: '4%' }} />
+          <col style={{ width: '35%' }} />
+          <col style={{ width: '33%' }} />
+          <col style={{ width: '28%' }} />
+        </colgroup>
+        <tbody>
+          {baris([tdA('1', 'a'), tdJudul('Identitas Penanya/Pemberi Saran', 'b')], 'r1')}
+          {baris([tdA('', 'a'), tdB('a.\u00A0 Nama', 'b'), tdIsi(fieldDots('namaPemberi'), 'c')], 'r1a')}
+          {baris([tdA('', 'a'), tdB('b.\u00A0 Alamat', 'b'), tdIsi(fieldDots('alamatPemberi'), 'c')], 'r1b')}
+          {baris([tdA('', 'a'), tdB('', 'b'), tdIsi(lanjutDots(), 'c')], 'r1c')}
 
-        {nomor('2', 'Tanggal Penerimaan Pertanyaan/Saran', (
-          <div className="flex"><div className="flex-1 pl-4">{titik('tglTerima')}</div></div>
-        ))}
+          {baris([tdA('2', 'a'), tdB('Tanggal Penerimaan Pertanyaan/Saran', 'b'), tdIsi(fieldDots('tglTerima'), 'c')], 'r2')}
 
-        {nomor('3', 'Uraian Pertanyaan/Saran:', <div className="pl-4">{titik('uraianKegiatan', 9, false)}</div>)}
+          {baris([tdA('3', 'a'), tdJudul('Uraian Pertanyaan/Saran:', 'b')], 'r3')}
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => baris([tdA('', `a${i}`), tdJudul(<Merah value={i === 0 ? str(v('uraianKegiatan')) : ''} dots={DOTS_B} />, `b${i}`)], `r3-${i}`))}
 
-        {nomor('4', 'Penerima Pertanyaan/Saran', (
-          <div className="flex"><div className="flex-1 pl-4">{titik('penerima')}</div></div>
-        ))}
+          {baris([tdA('4', 'a'), tdB('Penerima Pertanyaan/Saran', 'b'), tdIsi(fieldDots('penerima'), 'c')], 'r4')}
 
-        {nomor('5', 'Tindak Lanjut Saran:', <div className="pl-4">{titik('tindakLanjut', 7, false)}</div>)}
+          {baris([tdA('5', 'a'), tdJudul('Tindak Lanjut Saran:', 'b')], 'r5')}
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => baris([tdA('', `a${i}`), tdJudul(<Merah value={i === 0 ? str(v('tindakLanjut')) : ''} dots={DOTS_B} />, `b${i}`)], `r5-${i}`))}
+        </tbody>
+      </table>
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+        {/* Urutan cat persis grup sumber (pic dulu, connector di atas):
+            putih PNG transparan via multiply, garis di atas gambar. */}
+        {/* Sprint 023-rev25 (perintah user): NIHIL TEPAT di tengah garis. */}
+        <img src="/stempel-nihil.png" alt="" className="absolute w-[72%] mix-blend-multiply" style={{ left: '50%', top: '50%', transform: 'translate(-50%,-50%) rotate(-43.3deg)' }} />
+        <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+          <line x1="-22.7" y1="118.7" x2="122.7" y2="-18.7" stroke="#ED7D31" strokeWidth="0.25" />
+        </svg>
+      </div>
       </div>
 
-      {/* Footer kanan 10pt (D34:D42) */}
+      {/* Footer kanan 10pt */}
       <div className="w-1/2 ml-auto mt-6 text-[10pt] break-inside-avoid">
-        <div>{isi(v('tempatTtd'), 'Tempat, tanggal')}</div>
+        <div>{str(v('tempatTtd'))}</div>
         <div>MELAPORKAN:</div>
         <div>Kepala Sekolah,</div>
         <div style={{ height: '52px' }} />
-        <div className="font-bold underline">{isi(v('namaMelaporkan'), 'Nama kepala sekolah')}</div>
-        <div>{v('nipMelaporkan') ? `NIP. ${v('nipMelaporkan')}` : ''}</div>
+        <div className="font-bold underline">{str(v('namaMelaporkan'))}</div>
+        <div>{str(v('nipMelaporkan')) ? `NIP. ${str(v('nipMelaporkan'))}` : ''}</div>
       </div>
     </div>
   )

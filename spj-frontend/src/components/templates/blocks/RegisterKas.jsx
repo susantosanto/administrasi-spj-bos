@@ -75,20 +75,23 @@ export default function RegisterKas({ blockConfig, data = {} }) {
 
   // Sumber: kolom E (lembar/keping) garis bawah putus-putus; kolom H (jumlah)
   // garis bawah putus-putus. Baris ke-2+ di sebuah seksi juga garis ATAS di E.
+  // Kolom denominasi: sumber menampilkan "Rp.-" saat jumlah 0 (teramati di
+  // kedua file contoh) — nominal penuh hanya bila ada lembar/keping.
   const barisPecahan = (no, label, nominal, jenis, satuan, garisPertama) => {
     const r = cari(jenis, nominal) || {}
+    const jml = Number(r.lembar) || 0
     return (
       <tr key={`${jenis}-${nominal}`}>
         <td className="align-middle">{no}</td>
         <td className="align-middle">{label}</td>
-        <td className="align-middle whitespace-nowrap">{rpMinus(nominal)}</td>
+        <td className="align-middle whitespace-nowrap">{jml > 0 ? rpMinus(nominal) : 'Rp.-'}</td>
         {/* E:F — kolom lembar/keping (colSpan 2 persis merge E16:F16 sumber) */}
         <td colSpan={2} className="align-middle text-center kas-isi" style={garisPertama ? GARIS : GARIS_ATAS_BAWAH}>
-          {Number(r.lembar) || 0}
+          {jml}
         </td>
         <td className="align-middle text-center">{satuan}</td>
         <td className="align-middle text-right kas-isi" style={GARIS}>
-          {rp(Number(nominal) * (Number(r.lembar) || 0))}
+          {rp(Number(nominal) * jml)}
         </td>
       </tr>
     )

@@ -997,22 +997,17 @@ export const TEMPLATE_CONFIGS = {
     sub_kategori: 'pbj',
     sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Workplan)',
     orientation: 'portrait',
+    // Sprint 023-rev (perintah user 2026-10-31): struktur IDENTIK sheet
+    // Workplan — meta (No./bulan/hari, satuan pendidikan, alamat, kategori)
+    // + tabel 6 baris + TTD Pelaksana. Struktur lama (kegiatan/syaratA-C)
+    // tidak ada di file sumber → dibuang. Deviasi D-22 dicatat di DECISIONS.MD.
     blocks: [
       { type: 'kop-surat' },
       { type: 'header', judul: 'DOKUMEN PERENCANAAN', nomor: false, showBulan: false },
-      { type: 'table-letter-header', dateField: 'tanggalSurat', leftFields: [{ key: 'nomorSurat', label: 'Nomor', type: 'text' }], rightFields: [] },
-      { type: 'table-fields', fields: [
-        { key: 'kegiatan', label: 'Kegiatan/Pekerjaan', type: 'text' },
-        { key: 'spesifikasi', label: 'Spesifikasi', type: 'textarea' },
-        { key: 'alokasi', label: 'Alokasi Anggaran (Rp)', type: 'text' },
-        { key: 'syaratA', label: 'Syarat penyedia (a)', type: 'text' },
-        { key: 'syaratB', label: 'Syarat penyedia (b)', type: 'text' },
-        { key: 'syaratC', label: 'Syarat penyedia (c)', type: 'text' },
-        { key: 'namaPelaksana', label: 'Pelaksana', type: 'text' },
-      ] },
-      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+      { type: 'workplan-pbj' },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false, peranLabel: 'Pelaksana,' },
     ],
-    defaults: { nomorSurat: '', tanggalSurat: '', kegiatan: '', spesifikasi: '', alokasi: '', syaratA: '', syaratB: '', syaratC: '', namaPelaksana: '' },
+    defaults: { noBukti: '', bulanTahun: '', hari: '', namaSekolah: '', alamatSekolah: '', kategori: '', jumlahBarang: '', spesifikasi: '', waktuSerah: '', alokasiRp: '', jenisPenyedia: '', direktur: '', namaPenyedia: '', npwp: '', alamat: '', telp: '', tanggalCetak: '' },
   },
   pbj_pesanan: {
     id: 'pbj_pesanan',
@@ -1175,6 +1170,54 @@ export const TEMPLATE_CONFIGS = {
     orientation: 'portrait',
     blocks: [{ type: 'lembar-kritik-saran' }],
     defaults: { judulDana: '', namaSekolahKet: '', periode: '', hariTanggal: '', namaPemberi: '', uraianKegiatan: '', penerima: '', tindakLanjut: '', tempatTtd: '' },
+  },
+  // ─── REALISASI DANA — Rekapitulasi Realisasi Penggunaan Dana BOSP ───
+  // Source: template-data/rpd-k7-output.pdf (Tahap 1 2026). Sprint 024.
+  // Matriks 7 SNP × 12 komponen (landscape) + footer saldo + TTD.
+  realisasi_dana: {
+    id: 'realisasi_dana',
+    label: 'Realisasi Dana BOSP',
+    card: 'realisasi',
+    sub_kategori: 'realisasi',
+    sourceFile: 'template-data/rpd-k7-output.pdf',
+    orientation: 'landscape',
+    blocks: [{ type: 'realisasi-tabel' }],
+    defaults: {},
+  },
+  // ─── INSTRUMEN BOS — Penyaluran dan Penggunaan Dana BOS Reguler ───
+  // Source: template/Form isian_BOS  2026 SDN PASIRHALANG.doc. Sprint 024.
+  // Seksi A–E + footer. Portrait.
+  instrumen_bos: {
+    id: 'instrumen_bos',
+    label: 'Instrumen BOS',
+    card: 'realisasi',
+    sub_kategori: 'instrumen',
+    sourceFile: 'template/Form isian_BOS  2026 SDN PASIRHALANG.doc',
+    orientation: 'portrait',
+    blocks: [{ type: 'instrumen-bos' }],
+    defaults: {},
+  },
+  // ─── BLANKO — Daftar Hadir & Surat Undangan (Kelengkapan) ───
+  // Sprint 024 (perintah user): blanko premium dengan isian + cetak.
+  daftar_hadir_blanko: {
+    id: 'daftar_hadir_blanko',
+    label: 'Daftar Hadir',
+    card: 'kelengkapan',
+    sub_kategori: 'blanko',
+    sourceFile: '(blanko aplikasi)',
+    orientation: 'portrait',
+    blocks: [{ type: 'kop-surat' }, { type: 'daftar-hadir' }, { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false }],
+    defaults: { kegiatan: '', tanggal: '', waktu: '', tempat: '' },
+  },
+  surat_undangan_blanko: {
+    id: 'surat_undangan_blanko',
+    label: 'Surat Undangan',
+    card: 'kelengkapan',
+    sub_kategori: 'blanko',
+    sourceFile: '(blanko aplikasi)',
+    orientation: 'portrait',
+    blocks: [{ type: 'kop-surat' }, { type: 'undangan-blanko' }, { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false }],
+    defaults: { nomor: '', tanggal: '', kepada: '', perihal: '', isi: '', tempat: '', waktu: '' },
   },
   // ─── RINCIAN PAJAK — Laporan Rincian Pajak Sekolah (landscape) ───
   // Source: template/Contoh template Rincian Pajak Sekolah Dasar Negeri.xlsx

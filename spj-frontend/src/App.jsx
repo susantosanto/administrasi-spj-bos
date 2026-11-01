@@ -13,6 +13,7 @@ import BKUPage from './pages/dashboard/BKUPage'
 import DokumenSPJPage from './pages/dashboard/DokumenSPJPage'
 import DokumenKelengkapanPage from './pages/dashboard/DokumenKelengkapanPage'
 import RealisasiPage from './pages/dashboard/RealisasiPage'
+import InstrumenPage from './pages/dashboard/InstrumenPage'
 import NotesPage from './pages/dashboard/NotesPage'
 import PengaturanPage from './pages/dashboard/PengaturanPage'
 import NomorSuratPage from './pages/dashboard/NomorSuratPage'
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="dokumen-spj" element={<Navigate to="/dashboard/dokumen-lpj" replace />} />
               <Route path="dokumen-wajib" element={<Navigate to="/dashboard/dokumen-kelengkapan" replace />} />
               <Route path="realisasi" element={<RealisasiPage />} />
+              <Route path="instrumen" element={<InstrumenPage />} />
               <Route path="nomor-surat" element={<NomorSuratPage />} />
               <Route path="template-surat" element={<TemplateSuratPage />} />
               <Route path="catatan" element={<NotesPage />} />

@@ -12,7 +12,8 @@ import storageHelper from './storageHelper'
 import { loadSkPasal, cloneDefaultPasal } from '../data/skPasal'
 import { bagiPesananPerSeksi } from './aturanMamin'
 import { pbjFormKosong } from './aturanPbj'
-import { ringkasanKasPerBulan, bulanNameToNum, teksTanggalPanjang, formatTanggalContoh, lembarPecahan } from './dokKas'
+import { ringkasanKasPerBulan, bulanNameToNum, teksTanggalPanjang, formatTanggalContoh, lembarPecahan, saldoTunaiBerjalan, BULAN_ID } from './dokKas'
+import { agregatRealisasi, denganKoreksi, ringkasTahap, KOMPONEN as KOMPONEN_R, SNP_ROWS as SNP_R } from './realisasiAgregat'
 import { barisPajakDariBku, tahunPajak, totalKolomPajak } from './dokPajak'
 import { TEMPAT_TTD } from './tempatTtd'
 
@@ -192,10 +193,38 @@ export function pbjDocs(pbjForm = {}, mode = 'non') {
   const ksNama = sig['kepala-sekolah']?.nama || ''
   const noRows = (rows = []) => (rows || []).map((r, i) => ({ id: `pbj-${i}`, ...r, no: i + 1 }))
   const docs = []
-  if (!docPbjKosong(f.perencanaan)) docs.push({ key: 'pbj-perencanaan', label: 'Perencanaan',
+  // Sprint 023-rev: DOKUMEN PERENCANAAN = rakitan sheet "Workplan" sumber
+  // (No./bulan/hari, satuan pendidikan, alamat, kategori + tabel 6 baris).
+  // Sumber = tab Data (f.data) + Data Sekolah. Struktur lama (nomorSurat/
+  // kegiatan/syaratA-C) tidak ada di file sumber → tidak dipakai lagi.
+  const w = f.data || {}
+  const mIso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(w.tanggalPesanan || ''))
+  const rpWorkplan = (n) => {
+    const v = Number(String(n ?? '').replace(/[^\d]/g, '')) || 0
+    return v ? `Rp${v.toLocaleString('id-ID')}` : ''
+  }
+  const sekolahWp = getSchoolData()
+  const intiWorkplan = [w.jumlahBarang, w.spesifikasi, w.waktuSerah, w.alokasi, w.namaPenyedia]
+  if (!intiWorkplan.every(isKosong)) docs.push({ key: 'pbj-perencanaan', label: 'Perencanaan',
     templateConfig: TEMPLATE_CONFIGS.pbj_perencanaan,
-    data: { ...TEMPLATE_CONFIGS.pbj_perencanaan.defaults, ...f.perencanaan,
-      namaPelaksana: f.perencanaan.namaPelaksana || ksNama } })
+    data: { ...TEMPLATE_CONFIGS.pbj_perencanaan.defaults,
+      noBukti: w.noBukti || '',
+      bulanTahun: [w.bulan, mIso ? mIso[1] : ''].filter(Boolean).join(' '),
+      hari: mIso ? String(parseInt(mIso[3], 10)) : '',
+      namaSekolah: sekolahWp.namaSekolah || '',
+      alamatSekolah: sekolahWp.alamat || '',
+      kategori: 'Pengadaan Barang/Jasa di Sekolah melalui SIPLah',
+      jumlahBarang: w.jumlahBarang || '',
+      spesifikasi: w.spesifikasi || '',
+      waktuSerah: w.waktuSerah || '',
+      alokasiRp: rpWorkplan(w.alokasi),
+      jenisPenyedia: w.jenisPenyedia || '',
+      direktur: w.direktur || '',
+      namaPenyedia: w.namaPenyedia || '',
+      npwp: w.npwp || '',
+      alamat: w.alamat || '',
+      telp: w.telp || '',
+      tanggalCetak: formatTanggalContoh(w.tanggalPesanan) || '' } })
   if (!docPbjKosong(f.pesanan)) docs.push({ key: 'pbj-pesanan', label: 'Surat Pesanan',
     templateConfig: TEMPLATE_CONFIGS.pbj_pesanan,
     data: { ...TEMPLATE_CONFIGS.pbj_pesanan.defaults, ...f.pesanan, rows: noRows(f.pesanan.rows) } })
@@ -235,6 +264,13 @@ export function kasFormKosong() {
 const fmtRp = (n) => `Rp ${(Number(n) || 0).toLocaleString('id-ID')}`
 /** Kolom nominal sumber: "Rp 82.560.000,-" */
 const fmtRpMinus = (n) => `Rp ${(Number(n) || 0).toLocaleString('id-ID')},-`
+/** Ketikan tanggal (input date ISO) → teks Indonesia; kosong → auto ISO.
+ *  Sprint 023-rev8 (form kini punya input date untuk tanggal manual). */
+const tglID = (ketikan, iso) => {
+  const k = String(ketikan ?? '').trim()
+  if (k) return formatTanggalContoh(k) || k
+  return formatTanggalContoh(iso) || ''
+}
 
 function kasKonteks(bku = {}) {
   const txs = bku?.transactions || []
@@ -284,31 +320,34 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
   const K = String(u.totalPengeluaran ?? '').trim() !== '' ? Number(String(u.totalPengeluaran).replace(/[^\d.-]/g, '')) || 0 : ring.K
   const A = D - K
   // Lembar/keping: ketikan user MENANG per baris, kosong → OTOMATIS dari
-  // SALDO AKHIR BKU bulan terpilih (model user: "Saldo Akhir = uang tunai").
-  // Saldo Akhir = saldo penutupan bulan itu = seluruh uang kertas+logam
-  // (sekolah tidak punya rekening bank terpisah; Sub 3 bank = 0).
+  // SALDO KAS TUNAI BERJALAN bulan terpilih (akumulasi tarik − BPU).
+  // Sprint 023-rev16: model bulanan salah untuk bulan tanpa tarik.
   const saldoTunaiKetik = String(u.saldoTunai ?? '').trim()
   const saldoTunai = saldoTunaiKetik !== ''
     ? Number(saldoTunaiKetik.replace(/[^\d.-]/g, '')) || 0
-    : (ring.adaData ? ring.saldoAkhir : 0)
+    : (mNum ? saldoTunaiBerjalan(txs, mNum) : 0)
   const pecahan = lembarPecahan(u.pecahan, saldoTunai)
   const subJenis = (jenis) => pecahan
     .filter((r) => r.jenis === jenis)
     .reduce((s, r) => s + (Number(r.nominal) || 0) * (Number(r.lembar) || 0), 0)
   const subKertas = subJenis('Kertas')
   const subLogam = subJenis('Logam')
-  // Sub Jumlah (3) "Saldo Bank, Surat Berharga, dll." — model ini tanpa bank
-  // (pilihan user 2026-10-19), jadi default 0; ketikan user tetap menimpa.
-  const sub3 = String(u.saldoBank ?? '').trim() !== '' ? Number(String(u.saldoBank).replace(/[^\d.-]/g, '')) || 0 : 0
+  // Sub Jumlah (3) "Saldo Bank, Surat Berharga, dll." — model sumber
+  // (BKU-- kolom F) = saldo buku − tunai fisik. Ketikan user tetap menimpa.
+  // Sprint 023-rev8: default otomatis (dulu 0) supaya B = buku saat bank > 0.
+  const sub3Ketik = String(u.saldoBank ?? '').trim()
+  const sub3 = sub3Ketik !== ''
+    ? Number(String(u.saldoBank).replace(/[^\d.-]/g, '')) || 0
+    : Math.max(0, (ring.adaData ? ring.saldoAkhir : 0) - (subKertas + subLogam))
   const B = String(u.saldoKas ?? '').trim() !== '' ? Number(String(u.saldoKas).replace(/[^\d.-]/g, '')) || 0 : subKertas + subLogam + sub3
   const selisih = A - B
   docs.push({ key: 'register-kas', label: 'Register Penutupan Kas', templateConfig: TEMPLATE_CONFIGS.register_kas, data: {
     ...TEMPLATE_CONFIGS.register_kas.defaults, ...u,
     jenisDana: 'BOS REGULER',
     periode: bulanTahun(u.bulan),
-    tglTutup: u.tglTutup || formatTanggalContoh(ring.tglTutupISO) || '',
+    tglTutup: tglID(u.tglTutup, ring.tglTutupISO),
     namaPenutup: u.namaPenutup || bendNama,
-    tglLalu: u.tglLalu || formatTanggalContoh(ring.tglLaluISO) || '',
+    tglLalu: tglID(u.tglLalu, ring.tglLaluISO),
     totalPenerimaan: fmtRpMinus(D),
     totalPengeluaran: fmtRpMinus(K),
     saldoBuku: fmtRpMinus(A),
@@ -322,7 +361,7 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     penjelasanPerbedaan: u.penjelasanPerbedaan || (selisih === 0
       ? ': ...............................................................................................................'
       : `: disebabkan tidak ada pecahan uang Rp ${selisih.toLocaleString('id-ID')} rupiah pada saat transaksi.`),
-    tanggalTtd: u.tanggalTtd || formatTanggalContoh(ring.tglTutupISO) || '',
+    tanggalTtd: tglID(u.tanggalTtd, ring.tglTutupISO),
     namaDiperiksa: bendNama,
     nipDiperiksa: nipBend,
     namaMemeriksa: ksNama,
@@ -338,7 +377,15 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
   //   b) Saldo Bank = saldo akhir BKU dikurangi pecahan fisik (mirror E24/H31 contoh)
   //   c) Surat berharga, dll. = 0 (tidak ada sumber di BKU)
   const parse0 = (val, def) => (String(val ?? '').trim() !== '' ? Number(String(val).replace(/[^\d.-]/g, '')) || 0 : def)
-  const defUangFisik = subKertas + subLogam
+  // Sprint 023-rev8: default fisik ikut BULAN BAP sendiri (bukan bulan RK) —
+  // sebulan sama → pakai pecahan RK (termasuk koreksi user); beda bulan →
+  // hitung fresh dari tunai bulan BAP.
+  const pecB = (mNumB && mNum && mNumB === mNum) ? pecahan
+    : lembarPecahan([], mNumB ? saldoTunaiBerjalan(txs, mNumB) : 0)
+  const subPecB = (jenis) => pecB
+    .filter((r) => r.jenis === jenis)
+    .reduce((s, r) => s + (Number(r.nominal) || 0) * (Number(r.lembar) || 0), 0)
+  const defUangFisik = subPecB('Kertas') + subPecB('Logam')
   const defSaldoBank = Math.max(0, (ringB.adaData ? ringB.saldoAkhir : 0) - defUangFisik)
   const uangFisik = parse0(ub.uangFisik, defUangFisik)
   const saldoBankBap = parse0(ub.saldoBankBap, defSaldoBank)
@@ -370,22 +417,26 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     namaDiperiksa: ub.namaDiperiksa || bendNama,
     jabatanDiperiksa: ub.jabatanDiperiksa || 'Bendahara',
     rows: rowsB,
-    tanggalTtd: ub.tanggalTtd || formatTanggalContoh(ringB.tglTutupISO) || '',
+    tanggalTtd: tglID(ub.tanggalTtd, ringB.tglTutupISO),
     namaMemeriksa: ksNama,
     nipMemeriksa: nipKs,
     nipDiperiksa: nipBend,
   } })
 
   // ─── Pengaduan + Kritik (sheet "Lbr. Pengaduan Masyarakat" / "Lbr. Kritik-Saran") ───
-  // Tempat TTD = default Cikalongwetan (temuan user 2026-10-22), bukan kabupaten.
-  const tglTutupKas = formatTanggalContoh(ring.tglTutupISO) || ''
+  // Sprint 023-rev10: footer identik sumber — "Bandung Barat, {tempat},
+  // {tgl tanpa tahun}" (D44/D34 = "Bandung Barat, " & VLOOKUP tanggal).
+  // Deviasi ADR 18:2x (default Cikalongwetan) dicatat DECISIONS.MD.
+  const tglHariBulan = (formatTanggalContoh(ring.tglTutupISO) || '').replace(/\s+\d{4}\s*$/, '')
+  const tempatLembar = (manual) => manual
+    || (tglHariBulan ? `Bandung Barat, ${TEMPAT_TTD}, ${tglHariBulan}` : `Bandung Barat, ${TEMPAT_TTD}`)
   const up = f.PP || {}
   const bp = up.bulan || u.bulan || ''
   docs.push({ key: 'pengaduan', label: 'Lembar Pengaduan Masyarakat', templateConfig: TEMPLATE_CONFIGS.pengaduan_masyarakat, data: {
     ...TEMPLATE_CONFIGS.pengaduan_masyarakat.defaults, ...up,
     judulDana: judulDanaKas(tahun), namaSekolahKet: sekolahKetKas(sekolah),
     periode: bp ? `PERIODE : BULAN ${String(bp).toUpperCase()} TAHUN ${tahun}` : '',
-    tempatTtd: up.tempatTtd || (tglTutupKas ? `${TEMPAT_TTD}, ${tglTutupKas}` : TEMPAT_TTD),
+    tempatTtd: tempatLembar(up.tempatTtd),
     namaMelaporkan: up.namaMelaporkan || ksNama,
     nipMelaporkan: up.nipMelaporkan || nipKs,
   } })
@@ -395,7 +446,7 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     ...TEMPLATE_CONFIGS.kritik_saran.defaults, ...uk,
     judulDana: judulDanaKas(tahun), namaSekolahKet: sekolahKetKas(sekolah),
     periode: bk ? `PERIODE : BULAN ${String(bk).toUpperCase()} TAHUN ${tahun}` : '',
-    tempatTtd: uk.tempatTtd || (tglTutupKas ? `${TEMPAT_TTD}, ${tglTutupKas}` : TEMPAT_TTD),
+    tempatTtd: tempatLembar(uk.tempatTtd),
     namaMelaporkan: uk.namaMelaporkan || ksNama,
     nipMelaporkan: uk.nipMelaporkan || nipKs,
   } })
@@ -437,6 +488,113 @@ export function kasDocs(kasForm = {}, bku = {}, pajakManual = {}) {
     totals: totalKolomPajak(pajakRows),
   } })
   return docs
+}
+
+/**
+ * realisasiDocs + instrumenDocs — Sprint 024: dokumen Realisasi Dana per
+ * tahap dan Instrumen BOS 5 seksi. Sumber angka: BKU (agregat/koreksi) +
+ * Data Sekolah + isian manual. Template: realisasi_dana, instrumen_bos.
+ */
+const fmtRpReal = (n) => (Number(n) || 0).toLocaleString('id-ID')
+
+export function realisasiDocs({ tahun, tahap = 1, txs = [], koreksi = {}, sekolah = null, sig = null, sumberDana = '', periode = '' } = {}) {
+  const sk = sekolah || getSchoolData()
+  const sg = sig || getSignatureRoles()
+  const ks = sg['kepala-sekolah'] || {}
+  const bend = sg['bendahara'] || {}
+  const ag = denganKoreksi(agregatRealisasi(txs, { tahap }), koreksi)
+  const ring = ringkasTahap(txs, { tahap })
+  if (!ring.ada && ag.total === 0) return []
+  const cfg = TEMPLATE_CONFIGS.realisasi_dana
+  const rows = SNP_R.map((label, i) => ({ label, vals: ag.matrix[i], jumlah: ag.jumlahBaris[i] }))
+  return [{ key: `realisasi-t${tahap}`, label: `Realisasi Dana Tahap ${tahap}`,
+    templateConfig: cfg,
+    data: { ...cfg.defaults,
+      judulTahap: `TAHAP ${tahap} TAHUN ${tahun}`,
+      periode: periode || '',
+      sekolahNama: sk.namaSekolah || '',
+      kecamatan: sk.kecamatan ? `Kec. ${sk.kecamatan}` : '',
+      kabupaten: sk.kabupaten ? `Kab. ${sk.kabupaten}` : '',
+      provinsi: sk.provinsi ? `Prov. ${sk.provinsi}` : '',
+      npsn: sk.npsn || '',
+      sumberDana: sumberDana || '',
+      kepala: KOMPONEN_R,
+      rows, jumlahKolom: ag.jumlahKolom, grandTotal: ag.total,
+      saldoLalu: fmtRpReal(ring.saldoAwal),
+      totalTerima: fmtRpReal(ring.terima),
+      saldoAkhir: fmtRpReal(ring.saldoAkhir),
+      totalPakai: fmtRpReal(ag.total),
+      ksNama: ks.nama || '', ksNip: ks.nip || '',
+      bendNama: bend.nama || '', bendNip: bend.nip || '' } }]
+}
+
+export function instrumenDocs({ tahun, instrumen = {}, agT1 = null, agT2 = null, txs = [], sekolah = null, sig = null } = {}) {
+  const sk = sekolah || getSchoolData()
+  const sg = sig || getSignatureRoles()
+  const ks = sg['kepala-sekolah'] || {}
+  const bd = sg['bendahara'] || {}
+  const A = instrumen.a || {}
+  const B = instrumen.b || {}
+  const C = instrumen.c || {}
+  const E = instrumen.e || {}
+  const perSiswa = Number(String(C.perSiswa ?? '').replace(/[^\d]/g, '')) || 0
+  const jmlSiswa = Number(String(C.jmlSiswa ?? A.jmlSiswa ?? '').replace(/[^\d]/g, '')) || 0
+  const totalAnggaran = String(C.total ?? '').trim() !== '' ? C.total : (perSiswa && jmlSiswa ? String(perSiswa * jmlSiswa) : '')
+  const dRows = KOMPONEN_R.map((label, k) => {
+    const t1 = agT1?.jumlahKolom?.[k] || 0
+    const t2 = agT2?.jumlahKolom?.[k] || 0
+    return { label, t1, t2, total: t1 + t2 }
+  })
+  const dj = {
+    t1: dRows.reduce((s, r) => s + r.t1, 0),
+    t2: dRows.reduce((s, r) => s + r.t2, 0),
+    total: dRows.reduce((s, r) => s + r.total, 0),
+  }
+  const bulan = BULAN_ID.map((nama, i) => {
+    const m = i + 1
+    const r = ringkasanKasPerBulan(txs, m)
+    return { bulan: nama, masuk: r.adaData ? r.D : '', keluar: r.adaData ? r.K : '', saldo: r.adaData ? r.saldoAkhir : '' }
+  })
+  const potong = (txs || []).filter((t) => t?.tipe === 'PUNGUT_PPH').reduce((s, t) => s + (Number(t.penerimaan) || 0), 0)
+  const setor = (txs || []).filter((t) => t?.tipe === 'SETOR_PAJAK').reduce((s, t) => s + (Number(t.pengeluaran) || 0), 0)
+  const cfg = TEMPLATE_CONFIGS.instrumen_bos
+  return [{ key: `instrumen-${tahun}`, label: `Instrumen BOS ${tahun}`,
+    templateConfig: cfg,
+    data: { ...cfg.defaults,
+      tahun: String(tahun || ''),
+      a: {
+        namaSekolah: A.namaSekolah || sk.namaSekolah || '',
+        kecamatan: A.kecamatan || sk.kecamatan || '',
+        status: A.status || sk.status || '', npsn: A.npsn || sk.npsn || '',
+        ijin: A.ijin || sk.ijin || '',
+        noRekening: A.noRekening || sk.nomorRekening || '',
+        bank: A.bank || sk.bankRekening || '',
+        namaRekening: A.namaRekening || sk.namaRekening || '',
+        ksNama: A.ksNama || ks.nama || '', ksPangkat: A.ksPangkat || '',
+        ksSk: A.ksSk || sk.skKepala || '', ksTmt: A.ksTmt || sk.tmtJabatan || '',
+        jmlGuru: A.jmlGuru || sk.jmlGuru || '', jmlGuruPns: A.jmlGuruPns || sk.jmlGuruPns || '',
+        jmlGuruNonAsn: A.jmlGuruNonAsn || sk.jmlGuruNonAsn || '',
+        jmlTendik: A.jmlTendik || sk.jmlTendik || '',
+        jmlTendikPns: A.jmlTendikPns || sk.jmlTendikPns || '',
+        jmlTendikNonAsn: A.jmlTendikNonAsn || sk.jmlTendikNonAsn || '',
+        jmlSiswa: A.jmlSiswa || sk.jmlSiswa || '',
+        telepon: A.telepon || sk.telepon || '', email: A.email || sk.email || '',
+      },
+      b: {
+        skNomor: B.skNomor || '', penanggungjawab: B.penanggungjawab || ks.nama || '',
+        bendahara: B.bendahara || bd.nama || '', anggota: B.anggota || '',
+      },
+      c: { perSiswa: C.perSiswa || '', jmlSiswa: C.jmlSiswa || A.jmlSiswa || '', total: totalAnggaran },
+      dRows, dJumlah: dj,
+      e: {
+        saldoAwal: E.saldoAwal || '', sdTanggal: E.sdTanggal || '',
+        bulan, pajakPotong: potong || '', pajakSetor: setor || '',
+        pajakSisa: (potong || setor) ? potong - setor : '',
+        pembukuan: Array.isArray(E.pembukuan) ? E.pembukuan
+          : String(E.pembukuan || '').split(',').map((s) => s.trim()).filter(Boolean),
+      },
+      tempatTtd: E.tempatTtd || TEMPAT_TTD,
+      namaPelapor: ks.nama || '', nip: ks.nip || '' } }]
 }
 
 /**

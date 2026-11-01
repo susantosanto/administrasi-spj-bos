@@ -7,6 +7,17 @@
 
 ## Daftar Risiko
 
+⚠️ [Tinggi] RISIKO: Generate foto dokumen AI BELUM lolos — hasil visual belum diverifikasi (T-03/T-04 UNTESTED, butuh akun Puter + uji manual user; Sprint 020 + KEPUTUSAN-DIKUNCI-022).
+  Dampak: Tinggi — fitur inti dokumentasi foto belum bisa dinyatakan produksi.
+  Mitigasi: uji manual user dengan akun Puter sungguhan (skenario T-03/T-04 pack Sprint 020); jalur upload manual tetap jalan sebagai cadangan.
+  Status: OPEN (perintah tutup user 2026-11-01 — masuk daftar belum lolos).
+
+⚠️ [Tinggi] RISIKO: Perhitungan Saldo Kas (tunai) & Saldo Bank Register Kas BELUM terpecahkan — user menolak model berjalan (TINDAK LANJUT SECEPATNYA, perintah user 2026-11-01)
+  FAKTA: BKU contoh tak menyimpan pecahan bank/kas; Data G/H terbukti ketikan; estimator TARIK−BPU berjalan cocok 6/6 di file contoh, tapi user menyatakan fatal salah pada datanya.
+  Dampak: Tinggi — dokumen keuangan inti tidak dipercaya user.
+  Mitigasi: butuh angka opname fisik + bank statement user per bulan untuk kalibrasi; opsi: input wajib opname (tanpa auto) atau sumber data bank (buku bank/BB).
+  Status: OPEN.
+
 ⚠️ [Sedang] RISIKO: backend browser otomasi (Playwright MCP) mati tengah sesi
   verifikasi → item runtime jadi UNTESTED dan butuh ronde ulang.
   FAKTA: 2026-10-01 acceptance Sprint 003 ronde-1 terhenti di 8 gap runtime

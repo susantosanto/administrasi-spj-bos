@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/Toast'
 import { parseSekolahExcel } from '../../utils/sekolahParser'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import PersonelFotoTab from '../../components/dokumentasi/PersonelFotoTab'
+import { verifikasiKs } from '../../utils/verifikasiKs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -25,6 +26,12 @@ const defaultData = {
   tahunAnggaran: '',
   gugusNama: '',
   gugusAlamat: '',
+  // Sprint 024 (Instrumen BOS seksi A).
+  nomorRekening: '',
+  bankRekening: '',
+  namaRekening: '',
+  skKepala: '',
+  tmtJabatan: '',
   allFields: [],
   pejabat: { ...DEFAULT_PEJABAT },
 }
@@ -32,6 +39,52 @@ const defaultData = {
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * VerifikasiKs — Sprint 024: badge kecocokan KS vs data Guru/Tendik.
+ * cocok (primary) · mirip + tombol Pakai · tak-ditemukan (slate jujur).
+ */
+function VerifikasiKs({ nama, nip, onPakai }) {
+  if (!String(nama || '').trim()) return null
+  const hasil = verifikasiKs(nama, nip)
+  if (hasil.status === 'kosong') return null
+  return (
+    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs">
+      {hasil.status === 'cocok' && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-bold uppercase tracking-wider">
+            Cocok data {hasil.record.sumber}
+          </span>
+          <span className="text-slate-600">
+            {hasil.record.nama}{hasil.record.nip ? ` · NIP ${hasil.record.nip}` : ''} — NIP Data Sekolah {hasil.nip === 'sama' ? 'sama' : hasil.nip === 'beda' ? 'BERBEDA' : 'belum diisi'}.
+          </span>
+        </div>
+      )}
+      {hasil.status === 'mirip' && (
+        <div className="space-y-2">
+          <p className="text-slate-600">Nama mirip di data Guru/Tendik — klik Pakai bila benar:</p>
+          <div className="flex flex-wrap gap-2">
+            {hasil.kandidat.map((k, i) => (
+              <button key={i} onClick={() => onPakai(k)}
+                className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-semibold hover:border-primary/40 hover:text-primary transition-all">
+                Pakai: {k.nama} ({k.sumber})
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {hasil.status === 'tak-ditemukan' && (
+        <p className="text-slate-500">
+          Tidak ditemukan di data Guru/Tendik yang terupload — pastikan ejaan sama persis atau upload dulu datanya.
+        </p>
+      )}
+    </div>
+  )
+}
 
 export default function DataSekolahPage() {
   const [tab, setTab] = useState('sekolah')
@@ -179,6 +232,12 @@ export default function DataSekolahPage() {
       ...stored,
       gugusNama: data.gugusNama || '',
       gugusAlamat: data.gugusAlamat || '',
+      // Sprint 024 (Instrumen BOS seksi A).
+      nomorRekening: data.nomorRekening || '',
+      bankRekening: data.bankRekening || '',
+      namaRekening: data.namaRekening || '',
+      skKepala: data.skKepala || '',
+      tmtJabatan: data.tmtJabatan || '',
     })
     setGugusChanges(false)
     toast.success('Data gugus berhasil disimpan')
@@ -227,6 +286,21 @@ export default function DataSekolahPage() {
         provinsi: header.provinsi || data.provinsi,
         kecamatan: header.kecamatan || data.kecamatan,
         tahunAnggaran: header.tahunAnggaran || data.tahunAnggaran,
+        // Sprint 024 (Instrumen BOS seksi A — dari profil Dapodik).
+        nomorRekening: header.nomorRekening || data.nomorRekening,
+        bankRekening: header.bankRekening || data.bankRekening,
+        namaRekening: header.namaRekening || data.namaRekening,
+        status: header.status || data.status,
+        ijin: header.ijin || data.ijin,
+        telepon: header.telepon || data.telepon,
+        email: header.email || data.email,
+        jmlGuru: header.jmlGuru || data.jmlGuru,
+        jmlGuruPns: header.jmlGuruPns || data.jmlGuruPns,
+        jmlGuruNonAsn: header.jmlGuruNonAsn || data.jmlGuruNonAsn,
+        jmlTendik: header.jmlTendik || data.jmlTendik,
+        jmlTendikPns: header.jmlTendikPns || data.jmlTendikPns,
+        jmlTendikNonAsn: header.jmlTendikNonAsn || data.jmlTendikNonAsn,
+        jmlSiswa: header.jmlSiswa || data.jmlSiswa,
         allFields: result.allFields || [],
       }
 
@@ -595,6 +669,40 @@ export default function DataSekolahPage() {
                 )}
               </div>
             </div>
+
+            {/* ── Seksi Rekening & SK (Sprint 024 — Instrumen BOS seksi A) ── */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="px-8 py-4 bg-slate-50/80">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 text-xl">account_balance</span>
+                  <h4 className="text-base font-bold text-slate-700">Rekening & SK Kepala Sekolah</h4>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {[
+                    { key: 'nomorRekening', label: 'Nomor Rekening', ph: 'No. rekening BOS' },
+                    { key: 'bankRekening', label: 'Bank', ph: 'BPD Jabar Banten' },
+                    { key: 'namaRekening', label: 'Nama tertera pada Rekening', ph: 'SDN …' },
+                    { key: 'skKepala', label: 'Nomor/Tgl. SK Jabatan KS', ph: '821.2/Kep.…' },
+                    { key: 'tmtJabatan', label: 'TMT Jabatan', ph: 'TMT' },
+                  ].map((f) => (
+                    <div key={f.key}>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        {f.label}
+                      </label>
+                      <input
+                        type="text"
+                        value={data[f.key] || ''}
+                        onChange={(e) => updateGugus(f.key, e.target.value)}
+                        placeholder={f.ph}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -668,6 +776,17 @@ export default function DataSekolahPage() {
                       />
                     </div>
                   </div>
+                  {/* Sprint 024: verifikasi KS vs data Guru/Tendik terupload. */}
+                  {role.key === 'ks' && (
+                    <VerifikasiKs
+                      nama={data.pejabat?.ks?.nama || ''}
+                      nip={data.pejabat?.ks?.nip || ''}
+                      onPakai={(rec) => {
+                        updatePejabat('ks', 'nama', rec.nama || '')
+                        if (rec.nip) updatePejabat('ks', 'nip', rec.nip)
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             ))}

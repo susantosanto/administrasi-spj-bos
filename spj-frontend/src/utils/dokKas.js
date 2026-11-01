@@ -83,9 +83,11 @@ export function totalPenerimaanBosp(transactions = []) {
  */
 export function saldoKasTunaiBulan(transactions = [], bulanNum) {
   const list = transaksiBulan(transactions, bulanNum)
+  // Sprint 023-rev12: tarik tunai bisa tercatat di kolom PENGELUARAN maupun
+  // PENERIMAAN (kas bertambah dari bank) — keduanya menambah kas tunai.
   const tarikTunai = list
     .filter((t) => t?.tipe === 'TARIK_TUNAI')
-    .reduce((s, t) => s + num(t.pengeluaran), 0)
+    .reduce((s, t) => s + num(t.pengeluaran) + num(t.penerimaan), 0)
   // Belanja tunai = pengeluaran ber-BPU (cash); BNU = transfer bank (bukan tunai).
   const belanjaBpu = list
     .filter((t) => String(t?.noBukti || '').toUpperCase().startsWith('BPU'))
@@ -98,6 +100,28 @@ export function totalPengeluaranRiil(transactions = []) {
   return (transactions || [])
     .filter((t) => t?.tipe === 'PEMBAYARAN')
     .reduce((s, t) => s + num(t.pengeluaran), 0)
+}
+
+/**
+ * Saldo kas TUNAI BERJALAN s/d akhir bulan M — akumulasi max(0, tunai lalu
+ * + TARIK − belanja BPU). Sprint 023-rev16: model bulanan (MAX per bulan)
+ * SALAH untuk bulan tanpa tarik (Mar–Mei nol padahal kas 3.775.000/1.100.000
+ * menurut kolom H Data sumber — terbukti 6/6 COCOK pada BKU 2026).
+ * Ketikan user (saldoTunai) tetap menang di builder.
+ */
+export function saldoTunaiBerjalan(transactions = [], bulanNum) {
+  let tunai = 0
+  for (let m = 1; m <= Number(bulanNum); m++) {
+    const list = transaksiBulan(transactions, m)
+    const tarik = list
+      .filter((t) => t?.tipe === 'TARIK_TUNAI')
+      .reduce((s, t) => s + num(t.pengeluaran) + num(t.penerimaan), 0)
+    const belanjaBpu = list
+      .filter((t) => String(t?.noBukti || '').toUpperCase().startsWith('BPU'))
+      .reduce((s, t) => s + num(t.pengeluaran), 0)
+    tunai = Math.max(0, tunai + tarik - belanjaBpu)
+  }
+  return tunai
 }
 
 const HARI_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
@@ -197,4 +221,4 @@ export function subtotalPecahan(pecahan = {}) {
   return Object.entries(pecahan || {}).reduce((s, [nom, jml]) => s + (Number(nom) || 0) * (Number(jml) || 0), 0)
 }
 
-export default { BULAN_ID, bulanNameToNum, transaksiBulan, saldoAkhirBulan, ringkasanKasPerBulan, totalPenerimaanBosp, totalPengeluaranRiil, saldoKasTunaiBulan, teksTanggalPanjang, formatTanggalContoh, NOMINAL_KERTAS, NOMINAL_LOGAM, PECAHAN_DAFTAR, pecahanDariSaldo, lembarPecahan, subtotalPecahanJenis, subtotalPecahan }
+export default { BULAN_ID, bulanNameToNum, transaksiBulan, saldoAkhirBulan, ringkasanKasPerBulan, totalPenerimaanBosp, totalPengeluaranRiil, saldoKasTunaiBulan, saldoTunaiBerjalan, teksTanggalPanjang, formatTanggalContoh, NOMINAL_KERTAS, NOMINAL_LOGAM, PECAHAN_DAFTAR, pecahanDariSaldo, lembarPecahan, subtotalPecahanJenis, subtotalPecahan }

@@ -67,9 +67,25 @@ export function getSchoolData() {
     kecamatan: pick(stored, 'kecamatan', allFields, /^\s*kecamatan\s*$/i),
     kelurahan: stored?.kelurahan || '',
     kodePos: stored?.kodePos || '',
-    // Data Gugus (US-18) — dipakai kop gugus pada surat undangan
-    gugusNama: stored?.gugusNama || '',
-    gugusAlamat: stored?.gugusAlamat || '',
+    // Sprint 024 (Instrumen BOS seksi A — dari profil Dapodik; resolver
+    // allFields membuat upload LAMA ikut terbaca tanpa upload ulang).
+    nomorRekening: pick(stored, 'nomorRekening', allFields, /nomor rekening|no\.? rekening/i),
+    bankRekening: pick(stored, 'bankRekening', allFields, /nama bank/i),
+    namaRekening: pick(stored, 'namaRekening', allFields, /rekening atas nama|atas nama rekening|nama tertera pada rekening|tertera pada rekening/i),
+    status: pick(stored, 'status', allFields, /status sekolah/i),
+    ijin: pick(stored, 'ijin', allFields, /i[jz]in(\s+operasional)?$/i),
+    telepon: pick(stored, 'telepon', allFields, /nomor telepon|telepon|telp/i),
+    email: pick(stored, 'email', allFields, /e?-?mail|surat elektronik/i),
+    jmlGuru: stored?.jmlGuru || '',
+    jmlGuruPns: stored?.jmlGuruPns || '',
+    jmlGuruNonAsn: stored?.jmlGuruNonAsn || '',
+    jmlTendik: stored?.jmlTendik || '',
+    jmlTendikPns: stored?.jmlTendikPns || '',
+    jmlTendikNonAsn: stored?.jmlTendikNonAsn || '',
+    jmlSiswa: stored?.jmlSiswa || '',
+    // Sprint 024: SK kepala sekolah (input manual Data Sekolah).
+    skKepala: stored?.skKepala || '',
+    tmtJabatan: stored?.tmtJabatan || '',
   }
 }
 

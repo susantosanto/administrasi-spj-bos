@@ -21,9 +21,15 @@
 4. DOMAIN.MD (konteks bisnis)
 5. CONSTITUTION.md (aturan proyek + keamanan — wajib patuh)
 6. Pack sprint aktif (planning/sprints/sprint-XXX/)
+7. **Fitur AI generate dokumen/foto → WAJIB baca
+   `planning/sprints/sprint-022/KEPUTUSAN-DIKUNCI.MD`** (keputusan beku: provider, model,
+   harga, kuota, larangan). File ini mengikat sebelum menyentuh `imageGenerator.js`,
+   `DokumentasiAIGenerate.jsx`, `SidebarPbj.jsx`, `puterAkun.js`.
 
 ## Aturan Builder
 - DILARANG mulai coding tanpa architect pack
+- **Fitur AI generate dokumen: DILARANG coding sebelum membaca `KEPUTUSAN-DIKUNCI.MD`
+  (sprint-022). Deviasi wajib disetujui user + dicatat di `DECISIONS.MD`.**
 - SELALU dry run dulu → laporkan rencana → TUNGGU persetujuan
 - SELALU berikan bukti (test output asli, screenshot), bukan klaim
 - DILARANG mengubah requirements tanpa persetujuan

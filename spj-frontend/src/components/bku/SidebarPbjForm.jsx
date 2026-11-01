@@ -17,12 +17,15 @@ const LABEL = 'block text-[10px] font-semibold text-slate-500 uppercase mb-1'
 
 export default function SidebarPbjForm({ tab = 'perencanaan', form = {}, onChange }) {
   const def = PBJ_TABS.find((t) => t.id === tab) || PBJ_TABS[0]
-  const isi = form?.[def.id] || {}
+  // Sprint 023-rev: field boleh menyimpan ke tab lain (`simpanKe`, dipakai
+  // tab Perencanaan → tab Data untuk Workplan). Tanpa simpanKe = tab sendiri.
+  const bacaField = (f) => (form?.[f.simpanKe || def.id] || {})[f.key] || ''
   const fields = fieldsTampil(def)
   const adaTurunan = fields.length !== (def.fields || []).length
 
-  const setField = (key, value) => {
-    onChange({ ...form, [def.id]: { ...isi, [key]: value } })
+  const setField = (key, value, simpanKe) => {
+    const target = simpanKe || def.id
+    onChange({ ...form, [target]: { ...(form?.[target] || {}), [key]: value } })
   }
 
   return (
@@ -39,17 +42,17 @@ export default function SidebarPbjForm({ tab = 'perencanaan', form = {}, onChang
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {fields.map((f) => (
-          <div key={f.key} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
+          <div key={`${f.simpanKe || def.id}.${f.key}`} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
             <label className={LABEL}>{f.label}</label>
             {f.type === 'textarea' ? (
               <textarea
                 rows={2}
-                value={isi[f.key] || ''}
-                onChange={(e) => setField(f.key, e.target.value)}
+                value={bacaField(f)}
+                onChange={(e) => setField(f.key, e.target.value, f.simpanKe)}
                 className={`${INPUT} resize-none`}
               />
             ) : f.type === 'select' ? (
-              <select value={isi[f.key] || ''} onChange={(e) => setField(f.key, e.target.value)} className={INPUT}>
+              <select value={bacaField(f)} onChange={(e) => setField(f.key, e.target.value, f.simpanKe)} className={INPUT}>
                 <option value="">—</option>
                 {(f.options || []).map((o) => (
                   <option key={o} value={o}>{o}</option>
@@ -58,8 +61,8 @@ export default function SidebarPbjForm({ tab = 'perencanaan', form = {}, onChang
             ) : (
               <input
                 type={f.type === 'date' ? 'date' : 'text'}
-                value={isi[f.key] || ''}
-                onChange={(e) => setField(f.key, e.target.value)}
+                value={bacaField(f)}
+                onChange={(e) => setField(f.key, e.target.value, f.simpanKe)}
                 className={INPUT}
               />
             )}

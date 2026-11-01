@@ -52,6 +52,9 @@ export function prefillPbjDariBku(formLama = {}, bku = {}) {
   isi('perencanaan', 'tanggalSurat', iso)
   isi('perencanaan', 'kegiatan', kegiatan)
   isi('perencanaan', 'alokasi', nominal ? angka(nominal) : '')
+  // Sprint 023-rev: samakan dengan cabang BKU terapkanPrefillPbj (deep-link
+  // Kelengkapan) — spesifikasi Perencanaan terisi dari uraian BKU.
+  isi('perencanaan', 'spesifikasi', kegiatan)
 
   isi('pesanan', 'tanggalPesanan', iso)
   isi('pesanan', 'grandTotal', nominal ? angka(nominal) : '')

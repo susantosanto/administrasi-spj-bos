@@ -8,14 +8,19 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-import { parseInvoiceSIPLah, pbjFormKosong, terapkanPrefillPbj } from '../../utils/aturanPbj'
+import BlankoHadir from '../../components/blanko/BlankoHadir'
+import BlankoUndangan from '../../components/blanko/BlankoUndangan'
+import KonfirmHapusModal from '../../components/bku/KonfirmHapusModal'
+import { pbjFormKosong, terapkanPrefillPbj } from '../../utils/aturanPbj'
+// Sprint 020: pipeline upload invoice diekstrak ke util bersama — dipakai juga
+// blok "Dokumen PBJ" di sidebar BKU supaya perilakunya sama persis.
+import { bacaInvoicePdf, drafKeInvoice, paksaFormDariInvoice, bulanDariISOPbj } from '../../utils/pbjInvoice'
 import { isSudahBerdokumen, kunciTransaksi, bkuKePaketRow, manualKePaketRow, arsipkanBaris, kembalikanBaris, terapkanMode, nominalBku, isoBku, grupBkuPerNoBukti } from '../../utils/paketPbj'
 import { snapshotSebelumTimpa, urungkanTimpa, bacaSnapshot } from '../../utils/aturanUndangan'
 import { pbjDocs, kasDocs, kasFormKosong } from '../../utils/previewDocs'
 import { barisPajakDariBku, JENIS_PAJAK } from '../../utils/dokPajak'
 import { getSchoolData } from '../../utils/sekolahData'
-import { bulanNameToNum, ringkasanKasPerBulan, BULAN_ID, NOMINAL_KERTAS, NOMINAL_LOGAM, lembarPecahan, subtotalPecahanJenis } from '../../utils/dokKas'
+import { bulanNameToNum, ringkasanKasPerBulan, BULAN_ID, NOMINAL_KERTAS, NOMINAL_LOGAM, lembarPecahan, subtotalPecahanJenis, saldoTunaiBerjalan } from '../../utils/dokKas'
 import { PBJ_SHEET_COLUMNS } from '../../data/pbjDataSheet'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
 import { tanggalPanjang } from '../../utils/aturanUndangan'
@@ -61,8 +66,16 @@ const CATEGORIES = [
         kasDoc: 'register-kas',
         formFields: [
           { name: 'bulan', label: 'Bulan', type: 'text', placeholder: 'Januari' },
+          // Sprint 023-rev8: override manual (ketikan menang atas BKU).
+          { name: 'tglTutup', label: 'Tanggal Penutupan Kas', type: 'date' },
+          { name: 'tglLalu', label: 'Tanggal penutupan Kas yang lalu', type: 'date' },
+          { name: 'namaPenutup', label: 'Nama Penutup Kas (Pemegang kas)', type: 'text', placeholder: 'Nama bendahara' },
+          { name: 'totalPenerimaan', label: 'Jumlah Total Penerimaan / D (Rp) — kosong = dari BKU', type: 'number', placeholder: '0' },
+          { name: 'totalPengeluaran', label: 'Jumlah Total Pengeluaran / K (Rp) — kosong = dari BKU', type: 'number', placeholder: '0' },
           { name: 'saldoTunai', label: 'Saldo Kas Tunai — uang fisik (Rp)', type: 'number', placeholder: '0' },
           { name: 'saldoBank', label: 'Saldo Bank / Surat Berharga (Rp)', type: 'number', placeholder: '0' },
+          { name: 'saldoKas', label: 'Saldo Kas / B (Rp) — kosong = 1+2+3', type: 'number', placeholder: '0' },
+          { name: 'tanggalTtd', label: 'Tanggal TTD', type: 'date' },
           { name: 'penjelasanPerbedaan', label: 'Penjelasan Perbedaan (bila ada)', type: 'text', placeholder: 'Otomatis bila selisih ≠ 0' },
         ],
       },
@@ -79,6 +92,12 @@ const CATEGORIES = [
           { name: 'uangFisik', label: 'a) Uang kertas + logam (Rp)', type: 'number', placeholder: '0' },
           { name: 'saldoBankBap', label: 'b) Saldo Bank (Rp)', type: 'number', placeholder: '0' },
           { name: 'suratBerharga', label: 'c) Surat berharga (Rp)', type: 'number', placeholder: '0' },
+          // Sprint 023-rev8: penanda + tanggal TTD manual (builder sudah dukung).
+          { name: 'namaPemeriksa', label: 'Pemeriksa — Nama (default Kepsek)', type: 'text', placeholder: 'Nama kepala sekolah' },
+          { name: 'jabatanPemeriksa', label: 'Pemeriksa — Jabatan', type: 'text', placeholder: 'Kepala Sekolah' },
+          { name: 'namaDiperiksa', label: 'Diperiksa — Nama (default Bendahara)', type: 'text', placeholder: 'Nama bendahara' },
+          { name: 'jabatanDiperiksa', label: 'Diperiksa — Jabatan', type: 'text', placeholder: 'Bendahara' },
+          { name: 'tanggalTtd', label: 'Tanggal TTD', type: 'date' },
         ],
       },
       {
@@ -116,15 +135,10 @@ const CATEGORIES = [
         deskripsi: 'Lembar Kritik/Saran Sekolah',
         icon: 'rate_review',
         kasDoc: 'kritik-saran',
-        formFields: [
-      { name: 'bulan', label: 'Bulan', type: 'text', placeholder: 'Januari' },
-      { name: 'namaPemberi', label: '1.a. Nama Penanya/Pemberi Saran', type: 'text', placeholder: 'Nama' },
-      { name: 'alamatPemberi', label: '1.b. Alamat', type: 'text', placeholder: 'Alamat' },
-      { name: 'tglTerima', label: '2. Tanggal Penerimaan Pertanyaan/Saran', type: 'text', placeholder: '5 Januari 2026' },
-      { name: 'uraianKegiatan', label: '3. Uraian Pertanyaan/Saran', type: 'textarea', placeholder: 'Tulis pertanyaan/saran...' },
-      { name: 'penerima', label: '4. Penerima Pertanyaan/Saran', type: 'text', placeholder: 'Nama penerima' },
-      { name: 'tindakLanjut', label: '5. Tindak Lanjut Saran', type: 'textarea', placeholder: 'Tindak lanjut...' },
-        ],
+        // Sprint 023-rev9 (perintah user): dokumen tangan murni — TANPA isian
+        // form, hanya dokumen bergaris merah. Panel kiri menampilkan
+        // "Dokumen ini tidak memerlukan form input."
+        formFields: [],
       },
       {
         id: 'PD',
@@ -132,24 +146,9 @@ const CATEGORIES = [
         deskripsi: 'Lembar Pengaduan Sekolah',
         icon: 'feedback',
         kasDoc: 'pengaduan',
-        formFields: [
-      { name: 'bulan', label: 'Bulan', type: 'text', placeholder: 'Januari' },
-      { name: 'namaPengadu', label: '1.a. Nama Pengadu', type: 'text', placeholder: 'Nama' },
-      { name: 'alamatPengadu', label: '1.b. Alamat Pengadu', type: 'text', placeholder: 'Alamat' },
-      { name: 'tglTerima', label: '2. Tanggal Terima Pengaduan', type: 'text', placeholder: '5 Januari 2026' },
-      { name: 'lokasiRtRw', label: '3.a. Lokasi — RT/RW/Dusun', type: 'text', placeholder: 'RT 02 RW 10' },
-      { name: 'lokasiKelurahan', label: '3.b. Lokasi — Kelurahan', type: 'text', placeholder: 'Kelurahan' },
-      { name: 'lokasiKabupaten', label: '3.c. Lokasi — Kabupaten/Kota', type: 'text', placeholder: 'Kabupaten/Kota' },
-      { name: 'lokasiProvinsi', label: '3.d. Lokasi — Provinsi', type: 'text', placeholder: 'Provinsi' },
-      { name: 'uraianKegiatan', label: '4. Uraian Pengaduan', type: 'textarea', placeholder: 'Tulis pengaduan...' },
-      { name: 'tglSelidik', label: '5. Tanggal Penyelidikan Dilakukan', type: 'text', placeholder: '10 Januari 2026' },
-      { name: 'penyelidik', label: '6. Penyelidik', type: 'text', placeholder: 'Nama penyelidik' },
-      { name: 'temuan', label: '7. Temuan', type: 'textarea', placeholder: 'Temuan...' },
-      { name: 'keputusan', label: '8. Keputusan/Rekomendasi', type: 'textarea', placeholder: 'Keputusan...' },
-      { name: 'pelaksanaan', label: '9. Pelaksanaan Keputusan', type: 'textarea', placeholder: 'Pelaksanaan...' },
-      { name: 'tglPemberitahuan', label: '10. Tanggal pemberitahuan kepada Pengadu', type: 'text', placeholder: '15 Januari 2026' },
-      { name: 'dokumenDiterima', label: '11. Dokumen yang diterima', type: 'textarea', placeholder: 'Dokumen...' },
-        ],
+        // Sprint 023-rev9 (perintah user): dokumen tangan murni — TANPA isian
+        // form, hanya dokumen bergaris merah.
+        formFields: [],
       },
     ],
   },
@@ -187,7 +186,7 @@ const CATEGORIES = [
       {
         id: 'R-ALR',
         nama: 'Realisasi Dana',
-        deskripsi: 'Tabel realisasi anggaran',
+        deskripsi: 'Matriks realisasi dari BKU + cetak',
         icon: 'table_chart',
         formFields: [
           { name: 'kodeRekening', label: 'Kode Rekening', type: 'text', placeholder: '5.1.02.02.01.0013' },
@@ -198,7 +197,7 @@ const CATEGORIES = [
       {
         id: 'R-ILB',
         nama: 'Instrumen BOS',
-        deskripsi: 'Form instrumen pelaporan',
+        deskripsi: 'Instrumen 5 seksi + cetak',
         icon: 'assignment',
         formFields: [],
       },
@@ -213,7 +212,7 @@ const CATEGORIES = [
       {
         id: 'DH',
         nama: 'Daftar Hadir',
-        deskripsi: 'Template daftar hadir',
+        deskripsi: 'Lembar hadir + peserta dari Guru/Tendik',
         icon: 'group_add',
         formFields: [
           { name: 'kegiatan', label: 'Nama Kegiatan', type: 'text', placeholder: 'Rapat Komite' },
@@ -225,7 +224,7 @@ const CATEGORIES = [
       {
         id: 'SU',
         nama: 'Surat Undangan',
-        deskripsi: 'Template surat undangan',
+        deskripsi: 'Surat dinas + TTD otomatis',
         icon: 'mail',
         formFields: [
           { name: 'nomor', label: 'Nomor Surat', type: 'text', placeholder: '001/UND/III/2026' },
@@ -287,15 +286,21 @@ const COLOR_MAP = {
 // ═══════════════════════════════════════════════════════════════════════════
 const PBJ_TABS = [
   { id: 'perencanaan', label: 'Perencanaan', fields: [
-    { key: 'nomorSurat', label: 'Nomor Surat' },
-    { key: 'tanggalSurat', label: 'Tanggal', type: 'date' },
-    { key: 'kegiatan', label: 'Kegiatan/Pekerjaan' },
-    { key: 'spesifikasi', label: 'Spesifikasi', type: 'textarea' },
-    { key: 'alokasi', label: 'Alokasi Anggaran (Rp)' },
-    { key: 'syaratA', label: 'Syarat penyedia (a)' },
-    { key: 'syaratB', label: 'Syarat penyedia (b)' },
-    { key: 'syaratC', label: 'Syarat penyedia (c)' },
-    { key: 'namaPelaksana', label: 'Pelaksana' },
+    // Sprint 023-rev: isian Workplan sheet sumber — tersimpan di tab Data
+    // (dokumen Perencanaan membaca f.data). Struktur lama dibuang.
+    { key: 'noBukti', label: 'No.', simpanKe: 'data' },
+    { key: 'bulan', label: 'Bulan', simpanKe: 'data' },
+    { key: 'tanggalPesanan', label: 'Tanggal', type: 'date', simpanKe: 'data' },
+    { key: 'jumlahBarang', label: 'Jumlah Barang/Jasa', simpanKe: 'data' },
+    { key: 'spesifikasi', label: 'Spesifikasi/ruang lingkup', type: 'textarea', simpanKe: 'data' },
+    { key: 'waktuSerah', label: 'Waktu serah terima', simpanKe: 'data' },
+    { key: 'alokasi', label: 'Alokasi Anggaran (Rp)', simpanKe: 'data' },
+    { key: 'jenisPenyedia', label: 'Penyedia', type: 'select', options: ['Perorangan', 'Badan Usaha'], simpanKe: 'data' },
+    { key: 'namaPenyedia', label: 'Nama penyedia/toko', simpanKe: 'data' },
+    { key: 'direktur', label: 'Pemilik/Direktur', simpanKe: 'data' },
+    { key: 'npwp', label: 'NPWP', simpanKe: 'data' },
+    { key: 'alamat', label: 'Alamat penyedia', simpanKe: 'data' },
+    { key: 'telp', label: 'No. Telp', simpanKe: 'data' },
   ] },
   { id: 'pesanan', label: 'Surat Pesanan', fields: [
     { key: 'nomorPesanan', label: 'Nomor Pesanan' },
@@ -373,41 +378,11 @@ const muatBkuKas = () => storageHelper.get('bku_data', null) || { transactions: 
 // Rekaman invoice (agregat) + N item untuk dropdown per baris. Kunci storage
 // 'pbj_invoices' (prefix spj_ via storageHelper). Kolom tak dikenal invoice
 // (waktu serah, jenis penyedia, direktur, link) = '-' (jujur, bukan karangan).
-const BULAN_ID_PBJ = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-const bulanDariISOPbj = (iso) => {
-  const m = /^(\d{4})-(\d{2})-\d{2}$/.exec(String(iso || ''))
-  return m ? (BULAN_ID_PBJ[parseInt(m[2], 10) - 1] || '') : ''
-}
+// Sprint 020: drafKeInvoice/bulanDariISOPbj/paksaFormDariInvoice pindah ke
+// utils/pbjInvoice.js (dipakai bersama sidebar BKU) — diimpor di atas.
 const muatPbjInvoices = () => {
   const v = storageHelper.get('pbj_invoices', [])
   return Array.isArray(v) ? v : []
-}
-const drafKeInvoice = (draf, namaFile = '') => {
-  const items = (draf.items || []).map((it) => ({
-    uraian: it.uraian || '',
-    qty: it.qtyTerima || it.qtyPesan || 0,
-    satuan: '',
-    harga: it.hargaSebelumPPN || 0,
-    total: it.totalSebelumPPN || 0,
-  }))
-  const tglISO = draf.tanggalInvoiceISO || ''
-  return {
-    id: `${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
-    nomor: draf.nomorInvoice || '',
-    tanggalISO: tglISO,
-    tanggalTampil: draf.tanggalInvoiceTampil || tglISO,
-    bulan: bulanDariISOPbj(tglISO),
-    jumlahLabel: `${items.length} item`,
-    spesifikasi: items.map((it) => it.uraian).filter(Boolean).join('; ').slice(0, 200),
-    alokasi: draf.grandTotal || 0,
-    namaPenyedia: draf.penyedia?.nama || '',
-    npwp: draf.penyedia?.npwp || '',
-    alamat: draf.penyedia?.alamat || '',
-    telp: draf.penyedia?.kontak || '',
-    grandTotal: draf.grandTotal || 0,
-    items,
-    namaFile,
-  }
 }
 // Invoice -> 1 baris dengan kunci = PBJ_SHEET_COLUMNS (nama + urutan persis).
 const invoiceKeSheetRow = (inv, idx) => ({
@@ -431,27 +406,7 @@ const invoiceKeSheetRow = (inv, idx) => ({
 })
 // Form + preview mengikuti invoice terpilih (paksa, bukan isi-merge): rows
 // pesanan/nego + agregat tab Data selalu dari invoice yang diklik/diunggah.
-const paksaFormDariInvoice = (prev, draf) => {
-  const { formBaru } = terapkanPrefillPbj(prev, { invoice: draf })
-  const items = (draf.items || []).map((it) => ({
-    uraian: it.uraian, qty: it.qtyTerima || it.qtyPesan, satuan: '',
-    harga: it.hargaSebelumPPN, total: it.totalSebelumPPN,
-  }))
-  formBaru.pesanan = { ...formBaru.pesanan, rows: items,
-    grandTotal: draf.grandTotal ? String(draf.grandTotal) : formBaru.pesanan.grandTotal }
-  formBaru.nego = { ...formBaru.nego, rows: (draf.items || []).map((it) => ({
-    uraian: it.uraian, qty: it.qtyTerima || it.qtyPesan,
-    penawaran: it.hargaSebelumPPN, nego: it.hargaSebelumPPN, ket: '' })) }
-  formBaru.data = { ...formBaru.data,
-    jumlahBarang: `${(draf.items || []).length} item`,
-    spesifikasi: (draf.items || []).map((it) => it.uraian).join('; ').slice(0, 200),
-    alokasi: draf.grandTotal ? String(draf.grandTotal) : formBaru.data.alokasi,
-    namaPenyedia: draf.penyedia?.nama || formBaru.data.namaPenyedia,
-    alamat: draf.penyedia?.alamat || formBaru.data.alamat,
-    npwp: draf.penyedia?.npwp || formBaru.data.npwp,
-    telp: draf.penyedia?.kontak || formBaru.data.telp }
-  return formBaru
-}
+// Sprint 020: implementasi pindah ke utils/pbjInvoice.js (impor di atas).
 const drafDariInvoice = (inv) => ({
   cocok: true,
   nomorInvoice: inv.nomor || '',
@@ -539,7 +494,14 @@ export default function DokumenKelengkapanPage() {
 
   const handleOpenDokumen = (dokumen, category) => {
     // PBJ = accordion di bawah card (seperti LPJ), bukan modal.
-    if (dokumen.id === 'PBJ') {
+    // Sprint 024: R-ALR/R-ILB = pintu ke halaman penuh (matriks BKU +
+  // Instrumen), bukan modal stub. navigate sudah tersedia di file ini.
+  const petaHalamanPenuh = { 'R-ALR': '/dashboard/realisasi', 'R-ILB': '/dashboard/instrumen' }
+  if (petaHalamanPenuh[dokumen.id]) {
+    navigate(petaHalamanPenuh[dokumen.id])
+    return
+  }
+  if (dokumen.id === 'PBJ') {
       if (selectedDokumen?.id === 'PBJ') {
         setSelectedDokumen(null)
         setSelectedCategory(null)
@@ -593,13 +555,21 @@ export default function DokumenKelengkapanPage() {
   }
 
   const handleFormChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    // Sprint 023-rev14: ganti bulan Register = hitungan pecahan lama hangus
+    // (lembar beku bulan lalu tak boleh dipakai bulan baru).
+    const resetPecahan = selectedDokumen?.id === 'RK' && name === 'bulan'
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value }
+      if (resetPecahan) delete next.pecahan
+      return next
+    })
     // Kas split-view: autosave per card ke spj_kas_form (PD→PP, R-CVR→COVER, R-SKT→SEKAT).
     if (selectedDokumen?.kasDoc) {
       const petaKas = { PD: 'PP', 'R-CVR': 'COVER', 'R-SKT': 'SEKAT' }
       const key = petaKas[selectedDokumen.id] || selectedDokumen.id
       setKasForm((prev) => {
         const next = { ...prev, [key]: { ...(prev[key] || {}), [name]: value } }
+        if (resetPecahan && next.RK) delete next.RK.pecahan
         simpanKasForm(next)
         return next
       })
@@ -615,15 +585,22 @@ export default function DokumenKelengkapanPage() {
     ...NOMINAL_KERTAS.map((n) => ({ id: `k-${n}`, jenis: 'Kertas', nominal: n, satuan: 'Lembar' })),
     ...NOMINAL_LOGAM.map((n) => ({ id: `l-${n}`, jenis: 'Logam', nominal: n, satuan: 'Keping' })),
   ])
-  // Saldo kas tunai form: ketikan user MENANG; kosong → Saldo Akhir BKU bulan
-  // terpilih (model user 2026-10-19: "Saldo Akhir = uang tunai").
+  // Saldo kas tunai form: ketikan user MENANG; kosong → model sumber
+  // (BKU-- kolom E = TARIK TUNAI − belanja BPU). SAMA dengan builder
+  // kasDocs — form dan dokumen tidak boleh beda angka. Sprint 023-rev14.
   const saldoTunaiKetikForm = String(formData.saldoTunai ?? '').trim()
-  const saldoTunaiBkuForm = (() => {
+  const tunaiBkuForm = (() => {
     const mN = bulanNameToNum(formData.bulan)
-    if (!mN) return 0
-    const ringF = ringkasanKasPerBulan(muatBkuKas()?.transactions || [], mN)
-    return ringF.adaData ? ringF.saldoAkhir : 0
+    if (!mN) return { tunai: 0, tarik: 0, bpu: 0 }
+    const txs = muatBkuKas()?.transactions || []
+    const tarik = txs.filter((t) => Number(t?.bulan) === mN && t?.tipe === 'TARIK_TUNAI')
+      .reduce((s, t) => s + Number(t.pengeluaran || 0) + Number(t.penerimaan || 0), 0)
+    const bpu = txs.filter((t) => Number(t?.bulan) === mN && String(t?.noBukti || '').toUpperCase().startsWith('BPU'))
+      .reduce((s, t) => s + Number(t.pengeluaran || 0), 0)
+    // Sama dengan builder kasDocs (utils/dokKas) — form dan dokumen seangka.
+    return { tunai: saldoTunaiBerjalan(txs, mN), tarik, bpu }
   })()
+  const saldoTunaiBkuForm = tunaiBkuForm.tunai
   const saldoTunaiForm = saldoTunaiKetikForm !== ''
     ? Number(saldoTunaiKetikForm.replace(/[^\d.-]/g, '')) || 0
     : saldoTunaiBkuForm
@@ -854,6 +831,23 @@ export default function DokumenKelengkapanPage() {
     if (pbjExpand === idx) setPbjExpand(null)
     toast.success('Baris diarsipkan — bisa Dikembalikan')
   }
+  // ─── Sprint 023-rev4: hapus 1 baris invoice PERMANEN (beda dengan
+  // Arsipkan yang bisa dikembalikan). Rev6: konfirmasi via modal aplikasi
+  // (KonfirmHapusModal, komponen bersama dengan sidebar).
+  const [targetHapus, setTargetHapus] = useState(null)
+  const eksekusiHapusInvoice = () => {
+    if (targetHapus == null) return
+    const idx = targetHapus
+    const listBaru = pbjInvoices.filter((_, i) => i !== idx)
+    setPbjInvoices(listBaru)
+    simpanInvoices(listBaru)
+    if (pbjBarisAktif === idx) setPbjBarisAktif(null)
+    else if (pbjBarisAktif > idx) setPbjBarisAktif(pbjBarisAktif - 1)
+    if (pbjExpand === idx) setPbjExpand(null)
+    else if (pbjExpand > idx) setPbjExpand(pbjExpand - 1)
+    setTargetHapus(null)
+    toast.success('Baris invoice dihapus')
+  }
   const handleKembalikanArsip = (idx) => {
     const { list, arsip } = kembalikanBaris(pbjInvoices, pbjArsip, idx)
     setPbjInvoices(list)
@@ -905,8 +899,9 @@ export default function DokumenKelengkapanPage() {
   // Kosong = semua field tab kosong + tanpa rows (jujur, bukan karangan).
   const pbjDocKosong = (docId) => {
     const tab = PBJ_TABS.find((t) => t.id === docId)
+    // Sprint 023-rev: field boleh tersimpan di tab lain (simpanKe Workplan).
+    const fieldsKosong = (tab?.fields || []).every((f) => String((pbjForm[f.simpanKe || docId] || {})[f.key] ?? '').trim() === '')
     const d = pbjForm[docId] || {}
-    const fieldsKosong = (tab?.fields || []).every((f) => String(d[f.key] ?? '').trim() === '')
     const rowsKosong = !Array.isArray(d.rows) || d.rows.length === 0
     return fieldsKosong && rowsKosong
   }
@@ -942,15 +937,9 @@ export default function DokumenKelengkapanPage() {
     setPbjPesan('Membaca invoice…')
     setPbjReading(true)
     try {
-      const pdfjsLib = await import('pdfjs-dist/build/pdf')
-      pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
-      const buf = await file.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise
-      const { extractTables, extractAllText } = await import('../../utils/pdfTableExtractor')
-      const hasil = await extractTables(pdf, { maxPages: pdf.numPages })
-      let teks = hasil.tableText || ''
-      try { teks += `\n${await extractAllText(pdf)}` } catch { /* tabel saja cukup */ }
-      const draf = parseInvoiceSIPLah({ cleanText: teks, tables: hasil.tables })
+      // Sprint 020: pipeline baca PDF dipindah ke utils/pbjInvoice.js —
+      // kode sama persis dipakai blok PBJ di sidebar BKU.
+      const draf = await bacaInvoicePdf(file)
       if (!draf.cocok) {
         // Gagal parse -> baris TIDAK bertambah, tabel lama utuh (jujur).
         setPbjPesan('Tidak terbaca otomatis — silakan isi manual.')
@@ -1055,6 +1044,9 @@ export default function DokumenKelengkapanPage() {
   const pbjAktif = selectedDokumen?.id === 'PBJ'
   // ─── Kas split-view ala PBJ: form kiri + PanelPreviewDocument kanan ───
   const kasAktif = !!selectedDokumen?.kasDoc
+  // Sprint 024: blanko premium (bukan modal generik).
+  const blankoAktif = selectedDokumen?.id === 'DH' || selectedDokumen?.id === 'SU'
+  const tutupBlanko = () => { setSelectedDokumen(null); setSelectedCategory(null); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   const bkuKas = muatBkuKas()
   const kasDocsList = kasAktif ? kasDocs(kasForm, bkuKas, pajakManual) : []
   const kasDocAktif = kasAktif ? kasDocsList.find((d) => d.key === selectedDokumen.kasDoc) || kasDocsList[0] : null
@@ -1249,12 +1241,12 @@ export default function DokumenKelengkapanPage() {
                   </table>
                   <p className="text-[10px] text-slate-500 leading-relaxed">
                     {saldoTunaiKetikForm === '' ? (
-                      <>Terisi otomatis dari <b>Saldo Akhir BKU bulan {formData.bulan || 'terpilih'}</b> = <b>{fmtRpPecahan(saldoTunaiBkuForm)}</b>. </>
+                      <>Terisi otomatis <b>tunai berjalan</b> (akumulasi Tarik Tunai − belanja BPU; bulan ini Tarik {fmtRpPecahan(tunaiBkuForm.tarik)} − BPU {fmtRpPecahan(tunaiBkuForm.bpu)}) = <b>{fmtRpPecahan(saldoTunaiBkuForm)}</b>. </>
                     ) : (
                       <>Memakai ketikan <b>Saldo Kas Tunai</b> = <b>{fmtRpPecahan(saldoTunaiForm)}</b> (menang atas BKU). </>
                     )}
                     Urutan: kertas Rp 100.000 dulu, lalu logam. Isi kolom untuk menimpa
-                    baris itu saja. Sub Jumlah 3 (bank) = Rp 0 (model tanpa rekening bank terpisah).
+                    baris itu saja. Sub Jumlah 3 (bank) = saldo buku − tunai fisik.
                   </p>
                 </div>
               )}
@@ -1419,13 +1411,15 @@ export default function DokumenKelengkapanPage() {
     )
   }
   const pbjKosong = PBJ_TABS_TAMPIL.filter((t) => {
+    // Sprint 023-rev: field boleh tersimpan di tab lain (simpanKe Workplan).
+    const fk = (t.fields || []).every((f) => String((pbjForm[f.simpanKe || t.id] || {})[f.key] ?? '').trim() === '')
     const d = pbjForm[t.id] || {}
-    const fk = (t.fields || []).every((f) => String(d[f.key] ?? '').trim() === '')
     return fk && (!Array.isArray(d.rows) || d.rows.length === 0)
   }).length
   const pbjRingkasan = PBJ_TABS_TAMPIL.map((t) => {
+    // Sprint 023-rev: hitung dari sumber simpan tiap field (simpanKe Workplan).
+    const terisi = (t.fields || []).filter((f) => String((pbjForm[f.simpanKe || t.id] || {})[f.key] ?? '').trim() !== '').length
     const d = pbjForm[t.id] || {}
-    const terisi = Object.entries(d).filter(([k, v]) => k !== 'rows' && String(v ?? '').trim() !== '').length
     const nItem = Array.isArray(d.rows) ? d.rows.length : 0
     return { ...t, terisi, nItem, lengkap: terisi > 0 }
   })
@@ -1757,6 +1751,11 @@ export default function DokumenKelengkapanPage() {
                             className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all min-h-[36px]">
                             Arsipkan
                           </button>
+                          <button onClick={(e) => { e.stopPropagation(); setTargetHapus(i) }} aria-label={`Hapus baris ${i + 1}`}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 hover:text-slate-800 active:scale-[0.98] transition-all min-h-[36px]">
+                            <span className="material-symbols-outlined text-base">delete</span>
+                            Hapus
+                          </button>
                         </div>
                         <div className="mt-2 grid sm:grid-cols-3 gap-2">
                           <label className="text-[11px] text-slate-500">No. acuan<input type="text" value={inv.nomor || ''} onChange={(e) => updateInvoiceField(i, 'nomor', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></label>
@@ -1771,6 +1770,17 @@ export default function DokumenKelengkapanPage() {
                 })}
               </tbody>
             </table>
+            )}
+            {/* Sprint 023-rev6: modal konfirmasi hapus ala aplikasi. */}
+            {targetHapus != null && pbjInvoices[targetHapus] && (
+              <KonfirmHapusModal
+                target={{
+                  judul: 'Hapus baris invoice?',
+                  pesan: `"${pbjInvoices[targetHapus].nomor || pbjInvoices[targetHapus].namaFile || `baris ${targetHapus + 1}`}" akan dihapus dari tabel invoice. Tindakan ini permanen.`,
+                }}
+                onBatal={() => setTargetHapus(null)}
+                onYa={eksekusiHapusInvoice}
+              />
             )}
           </div>
         </div>
@@ -1811,22 +1821,22 @@ export default function DokumenKelengkapanPage() {
             </div>
             <div className="p-4 sm:p-5 grid sm:grid-cols-2 gap-3">
               {(PBJ_TABS_TAMPIL.find((t) => t.id === pbjTab)?.fields || PBJ_TABS_TAMPIL[0]?.fields || []).map((f) => (
-                <div key={f.key} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
+                <div key={`${f.simpanKe || pbjTab}.${f.key}`} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
                   <label className="block text-xs font-medium text-slate-700 mb-1">{f.label}</label>
                   {f.type === 'date' ? (
-                    <input type="date" value={pbjForm[pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(pbjTab, f.key, e.target.value)}
+                    <input type="date" value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
                   ) : f.type === 'select' ? (
-                    <select value={pbjForm[pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(pbjTab, f.key, e.target.value)}
+                    <select value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]">
                       <option value="">Pilih…</option>
                       {(f.options || []).map((o) => <option key={o} value={o}>{o}</option>)}
                     </select>
                   ) : f.type === 'textarea' ? (
-                    <textarea rows={3} value={pbjForm[pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(pbjTab, f.key, e.target.value)}
+                    <textarea rows={3} value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
                   ) : (
-                    <input type="text" value={pbjForm[pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(pbjTab, f.key, e.target.value)}
+                    <input type="text" value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
                       className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
                   )}
                 </div>
@@ -1937,7 +1947,11 @@ export default function DokumenKelengkapanPage() {
           </div>
         )}
         {/* ─── Revisi PBJ (3): mode transformasi — card asal hilang, hanya card Kelengkapan tampil ─── */}
-        {pbjAktif ? renderPbjDetail() : kasAktif ? renderKasDetail() : (
+        {pbjAktif ? renderPbjDetail() : kasAktif ? renderKasDetail() : blankoAktif ? (
+          selectedDokumen.id === 'DH'
+            ? <BlankoHadir onKembali={tutupBlanko} />
+            : <BlankoUndangan onKembali={tutupBlanko} />
+        ) : (
         <>
         {/* ─── Categories ───────────────────────────────────────────────── */}
         {filteredCategories.map((category) => {
@@ -2043,7 +2057,7 @@ export default function DokumenKelengkapanPage() {
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* DETAIL MODAL                                                       */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {selectedDokumen && selectedDokumen.id !== 'PBJ' && !selectedDokumen.kasDoc && (
+      {selectedDokumen && selectedDokumen.id !== 'PBJ' && !selectedDokumen.kasDoc && selectedDokumen.id !== 'DH' && selectedDokumen.id !== 'SU' && (
         <div
           className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4"
           onClick={() => setSelectedDokumen(null)}

@@ -77,16 +77,26 @@ export default function BKUSidebarLpj({
 
   // Sprint 018 (AD-5/AD-7): form PBJ per NoBukti. State dipegang di sini
   // supaya Panel Preview Document memakai data yang sama dengan blok PBJ.
+  // Sprint 023-rev: backfill celah entri LAMA (dokumen Perencanaan kini
+  // membaca tab Data — Workplan sheet sumber) dari baris BKU — form-first,
+  // ketikan user tak pernah ditimpa (aturan prefillPbjDariBku).
+  const sumberBkuPbj = {
+    tanggal: bkuPrefill?.tanggal || '',
+    uraian: bkuPrefill?.uraian || '',
+    kegiatanNama: bkuPrefill?.kegiatanNama || '',
+    noBukti: bkuPrefill?.noBukti || '',
+    pengeluaran: transaction?.pengeluaran || 0,
+  }
   const [formPbj, setFormPbj] = useState(() => {
     const entri = bacaEntriPbj(kategori, transaction?.noBukti)
-    if (entri) return entri.form
-    return prefillPbjDariBku({}, {
-      tanggal: bkuPrefill?.tanggal || '',
-      uraian: bkuPrefill?.uraian || '',
-      kegiatanNama: bkuPrefill?.kegiatanNama || '',
-      noBukti: bkuPrefill?.noBukti || '',
-      pengeluaran: transaction?.pengeluaran || 0,
-    })
+    if (entri) {
+      const dt = entri.form?.data || {}
+      const adaCelah = [dt.noBukti, dt.bulan, dt.tanggalPesanan, dt.jumlahBarang, dt.spesifikasi, dt.alokasi]
+        .some((v) => String(v ?? '').trim() === '')
+      if (adaCelah) return prefillPbjDariBku(entri.form, sumberBkuPbj)
+      return entri.form
+    }
+    return prefillPbjDariBku({}, sumberBkuPbj)
   })
   const [savedAtPbj, setSavedAtPbj] = useState(() => bacaEntriPbj(kategori, transaction?.noBukti)?.savedAt || null)
 
@@ -133,15 +143,27 @@ export default function BKUSidebarLpj({
 
   const templateId = selectedSub?.templateId || null
   const cfg = templateId ? TEMPLATE_CONFIGS[templateId] : null
-  const previewDocs = buildPreviewDocs({
-    cardId: card.id,
-    templateId,
-    subId: selectedSub?.id,
-    formData,
-    sppdData,
-    formPbj,
-    pbjMode: modePbj,
-  })
+  // Sprint 023 (R-5): jenis pemeliharaan — Upah (dokumen upah penuh) vs
+  // Non-Upah/service (tanpa dokumen upah). Default 'upah' → data lama aman.
+  // Nilai ikut formData sehingga persist via simpanEntri. BUKAN di templateConfig.
+  const jenisPemeliharaan = card?.id === 'pemeliharaan'
+    ? (formData?.jenisPemeliharaan || 'upah')
+    : null
+  const ubahJenisPemeliharaan = (v) => {
+    setFormDataRaw((prev) => ({ ...(prev || {}), jenisPemeliharaan: v }))
+  }
+  const sembunyiUpah = jenisPemeliharaan === 'non-upah'
+  const previewDocs = sembunyiUpah
+    ? []
+    : buildPreviewDocs({
+      cardId: card.id,
+      templateId,
+      subId: selectedSub?.id,
+      formData,
+      sppdData,
+      formPbj,
+      pbjMode: modePbj,
+    })
   // Sprint 018 (AD-2): gate sidebar TIDAK menagih "Tanggal dana masuk"
   // (inputnya dihapus di sidebar; nilainya otomatis dari BKU).
   const pelanggaran = readinessSidebar(readinessCheck(formData))
@@ -191,6 +213,19 @@ export default function BKUSidebarLpj({
     }
   }
 
+  /**
+   * Sprint 020: hasil "Upload Invoice SIPLah" di blok PBJ — form per NoBukti
+   * diganti dengan hasil parse invoice LALU otomatis tersimpan (perilaku sama
+   * dengan halaman Dokumen Kelengkapan yang menyimpan langsung setelah upload).
+   * Return hasil simpan supaya SidebarPbj bisa menyesuaikan pesan toast.
+   */
+  const handlePrefillPbjInvoice = (formBaru) => {
+    setFormPbj(formBaru)
+    const hasil = simpanEntriPbj(kategori, transaction?.noBukti, { form: formBaru })
+    if (hasil.ok) setSavedAtPbj(hasil.savedAt)
+    return hasil
+  }
+
   const handleCek = () => {    const pertama = pelanggaran[0]
     if (!pertama) { toast.success('Lengkap — siap cetak'); return }
     if (!sorotPelanggaran(pertama)) toast.info(pertama.label)
@@ -237,6 +272,30 @@ export default function BKUSidebarLpj({
         onSorot={sorot}
       />
 
+      {/* Sprint 023 (R-5): pemeliharaan ada yang ber-dokumen upah, ada yang
+          tidak (mis. service alat sekolah). Pilihan manual per NoBukti. */}
+      {card?.id === 'pemeliharaan' && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
+          <label htmlFor="jenis-pemeliharaan" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            Jenis Pemeliharaan
+          </label>
+          <select
+            id="jenis-pemeliharaan"
+            value={jenisPemeliharaan}
+            onChange={(e) => ubahJenisPemeliharaan(e.target.value)}
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          >
+            <option value="upah">Upah — dengan Daftar Penerima Upah</option>
+            <option value="non-upah">Non-Upah — service/jasa tanpa daftar upah</option>
+          </select>
+          {sembunyiUpah && (
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Dokumen Daftar Penerima Upah disembunyikan (jenis Non-Upah). Lengkapi Kwitansi/Nota + Berita Acara di halaman Dokumen Kelengkapan.
+            </p>
+          )}
+        </div>
+      )}
+
       <DetailDokumenLpj
         card={card}
         selectedSub={selectedSub}
@@ -277,6 +336,7 @@ export default function BKUSidebarLpj({
             onSimpan={handleSimpanPbj}
             mode={modePbj}
             onModeChange={ubahModePbj}
+            onPrefillInvoice={handlePrefillPbjInvoice}
           />
         )}
         blokDokumentasi={blokDokumentasi}

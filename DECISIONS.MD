@@ -9,6 +9,36 @@
 
 ## Daftar Keputusan
 
+[2026-11-01] Keputusan: Template Surat Cerdas disambung ke sumber tunggal (getSchoolData/getPejabat); hapus fallback kota "Bandung"
+  Status: accepted
+  Alasan: audit menemukan getDataPejabat() membaca kunci mati `spj_pejabat_sekolah` (tak pernah ditulis) sehingga nama KS/bendahara+NIP tak pernah terisi otomatis di Template Surat; getDataSekolah() mentah tanpa resolver; fallback kota mengarang data. Bentuk return dipertahankan (TemplateSuratPage 0 diff)
+  Dibuat oleh: builder (audit atas perintah user "cek detail")
+  Dampak: utils/templateSuratHelper.js saja; probe rev25 (4 asersi localStorage mock) PASS
+
+[2026-11-01] Keputusan: Sprint 023-rev16 — tunai model BERJALAN (akumulasi tarik−BPU, floor 0) + matcher frasa kata-utuh (\btarik/penarikan/ditarik\b); MENGOREKSI rev8 (model bulanan) + aturan substring
+  Status: accepted
+  Alasan: BKU 2026 user membuktikan bulanan salah (Mar–Mei 0 vs sumber 3.775.000/1.100.000/0) sementara berjalan 6/6 COCOK lawan kolom H Data (0/9.075.000/3.775.000/1.100.000/0/0); false positive nyata "MelesTARIKan" (BNU24, 181.200) merusak April
+  Dibuat oleh: user (BKU + perintah) + builder (diagnosis parser asli + util asli)
+  Dampak: dokKas.saldoTunaiBerjalan (baru); previewDocs + halaman pakai berjalan; bkuParser TARIK_RE; rev8/rev9 tetap berlaku untuk kasus sebulan
+
+[2026-10-31] Keputusan: Sprint 023-rev10 — footer Lembar Pengaduan/Kritik identik sumber ("Bandung Barat, Cikalongwetan, {tgl tanpa tahun}"); REVISI ADR 18:2x (default Cikalongwetan) KHUSUS 2 dokumen ini + deteksi TARIK_TUNAI tanpa guard kode/BNU-BPU bila uraian eksplisit
+  Status: accepted
+  Alasan: perintah user "identik sekali"; dump sel openpyxl membuktikan D44/D34 = "Bandung Barat, " & tanggal tanpa tahun, titik-titik = TEKS (bukan border), judul Bookman 11 non-bold, baris isi 21/27pt; guard kode membuat tunai nol pada BKU bank (logam tak masuk)
+  Dibuat oleh: user (perintah) + builder (eksekusi)
+  Dampak: builder tempatTtd 2 lembar; blok titik = string 113/179 merah nowrap-clip + tanpa PlaceholderText + min-h 21/27pt; form KS/PD dikosongkan (dokumen tangan); bkuParser #5/#9a
+
+[2026-10-31] Keputusan: Sprint 023-rev8 — model default SALDO TUNAI Register Kas dikembalikan ke file sumber (tunai = TARIK TUNAI − belanja BPU, mirror BKU-- kolom E); MENGOREKSI keputusan 2026-10-19 ("Saldo Akhir = uang tunai")
+  Status: accepted
+  Alasan: perintah user "hitungan identik file sumber"; BKU-- membuktikan tunai ≠ saldo buku saat bank > 0 (Feb contoh: tunai 7.990.000 vs buku 56.460.000); Sub (3) default ikut menjadi bank = buku − tunai (BKU-- kolom F) supaya B = buku seimbang; ketikan user tetap menang di semua field
+  Dibuat oleh: user (perintah) + builder (eksekusi)
+  Dampak: previewDocs.js (saldoTunai, sub3, fisik-BAP per-bulan-BAP, tglID); form RK/BAP/PP/KS tambah input override; angka otomatis berubah hanya bila bank bulan itu ≠ 0 (bila bank = 0 hasil identik model lama)
+
+[2026-10-31] Keputusan: Sprint 023-rev — DOKUMEN PERENCANAAN dibangun ulang identik sheet "Workplan" (template/Dokumen PBJ_2026_Lbs.xlsx); DEVIASI atas KEPUTUSAN-DIKUNCI-022 D-22/G-7 (larang ubah templateConfig/blok cetak)
+  Status: accepted
+  Alasan: perintah user eksplisit 2026-10-31 ("samakan identik format strukturnya seperti sheet workplan"); struktur lama (kegiatan/spesifikasi/syaratA-C/namaPelaksana) terbukti tidak ada di file sumber sehingga dokumen tercetak salah format + kosong; deviasi disetujui user sesuai aturan KEPUTUSAN-DIKUNCI §0 butir 2
+  Dibuat oleh: user (perintah) + builder (eksekusi)
+  Dampak: templateConfig.pbj_perencanaan = kop + header + blok BARU workplan-pbj (WorkplanPbj.jsx: meta No./bulan/hari/satuan/alamat/kategori + tabel 6 baris + syarat bersarang a/b/c) + signature peranLabel "Pelaksana," (prop aditif di SignatureFooter, 0 dampak dokumen lain); sumber data = tab Data (f.data) + Data Sekolah + TEMPAT_TTD; form tab Perencanaan (sidebar pbjTabs + halaman) jadi isian Workplan via simpanKe:data; field lama tetap tersimpan (kompatibel, tak dibaca dokumen)
+
 [2026-10-23] Keputusan: Sprint 019 — hapus 4 pintu mati sidebar/topbar, rename "Data BKU"→"Kas & Dokumen", tab Dokumentasi dihapus total (blok pindah ke tab Dokumen LPJ), toolbar sticky + chip progres/banner clickable
   Status: accepted
   Alasan: keputusan user eksplisit di pack Sprint 019 (K-1/K-2/K-3/K-9 hapus; K-4 rename; K-5 tab dihapus untuk SEMUA baris termasuk pajak; K-6 blok sebelum Panel Preview; D-1 "setuju" tanpa reorder penuh — prioritas via chip + sorotPelanggaran + banner clickable)
@@ -1339,3 +1369,21 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Alasan: tiga cacat bertumpuk di blok penerima `TabelLetterHeader`: (1) `terapkanOtomatisMamin()` mengisi `alamatUndangan` + `instansiUndangan` dengan alamat sekolah → tercetak 2x mentah di bawah "Bapak/Ibu Guru" (labelnya `''`); (2) label `'Di'` + nilai default `'Di'` → "Di Di"; (3) `diPesanan` default `'Di tempat'` → "Di Di tempat". Plus `<PlaceholderText label="">` → literal "[ isi]"
   Dibuat oleh: user (arahan), agent (eksekusi)
   Dampak: `maminOtomatis.js` — `alamatUndangan`/`instansiUndangan` tidak lagi diisi otomatis (variabel `alamatSekolah` dicabut) · `templateConfig.js` — `diUndangan`/`tempatUndangan`/`diPesanan` label `''`, default nilai `'di'`/`'tempat'`; field baru `tempatPesanan` · `TabelLetterHeader.jsx` — helper `kosongTanpaLabel()` menyembunyikan baris/sel kanan tanpa label DAN tanpa nilai (mode edit tetap render). `pbj_pesanan` (kartu Kelengkapan) sengaja TIDAK diberi baris "di/tempat" — struktur asli sheet xlsx PBJ. Dijaga `cek-022-revisi.cjs` (35/35)
+
+[2026-10-24] Keputusan: Bentuk produk = MVP web (React + localStorage) untuk demo; PRODUKSI = Electron + ReactJS + SQLite; target 700 sekolah (1 operator/sekolah); provider AI masih dipertimbangkan
+  Status: accepted (keputusan user 2026-10-24)
+  Alasan: (1) demo butuh cepat & murah, tanpa instalasi; (2) produksi butuh data permanen, kunci AI aman, offline, dan distribusi 1 installer; (3) 700 sekolah x 1 operator = 700 instalasi mandiri, bukan layanan multi-pengguna bersamaan, sehingga tidak membutuhkan server/cloud; (4) provider AI belum diputuskan sehingga arsitektur wajib membuat AI OPSIONAL (form & cetak tidak boleh bergantung pada AI)
+  Dibuat oleh: user
+  Dampak: (a) arah SaaS/cloud di docs/RESEARCH_ARSITEKTUR_4_SIFAT.MD SUPERSEDED sebagai rekomendasi utama - disimpan sebagai referensi jika kelak butuh akses lintas perangkat; (b) riset arsitektur aktual ada di docs/RESEARCH_ARSITEKTUR_MVP_DAN_PRODUKSI.MD; (c) Electron + better-sqlite3 di main process, renderer tanpa akses disk (contextIsolation true, nodeIntegration false, IPC daftar perintah tetap bukan raw SQL); (d) foto disimpan sebagai file, DB hanya path; (e) backup otomatis + uji restore WAJIB sebelum rollout; (f) migrasi localStorage -> SQLite butuh fitur ekspor yang BELUM bekerja (PengaturanPage tab backup hanya toast) - wajib diperbaiki di tahap MVP; (g) kunci personel_photos/ruangan_photos tanpa awalan spj_ wajib diseragamkan sebelum migrasi
+
+[2026-10-24] Keputusan: TIDAK ADA migrasi data dari MVP ke produksi (localStorage -> SQLite); data produksi diisi ulang lewat fitur yang sudah ada (upload data sekolah, upload BKU Excel/PDF, input dokumen). Data MVP dianggap sekali pakai.
+  Status: accepted (keputusan user 2026-10-24, mengoreksi butir (f) ADR sebelumnya)
+  Alasan: sumber data asli sudah tersedia sebagai file (Excel BKU, PDF, data sekolah), sehingga impor localStorage tidak menambah nilai; menghindari membangun alat migrasi + memperbaiki fitur export MVP yang belum bekerja; skema SQLite bisa dirancang bersih tanpa mengikuti bentuk data lama
+  Dibuat oleh: user
+  Dampak: (a) PRD migrasi DILARANG memuat FR impor/ekspor localStorage; (b) butir (f) ADR 2026-10-24 sebelumnya (export MVP prasyarat migrasi) DIBATALKAN sebagian - export hanya relevan untuk keamanan demo, bukan migrasi; (c) isian manual MVP (dokumen LPJ/PBJ, catatan, checklist, template surat kustom, foto) TIDAK ikut - operator mengisi ulang; (d) wajib fitur 'setel nomor surat awal' agar penomoran resmi tidak duplikat; (e) PRD memuat alur first-run 'mulai dari kosong'; (f) rencana lengkap: planning/sprints/sprint-021/PLANNING-PRD-MIGRASI-ELEKTRON-SQLITE.MD
+
+[2026-10-31] Keputusan: Sprint 022 — AI generate dokumen memakai PROVIDER API (BFL, kredit prabayar), default FLUX 3 Klein 1K, eskalasi FLUX 3 Image 1K, tanpa self-host; FLUX.2 [pro] hanya jika A/B menang
+  Status: accepted (keputusan user 2026-10-31, diminta "kunci keputusan ... dan simpan di file tahap sprint optimize generate documents ai")
+  Alasan: (1) pada 200 sekolah biaya API Rp 4,5-9,4 jt/tahun vs GPU 24/7 Rp 140 jt/tahun (31x) - titik impas self-host +-860 sekolah (serverless) / +-6.200 (pod 24/7); (2) FLUX 3 Image menagih referensi GRATIS, sedangkan FLUX.2 [pro] menagih $0,015/MP per referensi sehingga 1,56x lebih mahal untuk pipeline 3 referensi; (3) Klein 5,3x lebih murah dan cukup untuk cetak 60x40 mm (1K = +-170 dpi); (4) kunci API wajib di main process karena kunci di bundle = kunci publik (temuan lama aiConfig.js); (5) foto sintetis sebagai bukti LPJ berisiko dianggap bukti palsu saat audit dan wajah = data biometrik (UU PDP 27/2022) sehingga label "ILUSTRASI AI" + is_ai wajib
+  Dibuat oleh: user (arahan) + agent (riset & dokumen)
+  Dampak: (a) file pengikat `planning/sprints/sprint-022/KEPUTUSAN-DIKUNCI.MD` (D-01..D-22, gate G-1..G-9, daftar larangan); (b) AGENTS.MD butir 7 + aturan builder: WAJIB baca file itu sebelum menyentuh imageGenerator.js / DokumentasiAIGenerate.jsx / SidebarPbj.jsx / puterAkun.js; (c) anggaran demo DIKUNCI top-up $10 (Rp 187.000) - kapasitas Klein +-740 foto / campuran +-449 foto / FLUX 3 Image +-143 foto; premium $30 hanya jika demo menuntut; (d) resolusi 1K 1152x864, 2K/4K DILARANG untuk LPJ; (e) kuota 60 foto/sekolah/tahun + cap bulanan $50 + log_ai (cost/input_mp/output_mp); (f) `templateConfig.js` dan blok cetak 0 diff; (g) angka harga dirujuk dari docs/RESEARCH-AI-FOTO-PRODUCTION-200-USER.MD + docs/PANDUAN-FLUX-LANGGANAN-INTEGRASI.MD + docs/PANDUAN-FLUX-2-PRO.md (dicek 31 Okt 2026, kurs Rp 18.100/USD)

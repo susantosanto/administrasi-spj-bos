@@ -429,7 +429,11 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
             </dl>
           </div>
 
-          {/* ── Kategori Belanja (Sprint 004: sumber rekening) ── */}
+          {/* ── Kategori Belanja (Sprint 004: sumber rekening) ──
+              Sprint 023 (R-2): baris setor pajak tidak punya dokumen LPJ —
+              card ini disembunyikan khusus untuk isSetorPajak. Informasi
+              Referensi di atas tetap tampil. */}
+          {!isSetorPajak && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
@@ -464,6 +468,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
               </div>
             )}
           </div>
+          )}
           {/* ── Rincian Mamin (deep-link pindah ke kartu Ringkasan di atas) ── */}
           {maminParsed && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">

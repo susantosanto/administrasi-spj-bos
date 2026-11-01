@@ -1,11 +1,27 @@
 /**
- * imageGenerator.js — Generate Foto Dokumentasi dengan AI
- * 
+ * ⛔ SEBELUM MENGUBAH FILE INI — WAJIB BACA:
+ *    planning/sprints/sprint-022/KEPUTUSAN-DIKUNCI.MD
+ *    (provider, model default, biaya, kuota, larangan). Deviasi butuh persetujuan user
+ *    + entri baru di DECISIONS.MD. Ditegakkan lewat AGENTS.MD butir 7.
+ */
+
+/**
+ * imageGenerator.js — Generate Foto Dokumentasi dengan AI (Sprint 020)
+ *
  * ═══════════════════════════════════════════════════════════════════════
- * 🟢 MVP: Puter.js (GRATIS, tanpa API key)
- * 🔴 FUTURE: Flux Pro via fal.ai ($0.03/image) — uncomment & upgrade
+ * 🟢 AKTIF: Puter.js txt2img — foto RIIL (Sprint 020, menggantikan canvas
+ *    placeholder Sprint warisan). Tanpa API key; model User-Pays (akun
+ *    Puter gratis ditanggung masing-masing user).
+ *    Docs: https://docs.puter.com/AI/txt2img/
+ *    - Return: Promise<HTMLImageElement> → baca `.src` (URL hosted
+ *      SEMENTARA atau dataURI) → wajib dikonversi ke dataURL base64.
+ *    - Image-to-image: `input_images` (array dataURL/URL) — didukung
+ *      provider default (gpt-image-2) hingga multi gambar.
+ *    - Error umum: insufficient_funds (402) · moderation_flagged ·
+ *      upstream_failed — dilempar ke pemanggil (fallback di UI).
+ * 🔴 FUTURE: Flux Pro via fal.ai ($0.03/image) — blok komentar di bawah.
  * ═══════════════════════════════════════════════════════════════════════
- * 
+ *
  * Cara mengganti model:
  * 1. Ubah PROVIDER_DEFAULT dari 'puter' ke 'flux'
  * 2. Set FAL_API_KEY di environment
@@ -16,7 +32,7 @@
 // 🔧 KONFIGURASI — Ganti model di sini
 // ═══════════════════════════════════════════════════════════════════════
 
-// 🟢 PUTER.JS (Default — GRATIS)
+// 🟢 PUTER.JS (Default — tanpa API key, User-Pays)
 const PROVIDER_DEFAULT = 'puter'
 
 // 🔴 FUTURE: Flux Pro via fal.ai ($0.03/image)
@@ -51,7 +67,7 @@ export const ACTIVITY_PROMPTS = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// 🟢 PUTER.JS — Provider GRATIS (MVP)
+// 🟢 PUTER.JS — txt2img foto riil (Sprint 020)
 // ═══════════════════════════════════════════════════════════════════════
 
 let _puterModule = null
@@ -64,27 +80,98 @@ async function _getPuter() {
 }
 
 /**
- * Generate gambar menggunakan Puter.js AI (GRATIS).
- * 
- * @param {string} prompt — Deskripsi gambar
- * @param {string|null} faceImage — Base64 foto wajah (opsional)
- * @returns {Promise<string>} — Base64 image atau URL
+ * Konversi hasil txt2img (URL hosted sementara ATAU dataURI) → dataURL
+ * base64 yang stabil untuk disimpan di state foto (konsisten jalur upload).
+ *
+ * @param {string} src — image.src dari HTMLImageElement hasil txt2img
+ * @returns {Promise<string>} — dataURL base64
  */
-async function generateWithPuter(prompt, faceImage = null) {
+async function _toDataUrl(src) {
+  if (typeof src === 'string' && src.startsWith('data:')) return src
+  const response = await fetch(src)
+  if (!response.ok) {
+    throw new Error(`Gagal mengunduh hasil gambar (HTTP ${response.status})`)
+  }
+  const blob = await response.blob()
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(new Error('Gagal membaca hasil gambar'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+/**
+ * Generate foto dokumentasi RIIL via Puter.js txt2img (Sprint 020).
+ *
+ * @param {string} prompt — Deskripsi gambar
+ * @param {string[]} inputImages — Array dataURL input image (image-to-image):
+ *        foto wajah personel terpilih + foto ruangan referensi
+ *        (via `input_images`; kosong = text-to-image murni)
+ * @returns {Promise<string>} — dataURL base64
+ */
+async function generateWithPuter(prompt, inputImages = []) {
   const puter = await _getPuter()
 
-  // Puter.js AI Chat — gunakan model yang support image generation
-  // Note: Puter.js mungkin tidak support image generation langsung.
-  // Alternatif: gunakan prompt untuk generate deskripsi, lalu
-  // gunakan service lain untuk generate gambar.
-  
-  // Untuk MVP, kita gunakan Puter.js untuk generate prompt yang lebih baik,
-  // lalu return placeholder image atau gunakan browser canvas.
-  
-  // ── STRATEGI: Prompt Enhancement + Canvas Generation ──
-  // Karena Puter.js belum support image generation langsung,
-  // kita generate gambar menggunakan canvas API dengan prompt sebagai deskripsi.
-  
+  // Provider default (tanpa param model) = OpenAI gpt-image-2 — mendukung
+  // multi input image. Rasio 4:3 landscape sesuai format dokumen A4.
+  // quality 'high' — default docs = 'low' (wajah tidak mirip referensi).
+  const options = { ratio: { w: 4, h: 3 }, quality: 'high' }
+  if (inputImages.length > 0) {
+    options.input_images = inputImages
+  }
+
+  const image = await puter.ai.txt2img(prompt, options)
+  const src = image?.src ?? image
+  if (!src || typeof src !== 'string') {
+    throw new Error('Puter AI tidak mengembalikan gambar')
+  }
+  return await _toDataUrl(src)
+}
+
+/**
+ * Preload modul puter.js — panggil saat kartu AI di-mount (fire-and-forget).
+ *
+ * Popup sign-in Puter hanya boleh dibuka browser dalam jendela aktivasi klik
+ * user (transient activation). Kalau modul harus di-import + di-init SAAT
+ * klik pertama, rantai async bisa makan waktu sampai aktivasi kedaluwarsa →
+ * popup diblokir diam-diam. Preload memperpendek rantai itu.
+ */
+export function preloadPuter() {
+  return _getPuter().catch(() => {})
+}
+
+/**
+ * Cek status sign-in Puter (token ada di memori modul).
+ *
+ * @returns {Promise<boolean>} — true bila user sudah sign-in
+ */
+export async function cekSigninPuter() {
+  try {
+    const puter = await _getPuter()
+    return !!puter.authToken
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Buka popup sign-in Puter LANGSUNG dari klik user (gesture murni → browser
+ * menjamin popup tidak diblokir). Sekali sign-in, token tersimpan dan
+ * generate berikutnya tidak memunculkan popup lagi.
+ */
+export async function masukPuter() {
+  const puter = await _getPuter()
+  await puter.ui.authenticateWithPuter()
+  return true
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 🖼️ CANVAS PLACEHOLDER — fallback SAAT PUTER GAGAL saja (Sprint 020)
+//    Bukan jalur utama. Hasilnya WAJIB diberi label "placeholder" di UI.
+// ═══════════════════════════════════════════════════════════════════════
+
+function _canvasPlaceholder(prompt) {
   return new Promise((resolve) => {
     // Create canvas dengan prompt sebagai overlay text
     const canvas = document.createElement('canvas')
@@ -153,10 +240,10 @@ async function generateWithPuter(prompt, faceImage = null) {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'
     ctx.fillText('SPJ BOS — Sistem Pengelolaan Dokumen Bantuan Operasional Sekolah', canvas.width / 2, canvas.height - 40)
 
-    // Watermark
+    // Watermark — jujur: ini placeholder, bukan foto AI
     ctx.font = 'bold 14px Inter, system-ui, sans-serif'
     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'
-    ctx.fillText('GENERATED BY AI', canvas.width / 2, canvas.height - 60)
+    ctx.fillText('PLACEHOLDER — AI TIDAK TERSEDIA', canvas.width / 2, canvas.height - 60)
 
     // Convert to base64
     const base64 = canvas.toDataURL('image/jpeg', 0.9)
@@ -164,11 +251,16 @@ async function generateWithPuter(prompt, faceImage = null) {
   })
 }
 
+/** Fallback publik — dipanggil UI saat Puter gagal (R-3.2 Sprint 020). */
+export function generatePlaceholderImage(prompt) {
+  return _canvasPlaceholder(prompt)
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // 🔴 FUTURE: Flux Pro via fal.ai ($0.03/image)
 // ═══════════════════════════════════════════════════════════════════════
 // Uncomment block ini dan ubah PROVIDER_DEFAULT = 'flux' untuk upgrade.
-// 
+//
 // Cara pakai:
 // 1. Daftar di https://fal.ai
 // 2. Dapatkan API key
@@ -179,7 +271,7 @@ async function generateWithPuter(prompt, faceImage = null) {
 /*
 async function generateWithFlux(prompt, faceImage = null) {
   const FAL_KEY = import.meta.env.VITE_FAL_API_KEY || ''
-  
+
   if (!FAL_KEY) {
     throw new Error('FAL_API_KEY belum diatur. Set VITE_FAL_API_KEY di .env')
   }
@@ -213,18 +305,27 @@ async function generateWithFlux(prompt, faceImage = null) {
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
- * Generate foto dokumentasi kegiatan sekolah.
- * 
+ * Generate foto dokumentasi kegiatan sekolah (Sprint 020: foto riil).
+ *
  * @param {object} params
  * @param {string} params.prompt — Deskripsi gambar (custom atau default)
  * @param {string} params.activity — Jenis kegiatan (rapat/mamin/atk/pemeliharaan)
- * @param {string|null} params.faceImage — Base64 foto wajah (opsional)
- * @param {string} params.provider — 'puter' atau 'flux'
- * @returns {Promise<string>} — Base64 image atau URL
+ * @param {string[]} [params.faceImages] — Array dataURL foto wajah personel
+ *        terpilih (image-to-image). Kosong = text-to-image murni.
+ * @param {string} [params.ruangImage] — dataURL foto ruangan referensi
+ *        (Data Sekolah → Foto Referensi → Ruangan) — ikut jadi input image
+ *        agar suasana/latar mengikuti ruangan asli sekolah.
+ * @param {string} [params.faceImage] — LEGACY (halaman yatim
+ *        DokumentasiAIPage.jsx): foto wajah tunggal, digabung ke faceImages.
+ * @param {string} [params.provider] — 'puter' (default) atau 'flux' (future)
+ * @returns {Promise<string>} — dataURL base64. GAGAL = throw (fallback
+ *          placeholder diputuskan di UI, bukan di sini).
  */
 export async function generateDocumentationImage({
   prompt,
   activity,
+  faceImages = [],
+  ruangImage = null,
   faceImage = null,
   provider = PROVIDER_DEFAULT,
 }) {
@@ -232,23 +333,40 @@ export async function generateDocumentationImage({
   const activityConfig = ACTIVITY_PROMPTS[activity]
   const finalPrompt = prompt || activityConfig?.defaultPrompt || ACTIVITY_PROMPTS.rapat.defaultPrompt
 
+  // Compat legacy: faceImage tunggal (halaman yatim) digabung ke array
+  const allFaceImages = [...(faceImages || [])]
+  if (faceImage && !allFaceImages.includes(faceImage)) allFaceImages.push(faceImage)
+
+  // Input images = wajah personel dulu, foto ruangan terakhir (latar)
+  const inputImages = [...allFaceImages]
+  if (ruangImage && !inputImages.includes(ruangImage)) inputImages.push(ruangImage)
+
+  // Instruksi referensi eksplisit — model edit (gpt-image-2) perlu diperintah
+  // memakai gambar input; tanpa ini hasil cenderung mengabaikan referensi.
+  let promptReferensi = finalPrompt
+  if (inputImages.length > 0) {
+    const adaWajah = allFaceImages.length > 0
+    const adaRuang = !!ruangImage
+    promptReferensi = `${finalPrompt} WAJIB memakai gambar referensi terlampir: ${adaWajah ? 'wajah setiap orang HARUS persis sesuai foto personel pada gambar input (jangan mengubah wajah), ' : ''}${adaRuang ? 'latar/ruangan HARUS sesuai foto ruangan pada gambar input, ' : ''}gabungkan semua referensi dalam satu foto dokumentasi yang natural.`
+  }
+
   // Route ke provider
   switch (provider) {
     case 'puter':
-      return generateWithPuter(finalPrompt, faceImage)
-    
+      return generateWithPuter(promptReferensi, inputImages)
+
     // 🔴 FUTURE: Uncomment untuk Flux Pro
     // case 'flux':
-    //   return generateWithFlux(finalPrompt, faceImage)
-    
+    //   return generateWithFlux(finalPrompt, inputImages)
+
     default:
-      return generateWithPuter(finalPrompt, faceImage)
+      return generateWithPuter(promptReferensi, inputImages)
   }
 }
 
 /**
  * Resize image ke max dimension (untuk hemat token/bandwidth).
- * 
+ *
  * @param {string} base64 — Base64 image
  * @param {number} maxSize — Max width/height
  * @returns {Promise<string>} — Resized base64

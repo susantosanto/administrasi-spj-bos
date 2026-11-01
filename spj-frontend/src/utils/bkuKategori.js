@@ -10,6 +10,12 @@ export const REKENING_KE_MENU = [
   { prefix: '5.1.02.04.01', kategori: 'perjalanan_dinas', menu: 'perjalanan_dinas', route: 'dokumen-lpj' },
   { prefix: '5.1.02.01.01.0052', kategori: 'mamin', menu: 'mamin', route: 'dokumen-lpj' },
   { prefix: '5.1.02.01.01.0055', kategori: 'mamin', menu: 'mamin', route: 'dokumen-lpj' },
+  // Sprint 020 revisi (laporan user 2026-10-24): konsumsi KEGIATAN (SSH
+  // 5.1.02.02.01.0001 "Konsumsi dan Rapat Kerja") belum termapping → baris
+  // "Konsumsi (makan) Kegiatan …" tak bisa buka tab Dokumen LPJ (kartu AI
+  // 3 slot + owner warung tak terjangkau). Konsumsi kegiatan = domain mamin
+  // (aturanMamin jenis=kegiatan, gabungKonsumsi).
+  { prefix: '5.1.02.02.01.0001', kategori: 'mamin', menu: 'mamin', route: 'dokumen-lpj' },
   { prefix: '5.1.02.01.01.0024', kategori: 'atk', menu: 'kelengkapan', route: 'dokumen-kelengkapan' },
   { prefix: '5.1.02.01.01.0025', kategori: 'pemeliharaan', menu: 'pemeliharaan', route: 'dokumen-lpj' },
   { prefix: '5.1.02.02.01.0063', kategori: 'pemeliharaan', menu: 'pemeliharaan', route: 'dokumen-lpj' },

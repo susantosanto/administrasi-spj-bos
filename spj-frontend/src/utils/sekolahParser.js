@@ -21,6 +21,14 @@ const LABEL_MAP = {
   provinsi: ['provinsi'],
   tahunAnggaran: ['tahun anggaran', 'tahun'],
   kecamatan: ['kecamatan'],
+  // Sprint 024 (Instrumen BOS seksi A — dari profil Dapodik).
+  nomorRekening: ['nomor rekening', 'no rekening', 'no. rekening'],
+  bankRekening: ['nama bank'],
+  namaRekening: ['rekening atas nama', 'atas nama rekening', 'nama tertera pada rekening', 'tertera pada rekening'],
+  status: ['status sekolah'],
+  ijin: ['ijin', 'izin', 'izin operasional', 'ijin operasional'],
+  telepon: ['nomor telepon', 'telepon', 'telp'],
+  email: ['email', 'e-mail', 'surat elektronik'],
 }
 
 const MAX_SCAN_ROWS = 60
@@ -298,6 +306,114 @@ function parseByScanning(ws) {
   return result
 }
 
+// ─── Personil & Siswa (Sprint 024 — Instrumen BOS seksi A/C) ───
+// PTK sheet: kolom 'Status Kepegawaian' + 'Jenis PTK' (+ 'Tugas Tambahan'
+// untuk mengecualikan Kepala Sekolah dari "guru selain KS").
+// Peserta Didik sheet: triple angka [L, P, Total] dengan L+P=Total → Total
+// terbesar = jumlah siswa.
+
+function kolomHeader(ws, barisHeader, maksKol = 40) {
+  const peta = {}
+  for (let c = 0; c < maksKol; c++) {
+    const v = getCell(ws, barisHeader, c)
+    if (v !== null && v !== undefined && String(v).trim() !== '') {
+      peta[String(v).trim().toLowerCase()] = c
+    }
+  }
+  return peta
+}
+
+function cariBarisHeader(ws, kataKunci, maksBaris = 15, maksKol = 40) {
+  const kws = kataKunci.map((k) => k.toLowerCase())
+  for (let r = 0; r < maksBaris; r++) {
+    let cocok = 0
+    for (let c = 0; c < maksKol; c++) {
+      const v = getCell(ws, r, c)
+      if (v === null || v === undefined) continue
+      const s = String(v).toLowerCase()
+      if (kws.some((k) => s.includes(k))) cocok++
+    }
+    if (cocok >= kataKunci.length) return r
+  }
+  return -1
+}
+
+function hitungPtk(ws) {
+  const out = { jmlGuru: 0, jmlGuruPns: 0, jmlGuruNonAsn: 0, jmlTendik: 0, jmlTendikPns: 0, jmlTendikNonAsn: 0 }
+  const hr = cariBarisHeader(ws, ['nama', 'status kepegawaian', 'jenis ptk'])
+  if (hr < 0) return out
+  const peta = kolomHeader(ws, hr)
+  const cNama = peta['nama']
+  const cStatus = Object.keys(peta).find((k) => k.includes('status kepegawaian'))
+  const cJenis = Object.keys(peta).find((k) => k.includes('jenis ptk'))
+  const cTugas = Object.keys(peta).find((k) => k.includes('tugas tambahan'))
+  if (cNama === undefined || cStatus === undefined || cJenis === undefined) return out
+  let mulai = false
+  let kosongBeruntun = 0
+  for (let r = hr + 1; r < hr + 500; r++) {
+    const nama = getCell(ws, r, cNama)
+    if (nama === null || nama === undefined || String(nama).trim() === '') {
+      // Baris sub-header (mis. "Gelar Depan…") sebelum data: lewati.
+      // Berhenti hanya bila kosong SETELAH data dimulai (akhir tabel).
+      if (!mulai) continue
+      if (++kosongBeruntun >= 3) break
+      continue
+    }
+    kosongBeruntun = 0
+    mulai = true
+    const status = String(getCell(ws, r, peta[cStatus]) || '')
+    const jenis = String(getCell(ws, r, peta[cJenis]) || '')
+    const tugas = cTugas !== undefined ? String(getCell(ws, r, peta[cTugas]) || '') : ''
+    if (/kepala sekolah/i.test(tugas)) continue // "guru SELAIN Kepala Sekolah"
+    const isGuru = /guru/i.test(jenis)
+    const isTendik = /tenaga kependidikan|tendik/i.test(jenis)
+    if (!isGuru && !isTendik) continue
+    const isPns = /^\s*pns\s*$/i.test(status)
+    if (isGuru) {
+      out.jmlGuru++
+      if (isPns) out.jmlGuruPns++
+      else out.jmlGuruNonAsn++
+    } else {
+      out.jmlTendik++
+      if (isPns) out.jmlTendikPns++
+      else out.jmlTendikNonAsn++
+    }
+  }
+  return out
+}
+
+function hitungSiswa(ws) {
+  let total = 0
+  for (let r = 0; r < 60; r++) {
+    const baris = []
+    for (let c = 0; c < 20; c++) {
+      const v = getCell(ws, r, c)
+      baris.push(typeof v === 'number' ? v : null)
+    }
+    for (let c = 0; c + 2 < baris.length; c++) {
+      const [a, b, t] = [baris[c], baris[c + 1], baris[c + 2]]
+      if (a != null && b != null && t != null && a + b === t && t > total) total = t
+    }
+  }
+  return total || ''
+}
+
+function parsePersonil(workbook) {
+  const out = {}
+  const namaSheet = workbook.SheetNames || []
+  const sheetPtk = namaSheet.find((s) => /ptk|pendidik|tenaga/i.test(s))
+  if (sheetPtk) Object.assign(out, hitungPtk(workbook.Sheets[sheetPtk]))
+  const sheetSiswa = namaSheet.find((s) => /peserta|siswa|murid|didik/i.test(s))
+  if (sheetSiswa) {
+    const jml = hitungSiswa(workbook.Sheets[sheetSiswa])
+    if (jml !== '') out.jmlSiswa = jml
+  }
+  for (const k of Object.keys(out)) {
+    if (typeof out[k] === 'number') out[k] = String(out[k])
+  }
+  return out
+}
+
 // ─── Public API ────────────────────────────────────────────────
 
 export function parseSekolahExcel(file) {
@@ -317,6 +433,8 @@ export function parseSekolahExcel(file) {
         const sheetName = workbook.SheetNames[0]
         const ws = workbook.Sheets[sheetName]
         const parsed = parseByScanning(ws)
+        // Sprint 024: personil + siswa dari sheet PTK/Peserta Didik.
+        Object.assign(parsed, parsePersonil(workbook))
 
         const hasSchoolData = parsed.npsn || parsed.nama_sekolah
         const hasLocationData = parsed.kabupaten || parsed.provinsi || parsed.alamat

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import PuterAkunManager from '../../components/ai/PuterAkunManager'
 
 export default function PengaturanPage() {
   const [tab, setTab] = useState('profil')
@@ -16,6 +17,7 @@ export default function PengaturanPage() {
         <div className="flex flex-wrap gap-sm border-b border-outline-variant pb-md">
           {[
             { id: 'profil', label: 'Profil Sekolah', icon: 'school' },
+            { id: 'akun-ai', label: 'Akun AI', icon: 'manage_accounts' },
             { id: 'master', label: 'Data Master', icon: 'database' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
             { id: 'tentang', label: 'Tentang', icon: 'info' },
@@ -56,6 +58,8 @@ export default function PengaturanPage() {
             </button>
           </div>
         )}
+
+        {tab === 'akun-ai' && <PuterAkunManager variant="page" />}
 
         {tab === 'master' && (
           <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">

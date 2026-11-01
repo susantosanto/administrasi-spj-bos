@@ -4,6 +4,7 @@
  */
 
 import storageHelper from './storageHelper';
+import { getSchoolData, getPejabat } from './sekolahData';
 
 const { get, set } = storageHelper;
 
@@ -93,56 +94,45 @@ export const TEMPLATES = {
 // ============================================
 
 /**
- * Get data sekolah untuk auto-fill
+ * Get data sekolah untuk auto-fill — SUMBER TUNGGAL via sekolahData.js
+ * (Sprint 024-rev: sebelumnya baca mentah `spj_data_sekolah` tanpa resolver
+ * dan tanpa field baru; bentuk return dipertahankan agar pemanggil tak berubah).
  */
 export function getDataSekolah() {
-  const data = get('data_sekolah');
+  const s = getSchoolData();
   return {
-    namaSekolah: data?.namaSekolah || data?.nama || '',
-    alamat: data?.alamat || '',
-    telepon: data?.telepon || data?.telp || '',
-    email: data?.email || '',
-    website: data?.website || '',
-    logo: data?.logo || null,
+    namaSekolah: s.namaSekolah || '',
+    alamat: s.alamat || '',
+    telepon: s.telepon || '',
+    email: s.email || '',
+    website: s.website || '',
+    logo: get('logo_sekolah', null),
     // Tambahan untuk kop surat
-    kabupaten: data?.kabupaten || data?.kota || '',
-    provinsi: data?.provinsi || '',
-    kodePos: data?.kodePos || '',
-    npsn: data?.npsn || ''
+    kabupaten: s.kabupaten || '',
+    provinsi: s.provinsi || '',
+    kodePos: s.kodePos || '',
+    npsn: s.npsn || ''
   };
 }
 
 /**
- * Get data pejabat untuk auto-fill
+ * Get data pejabat untuk auto-fill — SUMBER TUNGGAL via getPejabat().
+ * (Sprint 024-rev: sebelumnya membaca kunci MATI `spj_pejabat_sekolah`
+ * yang tak pernah ditulis siapa pun, sehingga nama KS/bendahara TAK PERNAH
+ * terisi otomatis di Template Surat. Bentuk return dipertahankan.)
  */
 export function getDataPejabat() {
-  const data = get('pejabat_sekolah');
-  
-  // Handle different data structures
-  let kepsek = null;
-  let bendahara = null;
-  
-  if (data) {
-    // If data is array
-    if (Array.isArray(data)) {
-      kepsek = data.find(p => p.jabatan === 'Kepala Sekolah' || p.role === 'kepsek');
-      bendahara = data.find(p => p.jabatan === 'Bendahara' || p.role === 'bendahara');
-    }
-    // If data is object with kepsek/bendahara keys
-    else {
-      kepsek = data.kepsek || data.kepalaSekolah;
-      bendahara = data.bendahara;
-    }
-  }
-  
+  const kepsek = getPejabat('ks');
+  const bendahara = getPejabat('bendahara');
+
   return {
     namaKepsek: kepsek?.nama || '',
     nipKepsek: kepsek?.nip || '',
-    jabatanKepsek: kepsek?.jabatan || 'Kepala Sekolah',
-    
+    jabatanKepsek: 'Kepala Sekolah',
+
     namaBendahara: bendahara?.nama || '',
     nipBendahara: bendahara?.nip || '',
-    jabatanBendahara: bendahara?.jabatan || 'Bendahara BOS'
+    jabatanBendahara: 'Bendahara BOS'
   };
 }
 
@@ -208,7 +198,8 @@ export function generateDefaultValues(templateId) {
     
     // Default fields
     nomorSurat: '',
-    kota: sekolah.kabupaten || 'Bandung'
+    // Sprint 024-rev: tanpa fallback kota diam-diam (aturan jujur-kosong).
+    kota: sekolah.kabupaten || ''
   };
   
   // Add template-specific defaults

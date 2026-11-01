@@ -171,7 +171,10 @@ export default function SignatureFooter({ blockConfig, data = {}, onChange, mode
 
             return (
               <div key={role} className="text-center w-48">
-                <div className="text-[10px] text-gray-500 mb-1">Mengetahui/Menyetujui</div>
+                {/* Sprint 023-rev: peranLabel opsional (mis. "Pelaksana," di
+                    Workplan) — default tetap "Mengetahui/Menyetujui", jadi
+                    0 dampak ke dokumen lain. */}
+                <div className="text-[10px] text-gray-500 mb-1">{blockConfig.peranLabel || 'Mengetahui/Menyetujui'}</div>
                 {!KS_ROLES.includes(role) && (
                   <div className="text-xs font-medium">{roleConfig.label}</div>
                 )}

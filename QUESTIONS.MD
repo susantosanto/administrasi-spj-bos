@@ -7,6 +7,9 @@
 
 ## Pertanyaan Terbuka
 
+❓ [OPEN] Pertanyaan: Register Kas — berapa angka opname KAS FISIK + SALDO BANK per bulan (Jan–Jun) versi bendahara? Estimator aplikasi (berjalan 6/6 di file contoh) ditolak user sebagai fatal salah — butuh angka pembanding untuk kalibrasi/tindak lanjut.
+  Ditanya: 2026-11-01 | Dari: builder (rev19) | Status: Menunggu jawaban user — WAJIB sebelum klaim hitungan selesai.
+
 🔹 [CLOSED] Pertanyaan: 8 gap runtime Sprint 003 (T-04 penuh, T-05 penuh, T-06, T-07 picker, T-08 b/c/d/e/f/g, T-09, T-10 Honorarium, E-2) — wajib ronde-2 acceptance, atau sebagian diterima sebagai risiko (seperti Sprint 001/002 2026-09-30)?
   Jawaban: DITERIMA sebagai risiko — ronde-2 DIBATALKAN, question ditutup.
   Ditutup: 2026-10-01 (perintah user langsung)
@@ -273,3 +276,16 @@ Alasannya bukan preferensi, tapi konsekuensi teknis: form rincian pesanan sekara
 komponen** (`MaminPesananRincian`) yang dipakai sidebar DAN halaman LPJ, jadi labelnya
 mustahil berbeda. Yang dipilih = versi bersih (tanpa kata "Seksi"), sesuai permintaan
 poin 3. Diverifikasi `cek-018-paritas.cjs` (8/8 PASS) + `R5.1b`.
+
+---
+
+**[2026-10-23] Riset fitur AI generate foto dokumentasi (Sprint 020) - 4 keputusan user:**
+1. Fokus fitur AI? -> **Foto dokumentasi saja** (text AI notulen/tanya BKU tidak disentuh).
+2. Autentikasi? -> **100% tanpa API key** (Puter.js User-Pays, akun Puter gratis; tanpa menu BYOK).
+3. Parameter faceImage? -> **Image-to-image** - foto personel terpilih jadi input image txt2img.
+4. Lanjut eksekusi? -> **Setuju** - pack `planning/sprints/sprint-020/` disusun, menunggu dry run.
+
+**Temuan riset terverifikasi 2026-10-23:**
+- Kode eksisting: `generateWithPuter` = placeholder canvas (BUKAN AI); `faceImage` tidak pernah dipakai; komentar "Puter.js mungkin tidak support image generation" usang.
+- Pollinations.ai DITOLAK: uji langsung HTTP 402 Payment Required; anonymous 1 img/45 detik per IP; `gen.pollinations.ai` wajib API key + Pollen.
+- Puter.js `txt2img` TERPILIH: resmi (docs.puter.com/AI/txt2img), 40+ model, no API key, User-Pays, dukung image-to-image (`input_image`).

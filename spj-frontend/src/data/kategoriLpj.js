@@ -73,7 +73,12 @@ export const CARDS = [
     deskripsi: 'Master, Jumlah Lembar, Bukti Pembayaran',
     kategori: 'Dokumen Pendukung',
     icon: 'content_copy',
-    hasTemplate: false,
+    // Sprint 020 revisi (keputusan user 2026-10-24): hasTemplate:true agar
+    // baris ATK (KATEGORI_KE_CARD.atk → 'penggandaan') lolos cardBerpanel →
+    // sidebar BKU membuka tab "Dokumen LPJ" → kartu AI Dokumentasi tampil.
+    // infoOnly tetap true: halaman LPJ tetap render kartu info (DetailDokumenLpjInfo),
+    // tidak ada template cetak untuk penggandaan.
+    hasTemplate: true,
     infoOnly: true,
     infoItems: ['Master Penggandaan', 'Jumlah Lembar', 'Bukti Pembayaran'],
   },

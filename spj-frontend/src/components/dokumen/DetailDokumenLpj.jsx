@@ -60,7 +60,12 @@ export default function DetailDokumenLpj({
 }) {
   if (!card) return null
 
-  const isSpecial = SPECIAL.includes(card.id)
+  // Sprint 020 revisi (keputusan user 2026-10-24): penggandaan jadi panel-card
+  // HANYA di sidebar BKU (layout='stack') agar baris ATK bisa mengakses kartu
+  // AI Dokumentasi (blokDokumentasi hanya dirender oleh DetailDokumenLpjBody).
+  // Halaman LPJ (layout='side') tetap memakai DetailDokumenLpjInfo (kartu info).
+  const isSpecial = SPECIAL.includes(card.id) ||
+    (card.id === 'penggandaan' && layout === 'stack')
 
   return (
     <div

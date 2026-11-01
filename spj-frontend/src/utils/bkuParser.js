@@ -92,17 +92,43 @@ function parseTahunAnggaran(val) {
   return matchNumber ? matchNumber[1] : '';
 }
 
+const BULAN_NAMA_ID = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+  jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, agu: 8, ags: 8,
+  sep: 9, sept: 9, okt: 10, nov: 11, des: 12,
+}
+
 function parseTanggal(val) {
   if (!val) return null;
-  // Format: "DD-MM-YYYY"
+  const ok = (d, m, y) => {
+    if (y < 100) y += 2000; // tahun 2 digit ("05-03-26") → 2026
+    if (!isNaN(d) && !isNaN(m) && !isNaN(y) && d >= 1 && d <= 31 && m >= 1 && m <= 12) {
+      return { day: d, month: m, year: y };
+    }
+    return null;
+  };
   if (typeof val === 'string') {
-    const parts = val.split('-');
-    if (parts.length === 3) {
-      const d = parseInt(parts[0]);
-      const m = parseInt(parts[1]);
-      const y = parseInt(parts[2]);
-      if (!isNaN(d) && !isNaN(m) && !isNaN(y) && d >= 1 && d <= 31 && m >= 1 && m <= 12) {
-        return { day: d, month: m, year: y };
+    const s = val.trim();
+    // Sprint 023-rev15: terima DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY,
+    // ISO YYYY-MM-DD, dan "D Month YYYY" Indonesia ("5 Maret 2026").
+    // Format beda diam-diam menggugurkan baris (temuan Maret-Mei kosong).
+    let m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})$/.exec(s);
+    if (m) {
+      const r = ok(parseInt(m[1]), parseInt(m[2]), parseInt(m[3]));
+      if (r) return r;
+    }
+    m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+    if (m) {
+      const r = ok(parseInt(m[3]), parseInt(m[2]), parseInt(m[1]));
+      if (r) return r;
+    }
+    m = /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{2,4})$/.exec(s);
+    if (m) {
+      const bulan = BULAN_NAMA_ID[m[2].toLowerCase()];
+      if (bulan) {
+        const r = ok(parseInt(m[1]), bulan, parseInt(m[3]));
+        if (r) return r;
       }
     }
   }
@@ -129,6 +155,12 @@ function parseNumber(val) {
 }
 
 // ─── Transaction Type Detection ────────────────────────────────
+
+// Frasa penarikan tunai sebagai KATA UTUH (bukan sub-string): "Melestarikan"
+// mengandung "tarik" tapi bukan penarikan tunai (temuan BKU 2026-10-31,
+// Sprint 023-rev16). Pakai di semua aturan tarik.
+const TARIK_RE = /(^|\s)(tarik|penarikan|ditarik)(\s|$)/;
+const isTarikTunai = (u) => TARIK_RE.test(u || '');
 
 const TRANSACTION_TYPES = {
   PENERIMAAN_BOSP: 'PENERIMAAN_BOSP',
@@ -177,7 +209,8 @@ function detectTransactionType(tx) {
   }
 
   // 5. PEMBAYARAN — no bukti BNU atau BPU (sesuai aturan user: BNU/BPU = pembayaran)
-  if (pengeluaran > 0 && (nb.startsWith('BNU') || nb.startsWith('BPU'))) {
+  // Sprint 023-rev9/16: kecuali frasa penarikan tunai (ikut TARIK_TUNAI #9a).
+  if (pengeluaran > 0 && (nb.startsWith('BNU') || nb.startsWith('BPU')) && !isTarikTunai(u)) {
     return TRANSACTION_TYPES.PEMBAYARAN;
   }
 
@@ -196,7 +229,22 @@ function detectTransactionType(tx) {
     return TRANSACTION_TYPES.SETOR_PAJAK;
   }
 
+  // 8b. TARIK TUNAI via kolom PENERIMAAN — penarikan bank yang dicatat
+  // sebagai kas masuk (kas tunai bertambah). BBU/dana-BOSP sudah ditangkap
+  // duluan (#4), pergeseran (#7) juga duluan — sisanya yang beruraian
+  // tarik/penarikan = tunai. Sprint 023-rev12 (tunai 0 padahal kas ada).
+  if (penerimaan > 0 && isTarikTunai(u) && !nb.startsWith('BBU')) {
+    return TRANSACTION_TYPES.TARIK_TUNAI;
+  }
+
   // 9. TARIK TUNAI — pengeluaran tanpa kode kegiatan/rekening
+  // Sprint 023-rev9: uraian EKSPLISIT penarikan tunai ("tarik ...",
+  // "penarikan ...") = TARIK_TUNAI walau barisnya berkode rekening/kegiatan
+  // (BKU bank menulis kode pada baris tarik tunai; guard kode lama membuat
+  // hitungan tunai Register Kas nol). BNU/BPU sudah ditangkap duluan (#5).
+  if (pengeluaran > 0 && isTarikTunai(u)) {
+    return TRANSACTION_TYPES.TARIK_TUNAI;
+  }
   if (pengeluaran > 0 && !kodeKegiatan && !kodeRekening && (u.includes('tarik') || u.includes('tunai') || u.includes('ambil') || u.includes('penarikan'))) {
     return TRANSACTION_TYPES.TARIK_TUNAI;
   }
@@ -260,6 +308,8 @@ function getBestSheet(workbook) {
   return null;
 }
 
+/** Diekspor untuk probe/oracle (Sprint 023-rev15). */
+export { parseTanggal };
 export function validateBKUFormat(workbook) {
   const errors = [];
   const warnings = [];

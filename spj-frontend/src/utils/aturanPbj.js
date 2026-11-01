@@ -149,6 +149,11 @@ export function terapkanPrefillPbj(formLama = {}, { invoice = null, bku = null }
       const doc = d === 'tanggalPesanan' ? 'pesanan' : d === 'tanggalPeriksa' ? 'bahp' : d === 'tanggalTerima' ? 'bast' : d === 'tanggalNego' ? 'nego' : 'perencanaan'
       isi(doc, d, tgl)
     }
+    // Sprint 023-rev (laporan user: Dokumen Perencanaan kosong setelah upload
+    // invoice): invoice adalah BAHAN Perencanaan — spesifikasi dari uraian item
+    // + alokasi dari grand total. isi() tak menimpa ketikan/BKU (user > invoice).
+    isi('perencanaan', 'spesifikasi', inv.items.map((it) => it.uraian).join('; ').slice(0, 200))
+    isi('perencanaan', 'alokasi', inv.grandTotal)
     if (inv.items.length > 0 && (form.pesanan.rows || []).length === 0) {
       form.pesanan.rows = inv.items.map((it) => ({ uraian: it.uraian, qty: it.qtyTerima || it.qtyPesan, satuan: '', harga: it.hargaSebelumPPN, total: it.totalSebelumPPN }))
       tertimpa.push('pesanan.rows')

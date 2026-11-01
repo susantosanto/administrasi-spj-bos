@@ -33,6 +33,11 @@ SPDForm,
   LembarPengaduan,
   LembarKritikSaran,
   PeringatanData,
+  WorkplanPbj,
+  TabelRealisasi,
+  InstrumenBos,
+  DaftarHadirPaper,
+  SuratUndanganPaper,
 } from './blocks'
 import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 
@@ -58,6 +63,11 @@ const BLOCK_RENDERERS = {
   'rincian-pajak': RincianPajak,
   'lembar-pengaduan': LembarPengaduan,
   'lembar-kritik-saran': LembarKritikSaran,
+  'workplan-pbj': WorkplanPbj,
+  'realisasi-tabel': TabelRealisasi,
+  'instrumen-bos': InstrumenBos,
+  'daftar-hadir': DaftarHadirPaper,
+  'undangan-blanko': SuratUndanganPaper,
 }
 
 export default function TemplateEngine({

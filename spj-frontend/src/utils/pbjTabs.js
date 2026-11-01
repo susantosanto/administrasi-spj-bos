@@ -9,21 +9,23 @@
 
 export const PBJ_TABS = [
   { id: 'perencanaan', label: 'Perencanaan', fields: [
-    { key: 'nomorSurat', label: 'Nomor Surat' },
-    // ⚠️ TEMUAN USER 2026-10-22 ("duplikat input Tanggal; Kegiatan/Pekerjaan
-    // bisa diambil dari Nama Kegiatan sebelumnya"): dua field ini TIDAK
-    // ditampilkan sebagai input di sidebar karena sudah punya sumber tunggal —
-    // Tanggal ← baris BKU, Kegiatan/Pekerjaan ← "Nama Kegiatan" (seksi 1).
-    // Nilainya tetap ada di state (diisi `sinkronPbjDariSumber`) supaya ikut
-    // tercetak. Halaman Dokumen Kelengkapan tidak memakai file ini (G-9).
-    { key: 'tanggalSurat', label: 'Tanggal', type: 'date', turunan: 'tanggalBku' },
-    { key: 'kegiatan', label: 'Kegiatan/Pekerjaan', turunan: 'namaKegiatan' },
-    { key: 'spesifikasi', label: 'Spesifikasi', type: 'textarea' },
-    { key: 'alokasi', label: 'Alokasi Anggaran (Rp)' },
-    { key: 'syaratA', label: 'Syarat penyedia (a)' },
-    { key: 'syaratB', label: 'Syarat penyedia (b)' },
-    { key: 'syaratC', label: 'Syarat penyedia (c)' },
-    { key: 'namaPelaksana', label: 'Pelaksana' },
+    // Sprint 023-rev: tab ini = isian Workplan sheet sumber — semuanya
+    // tersimpan di tab Data (`simpanKe: 'data'`, dokumen Perencanaan
+    // membaca f.data). Field lama (nomorSurat/kegiatan/syaratA-C) dibuang
+    // karena tidak ada di file sumber.
+    { key: 'noBukti', label: 'No.', simpanKe: 'data' },
+    { key: 'bulan', label: 'Bulan', simpanKe: 'data' },
+    { key: 'tanggalPesanan', label: 'Tanggal', type: 'date', simpanKe: 'data' },
+    { key: 'jumlahBarang', label: 'Jumlah Barang/Jasa', simpanKe: 'data' },
+    { key: 'spesifikasi', label: 'Spesifikasi/ruang lingkup', type: 'textarea', simpanKe: 'data' },
+    { key: 'waktuSerah', label: 'Waktu serah terima', simpanKe: 'data' },
+    { key: 'alokasi', label: 'Alokasi Anggaran (Rp)', simpanKe: 'data' },
+    { key: 'jenisPenyedia', label: 'Penyedia', type: 'select', options: ['Perorangan', 'Badan Usaha'], simpanKe: 'data' },
+    { key: 'namaPenyedia', label: 'Nama penyedia/toko', simpanKe: 'data' },
+    { key: 'direktur', label: 'Pemilik/Direktur', simpanKe: 'data' },
+    { key: 'npwp', label: 'NPWP', simpanKe: 'data' },
+    { key: 'alamat', label: 'Alamat penyedia', simpanKe: 'data' },
+    { key: 'telp', label: 'No. Telp', simpanKe: 'data' },
   ] },
   { id: 'pesanan', label: 'Surat Pesanan', fields: [
     { key: 'nomorPesanan', label: 'Nomor Pesanan' },
