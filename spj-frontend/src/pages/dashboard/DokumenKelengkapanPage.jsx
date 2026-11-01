@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA DEFINITIONS — Organized by Category
@@ -269,6 +270,7 @@ export default function DokumenKelengkapanPage() {
   }
 
   const handleSaveForm = () => {
+    if (!requireWrite(toast)) return
     toast.success(`Form "${selectedDokumen.nama}" berhasil disimpan`)
     setSelectedDokumen(null)
     setFormData({})

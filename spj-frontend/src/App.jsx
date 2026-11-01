@@ -6,6 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import DashboardLayout from './layouts/DashboardLayout'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import DataSekolahPage from './pages/dashboard/DataSekolahPage'
@@ -34,18 +35,16 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
-  // Boot splash — keluar sesuai kesiapan NYATA, bukan timer buta:
-  //  - efek ini berjalan berarti bundle JS sudah selesai & React ter-render
-  //  - document.fonts.ready : font (termasuk Inter untuk teks splash) siap
-  //  - gambar logo /asik-logo.png selesai termuat
-  // + batas bawah 1.4s (agar loader tidak cuma kedip) dan pengaman 6s.
-  // Tidak menyentuh routing/logika bisnis.
+  // Boot splash — keluar sesuai kesiapan NYATA:
+  //  - logo /asik-logo.png selesai termuat
+  //  - font CDN hanya ditunggu maksimal 900ms (jangan biarkan splash tergantung internet lambat)
+  //  + batas bawah singkat agar loader tidak cuma kedip, dan pengaman 6s.
   useEffect(() => {
     const splash = document.getElementById('boot-splash')
     if (!splash) return
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const t0 = window.__BOOT_T0 || performance.now()
-    const MIN_SPIN = reduced ? 250 : 1400
+    const MIN_SPIN = reduced ? 200 : 500
     const CAP = 6000
     let done = false
 
@@ -65,10 +64,10 @@ export default function App() {
         img.addEventListener('error', res, { once: true })
       })
     }
-    // kesiapan font (cap 2.5s supaya splash tidak terjebak bila CDN tersendat)
+    // font CDN ditunggu MAKSIMAL 900ms — jangan soket splash tergantung internet lambat
     const fontsReady = Promise.race([
       document.fonts?.ready ?? Promise.resolve(),
-      new Promise((r) => setTimeout(r, 2500)),
+      new Promise((r) => setTimeout(r, 900)),
     ])
 
     const elapsed = performance.now() - t0
@@ -96,6 +95,7 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/daftar" element={<RegisterPage />} />
 
             {/* Protected Routes — AskAIButton hanya muncul di halaman dashboard */}
             <Route

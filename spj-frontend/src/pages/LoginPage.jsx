@@ -18,6 +18,7 @@ export default function LoginPage() {
   const handleLogin = (e) => {
     e.preventDefault();
     setLoading(true);
+    // Delay pendek untuk umpan balik UI — jangan 1.5 detik lagi (mock tua).
     setTimeout(() => {
       if (username && password) {
         localStorage.setItem("spj_auth", "true");
@@ -29,7 +30,7 @@ export default function LoginPage() {
         toast.error("Username dan password harus diisi");
       }
       setLoading(false);
-    }, 1500);
+    }, 400);
   };
 
   return (
@@ -224,7 +225,15 @@ export default function LoginPage() {
 
           {/* Help */}
           <p className="text-center text-[13px] text-slate-500">
-            Butuh bantuan?{' '}
+            Belum punya lisensi?{' '}
+            <Link
+              to="/daftar"
+              className="font-medium hover:underline"
+              style={{ color: isDark ? "#60A5FA" : "#2457A7" }}
+            >
+              Daftar sekolah
+            </Link>{' '}
+            · Butuh bantuan?{' '}
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); toast.info("Hubungi admin di instansi sekolah masing-masing"); }}

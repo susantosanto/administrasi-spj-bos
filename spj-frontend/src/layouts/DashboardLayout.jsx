@@ -8,6 +8,8 @@ import Sidebar from '../components/layout/Sidebar'
 import { SidebarProvider, useSidebar } from '../contexts/SidebarContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { seedMockData } from '../data/mockData'
+import LicenseBanner from '../components/layout/LicenseBanner'
+import { licenseService } from '../services/licenseService'
 
 function DashboardContent() {
   const { isOpen, isMobile } = useSidebar()
@@ -15,6 +17,10 @@ function DashboardContent() {
 
   useEffect(() => {
     seedMockData()
+    // Refresh status lisensi saat masuk dashboard (REPLACES perlu klik manual)
+    licenseService.refresh()
+    const iv = setInterval(() => licenseService.refresh(), 15 * 60 * 1000)
+    return () => clearInterval(iv)
   }, [])
 
   return (
@@ -44,6 +50,7 @@ function DashboardContent() {
           !isMobile && isOpen ? 'lg:ml-[260px]' : 'ml-0'
         }`}
       >
+        <LicenseBanner />
         <Outlet />
       </main>
     </div>

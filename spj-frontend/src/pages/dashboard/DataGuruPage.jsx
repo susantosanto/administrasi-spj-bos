@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -55,6 +56,7 @@ export default function DataGuruPage() {
 
   // ─── Upload Handler ──────────────────────────────────────────
   const handleFileUpload = async (e, jenis) => {
+    if (!requireWrite(toast)) return
     const file = e.target.files[0]
     if (!file) return
     if (!file.name.match(/\.(xlsx|xls)$/i)) {
@@ -94,6 +96,7 @@ export default function DataGuruPage() {
 
   // ─── Delete Handler ──────────────────────────────────────────
   const handleDelete = (id, type) => {
+    if (!requireWrite(toast)) return
     if (type === 'tendik') {
       const updated = tendik.filter(g => g.id !== id)
       setTendik(updated)

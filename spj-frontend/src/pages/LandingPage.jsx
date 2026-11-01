@@ -358,12 +358,18 @@ backgroundColor: scrolled
             <ThemeToggleLanding />
             <Link
               to="/login"
+              className="text-sm font-medium text-slate-500 hover:text-[#2457A7] transition-colors"
+            >
+              Masuk
+            </Link>
+            <Link
+              to="/daftar"
               className="text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
               style={{ backgroundColor: P.cta, color: "#ffffff" }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
             >
-              Mulai Sekarang
+              Daftar Sekarang
             </Link>
           </nav>
 
@@ -435,13 +441,13 @@ backgroundColor: scrolled
 
                 <div className="flex flex-wrap gap-3 mb-8 animate-fade-up" style={{ animationDelay: "0.3s" }}>
                   <Link
-                    to="/login"
+                    to="/daftar"
                     className="text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
                     style={{ backgroundColor: P.cta, color: "#ffffff" }}
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
                   >
-                    Mulai Sekarang
+                    Daftar Sekarang — Coba 14 Hari
                   </Link>
                   <a
                     href="#fitur"
@@ -601,13 +607,13 @@ backgroundColor: scrolled
                 </p>
               </div>
               <Link
-                to="/login"
+                to="/daftar"
                 className="shrink-0 text-sm font-semibold px-6 py-3 rounded-lg transition-colors"
                 style={{ backgroundColor: P.cta, color: "#ffffff" }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = P.ctaHover)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = P.cta)}
               >
-                Mulai Sekarang
+                Daftar Sekarang
               </Link>
             </div>
           </div>

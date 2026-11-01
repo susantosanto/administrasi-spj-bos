@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 
 const REALISASI_ITEMS = [
   { id: 'R-CVR', nama: 'Cover Realisasi', deskripsi: 'Cover laporan realisasi dana BOSP', icon: 'folder', gradient: 'from-orange-500 to-red-600', isForm: true },
@@ -20,6 +21,7 @@ export default function RealisasiPage() {
   }, [])
 
   const toggleStatus = (id) => {
+    if (!requireWrite(toast)) return
     const next = status[id] === 'Selesai' ? 'Belum' : 'Selesai'
     const updated = { ...status, [id]: next }
     setStatus(updated)

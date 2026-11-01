@@ -3,6 +3,7 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import ThemeToggle from '../../components/ui/ThemeToggle'
 import { useTheme } from '../../contexts/ThemeContext'
+import LicenseSyncCard from '../../components/settings/LicenseSyncCard'
 
 export default function PengaturanPage() {
   const [tab, setTab] = useState('profil')
@@ -21,6 +22,7 @@ export default function PengaturanPage() {
             { id: 'profil', label: 'Profil Sekolah', icon: 'school' },
             { id: 'tampilan', label: 'Tampilan', icon: 'contrast' },
             { id: 'master', label: 'Data Master', icon: 'database' },
+            { id: 'lisensi', label: 'Lisensi & Sinkron', icon: 'verified' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
             { id: 'tentang', label: 'Tentang', icon: 'info' },
           ].map(t => (
@@ -113,6 +115,8 @@ export default function PengaturanPage() {
             </div>
           </div>
         )}
+
+        {tab === 'lisensi' && <LicenseSyncCard />}
 
         {tab === 'backup' && (
           <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">

@@ -11,6 +11,7 @@ import {
 import Topbar from '../../components/layout/Topbar';
 import storageHelper from '../../utils/storageHelper';
 import { useToast } from '../../components/ui/Toast';
+import { requireWrite } from '../../services/licenseService';
 import { useSidebar } from '../../contexts/SidebarContext';
 
 const { get, set } = storageHelper;
@@ -166,6 +167,7 @@ const NomorSuratPage = () => {
 
   // Generate
   const handleGenerate = () => {
+    if (!requireWrite(toast)) return
     const nomorSeg = formatSegments.find(s => s.id === 'nomor');
     const startNum = parseInt(nomorSeg?.startNumber) || 1;
     const existingRecords = getAllNomorSurat();
@@ -180,6 +182,7 @@ const NomorSuratPage = () => {
 
   // Save
   const handleUseNomor = () => {
+    if (!requireWrite(toast)) return
     if (!generatedNomor) { toast.error('Generate dulu!'); return; }
     try {
       const record = {
@@ -209,6 +212,7 @@ const NomorSuratPage = () => {
   const handleDeleteClick = (record) => { setRecordToDelete(record); setShowDeleteConfirm(true); };
 
   const handleDeleteConfirm = () => {
+    if (!requireWrite(toast)) return
     if (!recordToDelete) return;
     try {
       deleteNomorSurat(recordToDelete.id);
@@ -245,6 +249,7 @@ const NomorSuratPage = () => {
 
   // Save format
   const handleSaveFormat = () => {
+    if (!requireWrite(toast)) return
     try {
       localStorage.setItem('spj_surat_custom_formats', JSON.stringify({ segments: formatSegments }));
       toast.success('Format tersimpan!');
