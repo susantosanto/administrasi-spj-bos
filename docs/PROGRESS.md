@@ -621,6 +621,30 @@
 - [x] **Bundel** — `manualChunks { pdfjs, xlsx-vendor }` di `vite.config.js`
 - [x] Detail eksekusi: `docs/LAPORAN_EKSEKUSI_FASE1-5.md`, analisis: `ANALISIS_PROYEK.md`
 
+### 🔐 Lisensi, Registrasi & Sinkronisasi Control Plane (2026-11-01, branch `feat/license-sync`)
+- [x] **Registrasi sekolah** — route `/daftar` (`RegisterPage.jsx`) → `POST /public/register` lalu `POST /device/activate`; payload gagal jaringan disimpan di `spj_registration_pending`
+- [x] **Layanan lisensi** — `licenseService.js` (heartbeat, cache status, `canWrite`/`requireWrite`), `fingerprint.js` (device fingerprint stabil), `cpClient.js` (klien Control Plane + `X-License-Code`/`X-Device-Fingerprint`)
+- [x] **Sinkronisasi data** — `syncService.js` push/pull whitelist (`data_sekolah`, `data_guru`, `data_tendik`, `auth_user`); data keuangan tetap lokal
+- [x] **UI lisensi** — `LicenseBanner.jsx` (status TRIAL/GRACE/READ_ONLY/SUSPENDED/EXPIRED) + `LicenseSyncCard.jsx` di tab **Lisensi & Sinkron**; refresh otomatis tiap 15 menit dari `DashboardLayout`
+- [x] **Guard aksi tulis** — `requireWrite(toast)` dipasang di BKU, Data Guru, Dokumen Kelengkapan, Nomor Surat, Catatan, Pejabat, Realisasi, Template Surat
+- [x] **Landing/Login** — CTA diarahkan ke `/daftar` ("Daftar Sekarang — Coba 14 Hari"), link "Daftar sekolah" di Login
+- [x] **UI polish** — Topbar & kartu dashboard glass konsisten light/dark, splash fail-safe di `index.html`, boot splash 1400ms → 500ms
+- [x] **Merge `origin/feat/light-dark-living`** — 11 konflik diselesaikan: visual pakai branch kita, fitur remote dipertahankan (`storageAdapter`, vitest, route `/pratinjau`, `ensureSchemaVersion`, simpan format nomor surat quota-safe)
+- [x] **Verifikasi** — `npm run build` lolos (1621 modul); `npm test` lolos 18 test / 3 file
+- [x] **Push branch** — `feat/license-sync` (ahead 41 dari `main`), PR belum dibuat
+
+**Commit sesi ini:**
+```
+50ac71f feat(license): registrasi sekolah, lisensi perangkat, dan sinkronisasi Control Plane
+78b09b6 fix(ui): glass topbar/dashboard dan splash fail-safe
+89e9284 docs: prompt registrasi & sinkronisasi, aset desain terbaru
+bebb5e8 merge: fondasi Fase 1-5 dan freeze pre-redesign dari origin
+```
+
+**Catatan terbuka:**
+- Registrasi & push/pull baru diuji build/unit test — belum diuji end-to-end ke Control Plane (`localhost:4000`).
+- Kode error CP (`409 NPSN_ALREADY_EXISTS`, `403 DEVICE_LIMIT_REACHED`, `429`, timeout) sudah ditangani di UI, tapi belum diverifikasi dengan respons nyata.
+
 ## 🔮 NEXT STEPS (jika ada)
 
 - [x] **Accordion/Toggle Card** — Ubah konsep card dokumen dari modal ke accordion (detail muncul di bawah) ✅ 2026-07-13
@@ -630,8 +654,11 @@
 - [x] **Nomor Surat Terpisah** — Transport & SPPD punya nomor surat masing-masing dengan popup generate ✅ 2026-07-13
 - [ ] Test cetak semua template
 - [ ] Implementasi "Coming Soon" sub-kategori
+- [ ] Uji end-to-end registrasi + aktivasi device ke Control Plane (`localhost:4000`)
+- [ ] Uji push/pull sinkronisasi dengan lisensi nyata
+- [ ] Buat Pull Request `feat/license-sync` → `main`
 - [ ] Deploy ke Vercel
 
 ---
 
-*Last updated: 2026-10-14 | Session: Commit fondasi Fase 1-5*
+*Last updated: 2026-11-01 | Session: Lisensi + registrasi + sinkronisasi Control Plane, merge fondasi Fase 1-5, push `feat/license-sync`*
