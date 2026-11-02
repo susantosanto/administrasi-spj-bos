@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import ThemeToggle from '../../components/ui/ThemeToggle'
@@ -7,7 +8,11 @@ import LicenseSyncCard from '../../components/settings/LicenseSyncCard'
 import PuterAkunManager from '../../components/ai/PuterAkunManager'
 
 export default function PengaturanPage() {
-  const [tab, setTab] = useState('profil')
+  const [params] = useSearchParams()
+  const awal = params.get('tab')
+  const [tab, setTab] = useState(
+    ['profil', 'tampilan', 'akun-ai', 'master', 'lisensi', 'backup', 'tentang'].includes(awal) ? awal : 'profil'
+  )
   const [siplah, setSiplah] = useState(false)
   const { isDark, toggle } = useTheme()
   const toast = useToast()

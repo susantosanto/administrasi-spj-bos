@@ -26,7 +26,7 @@ export default function Topbar({ title, subtitle }) {
   let licTone = 'warn'
   if (hasCode && lic.status) {
     if (lic.status === 'TRIAL') {
-      licMain = `Masa Percobaan${daysLeft !== null ? ` • ${daysLeft} hari lagi` : ''}`
+      licMain = `Masa Percobaan : ${daysLeft !== null ? daysLeft : '—'} Hari`
       licSub = trialDate ? `sampai ${trialDate}` : 'aktifkan lisensi agar tetap menulis'
     } else if (lic.status === 'GRACE') {
       licMain = 'Masa Tenggang'
@@ -47,6 +47,15 @@ export default function Topbar({ title, subtitle }) {
   }
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
+  const [showLicInfo, setShowLicInfo] = useState(false)
+
+  // Tutup popup lisensi saat Escape
+  useEffect(() => {
+    if (!showLicInfo) return
+    const onKey = (e) => { if (e.key === 'Escape') setShowLicInfo(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [showLicInfo])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -113,20 +122,73 @@ export default function Topbar({ title, subtitle }) {
           </span>
         </button>
         {licMain ? (
-          <button
-            type="button"
-            onClick={() => licenseService.refresh()}
-            title="Periksa status lisensi"
-            className="flex items-center gap-2 min-w-0 text-left rounded-xl px-1 py-0.5"
-          >
-            <span className={`shrink-0 w-2.5 h-2.5 rounded-full relative ${licTone === 'dang' ? 'bg-red-500' : 'bg-amber-500'}`} aria-hidden="true">
-              <span className="lic-ring absolute inset-0 rounded-full bg-inherit" />
-            </span>
-            <span className="min-w-0">
-              <span className={`block text-sm font-bold truncate leading-none ${licTone === 'dang' ? 'text-red-700 dark:text-red-300' : 'text-amber-800 dark:text-amber-300'}`}>{licMain}</span>
-              <span className="block text-[10px] text-slate-500 dark:text-slate-400 truncate leading-none mt-1">{licSub}</span>
-            </span>
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setShowLicInfo(true)}
+              title="Lihat info masa percobaan"
+              aria-haspopup="dialog"
+              className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/25 hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25 hover:bg-amber-500/15'}`}
+            >
+              <span className={`w-2 h-2 rounded-full relative shrink-0 ${licTone === 'dang' ? 'bg-red-500' : 'bg-amber-500'}`} aria-hidden="true">
+                <span className="lic-ring absolute inset-0 rounded-full bg-inherit" />
+              </span>
+              {licMain}
+            </button>
+            {showLicInfo && (
+              <div
+                className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/45 backdrop-blur-sm"
+                onClick={() => setShowLicInfo(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Info masa percobaan"
+              >
+                <div
+                  className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-white/10 shadow-2xl p-5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${licTone === 'dang' ? 'bg-red-500/10 text-red-600 dark:text-red-300' : 'bg-amber-500/10 text-amber-600 dark:text-amber-300'}`}>
+                      <span className="material-symbols-outlined text-xl">verified</span>
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{licMain}</h3>
+                      {licSub && <p className="text-[11px] text-slate-500 dark:text-slate-400">{licSub}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowLicInfo(false)}
+                      aria-label="Tutup"
+                      className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">close</span>
+                    </button>
+                  </div>
+                  <div className="rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1.5">
+                    <p><b className="text-slate-800 dark:text-slate-100">Status:</b> {lic.schoolName || lic.status}</p>
+                    {trialDate && <p><b className="text-slate-800 dark:text-slate-100">Berlaku sampai:</b> {trialDate}</p>}
+                    <p>Selama masa percobaan semua fitur tulis aktif. Setelah berakhir, aplikasi jadi mode baca — hubungi admin pusat untuk perpanjangan.</p>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      type="button"
+                      onClick={() => { licenseService.refresh(); }}
+                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
+                    >
+                      Periksa ulang
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowLicInfo(false); navigate('/dashboard/pengaturan?tab=lisensi'); }}
+                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:brightness-110 transition-all"
+                    >
+                      Kelola lisensi
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : title ? (
           <div className="min-w-0">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">{title}</h2>
