@@ -16,6 +16,7 @@ import { kalibrasiNominal, barisPerHalaman, kolomAngka } from './bkuPdfLayout.js
 import { pisahTeks } from './bkuPdfTeks.js'
 import { bacaTanggal, tanggalPemisah, tanggalGabung, tanggalPolos } from './bkuPdfTanggal.js'
 import { perbaikiTanggalTakWajar, saringBarisRingkasan, modusTahun, perbaikiNominalDariSaldo, gabungBarisLanjutan } from './bkuPdfRapi.js'
+import { bulanDariNama } from './bkuPeriode.js'
 const pad = (n) => String(n).padStart(2, '0')
 
 /**
@@ -45,6 +46,12 @@ function buangHeader(items) {
     return pisah.length > 1 ? bersih(pisah.slice(1).join(':')) : ''
   }
   const th = hal1.map((i) => i.str).join(' ').match(/\b(20\d{2})\b/)
+  // Bulan kop: "BULAN : MARET TAHUN : 2026". Pola dikunci ke label BERKOLON +
+  // kata TAHUN di sebelahnya supaya baris saldo ("Saldo Bank Bulan Februari
+  // 2026", tanpa kolon) tidak ikut cocok. Sprint 025-rev2 (auto-isi periode).
+  const teksKop = hal1.map((i) => i.str).join(' ')
+  const mBulan = teksKop.match(/BULAN\s*:\s*([A-Za-z]+)\s+TAHUN/i)
+  const bulanKop = bulanDariNama(mBulan ? mBulan[1] : '')
   // "Nama Sekolah" bisa terbagi 2 token ("Nama" + "Sekolah") — cari pasangan
   // berurutan dengan y sama, lalu nilainya di sebelah kanannya.
   const a = hal1.find((it) => /^nama$/i.test(it.str.trim()))
@@ -64,6 +71,7 @@ function buangHeader(items) {
     namaSekolah: namaSekolah || cari('Nama[\\s,._-]*Sekolah'),
     npsn: cari('NPSN'),
     tahun: th ? th[1] : '',
+    bulan: bulanKop,
     terbaca: hal1.length > 0,
   }
 }

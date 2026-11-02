@@ -101,7 +101,8 @@ export default function BKUPage() {
 
       setItems(migrated)
       const realSummary = recalcSummary(migrated)
-      setUploadedInfo({ header: stored.header, summary: realSummary })
+      // Sprint 025: teruskan riwayat impor PDF agar penanda periode tampil.
+      setUploadedInfo({ header: stored.header, summary: realSummary, riwayatImporPdf: stored.riwayatImporPdf || [] })
       setAvailableMonths(realSummary.months)
       setFilterBulan('Semua')
       if (showToast) {
@@ -673,7 +674,10 @@ export default function BKUPage() {
               </h4>
               <p className="text-text-low text-sm">
                 {uploadedInfo
-                  ? `Data dari ${uploadedInfo.header?.nama_sekolah || 'file'}`
+                  ? `Data dari ${uploadedInfo.header?.nama_sekolah || 'file'}` +
+                    ((uploadedInfo.riwayatImporPdf || []).length
+                      ? ` · ${uploadedInfo.riwayatImporPdf.map((r) => r.label).join(', ')}`
+                      : '')
                   : 'Upload file Excel untuk melihat data BKU'}
               </p>
             </div>

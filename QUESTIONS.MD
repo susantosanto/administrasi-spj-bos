@@ -289,3 +289,16 @@ poin 3. Diverifikasi `cek-018-paritas.cjs` (8/8 PASS) + `R5.1b`.
 - Kode eksisting: `generateWithPuter` = placeholder canvas (BUKAN AI); `faceImage` tidak pernah dipakai; komentar "Puter.js mungkin tidak support image generation" usang.
 - Pollinations.ai DITOLAK: uji langsung HTTP 402 Payment Required; anonymous 1 img/45 detik per IP; `gen.pollinations.ai` wajib API key + Pollen.
 - Puter.js `txt2img` TERPILIH: resmi (docs.puter.com/AI/txt2img), 40+ model, no API key, User-Pays, dukung image-to-image (`input_image`).
+
+---
+
+## Sprint 025 — Upload BKU PDF 3 Mode (keputusan user 2026-11-02)
+
+✅ [CLOSED] Q-1 Definisi Semester — Jawaban: **opsi B, ikut Tahap BOS** (Semester 1 = Jan–Jun, Semester 2 = Jul–Des).
+  Ditutup: 2026-11-02 (keputusan user langsung).
+
+❓ [OPEN] Q-2 — 1 PDF bulanan memuat 2 bulan: tolak atau bagi otomatis?
+  Default pack: peringatan + pilihan lanjut/batal. Tidak memblokir (default jalan).
+
+❓ [OPEN] Q-3 — riwayat periode-dari-file: metadata FR-6 cukup atau perlu UI riwayat khusus?
+  Default pack: metadata saja. Tidak memblokir.
