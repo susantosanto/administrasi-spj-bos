@@ -21,6 +21,7 @@ import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 // halaman LPJ dan sidebar BKU memakai sumber yang sama (satu panel, dua layout).
 import { CARDS } from '../../data/kategoriLpj'
 import DetailDokumenLpj from '../../components/dokumen/DetailDokumenLpj'
+import { logActivity } from '../../utils/activityLog'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -331,6 +332,7 @@ export default function DokumenSPJPage() {
       printContainer.classList.remove('portrait', 'landscape')
       printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
     }
+    logActivity({ type: 'cetak', title: `Cetak ${getTemplateConfig()?.label || selectedCard?.nama || 'dokumen LPJ'}`, detail: formData.bkuSumber?.noBukti || '' })
     window.print()
   }
 

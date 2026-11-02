@@ -14,6 +14,7 @@ import {
 import { generateNomorSurat, saveNomorSurat } from '../../utils/nomorSuratHelper';
 import { useToast } from '../../components/ui/Toast';
 import { requireWrite } from '../../services/licenseService';
+import { logActivity } from '../../utils/activityLog';
 import { useSidebar } from '../../contexts/SidebarContext';
 
 const TemplateSuratPage = () => {
@@ -121,6 +122,7 @@ const TemplateSuratPage = () => {
     };
     
     saveDraftsurat(draft);
+    logActivity({ type: 'dokumen', title: `Draft ${selectedTemplate.nama}`, detail: generatedNomor?.nomor || '' })
     showToast('Draft berhasil disimpan', 'success');
   };
   

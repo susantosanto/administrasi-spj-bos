@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import storageHelper from "../utils/storageHelper";
 import { useToast } from "../components/ui/Toast";
+import { logActivity } from "../utils/activityLog";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -24,6 +25,7 @@ export default function LoginPage() {
         localStorage.setItem("spj_auth", "true");
         storageHelper.set("auth_user", { name: username, role: "admin" });
         storageHelper.set("auth_token", "mock-token-" + Date.now());
+        logActivity({ type: 'auth', title: `Masuk ${username}`, detail: 'login dashboard' })
         toast.success("Selamat datang, " + username + "!");
         navigate("/dashboard");
       } else {
