@@ -639,6 +639,7 @@
   - Test disesuaikan dengan realita main: 39 template, 25 tipe blok, pengeluaran riil = PEMBAYARAN saja (tarik tunai bukan belanja)
   - `docs/PROGRESS.md` dipertahankan walau main menghapusnya
 - [x] **Paritas fitur main** — section "Fitur Unggulan" dikembalikan (gaya glass kita) agar Realisasi & fitur lain terjangkau dari dashboard; label sidebar `Data BKU` → `Kas & Dokumen` mengikuti main
+- [x] **Topbar minimal (selaras main)** — judul polos + border pemisah, notifikasi & bantuan dihapus, satu kontrol tema, search & profil dirapikan, aria-label ditambah, dropdown tutup saat Escape/pindah halaman, logout via `storageHelper`
 
 **Commit sesi ini:**
 ```

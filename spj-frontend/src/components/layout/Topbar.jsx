@@ -3,7 +3,7 @@
  * With user profile dropdown menu
  */
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
 import ThemeToggle from '../ui/ThemeToggle'
@@ -12,6 +12,7 @@ import BrandedLoader from '../ui/BrandedLoader'
 export default function Topbar({ title, subtitle }) {
   const { isOpen, toggle } = useSidebar()
   const navigate = useNavigate()
+  const location = useLocation()
   const user = storageHelper.get('auth_user', { name: 'Operator', email: 'operator@sekolah.id' })
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
@@ -29,6 +30,15 @@ export default function Topbar({ title, subtitle }) {
     }
   }, [showDropdown])
 
+  // Tutup dropdown saat Escape atau pindah halaman
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') setShowDropdown(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
+
+  useEffect(() => { setShowDropdown(false) }, [location.pathname])
+
   // Logout → loader ASIK (fullscreen) dulu, lalu fade-out, baru bersihkan & keluar.
   // Isi bersihkan + navigate PERSIS versi lama — hanya diberi urutan loader.
   const [logoutStage, setLogoutStage] = useState(null) // null | 'show' | 'exit'
@@ -39,9 +49,9 @@ export default function Topbar({ title, subtitle }) {
     setTimeout(() => {
       setLogoutStage('exit')
       setTimeout(() => {
-        localStorage.removeItem('spj_auth')
-        localStorage.removeItem('spj_auth_user')
-        localStorage.removeItem('spj_auth_token')
+        storageHelper.remove('auth')
+        storageHelper.remove('auth_user')
+        storageHelper.remove('auth_token')
         navigate('/')
       }, 320)
     }, 850)
@@ -54,13 +64,15 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full">
+    <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full border-b border-slate-200/60 dark:border-slate-700/50">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
           onClick={toggle}
           className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
           title={isOpen ? 'Tutup Sidebar' : 'Buka Menu'}
+          aria-label={isOpen ? 'Tutup sidebar' : 'Buka menu'}
+          aria-expanded={isOpen}
         >
           <span
             className="material-symbols-outlined text-xl transition-transform duration-300"
@@ -69,9 +81,9 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        <div className="min-w-0 bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-2 flex flex-col justify-center">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate leading-none">{title}</h2>
-          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-white/70 truncate leading-none mt-1">{subtitle}</p>}
+        <div className="min-w-0">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">{title}</h2>
+          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>}
         </div>
       </div>
 
@@ -80,27 +92,15 @@ export default function Topbar({ title, subtitle }) {
         <div className="relative hidden md:block">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
           <input
-            className="pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl text-sm w-48 lg:w-64 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
+            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm w-48 lg:w-64 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
             placeholder="Cari..."
-            type="text"
+            type="search"
+            aria-label="Cari di aplikasi"
           />
         </div>
 
         {/* Theme Toggle */}
         <ThemeToggle variant="icon" />
-
-        {/* Notifications */}
-        <button className="p-2 sm:p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
-          <span className="material-symbols-outlined text-lg sm:text-xl">notifications</span>
-        </button>
-
-        {/* Help - Hidden on mobile */}
-        <button className="hidden sm:block p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
-          <span className="material-symbols-outlined text-xl">help_outline</span>
-        </button>
-
-        {/* Divider - Hidden on mobile */}
-        <div className="hidden sm:block h-8 w-px bg-slate-200 mx-1" />
 
         {/* ═══ User Profile Dropdown ═══ */}
         <div className="relative" ref={dropdownRef}>
@@ -109,12 +109,15 @@ export default function Topbar({ title, subtitle }) {
             className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-2xl transition-all duration-200 ${
               showDropdown
                 ? 'bg-primary/10 shadow-sm'
-                : 'hover:bg-slate-100'
+                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
+            aria-haspopup="menu"
+            aria-expanded={showDropdown}
+            aria-label="Menu profil pengguna"
           >
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold text-slate-800 leading-tight">{user.name}</p>
-              <p className="text-[10px] text-slate-500">{user.email || 'operator@sekolah.id'}</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">{user.email || 'operator@sekolah.id'}</p>
             </div>
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-white text-base sm:text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
@@ -126,16 +129,16 @@ export default function Topbar({ title, subtitle }) {
 
           {/* ═══ Dropdown Menu ═══ */}
           {showDropdown && (
-            <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/40 border border-slate-200/80 dark:border-slate-700 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
               {/* User Info Header */}
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
                     <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-500 truncate">{user.email || 'operator@sekolah.id'}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email || 'operator@sekolah.id'}</p>
                   </div>
                 </div>
               </div>
@@ -146,24 +149,16 @@ export default function Topbar({ title, subtitle }) {
                   <button
                     key={idx}
                     onClick={item.action}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-5 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <span className="material-symbols-outlined text-xl text-slate-400">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
                   </button>
                 ))}
-                {/* Theme Toggle in dropdown */}
-                <div className="px-5 py-3 flex items-center justify-between">
-                  <span className="flex items-center gap-3 text-sm font-medium text-slate-700">
-                    <span className="material-symbols-outlined text-xl text-slate-400">contrast</span>
-                    Tema Gelap
-                  </span>
-                  <ThemeToggle />
-                </div>
               </div>
 
               {/* Divider */}
-              <div className="h-px bg-slate-100 mx-4" />
+              <div className="h-px bg-slate-100 dark:bg-slate-700 mx-4" />
 
               {/* Logout */}
               <div className="py-2">
