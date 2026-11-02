@@ -11,6 +11,18 @@ import { useTheme } from '../../contexts/ThemeContext'
 import storageHelper from '../../utils/storageHelper'
 import { DOCUMENTS_REF, isDocAvailable } from '../../utils/docHelper'
 import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
+import ArusKasChart from '../../components/dashboard/ArusKasChart'
+import ActivityPanel from '../../components/dashboard/ActivityPanel'
+import PaketProgressPanel from '../../components/dashboard/PaketProgressPanel'
+
+const fmtSingkat = (n) => {
+  const v = Number(n) || 0
+  const f = (x, s) => `Rp ${x.toLocaleString('id-ID', { maximumFractionDigits: 1 })} ${s}`
+  if (Math.abs(v) >= 1e9) return f(v / 1e9, 'M')
+  if (Math.abs(v) >= 1e6) return f(v / 1e6, 'jt')
+  if (Math.abs(v) >= 1e3) return f(v / 1e3, 'rb')
+  return `Rp ${v.toLocaleString('id-ID')}`
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -229,69 +241,50 @@ export default function DashboardHome() {
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* QUICK STATS — ringkasan progres operator                            */}
+        {/* QUICK STATS — ala referensi: label + value besar + hint konteks      */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Progress LPJ', value: `${lpjProgress.checked}/${lpjProgress.total}`, icon: 'checklist', color: 'text-primary' },
-            { label: 'Fitur', value: FEATURES.length, icon: 'auto_awesome', color: 'text-slate-700' },
-            { label: 'Dok. Referensi', value: DOCUMENTS_REF.length, icon: 'download', color: 'text-slate-700' },
-            { label: 'Transaksi BKU', value: (storageHelper.get('bku_data', null)?.transactions?.length || 0), icon: 'receipt_long', color: 'text-slate-700' },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 flex items-center gap-3">
-              <span className={`material-symbols-outlined ${stat.color}`}>{stat.icon}</span>
-              <div className="min-w-0">
-                <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
-                <p className="text-[10px] text-slate-500 truncate">{stat.label}</p>
-              </div>
+        {(() => {
+          const bku = storageHelper.get('bku_data', null)
+          const txs = bku?.transactions || []
+          const monthly = bku?.summary?.monthlySummaries || []
+          const terima = bku?.summary?.totalPenerimaan || 0
+          const pakai = bku?.summary?.totalPengeluaran || 0
+          const last = monthly[monthly.length - 1]
+          const lpjPct = lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0
+          const stats = [
+            { label: 'Transaksi BKU', value: String(txs.length), hint: monthly.length ? `${monthly.length} bulan data` : 'Belum ada data', icon: 'receipt_long' },
+            { label: 'Penerimaan BOSP', value: fmtSingkat(terima), hint: last ? `s/d ${last.namaBulan}` : 'Belum ada data', icon: 'payments' },
+            { label: 'Pengeluaran Riil', value: fmtSingkat(pakai), hint: last ? `bln ${last.namaBulan}: ${fmtSingkat(last.totalPengeluaran)}` : 'Belum ada data', icon: 'shopping_cart' },
+            { label: 'Kelengkapan LPJ', value: `${lpjPct}%`, hint: lpjProgress.total ? `${lpjProgress.checked}/${lpjProgress.total} dokumen` : 'Belum ada data', icon: 'checklist' },
+          ]
+          return (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {stats.map((stat) => (
+                <div key={stat.label} className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
+                    <span className="material-symbols-outlined text-lg text-slate-400 dark:text-slate-500">{stat.icon}</span>
+                  </div>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{stat.value}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{stat.hint}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )
+        })()}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
+        {/* ARUS KAS — grafik penerimaan vs pengeluaran per bulan                */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {lpjProgress.total > 0 && (
-          <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">checklist</span>
-                <h3 className="text-base font-bold text-slate-900">Progress Kelengkapan LPJ</h3>
-              </div>
-              <Link
-                to="/dashboard/bku"
-                className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
-              >
-                Kelola di Kas & Dokumen
-                <span className="material-symbols-outlined text-sm">arrow_forward</span>
-              </Link>
-            </div>
-            <div className="px-5 py-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-600">Dokumen LPJ sudah lengkap</span>
-                </div>
-                <span className="text-lg font-bold text-primary">
-                  {lpjProgress.checked}/{lpjProgress.total}
-                </span>
-              </div>
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
-                  style={{ width: `${lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%` }}
-                />
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-[11px] text-slate-400">
-                  Centang checklist di halaman Kas & Dokumen untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
-                </p>
-                <span className="text-xs font-bold text-primary">
-                  {lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+        <ArusKasChart />
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* PROGRES + AKTIVITAS — dua kolom ala referensi                        */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="grid gap-5 lg:grid-cols-2">
+          <PaketProgressPanel />
+          <ActivityPanel />
+        </div>
         {/* ═══════════════════════════════════════════════════════════════════ */}
 
 
