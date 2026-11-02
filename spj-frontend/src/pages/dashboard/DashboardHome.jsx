@@ -334,9 +334,39 @@ export default function DashboardHome() {
           </div>
         </div>
 
-      </div>
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="material-symbols-outlined text-slate-700">auto_awesome</span>
+            <h3 className="text-base font-bold text-slate-900">Fitur Unggulan</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+            {FEATURES.map((feature) => (
+              <Link
+                key={feature.id}
+                to={feature.path}
+                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
+              >
+                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:scale-105 transition-all duration-200">
+                  <span className="material-symbols-outlined text-slate-700 dark:text-slate-200 text-lg group-hover:text-white transition-colors">
+                    {feature.icon}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{feature.title}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{feature.subtitle}</p>
+                </div>
+                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all text-base">
+                  arrow_forward
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
 
-      {/* ─── MODAL KONFIRMASI DOWNLOAD ─── */}
+      </div>
       <DownloadConfirmModal
         doc={selectedDoc}
         isOpen={showDocModal}

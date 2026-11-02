@@ -638,6 +638,7 @@
   - `Pengaturan`: tab `Tampilan` (kita) + tab `Akun AI` (main) hidup berdampingan
   - Test disesuaikan dengan realita main: 39 template, 25 tipe blok, pengeluaran riil = PEMBAYARAN saja (tarik tunai bukan belanja)
   - `docs/PROGRESS.md` dipertahankan walau main menghapusnya
+- [x] **Paritas fitur main** — section "Fitur Unggulan" dikembalikan (gaya glass kita) agar Realisasi & fitur lain terjangkau dari dashboard; label sidebar `Data BKU` → `Kas & Dokumen` mengikuti main
 
 **Commit sesi ini:**
 ```
