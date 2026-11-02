@@ -81,10 +81,12 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        <div className="min-w-0">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">{title}</h2>
-          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>}
-        </div>
+        {title ? (
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">{title}</h2>
+            {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>}
+          </div>
+        ) : null}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">

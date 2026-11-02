@@ -149,7 +149,7 @@ export default function DashboardHome() {
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent">
-      <Topbar title="Beranda Utama" subtitle="Ringkasan fitur aplikasi LPJ" />
+      <Topbar />
 
       <div className="p-6 space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
 
