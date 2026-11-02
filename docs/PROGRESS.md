@@ -642,6 +642,7 @@
 - [x] **Topbar minimal (selaras main)** — judul polos + border pemisah, notifikasi & bantuan dihapus, satu kontrol tema, search & profil dirapikan, aria-label ditambah, dropdown tutup saat Escape/pindah halaman, logout via `storageHelper`
 - [x] **Activity log tahap 1** — `utils/activityLog.js` baru (key `spj_activity_log`, cap 50, quota-safe, tidak throw); hook di 5 titik: upload BKU, simpan nomor surat, simpan dokumen kelengkapan/draft surat, cetak LPJ, login
 - [x] **Dashboard tahap 2 (ala referensi)** — STATS 4 kartu (label + value + hint konteks), `ArusKasChart.jsx` (SVG mandiri tanpa deps, area penerimaan + garis putus pengeluaran, empty state), `PaketProgressPanel.jsx` (LPJ/PBJ/Realisasi T1-T2 + badge), `ActivityPanel.jsx` (7 aktivitas + waktu relatif); kartu progres lama diganti panel baru
+- [x] **Hero ringkas** — chips statistik (26+/15+/13/Foto AI) & CTA dihapus, jam format kolon (`10:37`), kartu hanya logo + keterangan + waktu, padding & logo diperkecil
 
 **Commit sesi ini:**
 ```
