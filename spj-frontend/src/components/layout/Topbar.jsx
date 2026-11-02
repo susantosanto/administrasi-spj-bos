@@ -26,7 +26,7 @@ export default function Topbar({ title, subtitle }) {
   let licTone = 'warn'
   if (hasCode && lic.status) {
     if (lic.status === 'TRIAL') {
-      licMain = `Masa Percobaan : ${daysLeft !== null ? daysLeft : '—'} Hari`
+      licMain = daysLeft !== null ? `Masa Percobaan : ${daysLeft} Hari` : 'Masa Percobaan'
       licSub = trialDate ? `sampai ${trialDate}` : 'aktifkan lisensi agar tetap menulis'
     } else if (lic.status === 'GRACE') {
       licMain = 'Masa Tenggang'
@@ -126,7 +126,7 @@ export default function Topbar({ title, subtitle }) {
             <button
               type="button"
               onClick={() => setShowLicInfo(true)}
-              title="Lihat info masa percobaan"
+              title="Lihat info lisensi"
               aria-haspopup="dialog"
               className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/25 hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25 hover:bg-amber-500/15'}`}
             >
