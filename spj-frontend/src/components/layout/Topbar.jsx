@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
+import { useLicenseStatus, licenseService } from '../../services/licenseService'
 import ThemeToggle from '../ui/ThemeToggle'
 import BrandedLoader from '../ui/BrandedLoader'
 
@@ -14,6 +15,36 @@ export default function Topbar({ title, subtitle }) {
   const navigate = useNavigate()
   const location = useLocation()
   const user = storageHelper.get('auth_user', { name: 'Operator', email: 'operator@sekolah.id' })
+
+  // Status lisensi untuk zona banner (ganti judul bila ada lisensi)
+  const lic = useLicenseStatus()
+  const hasCode = !!storageHelper.get('license_code')
+  const daysLeft = lic.validUntil ? Math.max(0, Math.ceil((new Date(lic.validUntil) - new Date()) / 86400000)) : null
+  const trialDate = lic.validUntil ? new Date(lic.validUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : null
+  let licMain = null
+  let licSub = null
+  let licTone = 'warn'
+  if (hasCode && lic.status) {
+    if (lic.status === 'TRIAL') {
+      licMain = `Masa Percobaan${daysLeft !== null ? ` • ${daysLeft} hari lagi` : ''}`
+      licSub = trialDate ? `sampai ${trialDate}` : 'aktifkan lisensi agar tetap menulis'
+    } else if (lic.status === 'GRACE') {
+      licMain = 'Masa Tenggang'
+      licSub = 'segera hubungi admin pusat'
+    } else if (lic.status === 'READ_ONLY') {
+      licMain = 'Mode Baca'
+      licSub = 'edit dikunci — perbarui lisensi'
+      licTone = 'dang'
+    } else if (lic.status === 'SUSPENDED') {
+      licMain = 'Ditangguhkan'
+      licSub = 'hanya membaca — hubungi admin'
+      licTone = 'dang'
+    } else if (lic.status === 'EXPIRED') {
+      licMain = 'Kadaluarsa'
+      licSub = 'hanya membaca — perpanjang lisensi'
+      licTone = 'dang'
+    }
+  }
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -64,7 +95,7 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full border-b border-slate-200/60 dark:border-slate-700/50">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg shadow-slate-900/5 flex justify-between items-center px-3 sm:px-4 py-2.5">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
@@ -81,12 +112,29 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        {title ? (
+        {licMain ? (
+          <button
+            type="button"
+            onClick={() => licenseService.refresh()}
+            title="Periksa status lisensi"
+            className="flex items-center gap-2 min-w-0 text-left rounded-xl px-1 py-0.5"
+          >
+            <span className={`shrink-0 w-2.5 h-2.5 rounded-full relative ${licTone === 'dang' ? 'bg-red-500' : 'bg-amber-500'}`} aria-hidden="true">
+              <span className="lic-ring absolute inset-0 rounded-full bg-inherit" />
+            </span>
+            <span className="min-w-0">
+              <span className={`block text-sm font-bold truncate leading-none ${licTone === 'dang' ? 'text-red-700 dark:text-red-300' : 'text-amber-800 dark:text-amber-300'}`}>{licMain}</span>
+              <span className="block text-[10px] text-slate-500 dark:text-slate-400 truncate leading-none mt-1">{licSub}</span>
+            </span>
+          </button>
+        ) : title ? (
           <div className="min-w-0">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">{title}</h2>
             {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>}
           </div>
-        ) : null}
+        ) : (
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">LPJ BOS/BOSP</span>
+        )}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
@@ -186,6 +234,11 @@ export default function Topbar({ title, subtitle }) {
           exiting={logoutStage === 'exit'}
         />
       )}
+      <style>{`
+        .lic-ring { animation: lic-ring 1.6s ease-out infinite; }
+        @keyframes lic-ring { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(2.4); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .lic-ring { animation: none; } }
+      `}</style>
     </header>
   )
 }
