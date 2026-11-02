@@ -644,7 +644,8 @@
 - [x] **Dashboard tahap 2 (ala referensi)** — STATS 4 kartu (label + value + hint konteks), `ArusKasChart.jsx` (SVG mandiri tanpa deps, area penerimaan + garis putus pengeluaran, empty state), `PaketProgressPanel.jsx` (LPJ/PBJ/Realisasi T1-T2 + badge), `ActivityPanel.jsx` (7 aktivitas + waktu relatif); kartu progres lama diganti panel baru
 - [x] **Hero ringkas** — chips statistik (26+/15+/13/Foto AI) & CTA dihapus, jam format kolon (`10:37`), kartu hanya logo + keterangan + waktu, padding & logo diperkecil
 - [x] **Topbar jadi banner melayang** — topbar ramping mengambang (`sticky top-3`, rounded, glass); zona kiri tampilkan status lisensi bila ada lisensi, judul halaman bila tidak; `LicenseBanner` lama dihapus
-- [x] **Chip lisensi + popup** — banner jadi blok kecil (`Masa Percobaan : N Hari`, dot denyut); klik buka popup (status, berlaku sampai, penjelasan trial, tombol Periksa ulang + Kelola lisensi → Pengaturan `?tab=lisensi`); Pengaturan dukung deep-link tab
+- [x] **Chip lisensi + popup** — banner jadi blok kecil (`Masa Percobaan : N Hari`, dot denyut); klik buka popup (tombol Periksa ulang + Kelola lisensi → Pengaturan `?tab=lisensi`); Pengaturan dukung deep-link tab
+- [x] **Popup kartu trial ala referensi** — isi popup jadi kartu kalender (ikon + divider + label + pil durasi `N Hari` + ikon jam), angka dinamis dari lisensi, dark mode menyesuaikan; tombol × di kartu, penjelasan + Periksa/Kelola tetap di bawah
 
 **Commit sesi ini:**
 ```

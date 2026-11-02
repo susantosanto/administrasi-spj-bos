@@ -144,32 +144,48 @@ export default function Topbar({ title, subtitle }) {
                 aria-label="Info masa percobaan"
               >
                 <div
-                  className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-white/10 shadow-2xl p-5"
+                  className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-white/10 shadow-2xl p-4"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${licTone === 'dang' ? 'bg-red-500/10 text-red-600 dark:text-red-300' : 'bg-amber-500/10 text-amber-600 dark:text-amber-300'}`}>
-                      <span className="material-symbols-outlined text-xl">verified</span>
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{licMain}</h3>
-                      {licSub && <p className="text-[11px] text-slate-500 dark:text-slate-400">{licSub}</p>}
+                  {/* Kartu trial ala referensi: ikon | divider | label + pil durasi */}
+                  <div className="relative overflow-hidden flex items-center gap-4 p-4 rounded-[22px] border border-[#c9ddff] dark:border-white/10 bg-[linear-gradient(125deg,#ffffff,#f2f7ff_65%,#e2efff)] dark:bg-[linear-gradient(125deg,#1e293b,#0f172a_65%,#1e3a5f)]">
+                    <div className="absolute w-40 h-40 rounded-full bg-[#70a9ff]/10 dark:bg-white/5 -right-12 -top-20 pointer-events-none" aria-hidden="true" />
+                    <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center text-[#2676dc] dark:text-blue-300 bg-[linear-gradient(145deg,#d8eaff,#edf5ff)] dark:bg-white/10">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="16" rx="3" />
+                        <path d="M16 3v4M8 3v4" />
+                        <path d="M3 10h18" />
+                        <path d="M8 14h2M14 14h2" />
+                        <path d="M8 17h2M14 17h2" />
+                      </svg>
+                    </div>
+                    <div className="w-0.5 self-stretch bg-[#c7dcff] dark:bg-white/10 shrink-0" aria-hidden="true" />
+                    <div className="flex-1 min-w-0 relative">
+                      <p className="text-sm font-semibold text-[#294776] dark:text-slate-200 mb-1.5">
+                        {lic.status === 'TRIAL' ? 'Masa Percobaan :' : `${licMain} :`}
+                      </p>
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-[#9fc4ff] dark:border-white/15 bg-[linear-gradient(120deg,#edf5ff,#dceaff)] dark:bg-white/5 text-[#123c82] dark:text-blue-200 text-2xl font-extrabold tracking-tight">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6" aria-hidden="true">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 7v5l3 2" />
+                        </svg>
+                        <span>{daysLeft !== null ? `${daysLeft} Hari` : licMain}</span>
+                      </span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowLicInfo(false)}
                       aria-label="Tutup"
-                      className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-900/5 dark:hover:bg-white/10 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-lg">close</span>
+                      <span className="material-symbols-outlined text-base">close</span>
                     </button>
                   </div>
-                  <div className="rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1.5">
-                    <p><b className="text-slate-800 dark:text-slate-100">Status:</b> {lic.schoolName || lic.status}</p>
+                  <div className="rounded-xl mt-3 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1.5">
                     {trialDate && <p><b className="text-slate-800 dark:text-slate-100">Berlaku sampai:</b> {trialDate}</p>}
                     <p>Selama masa percobaan semua fitur tulis aktif. Setelah berakhir, aplikasi jadi mode baca — hubungi admin pusat untuk perpanjangan.</p>
                   </div>
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2 mt-3">
                     <button
                       type="button"
                       onClick={() => { licenseService.refresh(); }}
