@@ -4,6 +4,7 @@ import { useToast } from '../../components/ui/Toast'
 import ThemeToggle from '../../components/ui/ThemeToggle'
 import { useTheme } from '../../contexts/ThemeContext'
 import LicenseSyncCard from '../../components/settings/LicenseSyncCard'
+import PuterAkunManager from '../../components/ai/PuterAkunManager'
 
 export default function PengaturanPage() {
   const [tab, setTab] = useState('profil')
@@ -21,6 +22,7 @@ export default function PengaturanPage() {
           {[
             { id: 'profil', label: 'Profil Sekolah', icon: 'school' },
             { id: 'tampilan', label: 'Tampilan', icon: 'contrast' },
+            { id: 'akun-ai', label: 'Akun AI', icon: 'manage_accounts' },
             { id: 'master', label: 'Data Master', icon: 'database' },
             { id: 'lisensi', label: 'Lisensi & Sinkron', icon: 'verified' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
@@ -95,6 +97,7 @@ export default function PengaturanPage() {
             <p className="text-xs text-text-low flex items-center gap-1"><span className="material-symbols-outlined text-sm">info</span> Tema tersimpan otomatis dan mengikuti pengaturan sistem jika belum dipilih.</p>
           </div>
         )}
+        {tab === 'akun-ai' && <PuterAkunManager variant="page" />}
 
         {tab === 'master' && (
           <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">

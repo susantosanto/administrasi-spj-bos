@@ -2,6 +2,11 @@
 
 Aplikasi web frontend untuk **cetak dokumen pertanggungjawaban (LPJ)** dana BOS/BOSP sekolah. Membantu operator sekolah dalam menyusun, mengelola, dan mencetak dokumen LPJ dengan mudah dan efisien.
 
+> **Catatan untuk AI agent:** file ini **hanya untuk tampilan GitHub**. BUKAN source of
+> truth dan **TIDAK perlu dibaca** agent. Source of truth proyek → `AGENTS.MD`,
+> `STATE.MD`, `DECISIONS.MD`, `DOMAIN.MD`, `CONSTITUTION.md`. Isi README bisa
+> tertinggal dari kondisi repo — jangan dijadikan acuan implementasi.
+
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=flat-square&logo=tailwindcss)

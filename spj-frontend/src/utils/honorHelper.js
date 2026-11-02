@@ -67,7 +67,17 @@ export function getPenjagaStaff() {
     return roleHonor === 'penjaga'
   })
 }
-
+// Semua pegawai semua status untuk transport & mamin (US-24) — dedupe O(n) via Set. Honor tetap honorer-only.
+export function getSemuaPegawai() {
+  const all = [...(storageHelper.get('data_guru', []) || []), ...(storageHelper.get('data_tendik', []) || [])]
+  const seen = new Set()
+  return all.filter((p) => {
+    const k = p.nip || p.nuptk || p.nama || ''
+    if (!k || seen.has(k)) return false
+    seen.add(k)
+    return true
+  })
+}
 /**
  * Map guru/tendik data to honor table row format
  * @param {Object} item - Guru/tendik data
@@ -181,6 +191,7 @@ export function debugStorageInfo() {
 export default {
   getGuruHonorer,
   getTendikHonorer,
+  getSemuaPegawai,
   getPerpustakaanStaff,
   getPenjagaStaff,
   mapToHonorRow,

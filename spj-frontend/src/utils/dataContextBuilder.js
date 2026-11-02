@@ -19,8 +19,8 @@
  * • 15 orang (Honorer: 8)
  * 
  * --- SEKOLAH ---
- * • SD Negeri Pasirhalang | NPSN: 123456
- * • Kepsek: Yuniarti | Bendahara: Susanto
+ * • <Nama Sekolah> | NPSN: <NPSN>
+ * • Kepsek: <Kepala Sekolah> | Bendahara: <Bendahara>
  * 
  * ── EFISIENSI ─────────────────────────────────────────────────
  * - Hanya data YANG ADA (tidak null/undefined) yang disertakan

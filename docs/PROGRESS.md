@@ -632,6 +632,12 @@
 - [x] **Merge `origin/feat/light-dark-living`** — 11 konflik diselesaikan: visual pakai branch kita, fitur remote dipertahankan (`storageAdapter`, vitest, route `/pratinjau`, `ensureSchemaVersion`, simpan format nomor surat quota-safe)
 - [x] **Verifikasi** — `npm run build` lolos (1621 modul); `npm test` lolos 18 test / 3 file
 - [x] **Push branch** — `feat/license-sync` (ahead 41 dari `main`), PR belum dibuat
+- [x] **Selaras dengan fitur utama Susanto** — merge `origin/main` (sprint 023-024: PBJ SIPLah, Referensi 2026, Workplan, Kas identik sumber, Realisasi & Instrumen BOS)
+  - Konflik 14 file diselesaikan: fitur main dipertahankan, lapisan lisensi (`requireWrite`) ditambahkan ke handler baru (`Realisasi` koreksi/meta)
+  - `TemplateEngine`: blok baru main (25 tipe) + paper size A4/F4 tetap jalan, guard blok kita dipertahankan
+  - `Pengaturan`: tab `Tampilan` (kita) + tab `Akun AI` (main) hidup berdampingan
+  - Test disesuaikan dengan realita main: 39 template, 25 tipe blok, pengeluaran riil = PEMBAYARAN saja (tarik tunai bukan belanja)
+  - `docs/PROGRESS.md` dipertahankan walau main menghapusnya
 
 **Commit sesi ini:**
 ```
@@ -661,4 +667,4 @@ bebb5e8 merge: fondasi Fase 1-5 dan freeze pre-redesign dari origin
 
 ---
 
-*Last updated: 2026-11-01 | Session: Lisensi + registrasi + sinkronisasi Control Plane, merge fondasi Fase 1-5, push `feat/license-sync`*
+*Last updated: 2026-11-02 | Session: Selaraskan lisensi + registrasi + sinkronisasi dengan fitur utama `main` (sprint 023-024)*

@@ -7,7 +7,9 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { parseSekolahExcel } from '../../utils/sekolahParser'
+import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import PersonelFotoTab from '../../components/dokumentasi/PersonelFotoTab'
+import { verifikasiKs } from '../../utils/verifikasiKs'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -22,25 +24,67 @@ const defaultData = {
   alamat: '',
   email: '',
   tahunAnggaran: '',
+  gugusNama: '',
+  gugusAlamat: '',
+  // Sprint 024 (Instrumen BOS seksi A).
+  nomorRekening: '',
+  bankRekening: '',
+  namaRekening: '',
+  skKepala: '',
+  tmtJabatan: '',
   allFields: [],
-  pejabat: {
-    ks: { nama: '', nip: '' },
-    bendahara: { nama: '', nip: '' },
-    pengawas: { nama: '', nip: '' },
-    sekdik: { nama: '', nip: '' },
-  },
+  pejabat: { ...DEFAULT_PEJABAT },
 }
-
-const PEJABAT_ROLES = [
-  { key: 'ks', label: 'Kepala Sekolah', icon: 'person', color: 'primary' },
-  { key: 'bendahara', label: 'Bendahara', icon: 'account_balance', color: 'emerald' },
-  { key: 'pengawas', label: 'Pengawas Bina', icon: 'supervisor_account', color: 'violet' },
-  { key: 'sekdik', label: 'Sekretaris Dinas', icon: 'badge', color: 'amber' },
-]
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * VerifikasiKs — Sprint 024: badge kecocokan KS vs data Guru/Tendik.
+ * cocok (primary) · mirip + tombol Pakai · tak-ditemukan (slate jujur).
+ */
+function VerifikasiKs({ nama, nip, onPakai }) {
+  if (!String(nama || '').trim()) return null
+  const hasil = verifikasiKs(nama, nip)
+  if (hasil.status === 'kosong') return null
+  return (
+    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-xs">
+      {hasil.status === 'cocok' && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-bold uppercase tracking-wider">
+            Cocok data {hasil.record.sumber}
+          </span>
+          <span className="text-slate-600">
+            {hasil.record.nama}{hasil.record.nip ? ` · NIP ${hasil.record.nip}` : ''} — NIP Data Sekolah {hasil.nip === 'sama' ? 'sama' : hasil.nip === 'beda' ? 'BERBEDA' : 'belum diisi'}.
+          </span>
+        </div>
+      )}
+      {hasil.status === 'mirip' && (
+        <div className="space-y-2">
+          <p className="text-slate-600">Nama mirip di data Guru/Tendik — klik Pakai bila benar:</p>
+          <div className="flex flex-wrap gap-2">
+            {hasil.kandidat.map((k, i) => (
+              <button key={i} onClick={() => onPakai(k)}
+                className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-semibold hover:border-primary/40 hover:text-primary transition-all">
+                Pakai: {k.nama} ({k.sumber})
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {hasil.status === 'tak-ditemukan' && (
+        <p className="text-slate-500">
+          Tidak ditemukan di data Guru/Tendik yang terupload — pastikan ejaan sama persis atau upload dulu datanya.
+        </p>
+      )}
+    </div>
+  )
+}
 
 export default function DataSekolahPage() {
   const [tab, setTab] = useState('sekolah')
@@ -48,6 +92,7 @@ export default function DataSekolahPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
   const [pejabatChanges, setPejabatChanges] = useState(false)
+  const [gugusChanges, setGugusChanges] = useState(false)
   const [logoPreview, setLogoPreview] = useState(null)
   const [logoDinasPreview, setLogoDinasPreview] = useState(null)
   const [logoGugusPreview, setLogoGugusPreview] = useState(null)
@@ -59,7 +104,15 @@ export default function DataSekolahPage() {
 
   useEffect(() => {
     const stored = storageHelper.get('data_sekolah', null)
-    if (stored) setData(stored)
+    if (stored) {
+      setData((prev) => ({
+        ...prev,
+        ...stored,
+        gugusNama: stored.gugusNama || '',
+        gugusAlamat: stored.gugusAlamat || '',
+        pejabat: mergePejabat(stored.pejabat),
+      }))
+    }
     // Load logos from storage
     const savedLogo = storageHelper.get('logo_sekolah', null)
     if (savedLogo) setLogoPreview(savedLogo)
@@ -167,11 +220,39 @@ export default function DataSekolahPage() {
     if (logoGugusInputRef.current) logoGugusInputRef.current.value = ''
   }
 
+  // ─── Update Gugus (US-18 — seksi Data Gugus, simpan di spj_data_sekolah) ──
+  const updateGugus = (field, value) => {
+    setData((prev) => ({ ...prev, [field]: value }))
+    setGugusChanges(true)
+  }
+
+  const handleSaveGugus = () => {
+    const stored = storageHelper.get('data_sekolah', {})
+    storageHelper.set('data_sekolah', {
+      ...stored,
+      gugusNama: data.gugusNama || '',
+      gugusAlamat: data.gugusAlamat || '',
+      // Sprint 024 (Instrumen BOS seksi A).
+      nomorRekening: data.nomorRekening || '',
+      bankRekening: data.bankRekening || '',
+      namaRekening: data.namaRekening || '',
+      skKepala: data.skKepala || '',
+      tmtJabatan: data.tmtJabatan || '',
+    })
+    setGugusChanges(false)
+    toast.success('Data gugus berhasil disimpan')
+  }
+
   // ─── Update Pejabat ──────────────────────────────────────────────
+  // Deep-merge guard: data LAMA tanpa role baru (ketuaGugus/notulen)
+  // tetap aman — mergePejabat melengkapi 6 peran.
   const updatePejabat = (jabatan, field, value) => {
     setData(prev => ({
       ...prev,
-      pejabat: { ...prev.pejabat, [jabatan]: { ...prev.pejabat[jabatan], [field]: value } },
+      pejabat: {
+        ...mergePejabat(prev.pejabat),
+        [jabatan]: { ...mergePejabat(prev.pejabat)[jabatan], [field]: value },
+      },
     }))
     setPejabatChanges(true)
   }
@@ -205,6 +286,21 @@ export default function DataSekolahPage() {
         provinsi: header.provinsi || data.provinsi,
         kecamatan: header.kecamatan || data.kecamatan,
         tahunAnggaran: header.tahunAnggaran || data.tahunAnggaran,
+        // Sprint 024 (Instrumen BOS seksi A — dari profil Dapodik).
+        nomorRekening: header.nomorRekening || data.nomorRekening,
+        bankRekening: header.bankRekening || data.bankRekening,
+        namaRekening: header.namaRekening || data.namaRekening,
+        status: header.status || data.status,
+        ijin: header.ijin || data.ijin,
+        telepon: header.telepon || data.telepon,
+        email: header.email || data.email,
+        jmlGuru: header.jmlGuru || data.jmlGuru,
+        jmlGuruPns: header.jmlGuruPns || data.jmlGuruPns,
+        jmlGuruNonAsn: header.jmlGuruNonAsn || data.jmlGuruNonAsn,
+        jmlTendik: header.jmlTendik || data.jmlTendik,
+        jmlTendikPns: header.jmlTendikPns || data.jmlTendikPns,
+        jmlTendikNonAsn: header.jmlTendikNonAsn || data.jmlTendikNonAsn,
+        jmlSiswa: header.jmlSiswa || data.jmlSiswa,
         allFields: result.allFields || [],
       }
 
@@ -213,7 +309,7 @@ export default function DataSekolahPage() {
         ...(stored || data),
         ...newData,
         allFields: result.allFields || stored?.allFields || [],
-        pejabat: stored?.pejabat || data.pejabat,
+        pejabat: mergePejabat(stored?.pejabat || data.pejabat),
       })
 
       setData(newData)
@@ -524,6 +620,89 @@ export default function DataSekolahPage() {
                 </div>
               </div>
             )}
+
+            {/* ── Seksi Data Gugus (US-18) — Nama + Alamat Gugus, simpan di spj_data_sekolah ── */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="px-8 py-4 bg-slate-50/80">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 text-xl">groups</span>
+                  <h4 className="text-base font-bold text-slate-700">Data Gugus</h4>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Nama Gugus
+                    </label>
+                    <input
+                      type="text"
+                      value={data.gugusNama || ''}
+                      onChange={(e) => updateGugus('gugusNama', e.target.value)}
+                      placeholder="Nama gugus"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Alamat Gugus
+                    </label>
+                    <input
+                      type="text"
+                      value={data.gugusAlamat || ''}
+                      onChange={(e) => updateGugus('gugusAlamat', e.target.value)}
+                      placeholder="Alamat sekretariat gugus"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                    />
+                  </div>
+                </div>
+                {gugusChanges && (
+                  <div className="mt-5 flex justify-end">
+                    <button
+                      onClick={handleSaveGugus}
+                      className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-2xl text-sm font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                    >
+                      <span className="material-symbols-outlined text-lg">save</span>
+                      Simpan Data Gugus
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Seksi Rekening & SK (Sprint 024 — Instrumen BOS seksi A) ── */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="px-8 py-4 bg-slate-50/80">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-slate-400 text-xl">account_balance</span>
+                  <h4 className="text-base font-bold text-slate-700">Rekening & SK Kepala Sekolah</h4>
+                </div>
+              </div>
+              <div className="p-6 sm:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {[
+                    { key: 'nomorRekening', label: 'Nomor Rekening', ph: 'No. rekening BOS' },
+                    { key: 'bankRekening', label: 'Bank', ph: 'BPD Jabar Banten' },
+                    { key: 'namaRekening', label: 'Nama tertera pada Rekening', ph: 'SDN …' },
+                    { key: 'skKepala', label: 'Nomor/Tgl. SK Jabatan KS', ph: '821.2/Kep.…' },
+                    { key: 'tmtJabatan', label: 'TMT Jabatan', ph: 'TMT' },
+                  ].map((f) => (
+                    <div key={f.key}>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        {f.label}
+                      </label>
+                      <input
+                        type="text"
+                        value={data[f.key] || ''}
+                        onChange={(e) => updateGugus(f.key, e.target.value)}
+                        placeholder={f.ph}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -546,31 +725,22 @@ export default function DataSekolahPage() {
             </div>
 
             {/* Pejabat Cards */}
-            {PEJABAT_ROLES.map((role, idx) => (
+            {PEJABAT_ROLES.map((role) => (
               <div key={role.key} className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                {/* Card Header */}
+                {/* Card Header — blue-only (Sprint 001 task 2.3: warna by role.key) */}
                 <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      idx === 0 ? 'bg-primary/10' :
-                      idx === 1 ? 'bg-emerald-50' :
-                      idx === 2 ? 'bg-violet-50' :
-                      'bg-amber-50'
-                    }`}>
-                      <span className={`material-symbols-outlined text-xl ${
-                        idx === 0 ? 'text-primary' :
-                        idx === 1 ? 'text-emerald-600' :
-                        idx === 2 ? 'text-violet-600' :
-                        'text-amber-600'
-                      }`}>{role.icon}</span>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
+                      <span className="material-symbols-outlined text-xl text-primary">{role.icon}</span>
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">{role.label}</h4>
                       <p className="text-xs text-slate-400">Data untuk tanda tangan</p>
                     </div>
-                    {data.pejabat[role.key].nama && (
+                    {/* Badge status terisi — indikator status di layar (pengecualian sah T-10) */}
+                    {data.pejabat?.[role.key]?.nama && (
                       <div className="ml-auto">
-                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                        <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-bold uppercase tracking-wider">
                           Terisi
                         </span>
                       </div>
@@ -587,7 +757,7 @@ export default function DataSekolahPage() {
                       </label>
                       <input
                         type="text"
-                        value={data.pejabat[role.key].nama}
+                        value={data.pejabat?.[role.key]?.nama || ''}
                         onChange={(e) => updatePejabat(role.key, 'nama', e.target.value)}
                         placeholder={`Nama ${role.label}`}
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
@@ -599,13 +769,24 @@ export default function DataSekolahPage() {
                       </label>
                       <input
                         type="text"
-                        value={data.pejabat[role.key].nip}
+                        value={data.pejabat?.[role.key]?.nip || ''}
                         onChange={(e) => updatePejabat(role.key, 'nip', e.target.value)}
                         placeholder="NIP. 000000000000000000"
                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
                       />
                     </div>
                   </div>
+                  {/* Sprint 024: verifikasi KS vs data Guru/Tendik terupload. */}
+                  {role.key === 'ks' && (
+                    <VerifikasiKs
+                      nama={data.pejabat?.ks?.nama || ''}
+                      nip={data.pejabat?.ks?.nip || ''}
+                      onPakai={(rec) => {
+                        updatePejabat('ks', 'nama', rec.nama || '')
+                        if (rec.nip) updatePejabat('ks', 'nip', rec.nip)
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             ))}
@@ -620,8 +801,8 @@ export default function DataSekolahPage() {
             {/* Header Card */}
             <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center shadow-inner">
-                  <span className="material-symbols-outlined text-2xl text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shadow-inner">
+                  <span className="material-symbols-outlined text-2xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-900">Logo Sekolah</h3>
@@ -629,7 +810,7 @@ export default function DataSekolahPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   {logoPreview && (
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-lg text-[10px] font-bold uppercase tracking-wider">
                       Sekolah
                     </span>
                   )}
@@ -639,7 +820,7 @@ export default function DataSekolahPage() {
                     </span>
                   )}
                   {logoGugusPreview && (
-                    <span className="px-2.5 py-1 bg-violet-50 text-violet-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                    <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                       Gugus
                     </span>
                   )}
@@ -653,17 +834,18 @@ export default function DataSekolahPage() {
               {/* LOGO SEKOLAH                                                 */}
               {/* ═══════════════════════════════════════════════════════════════ */}
               <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
-                <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-100">
+                {/* Blue-only (Sprint 001 task 2.3): header kartu logo netral slate */}
+                <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-xl text-amber-600">school</span>
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-primary">school</span>
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">Logo Sekolah</h4>
                       <p className="text-[10px] text-slate-400">Identitas sekolah</p>
                     </div>
                     {logoPreview && (
-                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                      <span className="ml-auto px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-bold">✓</span>
                     )}
                   </div>
                 </div>
@@ -677,13 +859,13 @@ export default function DataSekolahPage() {
                     id="logo-upload"
                   />
                   <label htmlFor="logo-upload" className="block cursor-pointer group">
-                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-amber-400 hover:bg-amber-50/50 transition-all duration-300 overflow-hidden">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 overflow-hidden">
                       {logoPreview ? (
                         <img src={logoPreview} alt="Logo Sekolah" className="w-full h-full object-contain p-4" />
                       ) : (
                         <>
-                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-amber-500 transition-colors">add_a_photo</span>
-                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-amber-500 transition-colors">Upload Logo</span>
+                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-primary transition-colors">add_a_photo</span>
+                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-primary transition-colors">Upload Logo</span>
                         </>
                       )}
                     </div>
@@ -701,17 +883,17 @@ export default function DataSekolahPage() {
               {/* LOGO DINAS                                                    */}
               {/* ═══════════════════════════════════════════════════════════════ */}
               <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
-                <div className="px-5 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100">
+                <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-xl text-blue-600">location_city</span>
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-primary">location_city</span>
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">Logo Dinas</h4>
                       <p className="text-[10px] text-slate-400">Dinas Pendidikan</p>
                     </div>
                     {logoDinasPreview && (
-                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                      <span className="ml-auto px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-bold">✓</span>
                     )}
                   </div>
                 </div>
@@ -749,17 +931,17 @@ export default function DataSekolahPage() {
               {/* LOGO GUGUS                                                    */}
               {/* ═══════════════════════════════════════════════════════════════ */}
               <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
-                <div className="px-5 py-4 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-slate-100">
+                <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-xl text-violet-600">groups</span>
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-xl text-primary">groups</span>
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">Logo Gugus</h4>
                       <p className="text-[10px] text-slate-400">Gugus sekolah</p>
                     </div>
                     {logoGugusPreview && (
-                      <span className="ml-auto px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded text-[9px] font-bold">✓</span>
+                      <span className="ml-auto px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-bold">✓</span>
                     )}
                   </div>
                 </div>
@@ -773,13 +955,13 @@ export default function DataSekolahPage() {
                     id="logo-gugus-upload"
                   />
                   <label htmlFor="logo-gugus-upload" className="block cursor-pointer group">
-                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-violet-400 hover:bg-violet-50/50 transition-all duration-300 overflow-hidden">
+                    <div className="w-full aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 overflow-hidden">
                       {logoGugusPreview ? (
                         <img src={logoGugusPreview} alt="Logo Gugus" className="w-full h-full object-contain p-4" />
                       ) : (
                         <>
-                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-violet-500 transition-colors">add_a_photo</span>
-                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-violet-500 transition-colors">Upload Logo</span>
+                          <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-primary transition-colors">add_a_photo</span>
+                          <span className="text-[10px] text-slate-400 mt-2 group-hover:text-primary transition-colors">Upload Logo</span>
                         </>
                       )}
                     </div>

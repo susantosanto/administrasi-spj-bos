@@ -881,6 +881,12 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
   .print-container,
   .print-container * {
     visibility: visible;
+    /* ⚠️ PENTING (temuan user 2026-10-18): Chrome/Edge mematikan "Background
+       graphics" secara default saat cetak → bar warna (#002060 cover, #004ac6
+       sekat, hijau PBD) TIDAK ikut tercetak. print-color-adjust: exact memaksa
+       background ikut tercetak tanpa user mengubah setelan dialog cetak. */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Position print container */
@@ -902,6 +908,24 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
   .print-container.landscape {
     width: 297mm;
     padding: 15mm 20mm;
+    /* Tinggi ikut kertas LANDSCAPE (210mm) — min-height 297mm dari aturan
+       dasar membuat dokumen landscape tercetak 2 halaman (temuan 2026-10-18:
+       sekat/cover keluar halaman kosong kedua). */
+    min-height: 210mm;
+  }
+
+  /* ⚠️ TEMUAN 2026-10-18 (dokumen sekat/cover tercetak PORTRAIT 595x842):
+     named page `@page landscape` hanya menaungi elemen yang IKUT ALUR (in-flow).
+     Box `position: absolute` keluar dari alur → Chromium tak membuatkan
+     halaman landscape untuknya, `page: landscape` diabaikan (terbukti dengan
+     page.pdf preferCSSPageSize: 594,96x841,92 walau @page landscape benar).
+     Dokumentasi landscape TIDAK butuh absolute — hanya SATU .print-container
+     terlihat saat cetak (panel preview dibungkus print:hidden), jadi
+     `position: relative` aman dan membuat named page berlaku. */
+  .print-container.landscape {
+    position: relative;
+    left: auto;
+    top: auto;
   }
 
   /* Hide edit-mode elements */
@@ -915,10 +939,23 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
     margin: 0;
   }
 
+  /* Named page untuk dokumen LANDSCAPE (templateConfig.orientation).
+     ⚠️ Aturan bernama TIDAK berlaku otomatis — elemen WAJIB punya properti
+     `page: landscape` (lihat .print-container.landscape di bawah). Tanpa itu
+     dokumen landscape (cover/sekat/pbj_data) tercetak di kertas portrait —
+     temuan user 2026-10-18 (PDF sekat keluar 595x842 = portrait). */
   @page landscape {
     size: A4 landscape;
     margin: 0;
   }
+}
+
+/* ── Kertas landscape (cover/sekat/pbj_data) ──
+   `page:` mengaitkan elemen ke named page @page landscape di atas. Chromium
+   modern (Edge/Chrome ≥85) mendukung named pages; @page size di-inject
+   paperSize.js (ikut pilihan A4/F4 user). */
+.print-container.landscape {
+  page: landscape;
 }
 
 /* Preview container — seperti kertas */
@@ -948,7 +985,14 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 
 .template-engine th,
 .template-engine td {
-  border: 1px solid #d1d5db;
+  /* ⚠️ TEMUAN USER 2026-10-22 ("di dokumen yang non tabel ada garis-garis tipis,
+     hilangkan untuk semua format dokumen non tabel"): grid abu-abu #d1d5db
+     dulu dipasang ke SETIAP sel, sehingga SURAT UNDANGAN / SURAT TUGAS / SK
+     tampil seperti tabel penuh (blok label:nilai ikut bergaris).
+     Sekarang TIDAK ada grid global. Tabel yang MEMANG perlu garis menyatakan
+     sendiri: `.spd-tabel` (hitam 1px), `.pajak-tabel` (hitam), `.kas-tabel`
+     (titik, inline), dan `TabelDinamis` (`border border-gray-300` per sel).
+     Blok surat memakai `.surat-polos` (lihat aturan di bawah). */
   padding: 4px 8px;
   text-align: left;
 }
@@ -956,6 +1000,108 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 .template-engine th {
   background-color: #f3f4f6;
   font-weight: 600;
+}
+
+/* ⚠️ TEMUAN USER 2026-10-19 ("untuk dokumen register kas saya tidak ingin
+   menggunakan garis tabel"): aturan global .template-engine th/td di atas
+   memberi GRID ABU-ABU (#d1d5db) ke SETIAP sel — termasuk Register Kas,
+   padahal file sumber ("Template Register Kas Contoh.xlsx", sheet
+   Register_Kas) gridlines-nya OFF: hanya garis TITIK (border dotted) pada
+   kolom LEMBAR/KEPING (E:F) dan JUMLAH (H) baris pecahan, yang ditulis
+   inline di RegisterKas.jsx (inline MENANG atas reset ini).
+   Reset HANYA untuk tabel kas (.kas-tabel) — blok lain tetap pakai grid
+   global. Bukti: audit DOM menemukan 113 border solid 1px di dokumen. */
+.template-engine .kas-tabel th,
+.template-engine .kas-tabel td {
+  border: 0;
+}
+
+/* ═══ SURAT POLOS — dokumen NON-TABEL tanpa garis tipis (2026-10-22) ═══
+   Dipakai blok surat: `SuratUndangan`, `SuratTugas`, `TabelLetterHeader`,
+   `TabelFields`, `InfoKeuangan`, `HeaderDokumen`, `SignatureFooter`,
+   `UraianKegiatan`. Grid sel, garis putus-putus antar baris, dan garis
+   bawah field semuanya DIHILANGKAN — di layar MAUPUN di cetak, supaya
+   pratinjau = hasil cetak. Garis field muncul lagi saat hover/fokus saja
+   (petunjuk bahwa field bisa diklik), jadi tidak hilang fungsinya. */
+.template-engine .surat-polos th,
+.template-engine .surat-polos td,
+.template-engine .surat-polos tr {
+  border: 0;
+}
+
+.template-engine .surat-polos input,
+.template-engine .surat-polos textarea,
+.template-engine .surat-polos select {
+  border-color: transparent;
+}
+
+.template-engine .surat-polos input:hover,
+.template-engine .surat-polos textarea:hover,
+.template-engine .surat-polos input:focus,
+.template-engine .surat-polos textarea:focus {
+  border-color: #94a3b8;
+}
+
+/* Garis putus-putus dekoratif (bukan tabel) di dokumen surat */
+.template-engine .surat-polos .border-dashed {
+  border-style: solid;
+  border-color: transparent;
+}
+
+/* RINCIAN PAJAK (sprint-014): sumber PAKAI grid hitam — tepi MEDIUM (2px),
+   dalam THIN (1px) — openpyxl: border L/R header medium, sisanya thin.
+   Reset grid abu-abu global jadi hitam; border table 2px menang di tepi luar
+   (collapse model: border lebih lebar menang). Sumber: template/Contoh
+   template Rincian Pajak Sekolah Dasar Negeri.xlsx sheet SD_SMP. */
+.template-engine .pajak-tabel {
+  border: 2px solid #000;
+}
+.template-engine .pajak-tabel .th-pajak,
+.template-engine .pajak-tabel .th-pajak-num,
+.template-engine .pajak-tabel .td-pajak {
+  border: 1px solid #000;
+  padding: 1px 2px;
+  vertical-align: middle;
+}
+.template-engine .pajak-tabel .th-pajak {
+  font-weight: bold;
+  text-align: center;
+}
+.template-engine .pajak-tabel .th-pajak-num {
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5px 1px;
+}
+
+@media print {
+  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) sudah
+     memaksa hitam — pajak-tabel memang hitam, jadi TIDAK perlu reset
+     kembali seperti kas-tabel. Aturan di atas tetap dipakai apa adanya. */
+  /* Rincian Pajak (sprint-014): sumber Excel print scale 45% → font efektif
+     ~3,6pt; kita pakai 4pt agar muat di kolom sempit (2–4%) tanpa tumpang
+     tindih, sementara preview layar tetap 6pt. */
+  .pajak-dok { font-size: 4pt !important; }
+  /* Padding default (px-1 = 4px) terlalu besar untuk kolom sempit (~2–4%).
+     Di cetak padding dipangkas agar angka muat. */
+  .pajak-tabel .th-pajak,
+  .pajak-tabel .th-pajak-num,
+  .pajak-tabel .td-pajak {
+    padding: 0.5px 1px !important;
+  }
+}
+
+@media print {
+  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) memaksa
+     grid global jadi HITAM saat cetak. Dimenangkan khusus kas-tabel; sel
+     bergaris titik (inline "dotted") dikembalikan hitam — selector style*
+     lebih spesifik dari reset di atas, jadi garis titik TETAP tercetak. */
+  .sk-print-area .kas-tabel th,
+  .sk-print-area .kas-tabel td {
+    border-color: transparent !important;
+  }
+  .sk-print-area .kas-tabel td[style*="dotted"] {
+    border-color: #000 !important;
+  }
 }
 
 .template-engine input,
@@ -1080,3 +1226,178 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
 .dark .card-slash {
   background-image: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
 }
+/* Audit gugus task 41 (P1 print-hitam, tanpa ubah font-family/size):
+   area cetak formal (.sk-print-area) WAJIB hitam polos — dekorasi layar
+   (abu, dashed, bg thead) tidak ikut cetak. Scope ketat ke .sk-print-area
+   agar Panel Preview Document (layar) tak berubah. */
+@media print {
+  .sk-print-area,
+  .sk-print-area * {
+    color: #000 !important;
+    background: transparent !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .sk-print-area thead,
+  .sk-print-area th {
+    background: transparent !important;
+  }
+
+  .sk-print-area table,
+  .sk-print-area th,
+  .sk-print-area td {
+    border-color: #000 !important;
+  }
+
+  /* Garis tab putus-putus (border-dashed) jadi garis polos di cetak */
+  .sk-print-area .border-dashed,
+  .sk-print-area tr[class*="border-dashed"],
+  .sk-print-area td[class*="border-dashed"] {
+    border-bottom-style: solid !important;
+  }
+
+  .sk-print-area .border-t[class*="border-dashed"] {
+    border-top-style: solid !important;
+  }
+
+  /* Judul SPT bold + underline seperti docx (khusus print) */
+  .sk-print-area .spt-judul {
+    text-decoration: underline !important;
+  }
+
+  /* ⚠️ TEMUAN USER 2026-10-18 ("cover tidak ada bar background biru"):
+     aturan print-hitam di atas memaksa `background: transparent !important` untuk
+     SEMUA elemen .sk-print-area — ikut mematikan warna milik DOKUMEN (bukan
+     dekorasi layar): bar navy #002060 Cover, bar SEKAT (kini bentuk & warna
+     SAMA dengan cover — temuan "warna biru sekat tidak sama dengan cover"
+     2026-10-18 ronde-3, dulu #004ac6 terang), judul PBD hijau #00b050.
+     Elemen berikut diberi warna KEMBALI lewat kelas eksplisit (inline style
+     kalah dari !important author rule, jadi harus ditulis di sini).
+     Sumber warna: content stream `template/Contoh template COVER.pdf`. */
+  .sk-print-area .bar-navy {
+    background-color: #002060 !important;
+    color: #ffffff !important;
+  }
+
+  .sk-print-area .bar-pbd {
+    color: #00b050 !important;
+  }
+}
+
+/* ============================================
+   Kertas cetak — A4 vs F4 (Folio 8,5x13")
+   Pilihan user (spj_kertas) via kelas paper-a4/paper-f4.
+   @page dinamis disuntik paperSize.js (#spj-paper-page);
+   blok di bawah fallback statis.
+   ============================================ */
+/* F4 portrait: 215,9mm x 330mm.
+   CATATAN: .print-container (dipakai TemplateEngine mode=print, termasuk di
+   dalam panel layar) WAJIB width:auto di layar — ia mengisi kertas induk
+   (.panel-a4-paper / .sk-print-area) yang sudah berukuran mm persis. Paksa
+   lebar di sini hanya untuk .preview-container (mode edit, kertas mandiri).
+   Ukuran cetak F4 diatur di @media print bawah + #spj-paper-page dinamis. */
+.preview-container.paper-f4.portrait {
+  width: 215.9mm;
+  min-height: 330mm;
+}
+/* F4 landscape: tinggi ikut folio */
+.preview-container.paper-f4.landscape {
+  width: 330mm;
+  min-height: 215.9mm;
+  padding: 15mm 20mm;
+}
+@media print {
+  .print-container.paper-f4.portrait {
+    width: 215.9mm;
+    min-height: 330mm;
+  }
+  .print-container.paper-f4.landscape {
+    width: 330mm;
+    min-height: 215.9mm;
+    padding: 15mm 20mm;
+  }
+}
+
+/* Kop garis ganda meniru docx (thinThickSmallGap bawah P3) */
+.kop-ganda {
+  border-bottom: 4px double #000 !important;
+}
+
+/* Tabel SPD meniru TABLE3 docx: bingkai penuh + nomor */
+.spd-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.spd-tabel > tbody > tr > td,
+.spd-tabel > tbody > tr > th {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  vertical-align: top;
+  text-align: left;
+}
+.spd-tabel .spd-no {
+  width: 28px;
+  text-align: center;
+  white-space: nowrap;
+}
+.spd-tabel .spd-label {
+  width: 32%;
+}
+
+/* Kotak berangkat/tiba meniru TABLE4 docx (pasangan 2 kolom) */
+.spd-kotak {
+  border: 1px solid #000;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* Baris surat (SPT/Undangan) polos seperti docx — tanpa garis */
+@media print {
+  .sk-print-area .surat-polos tr,
+  .sk-print-area .surat-polos td {
+    border: none !important;
+  }
+}
+
+/* ============================================
+   SK Honorer — Review Premium
+   ============================================ */
+
+/* Field kosong pada preview layar (tidak ikut cetak) */
+.sk-missing-field {
+  background: rgba(245, 158, 11, 0.14);
+  border-bottom: 1.5px dashed #f59e0b;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* Area cetak SK Honorer: tersembunyi di layar, muncul saat print */
+.sk-print-area {
+  display: none;
+}
+
+/* Konten layar (mis. preview tabel saja) yang disembunyikan saat print */
+.sk-screen-only {
+  display: block;
+}
+
+@media print {
+  .sk-print-area {
+    display: block !important;
+  }
+
+  .sk-print-area .sk-doc-print {
+    page-break-after: always;
+  }
+
+  .sk-print-area .sk-doc-print:last-child {
+    page-break-after: auto;
+  }
+
+  .sk-screen-only {
+    display: none !important;
+  }
+}
+

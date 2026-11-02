@@ -1,90 +1,175 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { requireWrite } from '../../services/licenseService'
+import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
+import { agregatRealisasi, denganKoreksi } from '../../utils/realisasiAgregat'
+import { KOMPONEN, SNP_ROWS } from '../../utils/realisasiPeta'
+import { formatTanggalContoh } from '../../utils/dokKas'
+import { realisasiDocs } from '../../utils/previewDocs'
 
-const REALISASI_ITEMS = [
-  { id: 'R-CVR', nama: 'Cover Realisasi', deskripsi: 'Cover laporan realisasi dana BOSP', icon: 'folder', gradient: 'from-orange-500 to-red-600', isForm: true },
-  { id: 'R-SKT', nama: 'Sekat Realisasi', deskripsi: 'Tabel sekat anggaran vs realisasi', icon: 'table_chart', gradient: 'from-orange-500 to-red-600', isForm: true },
-  { id: 'R-ALR', nama: 'Alur Realisasi', deskripsi: 'Alur penggunaan dana BOSP', icon: 'account_tree', gradient: 'from-orange-500 to-red-600', isForm: true },
-]
+const fmtRp = (n) => (Number(n) || 0).toLocaleString('id-ID')
+const TAHAP_BULAN = { 1: [1, 2, 3, 4, 5, 6], 2: [7, 8, 9, 10, 11, 12] }
 
-export default function RealisasiPage() {
-  const [status, setStatus] = useState({})
-  const [selectedItem, setSelectedItem] = useState(null)
-  const toast = useToast()
+/**
+ * MatriksRealisasi — Sprint 024: matriks 7 SNP × 12 komponen dari BKU.
+ * Klik sel = koreksi manual (tersimpan `spj_realisasi_koreksi`, menang atas
+ * agregat + upload ulang). × = kembali ke angka BKU.
+ */
+function MatriksRealisasi({ toast }) {
+  const bku = storageHelper.get('bku_data', null)
+  const txs = bku?.transactions || []
+  const tahunAwal = bku?.header?.tahunAnggaran || String(new Date().getFullYear())
+  const [tahun, setTahun] = useState(String(tahunAwal))
+  const [tahap, setTahap] = useState(1)
+  const [segar, setSegar] = useState(0)
+  const [editSel, setEditSel] = useState(null)
 
-  useEffect(() => {
-    const stored = storageHelper.get('realisasi_status', {})
-    setStatus(stored)
-  }, [])
+  const semuaKoreksi = storageHelper.get('spj_realisasi_koreksi', {})
+  const prefix = `${tahun}-${tahap}-`
+  const koreksi = {}
+  for (const [k, v] of Object.entries(semuaKoreksi)) {
+    if (k.startsWith(prefix)) koreksi[k.slice(prefix.length)] = v
+  }
+  const ag = denganKoreksi(agregatRealisasi(txs, { tahap }), koreksi)
+  const meta = storageHelper.get('spj_realisasi_meta', {})[`${tahun}-${tahap}`] || {}
 
-  const toggleStatus = (id) => {
+  const txTahap = txs.filter((t) => TAHAP_BULAN[tahap].includes(Number(t?.bulan)) && t?.tanggalISO)
+  const tgls = txTahap.map((t) => t.tanggalISO).sort()
+  const periodeAuto = tgls.length > 0
+    ? `${formatTanggalContoh(tgls[0])} s/d ${formatTanggalContoh(tgls[tgls.length - 1])}`
+    : ''
+  const periode = meta.periode || periodeAuto
+  const sumberDana = meta.sumberDana || ''
+  const docs = realisasiDocs({ tahun, tahap, txs, koreksi, sumberDana, periode })
+
+  const simpanKoreksi = (key, nilai) => {
     if (!requireWrite(toast)) return
-    const next = status[id] === 'Selesai' ? 'Belum' : 'Selesai'
-    const updated = { ...status, [id]: next }
-    setStatus(updated)
-    storageHelper.set('realisasi_status', updated)
-    toast.success(`Status "${REALISASI_ITEMS.find(d => d.id === id)?.nama}" diubah`)
+    const next = { ...storageHelper.get('spj_realisasi_koreksi', {}) }
+    const penuh = `${tahun}-${tahap}-${key}`
+    if (nilai === '' || nilai == null) delete next[penuh]
+    else next[penuh] = nilai
+    storageHelper.set('spj_realisasi_koreksi', next)
+    setSegar((v) => v + 1)
+  }
+  const simpanMeta = (key, nilai) => {
+    if (!requireWrite(toast)) return
+    const semua = storageHelper.get('spj_realisasi_meta', {})
+    const k = `${tahun}-${tahap}`
+    storageHelper.set('spj_realisasi_meta', { ...semua, [k]: { ...(semua[k] || {}), [key]: nilai } })
+    setSegar((v) => v + 1)
   }
 
-  const completedCount = REALISASI_ITEMS.filter(d => status[d.id] === 'Selesai').length
-  const progress = Math.round((completedCount / REALISASI_ITEMS.length) * 100)
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-100">
+        <span className="material-symbols-outlined text-primary">table_chart</span>
+        <h2 className="text-sm font-bold text-slate-900">Matriks Realisasi Dana</h2>
+        <div className="flex gap-1 ml-2">
+          {[2025, 2026, 2027].map((t) => (
+            <button key={t} onClick={() => setTahun(String(t))}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${String(t) === tahun ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>{t}</button>
+          ))}
+        </div>
+        <div className="flex gap-1">
+          {[1, 2].map((t) => (
+            <button key={t} onClick={() => setTahap(t)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${t === tahap ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>Tahap {t}</button>
+          ))}
+        </div>
+        <span className={`ml-auto text-[11px] font-bold px-2.5 py-1 rounded-full ${ag.selisih === 0 ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'}`}>
+          {ag.selisih === 0 ? `Seimbang · Rp ${fmtRp(ag.total)}` : `Selisih Rp ${fmtRp(ag.selisih)}`}
+        </span>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3 px-4 pt-3">
+        <label className="block text-xs text-slate-600">Sumber Dana
+          <input value={sumberDana} onChange={(e) => simpanMeta('sumberDana', e.target.value)} placeholder="BOS Reguler …"
+            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" />
+        </label>
+        <label className="block text-xs text-slate-600">Periode (otomatis dari BKU)
+          <input value={periode} onChange={(e) => simpanMeta('periode', e.target.value)} placeholder="01 Januari … s/d …"
+            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" />
+        </label>
+      </div>
+
+      <div className="p-4 overflow-x-auto">
+        <table className="w-full text-[11px] border-collapse">
+          <thead>
+            <tr className="bg-slate-50 text-slate-500">
+              <th className="px-2 py-1.5 text-left">SNP</th>
+              {KOMPONEN.map((k, i) => <th key={i} className="px-1 py-1 text-right font-medium" title={k}>{i + 1}</th>)}
+              <th className="px-2 py-1.5 text-right">Jumlah</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ag.matrix.map((row, i) => (
+              <tr key={i} className="border-t border-slate-100">
+                <td className="px-2 py-1.5 text-slate-700" title={SNP_ROWS[i]}>{SNP_ROWS[i].split(' ').slice(0, 2).join(' ')}</td>
+                {row.map((v, k) => {
+                  const key = `${i}-${k}`
+                  const dikoreksi = koreksi[key] != null && koreksi[key] !== ''
+                  const sedang = editSel === key
+                  return (
+                    <td key={k} className={`px-1 py-1 text-right ${dikoreksi ? 'bg-primary/5' : ''}`}>
+                      {sedang ? (
+                        <input type="number" autoFocus defaultValue={v}
+                          onBlur={(e) => { simpanKoreksi(key, e.target.value); setEditSel(null) }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur(); if (e.key === 'Escape') setEditSel(null) }}
+                          className="w-24 px-1 py-0.5 text-[11px] text-right border border-primary rounded outline-none" />
+                      ) : (
+                        <button onClick={() => setEditSel(key)} title={`Klik untuk koreksi (${KOMPONEN[k]})`}
+                          className="inline-flex items-center gap-0.5 hover:text-primary">
+                          {fmtRp(v)}
+                          {dikoreksi && <span onClick={(e) => { e.stopPropagation(); simpanKoreksi(key, ''); }} title="Kembali ke angka BKU"
+                            className="text-[10px] text-slate-400 hover:text-slate-700 px-0.5">×</span>}
+                        </button>
+                      )}
+                    </td>
+                  )
+                })}
+                <td className="px-2 py-1.5 text-right font-bold">{fmtRp(ag.jumlahBaris[i])}</td>
+              </tr>
+            ))}
+            <tr className="border-t-2 border-slate-300 font-bold">
+              <td className="px-2 py-1.5">JUMLAH</td>
+              {ag.jumlahKolom.map((v, k) => <td key={k} className="px-1 py-1 text-right">{fmtRp(v)}</td>)}
+              <td className="px-2 py-1.5 text-right text-primary">{fmtRp(ag.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="text-[10px] text-slate-400 mt-2">Klik angka untuk koreksi manual (latar biru = terkoreksi, × = kembali ke BKU). Kolom 1–12 = komponen PDF.</p>
+        {ag.belum.length > 0 && (
+          <p className="text-[11px] text-slate-500 mt-1">Belum dipetakan ({ag.belum.length} baris): {ag.belum.slice(0, 3).map((b) => b.uraian).join('; ')}{ag.belum.length > 3 ? '…' : ''}</p>
+        )}
+      </div>
+
+      <div className="px-4 pb-4">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h3>
+        {docs.length > 0 ? (
+          <PanelPreviewDocument title={`Realisasi Dana Tahap ${tahap} ${tahun}`} docs={docs}
+            status={{ perlu: 0, violations: [] }} cetakAktif
+            onCek={() => toast.success(ag.selisih === 0 ? 'LENGKAP — siap cetak' : `Selisih Rp ${fmtRp(ag.selisih)}`)}
+            onCetak={() => window.print()} />
+        ) : (
+          <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">Belum ada data tahap ini di BKU.</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function RealisasiPage() {
+  const toast = useToast()
 
   return (
     <div className="flex flex-col min-h-screen">
       <Topbar title="Realisasi BOSP" subtitle="Dokumen realisasi dana BOS/BOSP" />
 
       <div className="p-lg space-y-lg flex-1">
-        {/* Progress */}
-        <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
-          <div className="flex justify-between items-center mb-sm">
-            <span className="font-label-md text-text-high">Progress Realisasi</span>
-            <span className="font-label-md text-primary">{completedCount}/{REALISASI_ITEMS.length} ({progress}%)</span>
-          </div>
-          <div className="w-full h-3 bg-surface-container-low rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all" style={{ width: progress + '%' }} />
-          </div>
-        </div>
-
-        {/* Document Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-          {REALISASI_ITEMS.map(d => {
-            const isSelesai = status[d.id] === 'Selesai'
-            return (
-              <div key={d.id} className="bg-surface-container-lowest rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer" onClick={() => setSelectedItem(d)}>
-                <div className={`h-24 bg-gradient-to-r ${d.gradient} flex items-center justify-between p-md`}>
-                  <span className="material-symbols-outlined text-white text-4xl">{d.icon}</span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${isSelesai ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                    {isSelesai ? 'Selesai' : 'Belum'}
-                  </span>
-                </div>
-                <div className="p-md">
-                  <h4 className="font-label-md text-text-high font-semibold">{d.nama}</h4>
-                  <p className="text-text-low text-xs mt-1">{d.deskripsi}</p>
-                  <div className="flex gap-sm mt-md">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleStatus(d.id); }}
-                      className={`flex-1 flex items-center justify-center gap-sm py-2 rounded-lg font-label-md transition-all active:scale-95 ${
-                        isSelesai ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-primary text-on-primary hover:brightness-110'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-lg">{isSelesai ? 'check_circle' : 'edit'}</span>
-                      {isSelesai ? 'Selesai' : 'Isi Form'}
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toast.info(`Cetak ${d.nama}`); }}
-                      className="p-2 rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-primary">print</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        {/* ── Sprint 024: Matriks Realisasi Dana (BKU otomatis + koreksi) ── */}
+        <MatriksRealisasi toast={toast} />
 
         {/* Info */}
         <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
@@ -92,43 +177,11 @@ export default function RealisasiPage() {
             <span className="material-symbols-outlined text-primary text-lg">info</span>
             <div>
               <h4 className="font-label-md text-text-high mb-1">Tentang Realisasi BOSP</h4>
-              <p className="text-text-low text-sm">Dokumen realisasi terdiri dari Cover, Sekat, dan Alur penggunaan dana BOSP. Isi form untuk setiap bagian, lalu cetak dokumen yang sudah lengkap.</p>
+              <p className="text-text-low text-sm">Matriks 7 SNP × 12 komponen terisi otomatis dari BKU per tahap. Klik angka untuk koreksi manual, lalu cetak dokumen.</p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Detail Modal */}
-      {selectedItem && (
-        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-lg" onClick={() => setSelectedItem(null)}>
-          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
-            <div className={`h-24 bg-gradient-to-r ${selectedItem.gradient} flex items-center justify-between p-lg`}>
-              <div className="flex items-center gap-md">
-                <span className="material-symbols-outlined text-white text-4xl">{selectedItem.icon}</span>
-                <h2 className="font-headline-md text-headline-md font-bold text-white">{selectedItem.nama}</h2>
-              </div>
-              <button onClick={() => setSelectedItem(null)} className="text-white/80 hover:text-white">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <div className="p-lg">
-              <p className="text-text-low mb-md">{selectedItem.deskripsi}</p>
-              <div className="bg-surface-container-low rounded-lg p-md text-center">
-                <span className="material-symbols-outlined text-outline text-4xl mb-2 block">construction</span>
-                <p className="text-text-low text-sm">Form input akan segera tersedia</p>
-              </div>
-              <div className="flex gap-sm mt-md">
-                <button onClick={() => { toggleStatus(selectedItem.id); setSelectedItem(null); }} className="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-md hover:brightness-110 transition-all">
-                  Tandai Selesai
-                </button>
-                <button onClick={() => { toast.info(`Cetak ${selectedItem.nama}`); setSelectedItem(null); }} className="flex items-center gap-sm px-lg py-2 border border-outline-variant rounded-lg font-label-md hover:bg-surface-container-high transition-all">
-                  <span className="material-symbols-outlined">print</span> Cetak
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

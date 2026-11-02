@@ -8,117 +8,19 @@
  * - Animasi: fade-in, slide-up, scale, glow effects
  */
 import { useState, useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
+import { snapshotSebelumTimpa, urungkanTimpa } from '../../utils/aturanUndangan'
+import { bangunPrefillLpj } from '../../utils/prefillLpj'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
-import TemplateEngine from '../../components/templates/TemplateEngine'
-import DokumenFormPreview from '../../components/templates/DokumenFormPreview'
-import AutoFillHonorButton from '../../components/templates/blocks/AutoFillHonorButton'
+import { readinessCheck, sorotPelanggaran } from '../../components/templates/SummaryCard'
+import { buildPreviewDocs } from '../../utils/previewDocs'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CARD DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
-const CARDS = [
-  {
-    id: 'honor',
-    nama: 'Honorarium',
-    deskripsi: 'Honor/Gaji Guru, Tendik, Perpustakaan, Penjaga, Pelaksana',
-    kategori: 'BKU Utama',
-    icon: 'payments',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'guru', label: 'Guru', templateId: 'honor_guru' },
-      { id: 'tendik', label: 'Tendik', templateId: 'honor_tendik' },
-      { id: 'perpus', label: 'Perpustakaan', templateId: 'honor_perpus' },
-      { id: 'penjaga', label: 'Penjaga', templateId: 'honor_penjaga' },
-      { id: 'pelaksana', label: 'Pelaksana', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'perjalanan_dinas',
-    nama: 'Perjalanan Dinas',
-    deskripsi: 'Transport Rapat, Koordinasi, Bank, Pendamping + SPPD Otomatis',
-    kategori: 'BKU Utama',
-    icon: 'flight_takeoff',
-    hasTemplate: true,
-    isTransport: true,
-    subKategori: [
-      { id: 'rapat', label: 'Rapat', templateId: 'transpor_rapat' },
-      { id: 'koordinasi', label: 'Koordinasi', templateId: 'transpor_koordinasi' },
-      { id: 'bank', label: 'Bank', templateId: 'transpor_bank' },
-      { id: 'pendamping', label: 'Pendamping', templateId: 'transpor_pendamping' },
-      { id: 'workshop', label: 'Workshop', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'mamin',
-    nama: 'Makan & Minum',
-    deskripsi: 'Rapat, Kegiatan, Tamu — Undangan, Daftar Hadir, Resume, Foto',
-    kategori: 'BKU Utama',
-    icon: 'restaurant',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'rapat', label: 'Rapat', templateId: null },
-      { id: 'kegiatan', label: 'Kegiatan', templateId: null },
-      { id: 'tamu', label: 'Tamu', templateId: null },
-    ],
-  },
-  {
-    id: 'pemeliharaan',
-    nama: 'Pemeliharaan',
-    deskripsi: 'Upah Kerja, Mebeler, Bangunan',
-    kategori: 'BKU Utama',
-    icon: 'handyman',
-    hasTemplate: true,
-    subKategori: [
-      { id: 'alat', label: 'Alat (Upah)', templateId: 'upah' },
-      { id: 'mebeler', label: 'Mebeler', templateId: null, comingSoon: true },
-      { id: 'bangunan', label: 'Bangunan', templateId: null, comingSoon: true },
-    ],
-  },
-  {
-    id: 'penggandaan',
-    nama: 'Penggandaan',
-    deskripsi: 'Master, Jumlah Lembar, Bukti Pembayaran',
-    kategori: 'Dokumen Pendukung',
-    icon: 'content_copy',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Master Penggandaan', 'Jumlah Lembar', 'Bukti Pembayaran'],
-  },
-  {
-    id: 'cetak_foto',
-    nama: 'Cetak Foto',
-    deskripsi: 'Daftar Foto, Bukti Cetak',
-    kategori: 'Dokumen Pendukung',
-    icon: 'photo_camera',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Daftar Foto', 'Bukti Cetak'],
-  },
-  {
-    id: 'cetak_banner',
-    nama: 'Cetak Banner',
-    deskripsi: 'Desain Banner, Bukti Pemasangan',
-    kategori: 'Dokumen Pendukung',
-    icon: 'panorama',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Desain Banner', 'Bukti Pemasangan'],
-  },
-  {
-    id: 'tagihan',
-    nama: 'Tagihan',
-    deskripsi: 'Listrik, Air, Internet (Pulsa)',
-    kategori: 'Dokumen Pendukung',
-    icon: 'bolt',
-    hasTemplate: false,
-    infoOnly: true,
-    infoItems: ['Invoice Listrik', 'Invoice Air', 'Invoice Pulsa Internet'],
-  },
-]
+// Sprint 017 AD-1/AD-3: definisi kartu & panel dipindah ke modul bersama agar
+// halaman LPJ dan sidebar BKU memakai sumber yang sama (satu panel, dua layout).
+import { CARDS } from '../../data/kategoriLpj'
+import DetailDokumenLpj from '../../components/dokumen/DetailDokumenLpj'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPONENT
@@ -131,8 +33,142 @@ export default function DokumenSPJPage() {
   const [viewMode, setViewMode] = useState('form')
   const [isAnimating, setIsAnimating] = useState(false)
   const [sppdData, setSppdData] = useState({})
+  // ─── Sprint 003 ADDENDUM (revisi panduan 2026-10-01 — BLUEPRINT R1/R2/R5) ──
+  // formTab/previewTab DIANGKAT dari DokumenFormPreview (dulu useState lokal)
+  // supaya MenuGuide sadar tab mana yang sedang aktif.
+  const [formTab, setFormTab] = useState('daftar')
+  const [previewTab, setPreviewTab] = useState('daftar')
+  // Riwayat tab yang pernah dikunjungi menu aktif — kunci "<menu>:<activeTab>"
+  // + "<menu>:preview" (penanda "ringkasan sudah dilihat"). Ikut RESET bersih
+  // seperti formData: data detail di-wipe saat tutup/ganti menu, centang ikut hilang.
+  const [visitedTabs, setVisitedTabs] = useState(() => new Set())
   const detailRef = useRef(null)
   const toast = useToast()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // ─── Sprint 005: prefill OTOMATIS dari BKU (deep-link) ────────────────────
+  // SELALU TIMPA khusus jalur BKU: snapshot dulu (storage spj_otomatis_snapshot),
+  // terapkan template aturan (undangan + notulen), tampilkan badge + Urungkan.
+  // Dijalankan ulang tiap ada navigasi BKU baru (location.state.ts berubah)
+  // agar buka-ulang baris lain menimpa tapi snapshot menyelamatkan edit manual.
+  const [prefillBadge, setPrefillBadge] = useState(null)
+  const [prefillSnapshot, setPrefillSnapshot] = useState(null)
+  const prefillTs = useRef(0)
+  const bkuTs = location.state?.ts
+  useEffect(() => {
+    const st = location.state
+    if (!st?.fromBKU || !st?.menu || !st?.ts) return
+    if (prefillTs.current === st.ts) return
+    // Abaikan state basi (mis. HMR remount membaca history lama) — maks 10 menit.
+    if (Date.now() - st.ts > 10 * 60 * 1000) {
+      navigate(location.pathname, { replace: true })
+      return
+    }
+    prefillTs.current = st.ts
+    const card = CARDS.find((c) => c.id === st.menu)
+    if (!card) return
+    // Sprint 017 AD-3: isi otomatis dipindah ke utils/prefillLpj.js (fungsi murni)
+    // agar sidebar BKU memakai jalur yang sama. Snapshot & setState tetap di sini.
+    const { tambahan, diisi, dilewati, tertimpa, subPilih, sppdTambahan } = bangunPrefillLpj({
+      card,
+      bku: st.bku,
+      menu: st.menu,
+      subId: st.subId || '',
+      formData,
+    })
+    // Sprint 005 D.1: snapshot SELURUH form + sppd SEBELUM timpa (1 slot terakhir).
+    const snap = snapshotSebelumTimpa(
+      { ...formData, sppdData: { ...sppdData } },
+      [...new Set([...Object.keys(formData), ...Object.keys(tambahan), ...(sppdTambahan ? ['sppdData'] : [])])],
+      st.bku?.noBukti || '',
+    )
+    setPrefillSnapshot(snap)
+    setSelectedCard(card)
+    setSelectedSubKategori(subPilih)
+    setFormData(tambahan)
+    if (sppdTambahan) setSppdData(sppdTambahan)
+    setViewMode('form')
+    setFormTab('daftar')
+    setPreviewTab('daftar')
+    setPrefillBadge({ menu: st.menu, diisi, dilewati, tertimpa, bku: st.bku || {} })
+    if (tertimpa.length > 0) toast.info(`${tertimpa.length} field ditimpa dari BKU — bisa Urungkan`)
+    else toast.success(`Form terisi dari BKU (${diisi.length} field)`)
+    navigate(location.pathname, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bkuTs])
+
+  const handleUndoPrefill = () => {
+    // Sprint 005 D.1: kembalikan dari storage spj_otomatis_snapshot.
+    const { nilai } = urungkanTimpa()
+    if (nilai) {
+      const { sppdData: s, ...f } = nilai
+      setFormData(f)
+      if (s && typeof s === 'object') setSppdData(s)
+    } else if (prefillSnapshot) setFormData(prefillSnapshot)
+    setPrefillSnapshot(null)
+    setPrefillBadge(null)
+    toast.info('Isian dari BKU dibatalkan')
+  }
+
+  // Konteks tab aktif (untuk panduan):
+  //   form    → transport: f:<tab form> · menu lain: f:form
+  //   preview → mamin/pemeliharaan: p:ringkasan · honor/transport: p:<tab preview>
+  const activeTab = !selectedCard
+    ? null
+    : viewMode === 'form'
+      ? (selectedCard.id === 'perjalanan_dinas' ? `f:${formTab}` : 'f:form')
+      : (selectedCard.id === 'mamin' || selectedCard.id === 'pemeliharaan')
+        ? 'p:ringkasan'
+        : `p:${previewTab}`
+
+  // Reset riwayat saat konteks data berganti (deklarasi PERTAMA — urutan efek:
+  // bersihkan dulu, baru catat tab aktif di efek kedua di bawah).
+  useEffect(() => {
+    setVisitedTabs(new Set())
+  }, [selectedCard?.id, selectedSubKategori?.id])
+
+  // Catat tab yang sudah dikunjungi + penanda "ringkasan sudah dilihat"
+  useEffect(() => {
+    if (!selectedCard || !activeTab) return
+    setVisitedTabs((prev) => {
+      const key = `${selectedCard.id}:${activeTab}`
+      const wantPreview = viewMode === 'preview'
+      const previewKey = `${selectedCard.id}:preview`
+      if (prev.has(key) && (!wantPreview || prev.has(previewKey))) return prev
+      const next = new Set(prev)
+      next.add(key)
+      if (wantPreview) next.add(previewKey)
+      return next
+    })
+  }, [selectedCard?.id, activeTab, viewMode])
+
+  // Ctx kaya MenuGuide — predikat langkah guideConfig.js dibaca dari field NYATA
+  const visitedMenu = new Set()
+  if (selectedCard) {
+    const prefix = `${selectedCard.id}:`
+    visitedTabs.forEach((k) => {
+      if (k.startsWith(prefix)) visitedMenu.add(k.slice(prefix.length))
+    })
+  }
+  const guideCtx = {
+    subId: selectedSubKategori?.id,
+    activeTab: activeTab || 'f:form',
+    visited: visitedMenu,
+    rowsCount: (formData.rows || []).length,
+    nomor: formData.nomor,
+    nomorSpt: formData.nomorSpt,
+    nomorSppd: sppdData.nomorSurat,
+    sppdTanggal: sppdData.tanggal,
+    resume: formData.resume,
+    nomorUndangan: formData.nomorUndangan,
+    isiUndangan: formData.isiUndangan,
+    acara: formData.acara,
+    tanggal: formData.tanggal,
+    btFilled: Object.values(formData.bukuTamu || {}).some((v) =>
+      Array.isArray(v) ? v.length > 0 : v !== null && v !== undefined && v !== ''
+    ),
+  }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -140,6 +176,24 @@ export default function DokumenSPJPage() {
     const stored = storageHelper.get('dokumen_lpj', {})
     const key = subId ? `${cardId}_${subId}` : cardId
     return stored[key]?.status || 'Belum'
+  }
+
+  // ─── Sprint 002 FASE 5 (task 5.1): reset bersih data lama ────────────────
+  // ADR 2026-09-14: tanpa fungsi migrasi — data lama dibuang.
+  // HANYA dokumen_lpj; spj_data_sekolah TIDAK ikut terhapus.
+  const handleResetDokumenLpj = () => {
+    if (!window.confirm('Reset seluruh data dokumen LPJ (termasuk Perjalanan Dinas)?\nData Sekolah & pejabat TIDAK ikut terhapus.')) return
+    storageHelper.remove('dokumen_lpj')
+    setSelectedCard(null)
+    setSelectedSubKategori(null)
+    setFormData({})
+    setPrefillBadge(null)
+    setPrefillSnapshot(null)
+    setSppdData({})
+    setViewMode('form')
+    setFormTab('daftar')
+    setPreviewTab('daftar')
+    toast.success('Data dokumen LPJ di-reset bersih. Data Sekolah tetap utuh.')
   }
 
   // ─── Premium Scroll Handler ──────────────────────────────────────────────
@@ -165,6 +219,8 @@ export default function DokumenSPJPage() {
         setSelectedCard(null)
         setSelectedSubKategori(null)
         setFormData({})
+        setFormTab('daftar')
+        setPreviewTab('daftar')
         setIsAnimating(false)
       }, 200)
     } else {
@@ -177,6 +233,8 @@ export default function DokumenSPJPage() {
       setSelectedSubKategori(firstValidSub || null)
       setFormData({})
       setViewMode('form')
+      setFormTab('daftar')
+      setPreviewTab('daftar')
       
       // Trigger animation then scroll
       setTimeout(() => {
@@ -192,7 +250,11 @@ export default function DokumenSPJPage() {
       setSelectedCard(null)
       setSelectedSubKategori(null)
       setFormData({})
+      setPrefillBadge(null)
+      setPrefillSnapshot(null)
       setViewMode('form')
+      setFormTab('daftar')
+      setPreviewTab('daftar')
       setIsAnimating(false)
       // Scroll back to top
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -206,9 +268,70 @@ export default function DokumenSPJPage() {
     setTimeout(() => setIsAnimating(false), 300)
   }
 
+  // Revisi panduan ronde-2 (2026-10-01): klik langkah di popover → lompat ke
+  // tab/mode langkah tsb + scroll ke area detail. Popover TIDAK ditutup.
+  // Revisi 2026-10-06 (task 37): tak ada lagi mode preview terpisah — panel
+  // selalu terlihat di samping form. Lompatan preview = tandai sudah-periksa
+  // (agar langkah panduan selesai) + scroll ke panel.
+  const handleGuideJump = (jump) => {
+    if (!jump) return
+    if (jump.mode === 'preview') {
+      if (jump.tab) setPreviewTab(jump.tab)
+      if (selectedCard) {
+        setVisitedTabs((prev) => {
+          const next = new Set(prev)
+          next.add(`${selectedCard.id}:preview`)
+          if (jump.tab) next.add(`${selectedCard.id}:p:${jump.tab}`)
+          return next
+        })
+      }
+    } else {
+      setViewMode('form')
+      if (jump.tab) setFormTab(jump.tab)
+    }
+    scrollToDetail()
+  }
+
   const getTemplateConfig = () => {
     if (!selectedSubKategori?.templateId) return null
     return TEMPLATE_CONFIGS[selectedSubKategori.templateId]
+  }
+
+  // ─── Revisi 2026-10-06 (task 37): satu alur lengkapi-cek-cetak di panel ───
+  // Satu sumber: formData turun ke panel (Zona B); tiap onChange re-render
+  // panel + badge otomatis. Cetak formal tak tersentuh (sk-print-area selalu
+  // dirender di form DokumenFormPreview, display:none di layar).
+  // Revisi 2026-10-06 (task 29): label Cermin-* diganti Panel Preview Document;
+  // isi panel = render A4 penuh persis dokumen cetak (batas lama "formal hanya
+  // di print-area" DICABUT user).
+  const panelPelanggaran = readinessCheck(formData)
+  const previewDocs = buildPreviewDocs({
+    cardId: selectedCard?.id,
+    templateId: selectedSubKategori?.templateId,
+    subId: selectedSubKategori?.id,
+    formData,
+    sppdData,
+  })
+  const handleCekPanel = () => {
+    const pertama = panelPelanggaran[0]
+    if (!pertama) { toast.success('Lengkap — siap cetak'); return }
+    if (!sorotPelanggaran(pertama)) toast.info(pertama.label)
+  }
+  const handleCetakGate = () => {
+    // Tulis snapshot 1 slot terakhir (spj_otomatis_snapshot) lalu cetak.
+    // Revisi task 37: area cetak selalu render di form — cetak langsung,
+    // tanpa pindah mode preview dulu.
+    snapshotSebelumTimpa(
+      { ...formData, sppdData: { ...sppdData } },
+      [...new Set(Object.keys(formData))],
+      formData.bkuSumber?.noBukti || '',
+    )
+    const printContainer = document.querySelector('.sk-print-area .print-container')
+    if (printContainer) {
+      printContainer.classList.remove('portrait', 'landscape')
+      printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
+    }
+    window.print()
   }
 
   // ─── Print Handler ───────────────────────────────────────────────────────
@@ -219,7 +342,7 @@ export default function DokumenSPJPage() {
       return
     }
     
-    const printContainer = document.querySelector('.print-container')
+    const printContainer = document.querySelector('.sk-print-area .print-container')
     if (printContainer) {
       printContainer.classList.remove('portrait', 'landscape')
       printContainer.classList.add(config.orientation || 'portrait')
@@ -376,273 +499,44 @@ export default function DokumenSPJPage() {
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RENDER: DETAIL PANEL (PREMIUM ACCORDION)
+  // Sprint 017 AD-1: JSX panel dipindah ke components/dokumen/DetailDokumenLpj.jsx
+  // agar sidebar BKU memakai komponen yang SAMA. layout='side' = perilaku lama.
   // ═══════════════════════════════════════════════════════════════════════════
 
   const renderDetailPanel = () => {
     if (!selectedCard) return null
-
-    const isTransport = selectedCard?.isTransport
-    const isSpecial = ['honor', 'perjalanan_dinas', 'mamin', 'pemeliharaan'].includes(selectedCard?.id)
-    const isTransportSub = isTransport && selectedSubKategori?.templateId !== null && selectedSubKategori?.templateId !== 'sppd'
-    const hasSppdData = isTransportSub && sppdData && sppdData.rows && sppdData.rows.length > 0
-
     return (
-      <div 
-        ref={detailRef}
-        className={`transition-all duration-700 ease-out ${
-          isAnimating 
-            ? 'opacity-0 translate-y-8 scale-[0.98]' 
-            : 'opacity-100 translate-y-0 scale-100'
-        }`}
-      >
-        <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-hidden">
-          {/* Premium Decorative Elements */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
-          
-          <div className="relative p-6 space-y-5">
-            {/* Header Panel */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                    <span className="material-symbols-outlined text-3xl text-white">{selectedCard.icon}</span>
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
-                    Detail Dokumen
-                  </span>
-                  <h3 className="text-lg font-bold text-slate-800 mt-2">{selectedCard.nama}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{selectedCard.deskripsi}</p>
-                </div>
-              </div>
-              <button
-                onClick={handleCloseDetail}
-                className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
-              </button>
-            </div>
-
-            {/* Sub-Kategori Tabs (non-special cards) */}
-            {!isSpecial && selectedCard.subKategori && (
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {selectedCard.subKategori.map((sub, index) => {
-                  const subStatus = getStatus(selectedCard.id, sub.id)
-                  const isActive = selectedSubKategori?.id === sub.id
-
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => !sub.comingSoon && handleSubKategoriChange(sub)}
-                      disabled={sub.comingSoon}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-300 ${
-                        isActive
-                          ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105'
-                          : sub.comingSoon
-                            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:scale-105'
-                      }`}
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      {subStatus === 'Lengkap' && <span className="text-emerald-400 text-[10px]">✓</span>}
-                      {subStatus === 'Draft' && <span className="text-amber-400 text-[10px]">◐</span>}
-                      {sub.label}
-                      {sub.comingSoon && <span className="text-slate-400 text-[10px]">(Soon)</span>}
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-
-            {/* Content Area */}
-            {isSpecial ? (
-              <DokumenFormPreview
-                card={selectedCard}
-                selectedSub={selectedSubKategori}
-                onSubChange={handleSubKategoriChange}
-                formData={formData}
-                setFormData={setFormData}
-                sppdData={sppdData}
-                setSppdData={setSppdData}
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                onClose={handleCloseDetail}
-              />
-            ) : (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              {selectedCard.infoOnly && !selectedCard.subKategori ? (
-                // Info Only View
-                <div className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-slate-300 text-4xl">{selectedCard.icon}</span>
-                  </div>
-                  <p className="text-lg font-bold text-slate-800 mb-2">{selectedCard.nama}</p>
-                  <div className="flex flex-wrap justify-center gap-2 mt-4">
-                    {selectedCard.infoItems?.map((item, i) => (
-                      <span key={i} className="px-4 py-2 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 border border-slate-200">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : selectedCard.infoOnly && selectedCard.subKategori ? (
-                // Info Only with Sub-Kategori (Tagihan)
-                selectedSubKategori?.templateId ? (
-                  <div className="p-6">
-                    <TemplateEngine
-                      templateConfig={getTemplateConfig()}
-                      data={formData}
-                      onDataChange={setFormData}
-                      mode="edit"
-                    />
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-4">{selectedCard.icon}</span>
-                    <p className="text-base font-bold text-slate-800 mb-2">{selectedSubKategori?.label}</p>
-                    <p className="text-sm text-slate-500 mb-4">{selectedSubKategori?.info}</p>
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
-                      <p className="text-xs text-amber-700">Template belum tersedia.</p>
-                    </div>
-                  </div>
-                )
-              ) : selectedSubKategori?.templateId ? (
-                // Template View
-                <div className="p-6 space-y-6">
-                  {/* Auto-Fill Button */}
-                  <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-amber-600">auto_awesome</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-800">Auto-Fill Data</p>
-                        <p className="text-xs text-slate-500">Isi dari profil guru/tendik otomatis</p>
-                      </div>
-                    </div>
-                    <AutoFillHonorButton 
-                      templateId={selectedSubKategori?.templateId}
-                      onAutoFill={handleAutoFill}
-                    />
-                  </div>
-
-                  {/* Transport: Show Transport Template */}
-                  {isTransportSub && (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-primary">
-                        <span className="material-symbols-outlined text-xl">receipt_long</span>
-                        <h4 className="font-bold">Daftar Penerima Transport</h4>
-                      </div>
-                      <TemplateEngine
-                        templateConfig={getTemplateConfig()}
-                        data={formData}
-                        onDataChange={setFormData}
-                        mode="edit"
-                      />
-                    </div>
-                  )}
-
-                  {/* SPPD Template (Auto-fill dari transport) */}
-                  {isTransportSub && hasSppdData && (
-                    <div className="relative">
-                      {/* Divider */}
-                      <div className="flex items-center gap-4 my-6">
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                        <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
-                          <span className="material-symbols-outlined text-lg">description</span>
-                          <span className="text-sm font-bold">Surat Perintah Tugas (SPPD)</span>
-                        </div>
-                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                      </div>
-
-                      {/* Info Banner */}
-                      <div className="bg-gradient-to-r from-blue-50 to-primary/5 rounded-xl p-4 border border-blue-200 mb-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                            <span className="material-symbols-outlined text-blue-600">auto_awesome</span>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-blue-800">Surat Perintah Tugas (SPPD)</p>
-                            <p className="text-xs text-blue-600 mt-1">
-                              Daftar nama penerima tugas terisi otomatis dari daftar penerima transport di atas. 
-                              Nomor surat di-generate terpisah melalui popup di header dokumen.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* SPPD Content - TemplateEngine handles its own nomor surat via HeaderDokumen popup */}
-                      <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl border border-blue-200 p-6">
-                        <TemplateEngine
-                          templateConfig={TEMPLATE_CONFIGS.sppd}
-                          data={sppdData}
-                          onDataChange={setSppdData}
-                          mode="edit"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Non-transport: Show single template */}
-                  {!isTransportSub && (
-                    <TemplateEngine
-                      templateConfig={getTemplateConfig()}
-                      data={formData}
-                      onDataChange={setFormData}
-                      mode="edit"
-                    />
-                  )}
-                </div>
-              ) : (
-                // Coming Soon View
-                <div className="p-8 text-center">
-                  <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-slate-300 text-4xl">construction</span>
-                  </div>
-                  <p className="text-base font-bold text-slate-800 mb-2">
-                    {selectedSubKategori?.label || selectedCard.nama}
-                  </p>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Template belum tersedia untuk sub-kategori ini.
-                  </p>
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-sm mx-auto">
-                    <p className="text-xs text-amber-700">
-                      Upload file template ke folder <code className="bg-amber-100 px-1 rounded">/template</code>
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-            {/* Footer Actions */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={handleCloseDetail}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                <span className="material-symbols-outlined text-lg">arrow_back</span>
-                Kembali ke Daftar
-              </button>
-              
-              {!isSpecial && (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-lg">print</span>
-                  Cetak Dokumen
-                </button>
-              </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DetailDokumenLpj
+        card={selectedCard}
+        selectedSub={selectedSubKategori}
+        onSubChange={handleSubKategoriChange}
+        getStatus={getStatus}
+        formData={formData}
+        setFormData={setFormData}
+        sppdData={sppdData}
+        setSppdData={setSppdData}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        formTab={formTab}
+        setFormTab={setFormTab}
+        previewTab={previewTab}
+        setPreviewTab={setPreviewTab}
+        onClose={handleCloseDetail}
+        onCek={handleCekPanel}
+        onCetak={handleCetakGate}
+        onPrint={handlePrint}
+        onAutoFill={handleAutoFill}
+        previewDocs={previewDocs}
+        pelanggaran={panelPelanggaran}
+        prefillBadge={prefillBadge}
+        onUndoPrefill={handleUndoPrefill}
+        guideCtx={guideCtx}
+        onGuideJump={handleGuideJump}
+        getTemplateConfig={getTemplateConfig}
+        isAnimating={isAnimating}
+        detailRef={detailRef}
+        layout="side"
+      />
     )
   }
 
@@ -654,15 +548,29 @@ export default function DokumenSPJPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
-      <div className="p-lg space-y-6 flex-1 max-w-7xl mx-auto w-full">
+      {/* Lebar penuh (revisi 2026-10-06 task 34): grid kategori + panel detail
+          sama-sama full width selebar card detail (tanpa max-w-7xl) agar
+          konsisten di semua viewport. */}
+      <div className="p-lg space-y-6 flex-1 w-full max-w-none mx-auto">
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* BKU UTAMA SECTION                                                  */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">BKU Utama</h3>
             <span className="text-xs text-slate-500">— Dokumen utama pertanggungjawaban</span>
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleResetDokumenLpj}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+              title="Buang seluruh data dokumen LPJ lama (skema baru) — Data Sekolah tidak ikut terhapus"
+            >
+              <span className="material-symbols-outlined text-sm">restart_alt</span>
+              Reset Data Dokumen LPJ
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -673,7 +581,7 @@ export default function DokumenSPJPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN PENDUKUNG SECTION                                          */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="space-y-4">
+        <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-gradient-to-b from-slate-400 to-slate-500 rounded-full" />
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Dokumen Pendukung</h3>

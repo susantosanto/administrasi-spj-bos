@@ -20,7 +20,7 @@ export default function UraianKegiatan({ blockConfig, data = {}, onChange, mode 
           placeholder="Tulis uraian kegiatan di sini..."
         />
       ) : (
-        <div className="text-xs text-gray-700 whitespace-pre-wrap min-h-[80px] p-2 border-b border-dashed border-gray-300">
+        <div className="text-xs text-gray-700 whitespace-pre-wrap min-h-[80px] p-2">
           {data.uraianKegiatan || <PlaceholderText label="uraian kegiatan" />}
         </div>
       )}

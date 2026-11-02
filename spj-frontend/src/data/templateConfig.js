@@ -11,7 +11,6 @@
  * - blocks: urutan block yang di-render
  * - defaults: nilai default
  */
-
 export const TEMPLATE_CONFIGS = {
   // ─── NOTULEN (DOCX) ───
   notulen: {
@@ -49,7 +48,7 @@ export const TEMPLATE_CONFIGS = {
       { type: 'signature', roles: ['pimpinan', 'notulen'], showDibayarLunas: false },
     ],
     defaults: {
-      tempat: 'SD NEGERI LEBAKLEUNGSIR',
+      tempat: '',
     },
   },
 
@@ -72,6 +71,8 @@ export const TEMPLATE_CONFIGS = {
       {
         type: 'table-letter-header',
         dateField: 'tanggalSurat',
+        // DOCX: "Kepada Yth," sejajar "Perihal", alamat/di/tempat di bawahnya
+        rightAlignBottom: true,
         leftFields: [
           { key: 'nomorUndangan', label: 'Nomor', type: 'text' },
           { key: 'sifatUndangan', label: 'Sifat', type: 'select', options: ['Biasa', 'Penting', 'Segera'] },
@@ -82,7 +83,11 @@ export const TEMPLATE_CONFIGS = {
           { key: 'kepadaUndangan', label: 'Kepada Yth,', type: 'text' },
           { key: 'alamatUndangan', label: '', type: 'text' },
           { key: 'instansiUndangan', label: '', type: 'text' },
-          { key: 'diUndangan', label: 'Di', type: 'text' },
+          // ⚠️ TEMUAN USER 2026-10-22: label 'Di' + nilai default 'Di' mencetak
+          // "Di Di"; label 'di' tanpa nilai mencetak "[ di]". Kunci: label
+          // dikosongkan, NILAI inilah yang tercetak → baris "di" di atas baris
+          // "tempat" (bentuk baku surat dinas, sama seperti blok gugus).
+          { key: 'diUndangan', label: '', type: 'text' },
           { key: 'tempatUndangan', label: '', type: 'text' },
         ],
       },
@@ -104,8 +109,12 @@ export const TEMPLATE_CONFIGS = {
     defaults: {
       sifatUndangan: 'Biasa',
       lampiranUndangan: '-',
-      diUndangan: 'Di',
-      tempatUndangan: 'Tempat',
+      // `diUndangan`/`tempatUndangan`: label di config dikosongkan, jadi nilai
+      // default inilah yang tercetak → "di" lalu "tempat" di dua baris.
+      // (Dulu label 'Di' + nilai 'Di' → "Di Di"; nilai 'Di tempat' →
+      // "Di Di tempat" — temuan user 2026-10-22.)
+      diUndangan: 'di',
+      tempatUndangan: 'tempat',
     },
   },
 
@@ -137,7 +146,12 @@ export const TEMPLATE_CONFIGS = {
         rightFields: [
           { key: 'kepadaPesanan', label: 'Kepada Yth,', type: 'text' },
           { key: 'alamatToko', label: '', type: 'text' },
-          { key: 'diPesanan', label: 'Di', type: 'text' },
+          // Sama seperti Undangan: label dikosongkan, nilai default 'di' /
+          // 'tempat' yang tercetak → dua baris "di" lalu "tempat" (bentuk baku
+          // surat dinas). Dulu label 'Di' + nilai 'Di tempat' → "Di Di tempat"
+          // (temuan 2026-10-22).
+          { key: 'diPesanan', label: '', type: 'text' },
+          { key: 'tempatPesanan', label: '', type: 'text' },
         ],
       },
       {
@@ -169,39 +183,43 @@ export const TEMPLATE_CONFIGS = {
       sifatPesanan: 'Biasa',
       lampiranPesanan: '-',
       perihalPesanan: 'Surat Pesanan',
-      diPesanan: 'Di tempat',
+      // Label dikosongkan → nilai inilah yang tercetak: "di" lalu "tempat".
+      diPesanan: 'di',
+      tempatPesanan: 'tempat',
     },
   },
 
-  // ─── BUKU TAMU (DOCX) ───
+  // ─── BUKU TAMU KEDINASAN (DOCX) ───
+  // Source: template/BUKU TAMU KEDINASAN.docx
+  // Layout: judul + No.Urut/Hari-Tanggal/Ingin bertemu + IDENTITAS TAMU (tabel 5 kolom)
+  //         + Diterima oleh/Tiba/Kembali Pukul + TUJUAN + URAIAN KEGIATAN + ttd Kepala Sekolah
   buku_tamu: {
     id: 'buku_tamu',
     label: 'Buku Tamu Kedinasan',
     card: 'mamin',
     sub_kategori: 'buku_tamu',
     sourceFile: '/templates/BUKU TAMU KEDINASAN.docx',
+    orientation: 'portrait',
     blocks: [
-      { type: 'kop-surat' },
       {
         type: 'header',
-        judul: 'BUKU TAMU KEDINASAN',
+        judul: 'BUKU TAMU',
         nomor: false,
         showBulan: false,
       },
       {
         type: 'table-fields',
         fields: [
-          { key: 'noUrut', label: 'No. Urut', type: 'number' },
-          { key: 'tanggal', label: 'Hari/Tanggal', type: 'date' },
-          {
-            key: 'bertemu',
-            label: 'Ingin bertemu dengan',
-            type: 'select',
-            options: ['Kepala Sekolah', 'Guru', 'Tendik'],
-          },
-          { key: 'tiba', label: 'Tiba Pukul', type: 'time' },
-          { key: 'kembali', label: 'Kembali Pukul', type: 'time' },
+          { key: 'noUrut', label: 'No. Urut', type: 'text' },
+          { key: 'tanggal', label: 'Hari/Tanggal', type: 'text' },
+          { key: 'bertemu', label: 'Ingin bertemu dengan', type: 'text' },
         ],
+      },
+      {
+        type: 'header',
+        judul: 'IDENTITAS TAMU',
+        nomor: false,
+        showBulan: false,
       },
       {
         type: 'table-dinamis',
@@ -213,10 +231,26 @@ export const TEMPLATE_CONFIGS = {
           { key: 'ttd', label: 'TANDA TANGAN', width: 20 },
         ],
       },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'diterima', label: 'Diterima oleh', type: 'text' },
+          { key: 'tiba', label: 'Tiba Pukul', type: 'text' },
+          { key: 'kembali', label: 'Kembali Pukul', type: 'text' },
+        ],
+      },
+      {
+        type: 'table-fields',
+        fields: [
+          { key: 'tujuan', label: 'Tujuan', type: 'text' },
+        ],
+      },
       { type: 'uraian-kegiatan' },
       { type: 'signature', roles: ['kepala-sekolah'] },
     ],
-    defaults: {},
+    defaults: {
+      diterima: 'Kepala Sekolah',
+    },
   },
 
   // ─── DAFTAR HADIR (DOCX) ───
@@ -245,8 +279,11 @@ export const TEMPLATE_CONFIGS = {
         showIndex: true,
         columns: [
           { key: 'no', label: 'NO', width: 6 },
-          { key: 'nama', label: 'NAMA', width: 30 },
-          { key: 'jabatan', label: 'JABATAN', width: 25 },
+          { key: 'nama', label: 'NAMA', width: 26 },
+          // Sprint 018 (K-9): kolom NIP ditambahkan; kolom TANDA TANGAN tetap
+          // ada (ditulis tangan di kertas — input TTD dihapus dari form).
+          { key: 'nip', label: 'NIP', width: 18 },
+          { key: 'jabatan', label: 'JABATAN', width: 20 },
           { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
           { key: 'ttd2', label: '', width: 15 },
         ],
@@ -256,61 +293,94 @@ export const TEMPLATE_CONFIGS = {
     defaults: {},
   },
 
-  // ─── SPPD / SURAT TUGAS (DOCX) ───
-  // Format standar: 1 Surat Tugas berisi list nama penerima tugas
+  // ─── SPPD / SURAT PERJALANAN DINAS (DOCX) ───
+  // Format standar: form numbered 1-10, per penerima (perRecipient)
   sppd: {
     id: 'sppd',
-    label: 'Surat Perintah Tugas',
+    label: 'Surat Perjalanan Dinas (SPPD)',
     card: 'perjalanan_dinas',
     sub_kategori: null, // Tidak ada tab sendiri, auto-include di transport
     sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
     orientation: 'portrait',
     useAutoFillFromTransport: true, // Flag: auto-fill dari transport
+    perRecipient: true, // Flag: generate 1 document per recipient
     blocks: [
       { type: 'kop-surat' },
-      {
-        type: 'header',
-        judul: 'SURAT PERINTAH TUGAS',
-        nomor: true,
-        showBulan: false,
-        showNomorPopup: true, // Enable popup generate nomor
-      },
-      {
-        type: 'table-fields',
-        fields: [
-          { key: 'tujuan', label: 'Untuk keperluan', type: 'textarea' },
-          { key: 'tanggal', label: 'Tanggal', type: 'date' },
-          { key: 'tempat', label: 'Tempat', type: 'text' },
-          { key: 'lama', label: 'Lama perjalanan', type: 'text' },
-        ],
-      },
-      // List penerima tugas (auto dari transport)
-      {
-        type: 'table-dinamis',
-        label: 'Yang diberi tugas:',
-        showIndex: true,
-        columns: [
-          { key: 'no', label: 'No', width: 5 },
-          { key: 'nama', label: 'NAMA', width: 25 },
-          { key: 'nip', label: 'NIP', width: 20 },
-          { key: 'jabatan', label: 'JABATAN', width: 25 },
-          { key: 'ttd', label: 'TANDA TANGAN', width: 15 },
-        ],
-      },
-      { type: 'signature', roles: ['kepala-sekolah'] },
+      { type: 'spd-form' },
     ],
     defaults: {
       nomorSurat: '',
       tempat: 'Cikalongwetan',
       tujuan: '',
+      pengguna: '',
+      penggunaInstansi: 'Kec. Cikalongwetan Kab. Bandung Barat',
+      alat: 'Kendaraan darat',
+      skpd: 'BOS Reguler',
+      akun: '5.1.02.04.01.0003',
+      dikeluarkanDi: 'Cikalongwetan',
+    },
+  },
+
+  // ─── SURAT PERINTAH TUGAS (DOCX) ───
+  // Surat tugas lengkap, per penerima (perRecipient)
+  spt: {
+    id: 'spt',
+    label: 'Surat Perintah Tugas',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    perRecipient: true,
+    blocks: [
+      { type: 'kop-surat' },
+      {
+        type: 'surat-tugas',
+        judul: 'SURAT PERINTAH TUGAS',
+        nomor: true,
+      },
+    ],
+    defaults: {
+      nomorSpt: '',
+      namaPenandatangan: '',
+      nipPenandatangan: '',
+      jabatanPenandatangan: 'Kepala Sekolah',
+      namaMengetahui: '',
+      nipMengetahui: '',
+    },
+  },
+
+  // ─── SURAT UNDANGAN GUGUS (DOCX) ───
+  // Undangan dari Ketua Gugus (kop gugus, tembusan)
+  undangan_gugus: {
+    id: 'undangan_gugus',
+    label: 'Surat Undangan (Gugus)',
+    card: 'perjalanan_dinas',
+    sub_kategori: null,
+    sourceFile: '/templates/Surat Tugas + SPPD_rapat ops_gugus_2026.docx',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-gugus' },
+      { type: 'surat-undangan' },
+    ],
+    defaults: {
+      lampiranUndangan: '-',
+      sifatUndangan: '-',
+      perihalUndangan: 'Undangan Rapat Operator',
+      tempatUndangan: 'Tempat',
+      namaKetuaGugus: '',
+      nipKetuaGugus: '',
     },
   },
 
   // ─── LAMPIRAN DAFTAR PENERIMA TUGAS ───
   // Lampiran untuk Surat Tugas (opsional)
+  // Audit gugus task 41 (G16, P2): NON-BAKU — tak ada di docx sumber gugus.
+  // Tidak dirender di alur cetak Perjalanan Dinas; dipertahankan sbg template
+  // opsional. Jangan jadikan baku tanpa persetujuan.
   lampiran_daftar_tugas: {
     id: 'lampiran_daftar_tugas',
     label: 'Lampiran Daftar Penerima Tugas',
+    nonBaku: true, // penanda non-baku (bukan bagian docx sumber)
     card: 'perjalanan_dinas',
     sub_kategori: null,
     orientation: 'portrait',
@@ -823,6 +893,30 @@ export const TEMPLATE_CONFIGS = {
     },
   },
 
+  // ─── SK HONORER (Surat Perjanjian Kerja) ───
+  // Per-orang: PIHAK KESATU (Kepala Sekolah) + PIHAK KEDUA (Guru Honorer)
+  // Source: template/SK Honorer Contoh.docx
+  sk_honorer: {
+    id: 'sk_honorer',
+    label: 'SK Honorer (Perjanjian Kerja)',
+    card: 'honor',
+    sub_kategori: null,
+    sourceFile: '/templates/SK Honorer Contoh.docx',
+    orientation: 'portrait',
+    perRecipient: true, // Flag: generate 1 document per recipient
+    blocks: [
+      { type: 'sk-honorer' },
+    ],
+    defaults: {
+      namaPihakKesatu: '',
+      nipPihakKesatu: '',
+      jabatanPihakKesatu: 'Kepala Sekolah',
+      // ⚠️ TEMUAN USER 2026-10-22: tempat di atas TTD default "Cikalongwetan"
+      // untuk SEMUA dokumen (sebelumnya "Bandung Barat").
+      tempatTtd: 'Cikalongwetan',
+    },
+  },
+
   // ─── BUKU KAS UMUM (BKU) - Excel ───
   bku: {
     id: 'bku',
@@ -859,8 +953,8 @@ export const TEMPLATE_CONFIGS = {
       { type: 'signature', roles: ['bendahara', 'kepala-sekolah'] },
     ],
     defaults: {
-      npsn: '20212345',
-      namaSekolah: 'SD NEGERI LEBAKLEUNGSIR',
+      npsn: '',
+      namaSekolah: '',
       tahunAnggaran: '2026',
       bulan: 'Januari',
       program: '07 Pengembangan Standar Pembiayaan',
@@ -892,6 +986,319 @@ export const TEMPLATE_CONFIGS = {
       dataEndRow: 340,
       sheetRef: 'Page1'
     }
+  },
+  // ─── PBJ SPRINT 010 (5 dokumen, 6 key; blocks reuse existing) ───
+  // Sumber struktur: template/Dokumen PBJ_2026_Lbs.xlsx (7 sheet).
+  // D5 = 2 sheet (Pembandingan + Negosiasi) → 1 dokumen 2 seksi (2 key).
+  pbj_perencanaan: {
+    id: 'pbj_perencanaan',
+    label: 'Perencanaan PBJ',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Workplan)',
+    orientation: 'portrait',
+    // Sprint 023-rev (perintah user 2026-10-31): struktur IDENTIK sheet
+    // Workplan — meta (No./bulan/hari, satuan pendidikan, alamat, kategori)
+    // + tabel 6 baris + TTD Pelaksana. Struktur lama (kegiatan/syaratA-C)
+    // tidak ada di file sumber → dibuang. Deviasi D-22 dicatat di DECISIONS.MD.
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'DOKUMEN PERENCANAAN', nomor: false, showBulan: false },
+      { type: 'workplan-pbj' },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false, peranLabel: 'Pelaksana,' },
+    ],
+    defaults: { noBukti: '', bulanTahun: '', hari: '', namaSekolah: '', alamatSekolah: '', kategori: '', jumlahBarang: '', spesifikasi: '', waktuSerah: '', alokasiRp: '', jenisPenyedia: '', direktur: '', namaPenyedia: '', npwp: '', alamat: '', telp: '', tanggalCetak: '' },
+  },
+  pbj_pesanan: {
+    id: 'pbj_pesanan',
+    label: 'Surat Pesanan PBJ',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Surat Pesanan)',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'SURAT PESANAN', nomor: false, showBulan: false },
+      { type: 'table-letter-header', dateField: 'tanggalPesanan', leftFields: [{ key: 'nomorPesanan', label: 'Nomor', type: 'text' }], rightFields: [{ key: 'kepadaPesanan', label: 'Kepada Yth,', type: 'text' }, { key: 'alamatToko', label: '', type: 'text' }] },
+      { type: 'table-dinamis', label: 'Rincian Pesanan:', showIndex: true, columns: [
+        { key: 'no', label: 'NO', width: 6 },
+        { key: 'uraian', label: 'NAMA BARANG/JASA', width: 36 },
+        { key: 'qty', label: 'JUMLAH', width: 10 },
+        { key: 'satuan', label: 'SATUAN', width: 12 },
+        { key: 'harga', label: 'HARGA SATUAN (Rp)', width: 18, format: 'currency' },
+        { key: 'total', label: 'TOTAL HARGA termasuk Pajak (Rp)', width: 18, format: 'currency' },
+      ] },
+      { type: 'table-fields', fields: [{ key: 'grandTotal', label: 'Grand Total (Rp)', type: 'text' }] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { nomorPesanan: '', tanggalPesanan: '', kepadaPesanan: '', alamatToko: '', grandTotal: '' },
+  },
+  pbj_bahp: {
+    id: 'pbj_bahp',
+    label: 'BAHP — Hasil Pemeriksaan',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Pemeriksaan)',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'BERITA ACARA HASIL PEMERIKSAAN', nomor: false, showBulan: false },
+      { type: 'table-letter-header', dateField: 'tanggalPeriksa', leftFields: [{ key: 'nomorBahp', label: 'Nomor', type: 'text' }], rightFields: [] },
+      { type: 'table-fields', fields: [
+        { key: 'acuanPesanan', label: 'Acuan Surat Pesanan / Invoice', type: 'text' },
+        { key: 'namaPemeriksa', label: 'Nama Pemeriksa', type: 'text' },
+        { key: 'hasilPeriksa', label: 'Hasil Pemeriksaan', type: 'textarea' },
+      ] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { nomorBahp: '', tanggalPeriksa: '', acuanPesanan: '', namaPemeriksa: '', hasilPeriksa: '' },
+  },
+  pbj_bast: {
+    id: 'pbj_bast',
+    label: 'BAST PBJ',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet BAST)',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'BERITA ACARA SERAH TERIMA', nomor: false, showBulan: false },
+      { type: 'table-letter-header', dateField: 'tanggalTerima', leftFields: [{ key: 'nomorBast', label: 'Nomor', type: 'text' }], rightFields: [] },
+      { type: 'table-fields', fields: [
+        { key: 'pihakPertama', label: 'Pihak Pertama (Penyedia)', type: 'text' },
+        { key: 'pihakKedua', label: 'Pihak Kedua (Penerima)', type: 'text' },
+        { key: 'kesesuaian', label: 'Kesesuaian barang', type: 'select', options: ['Sesuai', 'Belum Sesuai'] },
+        { key: 'kondisi', label: 'Kondisi barang', type: 'select', options: ['Baik', 'Rusak'] },
+      ] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { nomorBast: '', tanggalTerima: '', pihakPertama: '', pihakKedua: '', kesesuaian: '', kondisi: '' },
+  },
+  pbj_nego_banding: {
+    id: 'pbj_nego_banding',
+    label: 'Negosiasi — Pembandingan',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Pembandingan)',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'HASIL PEMBANDINGAN HARGA', nomor: false, showBulan: false },
+      { type: 'table-letter-header', dateField: 'tanggalNego', leftFields: [{ key: 'nomorNego', label: 'Nomor', type: 'text' }], rightFields: [] },
+      { type: 'table-fields', fields: [
+        { key: 'produkI', label: 'Produk I (Penyedia invoice)', type: 'text' },
+        { key: 'produkII', label: 'Produk II (Pembanding)', type: 'text' },
+      ] },
+      { type: 'table-dinamis', label: 'Seksi A — Pembandingan:', showIndex: true, columns: [
+        { key: 'no', label: 'NO', width: 8 },
+        { key: 'uraian', label: 'URAIAN', width: 40 },
+        { key: 'produkI', label: 'PRODUK I', width: 26 },
+        { key: 'produkII', label: 'PRODUK II', width: 26 },
+      ] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { nomorNego: '', tanggalNego: '', produkI: '', produkII: '' },
+  },
+  pbj_nego_hasil: {
+    id: 'pbj_nego_hasil',
+    label: 'Negosiasi — Hasil',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet Negosiasi)',
+    orientation: 'portrait',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'HASIL NEGOSIASI', nomor: false, showBulan: false },
+      { type: 'table-letter-header', dateField: 'tanggalNego', leftFields: [{ key: 'nomorNego', label: 'Nomor', type: 'text' }], rightFields: [] },
+      { type: 'table-dinamis', label: 'Seksi B — Negosiasi:', showIndex: true, columns: [
+        { key: 'no', label: 'NO', width: 8 },
+        { key: 'uraian', label: 'PRODUK', width: 32 },
+        { key: 'qty', label: 'QTY', width: 10 },
+        { key: 'penawaran', label: 'PENAWARAN (Rp)', width: 17 },
+        { key: 'nego', label: 'NEGOSIASI (Rp)', width: 17 },
+        { key: 'ket', label: 'KET', width: 16 },
+      ] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { nomorNego: '', tanggalNego: '' },
+  },
+  // ─── REGISTER KAS — Register Penutupan Kas BOS Reguler ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Register Kas)
+  register_kas: {
+    id: 'register_kas',
+    label: 'Register Penutupan Kas',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Register Kas)',
+    orientation: 'portrait',
+    blocks: [{ type: 'register-kas' }],
+    defaults: { jenisDana: 'BOS REGULER', periode: '', tglTutup: '', namaPenutup: '', tglLalu: '', totalPenerimaan: '', totalPengeluaran: '', saldoBuku: '', saldoKas: '', perbedaan: '', penjelasanPerbedaan: '', saldoBank: '', jumlahTotal: '', tanggalTtd: '' },
+
+  },
+  // ─── BAP KAS — Berita Acara Pemeriksaan Kas ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet BA_Pemeriksaan Kas)
+  bap_kas: {
+    id: 'bap_kas',
+    label: 'Berita Acara Pemeriksaan Kas',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet BA_Pemeriksaan Kas)',
+    orientation: 'portrait',
+    blocks: [{ type: 'bap-kas' }],
+    defaults: { jenisDana: 'BOS REGULER', periode: '', uraianKegiatan: '', namaPemeriksa: '', jabatanPemeriksa: 'Kepala Sekolah', namaDiperiksa: '', jabatanDiperiksa: 'Bendahara', skBendahara: '', tanggalTtd: '' },
+  },
+  // ─── PENGADUAN MASYARAKAT — Lembar Pencatatan Pengaduan ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Pengaduan Masyarakat)
+  pengaduan_masyarakat: {
+    id: 'pengaduan_masyarakat',
+    label: 'Lembar Pencatatan Pengaduan Masyarakat',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Pengaduan Masyarakat)',
+    orientation: 'portrait',
+    blocks: [{ type: 'lembar-pengaduan' }],
+    defaults: { judulDana: '', namaSekolahKet: '', periode: '', namaPengadu: '', alamatPengadu: '', tglTerima: '', lokasiRtRw: '', lokasiKelurahan: '', lokasiKabupaten: '', lokasiProvinsi: '', uraianKegiatan: '', tglSelidik: '', penyelidik: '', temuan: '', tindakLanjut: '', tempatTtd: '' },
+  },
+  // ─── KRITIK SARAN — Lembar Kritik-Saran ───
+  // Source: template/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Kritik-Saran)
+  kritik_saran: {
+    id: 'kritik_saran',
+    label: 'Lembar Kritik-Saran',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh Template App_Register-BA Kas.xlsx (sheet Lbr. Kritik-Saran)',
+    orientation: 'portrait',
+    blocks: [{ type: 'lembar-kritik-saran' }],
+    defaults: { judulDana: '', namaSekolahKet: '', periode: '', hariTanggal: '', namaPemberi: '', uraianKegiatan: '', penerima: '', tindakLanjut: '', tempatTtd: '' },
+  },
+  // ─── REALISASI DANA — Rekapitulasi Realisasi Penggunaan Dana BOSP ───
+  // Source: template-data/rpd-k7-output.pdf (Tahap 1 2026). Sprint 024.
+  // Matriks 7 SNP × 12 komponen (landscape) + footer saldo + TTD.
+  realisasi_dana: {
+    id: 'realisasi_dana',
+    label: 'Realisasi Dana BOSP',
+    card: 'realisasi',
+    sub_kategori: 'realisasi',
+    sourceFile: 'template-data/rpd-k7-output.pdf',
+    orientation: 'landscape',
+    blocks: [{ type: 'realisasi-tabel' }],
+    defaults: {},
+  },
+  // ─── INSTRUMEN BOS — Penyaluran dan Penggunaan Dana BOS Reguler ───
+  // Source: template/Form isian_BOS  2026 SDN PASIRHALANG.doc. Sprint 024.
+  // Seksi A–E + footer. Portrait.
+  instrumen_bos: {
+    id: 'instrumen_bos',
+    label: 'Instrumen BOS',
+    card: 'realisasi',
+    sub_kategori: 'instrumen',
+    sourceFile: 'template/Form isian_BOS  2026 SDN PASIRHALANG.doc',
+    orientation: 'portrait',
+    blocks: [{ type: 'instrumen-bos' }],
+    defaults: {},
+  },
+  // ─── BLANKO — Daftar Hadir & Surat Undangan (Kelengkapan) ───
+  // Sprint 024 (perintah user): blanko premium dengan isian + cetak.
+  daftar_hadir_blanko: {
+    id: 'daftar_hadir_blanko',
+    label: 'Daftar Hadir',
+    card: 'kelengkapan',
+    sub_kategori: 'blanko',
+    sourceFile: '(blanko aplikasi)',
+    orientation: 'portrait',
+    blocks: [{ type: 'kop-surat' }, { type: 'daftar-hadir' }, { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false }],
+    defaults: { kegiatan: '', tanggal: '', waktu: '', tempat: '' },
+  },
+  surat_undangan_blanko: {
+    id: 'surat_undangan_blanko',
+    label: 'Surat Undangan',
+    card: 'kelengkapan',
+    sub_kategori: 'blanko',
+    sourceFile: '(blanko aplikasi)',
+    orientation: 'portrait',
+    blocks: [{ type: 'kop-surat' }, { type: 'undangan-blanko' }, { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false }],
+    defaults: { nomor: '', tanggal: '', kepada: '', perihal: '', isi: '', tempat: '', waktu: '' },
+  },
+  // ─── RINCIAN PAJAK — Laporan Rincian Pajak Sekolah (landscape) ───
+  // Source: template/Contoh template Rincian Pajak Sekolah Dasar Negeri.xlsx
+  //   (sheet SD_SMP, A4 landscape, 16 kolom A..P). Baris dari BKU (SETOR_PAJAK +
+  //   PAJAK_BUNGA); kolom manual tanpa default. Sprint-014.
+  rincian_pajak: {
+    id: 'rincian_pajak',
+    label: 'Rincian Pajak',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh template Rincian Pajak Sekolah Dasar Negeri.xlsx (sheet SD_SMP)',
+    orientation: 'landscape',
+    blocks: [{ type: 'rincian-pajak' }],
+    defaults: {
+      judul: 'RINCIAN PAJAK SEKOLAH', tahun: '', namaSekolah: '', jenjang: '',
+      catatanAtas: 'Catatan : tanggal diisi dengan format tanggal',
+      ketBawah: 'Ket : Pajak yang di bayar oleh sekolah (tidak dari SIPLAH)',
+    },
+  },
+  // ─── COVER LPJ — Sampul bendel ala contoh COVER Bandung Barat ───
+  // Source: template/Contoh template COVER.pdf (landscape) — logo dinas +
+  //   judul RKAS/BOSP/PBD + bar nama sekolah + kecamatan + footer pemda.
+  cover_lpj: {
+    id: 'cover_lpj',
+    label: 'Cover Bendel LPJ',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: '/templates/Contoh template COVER.pdf',
+    orientation: 'landscape',
+    blocks: [
+      { type: 'cover-header', varian: 'cover' },
+    ],
+    defaults: { judulBaris1: 'RENCANA KEGIATAN DAN ANGGARAN SEKOLAH (RKAS)', judulBaris2: 'BANTUAN OPERASIONAL SATUAN PENDIDIKAN (BOSP)', judulBaris3: 'PERENCANAAN BERBASIS DATA (PBD)', judulTahun: '', namaSekolah: '', kecamatan: '', barisPemda: '', barisDinas: 'DINAS PENDIDIKAN', tahunCover: '' },
+  },
+  // ─── SEKAT LPJ — Pembatas dokumen: logo dinas + judul + BAR BIRU bulan + keterangan ───
+  // Landscape seperti cover; HANYA 4 elemen (keputusan user 2026-10-18).
+  // Bar biru nama bulan WAJIB dipertahankan (DECISIONS 2026-10-18).
+  sekat_lpj: {
+    id: 'sekat_lpj',
+    label: 'Sekat Dokumen',
+    card: 'kelengkapan',
+    sub_kategori: 'keuangan',
+    sourceFile: 'turunan Contoh template COVER.pdf (varian sederhana)',
+    orientation: 'landscape',
+    blocks: [
+      { type: 'cover-header', varian: 'sekat', judulSekat: 'SEKAT DOKUMEN' },
+    ],
+    defaults: { bulanSekat: '', keteranganSekat: '', judulSekat: 'SEKAT DOKUMEN' },
+  },
+  // ─── PBJ DATA — rekap 1 baris persis kolom sheet "data" ───
+  // Kolom = header sheet data (No s.d. No. Telp; link SIPLah ada di arsip
+  // invoice, tak ikut kolom cetak). Landscape agar 15 kolom muat di A4.
+  pbj_data: {
+    id: 'pbj_data',
+    label: 'Data — Rekap Pengadaan',
+    card: 'kelengkapan',
+    sub_kategori: 'pbj',
+    sourceFile: '/templates/Dokumen PBJ_2026_Lbs.xlsx (sheet data)',
+    orientation: 'landscape',
+    blocks: [
+      { type: 'kop-surat' },
+      { type: 'header', judul: 'DATA PENGADAAN BARANG/JASA', nomor: false, showBulan: false },
+      { type: 'table-dinamis', label: '', showIndex: false, columns: [
+        { key: 'no', label: 'No', width: 4 },
+        { key: 'bulan', label: 'Bulan', width: 6 },
+        { key: 'noBukti', label: 'No. Bukti', width: 8 },
+        { key: 'tanggalPesanan', label: 'Tgl. Pesanan', width: 8 },
+        { key: 'jumlahBarang', label: 'Jumlah Barang/Jasa', width: 7 },
+        { key: 'spesifikasi', label: 'Spesifikasi/ruang lingkup barang/jasa', width: 10 },
+        { key: 'waktuSerah', label: 'Waktu serah terima', width: 8 },
+        { key: 'alokasi', label: 'Alokasi Anggaran', width: 8, format: 'currency' },
+        { key: 'jenisPenyedia', label: 'Penyedia', width: 6 },
+        { key: 'namaPenyedia', label: 'nama penyedia', width: 8 },
+        { key: 'direktur', label: 'Direktur penyedia', width: 7 },
+        { key: 'npwp', label: 'NPWP', width: 8 },
+        { key: 'alamat', label: 'Alamat', width: 6 },
+        { key: 'telp', label: 'No. Telp', width: 6 },
+      ] },
+      { type: 'signature', roles: ['kepala-sekolah'], showDibayarLunas: false },
+    ],
+    defaults: { bulan: '', noBukti: '', tanggalPesanan: '', jumlahBarang: '', spesifikasi: '', waktuSerah: '', alokasi: '', jenisPenyedia: '', namaPenyedia: '', direktur: '', npwp: '', alamat: '', telp: '' },
   },
 }
 

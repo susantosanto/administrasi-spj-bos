@@ -5,7 +5,7 @@
  * | Kolom 0-2 (kiri)        | Kolom 3-4 (kanan)           |
  * | Nomor    : 007/...      | Kepada Yth,                 |
  * | Sifat    : Biasa        | Bapak/Ibu Guru              |
- * | Lampiran : -            | SD Negeri Lebakleungsir     |
+ * | Lampiran : -            | <Nama Sekolah>              |
  * | Perihal  : Undangan... | Di                          |
  * |                          | Tempat                      |
  *
@@ -13,6 +13,11 @@
  * - blockConfig.leftFields  — array of { key, label, type }
  * - blockConfig.rightFields — array of { key, label, type }  (opsional)
  * - blockConfig.dateField   — string key untuk tanggal di pojok kanan atas (opsional)
+ * - blockConfig.rightAlignBottom — bila true, blok kanan DIMULAI sejajar baris
+ *   kiri TERAKHIR (Perihal) lalu berlanjut ke bawah (DOCX Surat Undangan/
+ *   Surat Pesanan Mamin: "Kepada Yth," sejajar "Perihal", alamat/di/tempat
+ *   di baris-baris berikutnya dengan kolom kiri kosong). Default false
+ *   (pasangan baris-per-baris dari atas).
  */
 import { PlaceholderText } from '../../../utils/templateHelpers'
 
@@ -67,7 +72,14 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
   const leftFields = blockConfig.leftFields || []
   const rightFields = blockConfig.rightFields || []
   const dateField = blockConfig.dateField // e.g. 'tanggalSurat'
-  const maxRows = Math.max(leftFields.length, rightFields.length)
+  // DOCX undangan/pesanan: blok kanan mulai sejajar baris kiri terakhir
+  // (Perihal) lalu turun ke bawah; baris kiri di atasnya kosong di kanan.
+  const rightStartRow = blockConfig.rightAlignBottom
+    ? Math.max(0, leftFields.length - 1)
+    : 0
+  const maxRows = blockConfig.rightAlignBottom
+    ? rightStartRow + rightFields.length
+    : Math.max(leftFields.length, rightFields.length)
 
   const formatDate = (val) => {
     if (!val) return ''
@@ -79,8 +91,26 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
     }
   }
 
+  /**
+   * Baris kanan "tanpa label & tanpa nilai" (mis. Alamat / Instansi penerima
+   * yang memang tidak ada) TIDAK dicetak.
+   * ⚠️ TEMUAN USER 2026-10-22: dulu sel seperti ini merender
+   * `<PlaceholderText label="">` → tercetak "[ isi]" pada Surat Pesanan, dan
+   * baris kosong menambah jarak antara "Bapak/Ibu Guru" dan "di".
+   * Di mode edit inputnya TETAP dirender supaya masih bisa diisi.
+   */
+  const kosongTanpaLabel = (r) =>
+    Boolean(r) && !String(r.label || '').trim() && !String(data[r.key] || '').trim()
+
   return (
-    <table className="w-full text-xs mb-4 border-collapse">
+    <table className="surat-polos w-full text-xs mb-4 border-collapse table-fixed">
+      <colgroup>
+        <col style={{ width: '18%' }} />
+        <col style={{ width: '4%' }} />
+        <col style={{ width: '33%' }} />
+        <col style={{ width: '15%' }} />
+        <col style={{ width: '30%' }} />
+      </colgroup>
       <tbody>
         {/* Baris tanggal (pojok kanan atas) */}
         {dateField && (
@@ -105,16 +135,20 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
         {/* Baris field (kiri + kanan) */}
         {Array.from({ length: maxRows }).map((_, i) => {
           const left = leftFields[i]
-          const right = rightFields[i]
+          const rightIdx = i - rightStartRow
+          const right = rightIdx >= 0 ? rightFields[rightIdx] : undefined
+
+          // Baris kanan kosong tanpa label & tanpa pasangan kiri → tidak dicetak.
+          if (!left && mode !== 'edit' && kosongTanpaLabel(right)) return null
 
           return (
-            <tr key={i} className="border-b border-dashed border-outline-variant">
+            <tr key={i} className="border-b border-dashed border-outline-variant align-top">
               {/* Left side: Label : Value */}
-              <td className="w-28 py-1.5 font-medium text-gray-700">
+              <td className="py-1.5 font-medium text-gray-700 break-words">
                 {left?.label || ''}
               </td>
-              <td className="w-3 py-1.5 text-center">:</td>
-              <td className="py-1.5 pr-4">
+              <td className="py-1.5 text-center">{left ? ':' : ''}</td>
+              <td className="py-1.5 pr-4 break-words whitespace-normal overflow-hidden">
                 {left ? (
                   mode === 'edit' ? (
                     <EditableField
@@ -129,10 +163,10 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
               </td>
 
               {/* Right side: Label + Value (kolom 3-4) */}
-              <td className="py-1.5 pl-4 font-medium text-gray-700">
+              <td className="py-1.5 pl-4 font-medium text-gray-700 break-words whitespace-normal">
                 {right?.label || ''}
               </td>
-              <td className="py-1.5">
+              <td className="py-1.5 break-words whitespace-normal overflow-hidden">
                 {right ? (
                   mode === 'edit' ? (
                     <EditableField
@@ -140,7 +174,7 @@ export default function TabelLetterHeader({ blockConfig, data = {}, onChange, mo
                       value={data[right.key]}
                       onChange={(v) => onChange(right.key, v)}
                     />
-                  ) : (
+                  ) : kosongTanpaLabel(right) ? null : (
                     <span>{data[right.key] || <PlaceholderText label={right.label} />}</span>
                   )
                 ) : null}

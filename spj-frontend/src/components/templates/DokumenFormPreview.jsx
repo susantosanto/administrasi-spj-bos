@@ -1,11 +1,11 @@
-/**
- * DokumenFormPreview — Konsep BARU Dokumen LPJ (Form Input → Preview → Revisi)
+﻿/**
+ * DokumenFormPreview — Form Input dokumen LPJ + area cetak formal.
  *
- * - Klik card → tampil FORM (input box + dropdown dari data tersimpan)
- * - Kepala Sekolah, Bendahara, Logo → otomatis dari data sekolah
- * - Tombol "Preview" → dokumen siap cetak (TemplateEngine mode=print)
- * - Tombol "Kembali ke Form" → revisi
- * - Generate nomor surat tetap ada di FORM
+ * Revisi 2026-10-06 (task 37): tampilan Ringkasan terpisah DIHAPUS.
+ * Satu alur: isi form (Zona A) → periksa Panel Preview Document (Zona B,
+ * badge LENGKAP + tombol Cek + Cetak) → cetak. Area cetak formal
+ * (.sk-print-area, display:none di layar) selalu dirender di form agar
+ * tombol Cetak panel selalu punya sumber cetak.
  *
  * Berlaku untuk semua dokumen template (Honor, Transport, Makan & Minum, Pemeliharaan).
  * Dokumen recipient-based (Honor/Transport) punya form pilih-penerima dari Data Guru/Tendik.
@@ -13,7 +13,12 @@
  */
 import { useState, useEffect } from 'react'
 import TemplateEngine from './TemplateEngine'
+import MaminPreview from './MaminPreview'
+import MaminForm6Seksi from '../dokumen/mamin/MaminForm6Seksi'
+import MaminPesananRincian from '../dokumen/mamin/MaminPesananRincian'
+import SkHonorerEditor from './blocks/SkHonorerEditor'
 import TabelDinamis from './blocks/TabelDinamis'
+import { loadSkPasal, saveSkPasal, cloneDefaultPasal } from '../../data/skPasal'
 import NomorSuratPopup from './blocks/NomorSuratPopup'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 import {
@@ -21,12 +26,17 @@ import {
   getTendikHonorer,
   getPerpustakaanStaff,
   getPenjagaStaff,
+  getSemuaPegawai,
 } from '../../utils/honorHelper'
 import { findBkuNominal } from '../../utils/bkuHelper'
 import { generateRingkasanNotulen } from '../../utils/aiHelper'
 import { useToast } from '../ui/Toast'
+import storageHelper from '../../utils/storageHelper'
+import { getSchoolData } from '../../utils/sekolahData'
+import { getSignatureRoles } from '../../utils/signatureRoles'
+import { templatePesananMamin, templateDaftarHadir, templateBukuTamu, lengkapiNotulen, rincianMenu, bangunPesananDuaSeksi, MENU_PESANAN } from '../../utils/aturanMamin'
 
-// ─── Auto-calc helper (mirip TabelDinamis) ────────────────────────────────
+// â”€â”€â”€ Auto-calc helper (mirip TabelDinamis) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function computeAutoValue(row, auto) {
   if (!auto || !auto.type) return ''
   const fields = auto.fields || []
@@ -67,7 +77,7 @@ function getParticipantTableBlock(cardId) {
   return cfg?.blocks?.find((b) => b.type === 'table-dinamis')
 }
 
-// ─── Recipient source (Honor / Transport) ────────────────────────────────
+// â”€â”€â”€ Recipient source (Honor / Transport) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getRecipientsFor(cardId, subId) {
   const g = getGuruHonorer()
   const t = getTendikHonorer()
@@ -83,11 +93,12 @@ function getRecipientsFor(cardId, subId) {
     }
   }
   if (cardId === 'perjalanan_dinas') {
-    return [...g, ...t, ...p, ...j]
+    // Sprint 003 (US-24): semua pegawai semua status â€” honor tetap honorer-only di cabang atas
+    return getSemuaPegawai()
   }
   // Makan & Minum (Daftar Hadir) & Pemeliharaan (Daftar Penerima Upah)
   if (cardId === 'mamin' || cardId === 'pemeliharaan') {
-    return [...g, ...t, ...p, ...j]
+    return getSemuaPegawai()
   }
   return []
 }
@@ -100,13 +111,32 @@ const HONOR_REK = '5.1.02.02.01' // Kode rekening Honorarium
 const TRANSPORT_REK = '5.1.02.04' // Kode rekening Transport
 const UPAH_REK = '5.1.02.02.01.0016' // Kode rekening Upah Kerja
 
+const BULAN_TGL = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+]
+
+// Format 'YYYY-MM-DD' â†’ '14 Mei 1991'
+function fmtTglLahir(tgl) {
+  if (!tgl) return ''
+  const m = String(tgl).match(/(\d{4})-(\d{1,2})-(\d{1,2})/)
+  if (m) {
+    const [, y, mo, d] = m
+    return `${Number(d)} ${BULAN_TGL[Number(mo) - 1] || mo} ${y}`
+  }
+  return String(tgl)
+}
+
 function buildHonorRow(item, no, bulanName) {
   const nominal = findBkuNominal({ nama: item.nama, bulanName, kodeRekeningPrefix: HONOR_REK })
+  const tempatLahir = item.tempatLahir || ''
+  const tanggalLahir = item.tanggalLahir || ''
   return {
     id: itemKey(item),
     no,
     nama: item.nama || '',
     nuptk: item.nuptk || '',
+    nip: item.nip || '',
     jabatan: item.jabatan || '',
     jumlah: nominal != null ? String(nominal) : '',
     golRuang: item.golongan || 'GTT',
@@ -115,6 +145,11 @@ function buildHonorRow(item, no, bulanName) {
     pph: '',
     diterima: '',
     ttd: '',
+    // Data SK â€” diambil dari Data Guru/Tendik
+    tempatLahir,
+    tanggalLahir,
+    ttl: tempatLahir && tanggalLahir ? `${tempatLahir}, ${fmtTglLahir(tanggalLahir)}` : tempatLahir,
+    alamat: [item.alamat, item.desa, item.kecamatan].filter(Boolean).join(' ') || '',
   }
 }
 
@@ -150,7 +185,55 @@ const BULAN_LIST = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-// ─── COMPONENT ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Tab dokumen Perjalanan Dinas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Tab = data yang akan di-edit, bukan tampilan cetak.
+// Template cetak (persis dengan DOCX) dirender di Preview.
+// ADR 2026-09-14: tab "Surat Tugas" dihapus â€” satu dokumen = satu tab
+// (dokumen sumber hanya memuat Undangan, SPT, SPD).
+const TRANSPORT_FORM_TABS = [
+  { id: 'daftar', label: 'Daftar Penerima', icon: 'table_chart' },
+  { id: 'spt', label: 'Surat Perintah Tugas', icon: 'assignment' },
+  { id: 'sppd', label: 'SPPD', icon: 'directions_car' },
+  { id: 'resume', label: 'Resume', icon: 'description' },
+  { id: 'undangan', label: 'Undangan', icon: 'mail' },
+]
+
+// Tab dokumen per sub-kategori Perjalanan Dinas
+// Koordinasi & Bank: hanya antar dokumen (tanpa Resume & Undangan)
+const TRANSPORT_TABS_BY_SUB = {
+  koordinasi: ['daftar', 'spt', 'sppd'],
+  bank: ['daftar', 'spt', 'sppd'],
+}
+
+// Tab list sesuai sub-kategori (default: semua 6 tab)
+function getTransportTabs(subId) {
+  const ids = TRANSPORT_TABS_BY_SUB[subId]
+  if (!ids) return TRANSPORT_FORM_TABS
+  return TRANSPORT_FORM_TABS.filter((t) => ids.includes(t.id))
+}
+
+// â”€â”€â”€ Field helper: labeled input/select/textarea compact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function Field({ label, value, onChange, placeholder, type = 'text', options, textarea = false, rows = 2, readOnly = false, className = '' }) {
+  const base = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none'
+  return (
+    <div className={className}>
+      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">{label}</label>
+      {textarea ? (
+        <textarea rows={rows} value={value || ''} onChange={onChange} placeholder={placeholder || ''} readOnly={readOnly} className={`${base} resize-none`} />
+      ) : options ? (
+        <select value={value || ''} onChange={onChange} className={base}>
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+      ) : (
+        <input type={type} value={value || ''} onChange={onChange} placeholder={placeholder || ''} readOnly={readOnly} className={base} />
+      )}
+    </div>
+  )
+}
+
+// â”€â”€â”€ COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function DokumenFormPreview({
   card,
   selectedSub,
@@ -161,18 +244,32 @@ export default function DokumenFormPreview({
   setSppdData,
   viewMode, // 'form' | 'preview'
   setViewMode,
+  formTab, // Sprint 003 ADDENDUM: state DIANGKAT ke DokumenSPJPage (R1) â€”
+  setFormTab, // MenuGuide perlu tahu tab aktif (ctx.activeTab)
+  previewTab,
+  setPreviewTab,
   onClose,
+  // Sprint 018 (AD-3): varian form. 'lama' = jalur HALAMAN Dokumen LPJ (default,
+  // TIDAK berubah). 'sidebar6' = form Mamin 6 seksi, HANYA untuk sidebar BKU.
+  varianForm = 'lama',
+  bkuInfo = null,
 }) {
   const [showRecipients, setShowRecipients] = useState(false)
   const [showNomorPopup, setShowNomorPopup] = useState(false)
   const [showSppdNomorPopup, setShowSppdNomorPopup] = useState(false)
   const [showUndanganNomorPopup, setShowUndanganNomorPopup] = useState(false)
   const [showPesananNomorPopup, setShowPesananNomorPopup] = useState(false)
+  const [showSptNomorPopup, setShowSptNomorPopup] = useState(false)
+  const [selRowId, setSelRowId] = useState(null) // Penerima yang dipilih (Surat Tugas / SPPD)
   const [generatingRingkasan, setGeneratingRingkasan] = useState(false)
   const toast = useToast()
 
   const isTransport = card.id === 'perjalanan_dinas'
   const isMamin = card.id === 'mamin'
+  // Sprint 018: varian sidebar (6 seksi) — hanya Mamin & hanya sidebar BKU.
+  const varianSidebar = varianForm === 'sidebar6'
+  const pakaiSeksi6 = varianSidebar && isMamin
+  const isPemeliharaan = card.id === 'pemeliharaan'
   const isPemeliharaanUpah = card.id === 'pemeliharaan' && selectedSub?.id === 'alat'
   const isRecipientBased = card.id === 'honor' || isTransport
   const isMaminOrUpah = isMamin || isPemeliharaanUpah
@@ -182,12 +279,24 @@ export default function DokumenFormPreview({
     ? getRecipientsFor(card.id, selectedSub?.id)
     : []
   const selectedIds = new Set((formData.rows || []).map((r) => r.id))
+  const tRows = formData.rows || []
+  const selRow = tRows.find((r) => r.id === selRowId) || tRows[0]
+
+  // Reset tab form & seleksi penerima ketika card/sub-kategori berubah
+  useEffect(() => {
+    setFormTab('daftar')
+    setSelRowId(null)
+    setPreviewTab('daftar')
+  }, [card?.id, selectedSub?.id])
 
   // SPPD rows auto from transport rows
   useEffect(() => {
     if (!isTransport) return
     const transportRows = formData.rows || []
     setSppdData((prev) => ({
+      // Sprint 002: pertahankan field lain (maksud, pengikutRows, dst.) saat
+      // daftar penerima berubah â€” hanya `rows` yang di-sinkronkan ulang.
+      ...prev,
       nomorSurat: prev.nomorSurat || '',
       tujuan: prev.tujuan || (TEMPLATE_CONFIGS[selectedSub?.templateId]?.defaults?.kegiatan || 'Perjalanan Dinas'),
       tanggal: prev.tanggal || '',
@@ -214,7 +323,11 @@ export default function DokumenFormPreview({
     } else {
       let newRow
       if (isTransport) newRow = buildTransportRow(item, rows.length + 1, formData.bulan)
-      else if (isMaminOrUpah) newRow = buildParticipantRow(item, rows.length + 1)
+      else if (isMamin) {
+        // Sprint 006 B.2: baris hadir dibentuk templateDaftarHadir (kolom TTD/TTD2 kosong).
+        const shaped = templateDaftarHadir({ orang: [item] }).rows[0]
+        newRow = shaped ? { ...shaped, no: rows.length + 1 } : buildParticipantRow(item, rows.length + 1)
+      } else if (isMaminOrUpah) newRow = buildParticipantRow(item, rows.length + 1)
       else newRow = buildHonorRow(item, rows.length + 1, formData.bulan)
       setFormData({ ...formData, rows: renumber([...rows, newRow]) })
     }
@@ -226,6 +339,58 @@ export default function DokumenFormPreview({
     )
     setFormData({ ...formData, rows })
   }
+
+  // â”€â”€â”€ Sprint 002 FASE 2: pengikut SPD (butir 8) & tembusan undangan â”€â”€â”€
+  const updatePengikut = (i, key, value) => {
+    const rows = [...(sppdData.pengikutRows || [])]
+    rows[i] = { ...(rows[i] || {}), [key]: value }
+    setSppdData({ ...sppdData, pengikutRows: rows })
+  }
+  const addPengikut = () =>
+    setSppdData({ ...sppdData, pengikutRows: [...(sppdData.pengikutRows || []), { nama: '', tanggalLahir: '', keterangan: '' }] })
+  const removePengikut = (i) =>
+    setSppdData({ ...sppdData, pengikutRows: (sppdData.pengikutRows || []).filter((_, idx) => idx !== i) })
+  // ─── Audit gugus task 41 (G9, P1): baris transit SPD (default 0) ───
+  const updateTransit = (i, key, value) => {
+    const rows = [...(sppdData.transitRows || [])]
+    rows[i] = { ...(rows[i] || {}), [key]: value }
+    setSppdData({ ...sppdData, transitRows: rows })
+  }
+  const addTransit = () =>
+    setSppdData({ ...sppdData, transitRows: [...(sppdData.transitRows || []), { tibaDi: '', tibaTanggal: '', berangkatTanggal: '', namaPengesah: '', nipPengesah: '' }] })
+  const removeTransit = (i) =>
+    setSppdData({ ...sppdData, transitRows: (sppdData.transitRows || []).filter((_, idx) => idx !== i) })
+  const updateTembusan = (i, value) => {
+    const items = [...(formData.tembusanItems || [])]
+    items[i] = value
+    setFormData({ ...formData, tembusanItems: items })
+  }
+  const addTembusan = () =>
+    setFormData({ ...formData, tembusanItems: [...(formData.tembusanItems || []), ''] })
+  const removeTembusan = (i) =>
+    setFormData({ ...formData, tembusanItems: (formData.tembusanItems || []).filter((_, idx) => idx !== i) })
+
+  // â”€â”€â”€ Buku Tamu Kedinasan (Mamin) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const bt = formData.bukuTamu || {}
+  // Sprint 006: petunjuk baku template Mamin (placeholder abu-abu, non-destruktif) â€”
+  // hanya dihitung saat dokumen dibuka dari BKU; tak mengubah nilai, manual, atau cetak.
+  const bkuCtx006 = formData.bkuSumber || null
+  const bakuPesanan006 = bkuCtx006 ? templatePesananMamin({ acara: formData.acara || '', tanggal: bkuCtx006.tanggal || '', uraian: bkuCtx006.uraian || '' }) : null
+  const bakuTamu006 = bkuCtx006 ? templateBukuTamu({ tanggal: bkuCtx006.tanggal || '', uraian: formData.acara || bkuCtx006.uraian || '' }) : null
+  const bakuNotulen006 = bkuCtx006 ? lengkapiNotulen({ acara: formData.acara || '', tanggal: bkuCtx006.tanggal || '' }) : null
+  const setBt = (key, value) => {
+    setFormData({ ...formData, bukuTamu: { ...bt, [key]: value } })
+  }
+  const updateBtRow = (id, key, value) => {
+    setBt('rows', (bt.rows || []).map((r) => (r.id === id ? { ...r, [key]: value } : r)))
+  }
+  const addBtRow = () => {
+    setBt('rows', [...(bt.rows || []), { id: Date.now(), no: (bt.rows || []).length + 1, nama: '', jabatan: '', alamat: '' }])
+  }
+  const removeBtRow = (id) => {
+    setBt('rows', (bt.rows || []).filter((r) => r.id !== id).map((r, i) => ({ ...r, no: i + 1 })))
+  }
+  const hasBukuTamu = isMamin && (bt.noUrut || bt.tanggal || bt.bertemu || (bt.rows || []).length > 0)
 
   const buildPreviewData = (templateId, data) => {
     const columns = getTableColumns(templateId)
@@ -250,14 +415,16 @@ export default function DokumenFormPreview({
     return { ...data, rows: computeAutoRows(rows, columns) }
   }
 
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER: FORM
-  // ═════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const renderForm = () => {
     const config = TEMPLATE_CONFIGS[selectedSub?.templateId]
 
     return (
       <div className="space-y-5">
+        {/* Revisi UI 2026-10-22: chip "dari BKU … draf aturan" dihapus.
+            Nilai prefill tetap masuk ke field (semua tetap editable). */}
         {/* Sub-kategori (all cards) */}
         {hasSubTabs && (
           <div>
@@ -290,7 +457,29 @@ export default function DokumenFormPreview({
         {/* Recipient-based form (Honor / Transport) */}
         {isRecipientBased ? (
           <>
-            {/* Periode */}
+            {/* Tab dokumen (transport only) */}
+            {isTransport && (
+              <div className="flex gap-1.5 overflow-x-auto pb-1 border-b border-slate-200">
+                {getTransportTabs(selectedSub?.id).map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setFormTab(t.id)}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-t-xl text-xs font-semibold whitespace-nowrap transition-all border-b-2 -mb-[1px] ${
+                      formTab === t.id
+                        ? 'bg-white border-primary text-primary'
+                        : 'bg-slate-50 border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">{t.icon}</span>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Periode (honor selalu / transport di tab Daftar) */}
+            {(!isTransport || formTab === 'daftar') && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bulan</label>
@@ -314,14 +503,19 @@ export default function DokumenFormPreview({
                 />
               </div>
             </div>
+            )}
 
-            {/* Nomor Surat */}
+            {/* Nomor Surat (honor selalu / transport di tab Daftar) */}
+            {(!isTransport || formTab === 'daftar') && (
             <div>
+              {/* Audit gugus task 41 (G12, P1): label tegas — ini nomor arsip
+                  internal daftar, bedakan dari Nomor SPD dokumen resmi. */}
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                Nomor Surat {isTransport ? 'Transport' : ''}
+                {isTransport ? 'Nomor Daftar (arsip internal)' : 'Nomor Surat'}
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -338,76 +532,336 @@ export default function DokumenFormPreview({
                 </button>
               </div>
             </div>
-
-            {/* SPPD Nomor (transport only) */}
-            {isTransport && (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                    Nomor Surat SPPD (Terpisah)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={sppdData.nomorSurat || ''}
-                      onChange={(e) => setSppdData({ ...sppdData, nomorSurat: e.target.value })}
-                      placeholder="427/SPD-001/SDN-PSR/VII/2026"
-                      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSppdNomorPopup(true)}
-                      className="p-3 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                      title="Generate nomor SPPD"
-                    >
-                      <span className="material-symbols-outlined">auto_awesome</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tujuan</label>
-                    <input
-                      type="text"
-                      value={sppdData.tujuan || ''}
-                      onChange={(e) => setSppdData({ ...sppdData, tujuan: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tempat</label>
-                    <input
-                      type="text"
-                      value={sppdData.tempat || ''}
-                      onChange={(e) => setSppdData({ ...sppdData, tempat: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tanggal</label>
-                    <input
-                      type="date"
-                      value={sppdData.tanggal || ''}
-                      onChange={(e) => setSppdData({ ...sppdData, tanggal: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Lama</label>
-                    <input
-                      type="text"
-                      value={sppdData.lama || ''}
-                      onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })}
-                      placeholder="1 hari"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    />
-                  </div>
-                </div>
-              </>
             )}
 
-            {/* Pilih Penerima */}
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Ditulis ke formData yang sama; dibaca Panel Preview Document Zona B + gate Zona C.
+                Sprint 018 (K-10): input ini DIHAPUS di sidebar BKU — field-nya hanya
+                "menagih" (tidak tercetak di template mana pun), jadi otomatis dari
+                tanggal baris BKU (lihat utils/maminOtomatis.js). Halaman LPJ: utuh. */}
+            {(!isTransport || formTab === 'daftar') && !varianSidebar && (
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat â€” perhatikan Panel Preview Document kanan.
+              </p>
+            </div>
+            )}
+
+            {/* â•â•â• TAB: SURAT PERINTAH TUGAS (transport) â•â•â• */}
+            {isTransport && formTab === 'spt' && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-lg">assignment</span>
+                  <span className="text-sm font-bold">Surat Perintah Tugas</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor Surat</label>
+                      <button type="button" onClick={() => setShowSptNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
+                      </button>
+                    </div>
+                    <input type="text" value={formData.nomorSpt || ''} onChange={(e) => setFormData({ ...formData, nomorSpt: e.target.value })} placeholder="400.3.7.6/018-SD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+                  <Field label="Tanggal Surat" value={formData.tanggalSpt} onChange={(e) => setFormData({ ...formData, tanggalSpt: e.target.value })} placeholder="Cikalongwetan, 7 Mei 2026" />
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Yang bertandatangan di bawah ini</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nama" value={formData.namaPenandatangan} onChange={(e) => setFormData({ ...formData, namaPenandatangan: e.target.value })} placeholder="Nama penandatangan" />
+                  <Field label="Jabatan" value={formData.jabatanPenandatangan} onChange={(e) => setFormData({ ...formData, jabatanPenandatangan: e.target.value })} placeholder="Kepala Sekolah" />
+                  {/* Audit gugus task 41 (G2, P0): NIP penandatangan bisa diisi dari
+                      form; fallback tetap signatureRoles bila kosong (lihat builder). */}
+                  <Field label="NIP Penandatangan" value={formData.nipPenandatangan} onChange={(e) => setFormData({ ...formData, nipPenandatangan: e.target.value })} placeholder="NIP penandatangan" />
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Menugaskan Kepada</div>
+                {!selRow ? (
+                  <p className="text-xs text-amber-600 p-2">Belum ada penerima. Pilih penerima terlebih dahulu di tab Daftar Penerima.</p>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
+                      <select value={selRow.id} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
+                        {tRows.map((r) => (
+                          <option key={r.id} value={r.id}>{r.no}. {r.nama} â€” {r.jabatan}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Nama" value={selRow.nama} readOnly />
+                      <Field label="NIP" value={selRow.sptNip} onChange={(e) => updateRow(selRow.id, 'sptNip', e.target.value)} />
+                      <Field label="Pangkat / Golongan" value={selRow.sptPangkat} onChange={(e) => updateRow(selRow.id, 'sptPangkat', e.target.value)} />
+                      <Field label="Jabatan" value={selRow.sptJabatan} onChange={(e) => updateRow(selRow.id, 'sptJabatan', e.target.value)} placeholder={selRow.jabatan || ''} />
+                    </div>
+                    <Field label="Untuk / Keperluan" textarea rows={2} value={formData.sptUntuk} onChange={(e) => setFormData({ ...formData, sptUntuk: e.target.value })} placeholder="Rapat Kerja Teknis Operator Sekolah Tingkat Gugus..." />
+                    <div className="grid grid-cols-3 gap-3">
+                      <Field label="Hari" value={formData.sptHari} onChange={(e) => setFormData({ ...formData, sptHari: e.target.value })} placeholder="Jumat" />
+                      <Field label="Tanggal" value={formData.sptTanggal} onChange={(e) => setFormData({ ...formData, sptTanggal: e.target.value })} placeholder="8 Mei 2026" />
+                      <Field label="Tempat" value={formData.sptTempat} onChange={(e) => setFormData({ ...formData, sptTempat: e.target.value })} placeholder="SD Negeri Cipada" />
+                    </div>
+                  </>
+                )}
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Mengetahui / Mengesahkan</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nama Kepala (Gugus)" value={formData.namaMengetahui} onChange={(e) => setFormData({ ...formData, namaMengetahui: e.target.value })} placeholder="Nama ketua gugus" />
+                  <Field label="NIP" value={formData.nipMengetahui} onChange={(e) => setFormData({ ...formData, nipMengetahui: e.target.value })} placeholder="NIP ketua gugus" />
+                </div>
+              </div>
+            )}
+
+            {/* â•â•â• TAB: SPPD (transport) â•â•â• */}
+            {isTransport && formTab === 'sppd' && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-lg">directions_car</span>
+                  <span className="text-sm font-bold">SPPD â€” Surat Perjalanan Dinas</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      {/* Audit gugus task 41 (G12, P1): label tegas — ini Nomor SPD
+                          dokumen resmi, bedakan dari Nomor Daftar (tab Daftar). */}
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor SPD (dokumen resmi)</label>
+                      <button type="button" onClick={() => setShowSppdNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
+                      </button>
+                    </div>
+                    <input type="text" value={sppdData.nomorSurat || ''} onChange={(e) => setSppdData({ ...sppdData, nomorSurat: e.target.value })} placeholder="427/SPD-001/SDN-PSR/VII/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+                  <Field label="Untuk Keperluan" value={sppdData.tujuan} onChange={(e) => setSppdData({ ...sppdData, tujuan: e.target.value })} placeholder="Rapat Kerja Teknis Operator..." />
+                  {/* Audit gugus task 41 (G11, P1): field generik Tempat/Tanggal
+                      DIHAPUS dari form — sumber tunggal = Tempat Berangkat/Tujuan
+                      + Tgl Berangkat/Kembali di bawah (builder tetap fallback ke
+                      nilai lama bila sudah tersimpan). */}
+                  <Field label="Lama Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">1. Pengguna Anggaran / Kuasa Pengguna Anggaran</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nama" value={sppdData.pengguna} onChange={(e) => setSppdData({ ...sppdData, pengguna: e.target.value })} placeholder="Nama pengguna anggaran" />
+                  <Field label="Instansi" value={sppdData.penggunaInstansi} onChange={(e) => setSppdData({ ...sppdData, penggunaInstansi: e.target.value })} placeholder="Kec. Cikalongwetan Kab. Bandung Barat" />
+                </div>
+                {tRows.length === 0 ? (
+                  <p className="text-xs text-amber-600 p-2">Belum ada penerima. Pilih penerima terlebih dahulu di tab Daftar Penerima.</p>
+                ) : (
+                  <>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">2-3. Pelaksana Perjalanan Dinas</div>
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Penerima</label>
+                      <select value={selRow?.id || ''} onChange={(e) => setSelRowId(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none">
+                        {tRows.map((r) => (
+                          <option key={r.id} value={r.id}>{r.no}. {r.nama} â€” {r.jabatan}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Nama PNS" value={selRow?.nama} readOnly />
+                      <Field label="NIP / PTT" value={selRow?.sppdNip} onChange={(e) => updateRow(selRow.id, 'sppdNip', e.target.value)} />
+                      <Field label="Pangkat / Golongan" value={selRow?.sppdPangkat} onChange={(e) => updateRow(selRow.id, 'sppdPangkat', e.target.value)} />
+                      <Field label="Jabatan / Instansi" value={selRow?.sppdJabatan} onChange={(e) => updateRow(selRow.id, 'sppdJabatan', e.target.value)} placeholder={selRow?.jabatan || ''} />
+                      <Field label="Tingkat Biaya Perjalanan" value={selRow?.sppdTingkat} onChange={(e) => updateRow(selRow.id, 'sppdTingkat', e.target.value)} />
+                    </div>
+                    <Field label="4. Maksud Perjalanan Dinas" textarea rows={2} value={sppdData.maksud} onChange={(e) => setSppdData({ ...sppdData, maksud: e.target.value })} placeholder="Rapat Kerja Teknis Operator Sekolah Tingkat Gugus..." />
+                    <Field label="5. Alat Angkutan yang digunakan" value={sppdData.alat} onChange={(e) => setSppdData({ ...sppdData, alat: e.target.value })} placeholder="Kendaraan darat" />
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">6-7. Tempat Berangkat / Tujuan & Lamanya</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Tempat Berangkat" value={sppdData.tempatBerangkat} onChange={(e) => setSppdData({ ...sppdData, tempatBerangkat: e.target.value })} placeholder="Tempat berangkat" />
+                      <Field label="Tempat Tujuan" value={sppdData.tempatTujuan} onChange={(e) => setSppdData({ ...sppdData, tempatTujuan: e.target.value })} placeholder="SD Negeri Cipada" />
+                      <Field label="Lamanya Perjalanan" value={sppdData.lama} onChange={(e) => setSppdData({ ...sppdData, lama: e.target.value })} placeholder="1 (satu) hari" />
+                      <Field label="Tanggal Berangkat" type="date" value={sppdData.tanggalBerangkat} onChange={(e) => setSppdData({ ...sppdData, tanggalBerangkat: e.target.value })} />
+                      <Field label="Tanggal Kembali" type="date" value={sppdData.tanggalKembali} onChange={(e) => setSppdData({ ...sppdData, tanggalKembali: e.target.value })} />
+                    </div>
+                    {/* Audit gugus task 41 (G9, P1): baris transit/persinggahan
+                        opsional — docx punya 5 pasang Tiba/Berangkat, aplikasi
+                        default 0 baris (tanpa transit tak ada baris kosong). */}
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Transit / Persinggahan (opsional)</div>
+                    <div className="space-y-2">
+                      {(sppdData.transitRows || []).map((r, i) => (
+                        <div key={i} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Transit {i + 1}</span>
+                            <button type="button" onClick={() => removeTransit(i)} className="px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 transition-colors" title="Hapus transit">
+                              <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Field label="Tiba di" value={r.tibaDi} onChange={(e) => updateTransit(i, 'tibaDi', e.target.value)} placeholder="Tempat transit" />
+                            <Field label="Tiba tanggal" value={r.tibaTanggal} onChange={(e) => updateTransit(i, 'tibaTanggal', e.target.value)} placeholder="8 Mei 2026" />
+                            <Field label="Berangkat tanggal" value={r.berangkatTanggal} onChange={(e) => updateTransit(i, 'berangkatTanggal', e.target.value)} placeholder="8 Mei 2026" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Field label="Pengesah (nama)" value={r.namaPengesah} onChange={(e) => updateTransit(i, 'namaPengesah', e.target.value)} placeholder="Nama pengesah transit" />
+                            <Field label="Pengesah (NIP)" value={r.nipPengesah} onChange={(e) => updateTransit(i, 'nipPengesah', e.target.value)} placeholder="NIP pengesah" />
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={addTransit} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-sm">add</span> Tambah Transit
+                      </button>
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">8. Pengikut</div>
+                    <div className="space-y-2">
+                      {(sppdData.pengikutRows || []).map((r, i) => (
+                        <div key={i} className="flex items-end gap-2">
+                          <Field className="flex-1" label="Nama" value={r.nama} onChange={(e) => updatePengikut(i, 'nama', e.target.value)} />
+                          <Field className="w-32" label="Tgl Lahir" value={r.tanggalLahir} onChange={(e) => updatePengikut(i, 'tanggalLahir', e.target.value)} />
+                          <Field className="flex-1" label="Keterangan" value={r.keterangan} onChange={(e) => updatePengikut(i, 'keterangan', e.target.value)} />
+                          <button type="button" onClick={() => removePengikut(i)} className="px-2 py-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors" title="Hapus pengikut">
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
+                      ))}
+                      <button type="button" onClick={addPengikut} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-sm">add</span> Tambah Pengikut
+                      </button>
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">9. Pembebanan Anggaran</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="SKPD" value={sppdData.skpd} onChange={(e) => setSppdData({ ...sppdData, skpd: e.target.value })} placeholder="BOS Reguler" />
+                      <Field label="Akun" value={sppdData.akun} onChange={(e) => setSppdData({ ...sppdData, akun: e.target.value })} placeholder="5.1.02.04.01.0003" />
+                    </div>
+                    <Field label="10. Keterangan Lain-Lain" textarea rows={2} value={sppdData.keterangan} onChange={(e) => setSppdData({ ...sppdData, keterangan: e.target.value })} />
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Dikeluarkan</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Dikeluarkan di" value={sppdData.dikeluarkanDi} onChange={(e) => setSppdData({ ...sppdData, dikeluarkanDi: e.target.value })} placeholder="Cikalongwetan" />
+                      <Field label="Pada Tanggal" value={sppdData.padaTanggal} onChange={(e) => setSppdData({ ...sppdData, padaTanggal: e.target.value })} placeholder="8 Mei 2026" />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* â•â•â• TAB: RESUME (transport, rapat/pendamping only) â•â•â• */}
+            {isTransport && formTab === 'resume' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-lg">description</span>
+                  <span className="text-sm font-bold">Resume / Poin Pembahasan</span>
+                </div>
+                <Field label="Acara / Kegiatan" value={formData.acara} onChange={(e) => setFormData({ ...formData, acara: e.target.value })} placeholder="Rapat Kerja Teknis Operator Sekolah Tingkat Gugus" />
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">Resume / Poin Pembahasan</label>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!formData.acara?.trim()) {
+                          toast.error('Isi Acara / Kegiatan terlebih dahulu.')
+                          return
+                        }
+                        setGeneratingRingkasan(true)
+                        try {
+                          const result = await generateRingkasanNotulen(formData.acara)
+                          if (result) {
+                            setFormData({ ...formData, resume: result })
+                            toast.success('Ringkasan berhasil digenerate oleh AI!')
+                          } else {
+                            toast.error('Gagal generate ringkasan. Coba lagi.')
+                          }
+                        } catch (err) {
+                          toast.error('Gagal: ' + (err.message || 'Coba lagi.'))
+                        } finally {
+                          setGeneratingRingkasan(false)
+                        }
+                      }}
+                      disabled={generatingRingkasan}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                        generatingRingkasan
+                          ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-md hover:brightness-110 active:scale-95'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        {generatingRingkasan ? 'hourglass_top' : 'auto_awesome'}
+                      </span>
+                      {generatingRingkasan ? 'Generating...' : 'Generate'}
+                    </button>
+                  </div>
+                  <textarea
+                    value={formData.resume || ''}
+                    onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
+                    rows={4}
+                    placeholder={generatingRingkasan ? 'AI sedang menulis ringkasan...' : 'Atau tulis manual resume kegiatan...'}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* â•â•â• TAB: UNDANGAN (transport, rapat/pendamping only) â•â•â• */}
+            {isTransport && formTab === 'undangan' && getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-lg">mail</span>
+                  <span className="text-sm font-bold">Surat Undangan</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Nomor</label>
+                      <button type="button" onClick={() => setShowUndanganNomorPopup(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
+                      </button>
+                    </div>
+                    <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="400.3.7.6/018/G-KHD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
+                  <Field label="Sifat" options={['-', 'Biasa', 'Penting', 'Segera']} value={formData.sifatUndangan || '-'} onChange={(e) => setFormData({ ...formData, sifatUndangan: e.target.value })} />
+                  <Field label="Lampiran" value={formData.lampiranUndangan} onChange={(e) => setFormData({ ...formData, lampiranUndangan: e.target.value })} placeholder="-" />
+                  <Field label="Perihal" value={formData.perihalUndangan} onChange={(e) => setFormData({ ...formData, perihalUndangan: e.target.value })} placeholder="Undangan Rapat Operator" />
+                  <Field label="Tanggal Surat" value={formData.tanggalSurat} onChange={(e) => setFormData({ ...formData, tanggalSurat: e.target.value })} placeholder="Cikalongwetan, 7 Mei 2026" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Kepada Yth" value={formData.kepadaUndangan} onChange={(e) => setFormData({ ...formData, kepadaUndangan: e.target.value })} placeholder="Kepala Sekolah SD" />
+                  {/* Audit gugus task 41 (G4, P1): field pecah Alamat/Instansi
+                      sesuai baris docx (Yth / alamat / instansi / di / Tempat).
+                      Baris 'di' + 'Tempat' tetap baku di blok SuratUndangan. */}
+                  <Field label="Alamat" value={formData.alamatUndangan} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="se-gugus K.H Dewantara" />
+                  <Field label="Instansi" value={formData.instansiUndangan} onChange={(e) => setFormData({ ...formData, instansiUndangan: e.target.value })} placeholder="cth: SDN Cipada (mohon izin tempat)" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Hari" value={formData.hariUndangan} onChange={(e) => setFormData({ ...formData, hariUndangan: e.target.value })} placeholder="Jumat" />
+                  <Field label="Tanggal Acara" value={formData.tanggalAcara} onChange={(e) => setFormData({ ...formData, tanggalAcara: e.target.value })} placeholder="8 Mei 2026" />
+                  <Field label="Pukul" value={formData.pukulUndangan} onChange={(e) => setFormData({ ...formData, pukulUndangan: e.target.value })} placeholder="11.00 s.d selesai" />
+                  <Field label="Tempat" value={formData.tempatAcara} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="SD Negeri Cipada" />
+                </div>
+                <Field label="Isi Undangan" textarea rows={3} value={formData.isiUndangan} onChange={(e) => setFormData({ ...formData, isiUndangan: e.target.value })} placeholder="Dengan hormat, ..." />
+                <Field label="Paragraf Penutup 1" textarea rows={2} value={formData.penutupUndangan1} onChange={(e) => setFormData({ ...formData, penutupUndangan1: e.target.value })} placeholder="Mengingat pentingnya acara tersebut di atas kami harap kehadiran Operator tepat pada waktu yang telah ditentukan." />
+                <Field label="Paragraf Penutup 2" textarea rows={2} value={formData.penutupUndangan2} onChange={(e) => setFormData({ ...formData, penutupUndangan2: e.target.value })} placeholder="Demikian undangan ini kami sampaikan, atas perhatian dan kehadirannya kami ucapkan terima kasih." />
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Ketua Gugus</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Nama" value={formData.namaKetuaGugus} onChange={(e) => setFormData({ ...formData, namaKetuaGugus: e.target.value })} placeholder="Nama ketua gugus" />
+                  <Field label="NIP" value={formData.nipKetuaGugus} onChange={(e) => setFormData({ ...formData, nipKetuaGugus: e.target.value })} placeholder="NIP ketua gugus" />
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Tembusan</div>
+                <div className="space-y-2">
+                  {(formData.tembusanItems || []).map((t, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400 w-4">{i + 1}.</span>
+                      <input value={t} onChange={(e) => updateTembusan(i, e.target.value)} placeholder="Yth. ..." className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <button type="button" onClick={() => removeTembusan(i)} className="px-2 py-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors" title="Hapus tembusan">
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addTembusan} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-all">
+                    <span className="material-symbols-outlined text-sm">add</span> Tambah Tembusan
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Pilih Penerima (honor selalu / transport di tab Daftar) */}
+            {(!isTransport || formTab === 'daftar') && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -449,7 +903,7 @@ export default function DokumenFormPreview({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-800 truncate">{item.nama}</p>
                           <p className="text-[10px] text-slate-500">
-                            {item.jabatan || ''} {item.golongan ? `· ${item.golongan}` : ''}
+                            {item.jabatan || ''} {item.golongan ? `Â· ${item.golongan}` : ''}
                           </p>
                         </div>
                       </label>
@@ -525,7 +979,54 @@ export default function DokumenFormPreview({
                 </div>
               )}
             </div>
+            )}
+
+            {/* â•â•â• SK HONORER + PASAL (kartu honor, form Zona A) â•â•â• */}
+            {/* Revisi 2026-10-06 (task 37): editor SK satu-satunya sumber
+                cetak SK (tab preview SK dihapus) sehingga area cetak editor
+                WAJIB ikut; panel kanan baca formData.pasal yg sama). */}
+            {!isTransport && (() => {
+              const skConfig = TEMPLATE_CONFIGS.sk_honorer
+              if (!skConfig) return null
+              const skPasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
+              const setSkPasal = (p) => {
+                setFormData({ ...formData, pasal: p })
+                saveSkPasal(p)
+              }
+              const buildSkData = (row) => ({
+                ...skConfig.defaults,
+                ...formData,
+                pasal: skPasal,
+                nomorSurat: formData.nomor || '',
+                namaPihakKedua: row.nama || '',
+                ttlPihakKedua: row.ttl || row.tempatLahir || '',
+                pendidikanPihakKedua: row.pendidikan || '',
+                alamatPihakKedua: row.alamat || '',
+                kelasGuru: row.kelasGuru || '',
+                namaPihakKesatu: formData.namaPihakKesatu || skConfig.defaults.namaPihakKesatu,
+                nipPihakKesatu: formData.nipPihakKesatu || skConfig.defaults.nipPihakKesatu,
+                jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
+                tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
+                tanggalTtd: formData.tanggalTtd || '',
+              })
+              const skList = (formData.rows || []).map((row) => ({ row, skData: buildSkData(row) }))
+              return (
+                <SkHonorerEditor
+                  skList={skList}
+                  pasal={skPasal}
+                  onPasalChange={setSkPasal}
+                  onResetPasal={() => setSkPasal(cloneDefaultPasal())}
+                  onUpdateRow={updateRow}
+                  onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
+                  onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
+                />
+              )
+            })()}
           </>
+        ) : pakaiSeksi6 ? (
+          /* Sprint 018 (AD-3): form Mamin 6 seksi — HANYA sidebar BKU.
+             Halaman Dokumen LPJ (layout 'side') tetap memakai cabang lama di bawah. */
+          <MaminForm6Seksi formData={formData} setFormData={setFormData} bku={bkuInfo || {}} />
         ) : isMaminOrUpah ? (
           <>
             {/* Periode (khusus Upah / Pemeliharaan Alat) */}
@@ -562,6 +1063,7 @@ export default function DokumenFormPreview({
               </label>
               <div className="flex items-center gap-2">
                 <input
+                  id="f-nomor"
                   type="text"
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
@@ -578,6 +1080,29 @@ export default function DokumenFormPreview({
                 </button>
               </div>
             </div>
+
+            {/* Sprint 008 Zona A: Tanggal dana masuk (langkah-1, eksplisit).
+                Cabang Mamin/Upah â€” sama seperti cabang recipient-based di atas;
+                tanpa ini gate Zona C tak pernah lolos untuk Mamin/Upah.
+                Sprint 018 (K-10): disembunyikan di varian sidebar BKU. */}
+            {!varianSidebar && (
+            <div>
+              <label htmlFor="f-tanggalDanaMasuk" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Tanggal dana masuk <span className="normal-case font-normal">(langkah-1)</span>
+              </label>
+              <input
+                id="f-tanggalDanaMasuk"
+                type="date"
+                value={formData.tanggalDanaMasuk || ''}
+                onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Langsung tercetak di surat â€” perhatikan Panel Preview Document kanan.
+              </p>
+            </div>
+            )}
 
             {/* Detail Acara (khusus Makan & Minum) */}
             {isMamin && (
@@ -608,6 +1133,7 @@ export default function DokumenFormPreview({
                       type="text"
                       value={formData.tempat || ''}
                       onChange={(e) => setFormData({ ...formData, tempat: e.target.value })}
+                      placeholder={bakuNotulen006?.tempat || 'Aula / Ruang rapat ...'}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                     />
                   </div>
@@ -668,7 +1194,7 @@ export default function DokumenFormPreview({
                   />
                 </div>
 
-                {/* ═══ SURAT UNDANGAN ═══ */}
+                {/* â•â•â• SURAT UNDANGAN â•â•â• */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-lg">mail</span>
@@ -712,7 +1238,7 @@ export default function DokumenFormPreview({
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Alamat / Instansi</label>
-                      <input type="text" value={formData.alamatUndangan || ''} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.alamatUndangan || ''} onChange={(e) => setFormData({ ...formData, alamatUndangan: e.target.value })} placeholder="Alamat / instansi" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                   </div>
                   {/* Detail Acara */}
@@ -727,7 +1253,7 @@ export default function DokumenFormPreview({
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Tempat</label>
-                      <input type="text" value={formData.tempatAcara || ''} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="SD Negeri Lebakleungsir" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.tempatAcara || ''} onChange={(e) => setFormData({ ...formData, tempatAcara: e.target.value })} placeholder="Tempat acara" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Waktu</label>
@@ -740,7 +1266,7 @@ export default function DokumenFormPreview({
                   </div>
                 </div>
 
-                {/* ═══ SURAT PESANAN ═══ */}
+                {/* â•â•â• SURAT PESANAN â•â•â• */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
                   <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-lg">shopping_cart</span>
@@ -780,45 +1306,14 @@ export default function DokumenFormPreview({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
-                    <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder="Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Perihal</label>
+                    <input type="text" value={formData.perihalPesanan || ''} onChange={(e) => setFormData({ ...formData, perihalPesanan: e.target.value })} placeholder={bakuPesanan006?.perihalPesanan || 'Surat Pesanan'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none" />
                   </div>
-                  {/* Rincian Pesanan */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-[10px] font-semibold text-slate-500 uppercase">Rincian Pesanan</label>
-                      <button type="button" onClick={() => {
-                        const rows = formData.pesananRows || []
-                        setFormData({ ...formData, pesananRows: [...rows, { id: Date.now(), no: rows.length + 1, uraian: '', satuan: '', jumlah: '' }] })
-                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
-                        <span className="material-symbols-outlined text-xs">add</span> Tambah Item
-                      </button>
-                    </div>
-                    {(formData.pesananRows || []).length === 0 && (
-                      <p className="text-[10px] text-slate-400 italic">Belum ada item pesanan.</p>
-                    )}
-                    {(formData.pesananRows || []).map((row, idx) => (
-                      <div key={row.id} className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold text-slate-400 w-4">{idx + 1}</span>
-                        <input type="text" value={row.uraian} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, uraian: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Uraian" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <input type="text" value={row.satuan} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, satuan: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Satuan" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <input type="text" value={row.jumlah} onChange={(e) => {
-                          const rows = formData.pesananRows.map((r) => r.id === row.id ? { ...r, jumlah: e.target.value } : r)
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} placeholder="Jumlah" className="w-14 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
-                        <button type="button" onClick={() => {
-                          const rows = formData.pesananRows.filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
-                          setFormData({ ...formData, pesananRows: rows })
-                        }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
-                      </div>
-                    ))}
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Isi Surat Pesanan</label>
+                    <textarea value={formData.isiPesanan || ''} onChange={(e) => setFormData({ ...formData, isiPesanan: e.target.value })} rows={3} placeholder={bakuPesanan006?.isiPesanan?.slice(0, 90) || 'Bersamaan ini kami sampaikan bahwa sehubungan dengan akan dilaksanakannya kegiatan...'} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none" />
                   </div>
+                  <MaminPesananRincian formData={formData} setFormData={setFormData} baku={bakuPesanan006} />
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Hari/Tanggal</label>
@@ -837,7 +1332,53 @@ export default function DokumenFormPreview({
               </>
             )}
 
-            {/* ═══ DAFTAR HADIR ═══ */}
+            {/* â•â•â• BUKU TAMU KEDINASAN â•â•â• */}
+            {isMamin && (
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <span className="material-symbols-outlined text-lg">import_contacts</span>
+                  <span className="text-sm font-bold">Buku Tamu Kedinasan</span>
+                </div>
+                <p className="text-[10px] text-slate-400 italic">
+                  Opsional â€” diisi jika ada tamu luar (bukan peserta rapat internal).
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="No. Urut" value={bt.noUrut} onChange={(e) => setBt('noUrut', e.target.value)} placeholder="1" />
+                  <Field label="Hari/Tanggal" value={bt.tanggal} onChange={(e) => setBt('tanggal', e.target.value)} placeholder="20 Februari 2025" />
+                </div>
+                <Field label="Ingin bertemu dengan" value={bt.bertemu} onChange={(e) => setBt('bertemu', e.target.value)} placeholder="Kepala Sekolah / Guru / Tendik" />
+                <div className="grid grid-cols-3 gap-3">
+                  <Field label="Tiba Pukul" value={bt.tiba} onChange={(e) => setBt('tiba', e.target.value)} placeholder="09.00" />
+                  <Field label="Kembali Pukul" value={bt.kembali} onChange={(e) => setBt('kembali', e.target.value)} placeholder="11.00" />
+                  <Field label="Diterima oleh" options={['Kepala Sekolah', 'Guru', 'Tendik']} value={bt.diterima} onChange={(e) => setBt('diterima', e.target.value)} />
+                </div>
+                <Field label="Tujuan" value={bt.tujuan} onChange={(e) => setBt('tujuan', e.target.value)} placeholder={bakuTamu006?.bukuTamu?.tujuan || 'Rapat koordinasi ...'} />
+                {/* Identitas Tamu */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-semibold text-slate-500 uppercase">Identitas Tamu</label>
+                    <button type="button" onClick={addBtRow} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                      <span className="material-symbols-outlined text-xs">add</span> Tambah Tamu
+                    </button>
+                  </div>
+                  {(bt.rows || []).length === 0 && (
+                    <p className="text-[10px] text-slate-400 italic">Belum ada tamu.</p>
+                  )}
+                  {(bt.rows || []).map((row) => (
+                    <div key={row.id} className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] font-bold text-slate-400 w-4">{row.no}</span>
+                      <input type="text" value={row.nama} onChange={(e) => updateBtRow(row.id, 'nama', e.target.value)} placeholder="Nama" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                      <input type="text" value={row.jabatan} onChange={(e) => updateBtRow(row.id, 'jabatan', e.target.value)} placeholder="Jabatan" className="w-32 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                      <input type="text" value={row.alamat} onChange={(e) => updateBtRow(row.id, 'alamat', e.target.value)} placeholder="Alamat Kantor" className="w-40 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                      <button type="button" onClick={() => removeBtRow(row.id)} className="p-1 text-red-500 hover:bg-red-50 rounded-lg"><span className="material-symbols-outlined text-xs">delete</span></button>
+                    </div>
+                  ))}
+                </div>
+                <Field label="Uraian Kegiatan / Temuan / Saran / Pesan" textarea rows={3} value={bt.uraian} onChange={(e) => setBt('uraian', e.target.value)} placeholder="Uraian kegiatan/temuan/saran/pesan..." />
+              </div>
+            )}
+
+            {/* â•â•â• DAFTAR HADIR â•â•â• */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
               <div className="flex items-center gap-2 text-primary mb-2">
                 <span className="material-symbols-outlined text-lg">badge</span>
@@ -891,7 +1432,7 @@ export default function DokumenFormPreview({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-800 truncate">{item.nama}</p>
                           <p className="text-[10px] text-slate-500">
-                            {item.jabatan || ''} {item.golongan ? `· ${item.golongan}` : ''}
+                            {item.jabatan || ''} {item.golongan ? `Â· ${item.golongan}` : ''}
                           </p>
                         </div>
                       </label>
@@ -900,15 +1441,93 @@ export default function DokumenFormPreview({
                 </div>
               )}
 
-              {(formData.rows || []).length > 0 && (
+              {/* Rework-8 (1): Daftar Hadir editor afectada â€” NO/NAMA/JABATAN/TTD + kolom opsional dinamis.
+                  Tanpa kolom Alamat Kantor (warisan buku_tamu tidak dipakai untuk hadir). */}
+              {isMamin ? (
                 <div className="mt-3 bg-white border border-slate-200 rounded-2xl p-4 overflow-auto">
-                  <TabelDinamis
-                    blockConfig={getParticipantTableBlock(card.id)}
-                    data={formData}
-                    onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
-                    mode="edit"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Tabel Hadir ({(formData.rows || []).length}) â€” NO / NAMA / JABATAN / TTD
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => {
+                        const cols = [...(formData.hadirKolomOpsional || [])]
+                        const n = cols.length + 1
+                        const key = `ops${Date.now()}`
+                        setFormData({ ...formData, hadirKolomOpsional: [...cols, { key, label: `Kolom ${n}` }] })
+                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-xs">add</span> Tambah Kolom
+                      </button>
+                      <button type="button" onClick={() => {
+                        const rows = [...(formData.rows || [])]
+                        rows.push({ id: Date.now(), no: rows.length + 1, nama: '', jabatan: '', ttd: '' })
+                        setFormData({ ...formData, rows })
+                      }} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-semibold hover:bg-primary/20 transition-all">
+                        <span className="material-symbols-outlined text-xs">add</span> Tambah Baris
+                      </button>
+                    </div>
+                  </div>
+                  {/* Header kolom opsional (rename + hapus per kolom) */}
+                  {(formData.hadirKolomOpsional || []).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {(formData.hadirKolomOpsional || []).map((c) => (
+                        <span key={c.key} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[10px]">
+                          <input type="text" value={c.label} onChange={(e) => {
+                            const cols = (formData.hadirKolomOpsional || []).map((x) => x.key === c.key ? { ...x, label: e.target.value } : x)
+                            setFormData({ ...formData, hadirKolomOpsional: cols })
+                          }} className="w-20 px-1 py-0.5 bg-white border border-slate-200 rounded text-[10px] outline-none focus:ring-1 focus:ring-primary" />
+                          <button type="button" onClick={() => {
+                            const cols = (formData.hadirKolomOpsional || []).filter((x) => x.key !== c.key)
+                            const rows = (formData.rows || []).map((r) => { const nr = { ...r }; delete nr[c.key]; return nr })
+                            setFormData({ ...formData, hadirKolomOpsional: cols, rows })
+                          }} className="text-red-500 hover:text-red-700 font-bold" title="Hapus kolom">Ã—</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {(formData.rows || []).length === 0 ? (
+                    <p className="text-[10px] text-slate-400 italic">Belum ada peserta â€” pilih dari daftar di atas atau Tambah Baris manual.</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 uppercase">
+                        <span className="w-5">No</span>
+                        <span className="flex-1">Nama</span>
+                        <span className="w-28">Jabatan</span>
+                        <span className="w-16">TTD</span>
+                        {(formData.hadirKolomOpsional || []).map((c) => (
+                          <span key={c.key} className="w-20 truncate">{c.label}</span>
+                        ))}
+                        <span className="w-6" />
+                      </div>
+                      {(formData.rows || []).map((row) => (
+                        <div key={row.id} className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-400 w-5">{row.no}</span>
+                          <input type="text" value={row.nama || ''} onChange={(e) => updateRow(row.id, 'nama', e.target.value)} placeholder="Nama" className="flex-1 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          <input type="text" value={row.jabatan || ''} onChange={(e) => updateRow(row.id, 'jabatan', e.target.value)} placeholder="Jabatan" className="w-28 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          <input type="text" value={row.ttd || ''} onChange={(e) => updateRow(row.id, 'ttd', e.target.value)} placeholder="â€”" className="w-16 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          {(formData.hadirKolomOpsional || []).map((c) => (
+                            <input key={c.key} type="text" value={row[c.key] || ''} onChange={(e) => updateRow(row.id, c.key, e.target.value)} placeholder={c.label} className="w-20 px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] focus:ring-1 focus:ring-primary outline-none" />
+                          ))}
+                          <button type="button" onClick={() => {
+                            const rows = (formData.rows || []).filter((r) => r.id !== row.id).map((r, i) => ({ ...r, no: i + 1 }))
+                            setFormData({ ...formData, rows })
+                          }} className="p-1 text-red-500 hover:bg-red-50 rounded-lg" title="Hapus baris"><span className="material-symbols-outlined text-xs">delete</span></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                (formData.rows || []).length > 0 && (
+                  <div className="mt-3 bg-white border border-slate-200 rounded-2xl p-4 overflow-auto">
+                    <TabelDinamis
+                      blockConfig={getParticipantTableBlock(card.id)}
+                      data={formData}
+                      onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+                      mode="edit"
+                    />
+                  </div>
+                )
               )}
             </div>
           </>
@@ -925,23 +1544,12 @@ export default function DokumenFormPreview({
           )
         )}
 
-        {/* Preview button (always) */}
-        <div className="flex items-center justify-end pt-2">
-          <button
-            type="button"
-            onClick={() => {
-              if ((isRecipientBased || isMaminOrUpah) && (formData.rows || []).length === 0) {
-                toast.error('Pilih minimal 1 penerima terlebih dahulu.')
-                return
-              }
-              setViewMode('preview')
-            }}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-95"
-          >
-            <span className="material-symbols-outlined text-lg">visibility</span>
-            Preview Dokumen
-          </button>
-        </div>
+        {/* Revisi 2026-10-06 (task 37): tombol Lihat Ringkasan DIHAPUS.
+            Pratinjau = Panel Preview Document (Zona B, selalu terlihat);
+            tombol Cetak pindah ke panel. Area cetak formal (.sk-print-area,
+            display:none di layar) selalu dirender di sini agar Cetak panel
+            selalu punya sumber cetak. */}
+        {renderPrintArea()}
 
         {/* Nomor Popups */}
         {showNomorPopup && (
@@ -962,6 +1570,16 @@ export default function DokumenFormPreview({
             }}
             onClose={() => setShowSppdNomorPopup(false)}
             currentNomor={sppdData.nomorSurat}
+          />
+        )}
+        {showSptNomorPopup && (
+          <NomorSuratPopup
+            onSelect={(nomor) => {
+              setFormData({ ...formData, nomorSpt: nomor })
+              setShowSptNomorPopup(false)
+            }}
+            onClose={() => setShowSptNomorPopup(false)}
+            currentNomor={formData.nomorSpt}
           />
         )}
         {showUndanganNomorPopup && (
@@ -988,187 +1606,287 @@ export default function DokumenFormPreview({
     )
   }
 
-  // ═════════════════════════════════════════════════════════════════════
-  // RENDER: PREVIEW MAKAN & MINUM (Daftar Hadir + Notulen/Resume)
-  // ═════════════════════════════════════════════════════════════════════
-  const renderMaminPreview = () => {
-    const bukuTamuCfg = TEMPLATE_CONFIGS.buku_tamu
-    const notulenCfg = TEMPLATE_CONFIGS.notulen
-    const rows = (formData.rows || []).map((r, i) => ({ ...r, no: i + 1 }))
-    const pesertaNames = rows.map((r) => r.nama).filter(Boolean).join(', ')
+  // Sprint 009: renderMaminPreview diekstrak ke MaminPreview.jsx (pecah file, tanpa ubah perilaku)
 
-    const bukuTamuData = {
-      ...bukuTamuCfg.defaults,
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // RENDER: SK HONORER (per-recipient)
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  const renderSkHonorer = () => {
+    const skConfig = TEMPLATE_CONFIGS.sk_honorer
+    if (!skConfig) return null
+    const rows = formData.rows || []
+    if (rows.length === 0) {
+      return (
+        <p className="text-sm text-slate-500 p-6 text-center">
+          Belum ada penerima yang dipilih. Pilih penerima terlebih dahulu.
+        </p>
+      )
+    }
+    // Pasal: pakai data terbaru di form, fallback template tersimpan, terakhir standar
+    const pasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
+    const setPasal = (p) => {
+      setFormData({ ...formData, pasal: p })
+      saveSkPasal(p)
+    }
+    const buildSkData = (row) => ({
+      ...skConfig.defaults,
       ...formData,
-      nomor: formData.nomor,
-      tanggal: formData.tanggal,
-      waktu: formData.waktu,
-      tempat: formData.tempat,
-      acara: formData.acara,
-      rows,
-    }
-    const notulenData = {
-      ...notulenCfg.defaults,
-      ...formData,
-      nomor: formData.nomor,
-      tanggal: formData.tanggal,
-      waktu: formData.waktu,
-      tempat: formData.tempat,
-      acara: formData.acara,
-      pimpinan: formData.pimpinan,
-      pembuka: formData.pembuka,
-      notulen: formData.notulen,
-      peserta: formData.peserta || pesertaNames,
-      poinPembahasan: formData.resume || formData.poinPembahasan,
-      rows,
-    }
-
-    const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
-      if (printContainer) {
-        printContainer.classList.remove('portrait', 'landscape')
-        printContainer.classList.add('portrait')
-      }
-      window.print()
-    }
-
+      pasal,
+      nomorSurat: formData.nomor || '',
+      // PIHAK KEDUA (Guru Honorer) — dari row + Data Guru/Tendik
+      namaPihakKedua: row.nama || '',
+      ttlPihakKedua: row.ttl || row.tempatLahir || '',
+      pendidikanPihakKedua: row.pendidikan || '',
+      alamatPihakKedua: row.alamat || '',
+      kelasGuru: row.kelasGuru || '',
+      // PIHAK KESATU — dari sekolah: ketikan user → Data Sekolah (live) → ''.
+      // Tanpa fallback live, TTD SK kosong walau pejabat sudah diisi.
+      namaPihakKesatu: formData.namaPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nama || '',
+      nipPihakKesatu: formData.nipPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nip || '',
+      jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
+      tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
+      tanggalTtd: formData.tanggalTtd || '',
+    })
+    const skList = rows.map((row) => ({ row, skData: buildSkData(row) }))
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Preview: Makan & Minum — {selectedSub?.label}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setViewMode('form')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">edit</span>
-              Kembali ke Form
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">print</span>
-              Cetak
-            </button>
-          </div>
-        </div>
-
-        {/* Dokumen 1: Daftar Hadir (Buku Tamu) */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-          <div className="flex items-center gap-2 text-emerald-700 mb-3">
-            <span className="material-symbols-outlined">groups</span>
-            <span className="text-sm font-bold">Daftar Hadir (Buku Tamu)</span>
-          </div>
-          <TemplateEngine templateConfig={bukuTamuCfg} data={bukuTamuData} mode="print" />
-        </div>
-
-        {/* Dokumen 2: Notulen / Resume */}
-        <div className="bg-white rounded-2xl border border-blue-200 shadow-sm p-4 overflow-auto">
-          <div className="flex items-center gap-2 text-blue-700 mb-3">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Notulen / Resume</span>
-          </div>
-          <TemplateEngine templateConfig={notulenCfg} data={notulenData} mode="print" />
-        </div>
-
-        {/* Dokumen 2b: Daftar Hadir (dari data Guru/Tendik) */}
-        {rows.length > 0 && (
-          <div className="bg-white rounded-2xl border border-amber-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-amber-700 mb-3">
-              <span className="material-symbols-outlined">badge</span>
-              <span className="text-sm font-bold">Daftar Hadir</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.daftar_hadir}
-              data={{
-                ...TEMPLATE_CONFIGS.daftar_hadir.defaults,
-                judulAcara: formData.judulDaftarHadir || formData.acara || '',
-                rows,
-              }}
-              mode="print"
-            />
-          </div>
-        )}
-
-        {/* Dokumen 3: Surat Undangan */}
-        {(formData.nomorUndangan || formData.kepadaUndangan || formData.isiUndangan) && (
-          <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-emerald-700 mb-3">
-              <span className="material-symbols-outlined">mail</span>
-              <span className="text-sm font-bold">Surat Undangan</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.undangan_mamin}
-              data={{
-                ...TEMPLATE_CONFIGS.undangan_mamin.defaults,
-                ...formData,
-                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-                hariUndangan: formData.hariUndangan || formData.hari || '',
-                tanggalAcara: formData.tanggalAcara || formData.tanggal || '',
-                tempatAcara: formData.tempatAcara || formData.tempat || 'SD NEGERI LEBAKLEUNGSIR',
-                waktuAcara: formData.waktuAcara || formData.waktu || '',
-                kegiatan: formData.isiUndangan || formData.acara || '',
-              }}
-              mode="print"
-            />
-          </div>
-        )}
-
-        {/* Dokumen 4: Surat Pesanan */}
-        {(formData.nomorPesanan || formData.kepadaPesanan || (formData.pesananRows || []).length > 0) && (
-          <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-violet-700 mb-3">
-              <span className="material-symbols-outlined">shopping_cart</span>
-              <span className="text-sm font-bold">Surat Pesanan</span>
-            </div>
-            <TemplateEngine
-              templateConfig={TEMPLATE_CONFIGS.pesanan_mamin}
-              data={{
-                ...TEMPLATE_CONFIGS.pesanan_mamin.defaults,
-                ...formData,
-                tanggalSurat: formData.tanggalSurat || 'Cikalongwetan, ...',
-                kegiatan: formData.isiPesanan || formData.acara || '',
-                rows: (formData.pesananRows || []).map((r, i) => ({ ...r, no: i + 1 })),
-              }}
-              mode="print"
-            />
-          </div>
-        )}
-      </div>
+      <SkHonorerEditor
+        skList={skList}
+        pasal={pasal}
+        onPasalChange={setPasal}
+        onResetPasal={() => setPasal(cloneDefaultPasal())}
+        onUpdateRow={updateRow}
+        onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
+        onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
+      />
     )
   }
 
-  // ═════════════════════════════════════════════════════════════════════
-  // RENDER: PREVIEW
-  // ═════════════════════════════════════════════════════════════════════
-  const renderPreview = () => {
-    if (isMamin) return renderMaminPreview()
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // AREA CETAK (revisi 2026-10-06 task 37, dulu RENDER: PREVIEW)
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  const renderPrintArea = () => {
+    if (isMamin) return <MaminPreview formData={formData} setViewMode={setViewMode} selectedSub={selectedSub} printOnly />
     const config = TEMPLATE_CONFIGS[selectedSub?.templateId]
     if (!config) {
-      return <p className="text-sm text-slate-500 p-6">Template belum tersedia.</p>
+      return null
     }
     const previewData = buildPreviewData(config.id, {
       ...config.defaults,
       ...formData,
       nomor: formData.nomor,
     })
-    const sppdPreview = isTransport
-      ? {
-          ...TEMPLATE_CONFIGS.sppd.defaults,
-          ...sppdData,
-          nomorSurat: sppdData.nomorSurat,
-          rows: (sppdData.rows || []).map((r, i) => ({ ...r, no: i + 1 })),
-        }
-      : null
+    // Sembunyikan blok signature di preview, tampilkan saat print saja
+    const configWithoutSignature = {
+      ...config,
+      blocks: (config.blocks || []).filter((b) => b.type !== 'signature'),
+    }
+    // Tab Daftar Penerima: preview hanya menampilkan tabel (tanpa judul & info keuangan)
+    // Kolom TTD juga dihapus dari preview â€” tetap muncul saat cetak
+    const tableOnlyConfig = {
+      ...config,
+      blocks: (config.blocks || [])
+        .filter((b) => b.type === 'table-dinamis')
+        .map((b) => ({
+          ...b,
+          columns: (b.columns || []).filter((c) => c.key !== 'ttd' && c.key !== 'ttd2'),
+        })),
+    }
+    const tRows = formData.rows || []
+    const showTabs = isRecipientBased && tRows.length > 0
+    const isDaftarTab = showTabs && previewTab === 'daftar'
+
+    // â”€â”€â”€ Data dokumen per penerima â”€â”€â”€
+    // Sprint 001 FASE 4 task 4.1 (auto-fill + D-8): TTD diisi dari
+    // getSignatureRoles() â€” pengganti defaults yang dikosongkan 4.2â€“4.5.
+    // Prioritas: ketikan user (formData) â†’ Data Sekolah â†’ '' (jujur-kosong).
+    const sig = getSignatureRoles()
+    const buildSptData = (row) => ({
+      ...TEMPLATE_CONFIGS.spt.defaults,
+      ...formData,
+      namaPenandatangan: formData.namaPenandatangan || sig['kepala-sekolah']?.nama || '',
+      nipPenandatangan: formData.nipPenandatangan || sig['kepala-sekolah']?.nip || '',
+      namaMengetahui: formData.namaMengetahui || sig['ketua-gugus']?.nama || '',
+      nipMengetahui: formData.nipMengetahui || sig['ketua-gugus']?.nip || '',
+      nomorSpt: formData.nomorSpt || '',
+      nama: row.nama || '',
+      sptNip: row.sptNip || row.nip || row.nuptk || '-',
+      sptPangkat: row.sptPangkat || '-',
+      sptJabatan: row.sptJabatan || row.jabatan || '',
+      sptUntuk: formData.sptUntuk || sppdData.tujuan || '',
+      sptHari: formData.sptHari || '',
+      sptTanggal: formData.sptTanggal || sppdData.tanggal || '',
+      sptTempat: formData.sptTempat || sppdData.tempat || '',
+      tanggalSpt: formData.tanggalSpt || '',
+    })
+
+    const buildSppdData = (row) => ({
+      ...TEMPLATE_CONFIGS.sppd.defaults,
+      ...formData,
+      ...sppdData,
+      namaPenandatangan: formData.namaPenandatangan || sig['kepala-sekolah']?.nama || '',
+      nipPenandatangan: formData.nipPenandatangan || sig['kepala-sekolah']?.nip || '',
+      namaMengetahui: formData.namaMengetahui || sig['ketua-gugus']?.nama || '',
+      nipMengetahui: formData.nipMengetahui || sig['ketua-gugus']?.nip || '',
+      nomorSurat: sppdData.nomorSurat || '',
+      nama: row.nama || '',
+      sppdNip: row.sppdNip || row.nip || row.nuptk || '-',
+      sppdPangkat: row.sppdPangkat || '-',
+      sppdJabatan: row.sppdJabatan || row.jabatan || '',
+      sppdTingkat: row.sppdTingkat || '',
+      tempatBerangkat: sppdData.tempatBerangkat || sppdData.tempat || '',
+      tempatTujuan: sppdData.tempatTujuan || sppdData.tempat || '',
+      tanggalBerangkat: sppdData.tanggalBerangkat || sppdData.tanggal || '',
+      tanggalKembali: sppdData.tanggalKembali || sppdData.tanggal || '',
+      padaTanggal: sppdData.padaTanggal || sppdData.tanggal || '',
+      lama: sppdData.lama || '1 (satu) hari',
+      maksud: sppdData.maksud || sppdData.tujuan || '',
+    })
+
+    // Sprint 003 FASE 2: jalur LAYAR = kartu ringkasan (0 kop, 0 TTD).
+    // Builder data dipakai seksi; dokumen formal hanya dirender jalur CETAK (Fase 3).
+
+    // â”€â”€â”€ Data Resume / Undangan â”€â”€â”€
+    const resumeData = {
+      ...TEMPLATE_CONFIGS.notulen.defaults,
+      ...formData,
+      // D-8: jalur notulen WAJIB diisi â€” SignatureFooter baca key ttd_${role}_nama
+      // (templateConfig signature ['pimpinan','notulen']); tanpa ini TTD kosong permanen.
+      ttd_pimpinan_nama: formData.ttd_pimpinan_nama || sig['pimpinan']?.nama || '',
+      ttd_pimpinan_nip: formData.ttd_pimpinan_nip || sig['pimpinan']?.nip || '',
+      ttd_notulen_nama: formData.ttd_notulen_nama || sig['notulen']?.nama || '',
+      ttd_notulen_nip: formData.ttd_notulen_nip || sig['notulen']?.nip || '',
+      hari: formData.hariSpt || '',
+      tanggal: sppdData.tanggal || '',
+      tempat: sppdData.tempat || '',
+      acara: formData.acara || sppdData.tujuan || '',
+      poinPembahasan: formData.resume ? [{ id: 'resume-1', text: formData.resume }] : [],
+    }
+    const undanganData = {
+      ...TEMPLATE_CONFIGS.undangan_gugus.defaults,
+      ...formData,
+      // Sprint 001 FASE 3 (task 3.4/3.5/3.6): KopGugus prop-driven â€” data gugus +
+      // kabupaten + logo gugus diisi di sini dari Data Sekolah (blok TIDAK baca storage).
+      gugusNama: formData.gugusNama || getSchoolData().gugusNama || '',
+      gugusAlamat: formData.gugusAlamat || getSchoolData().gugusAlamat || '',
+      kabupaten: formData.kabupaten || getSchoolData().kabupaten || '',
+      provinsi: formData.provinsi || getSchoolData().provinsi || '',
+      logoGugus: storageHelper.get('logo_gugus', null),
+      // Task 4.1: TTD undangan dari Data Sekolah (pengganti defaults 4.4).
+      namaKetuaGugus: formData.namaKetuaGugus || sig['ketua-gugus']?.nama || '',
+      nipKetuaGugus: formData.nipKetuaGugus || sig['ketua-gugus']?.nip || '',
+      tanggalSurat: formData.tanggalSurat || '',
+      hariUndangan: formData.hariUndangan || '',
+      tanggalAcara: formData.tanggalAcara || sppdData.tanggal || '',
+      tempatAcara: formData.tempatAcara || sppdData.tempat || '',
+      isiUndangan: formData.isiUndangan || '',
+      // Audit gugus task 41 (G3, P0 — ganti ADR 2026-09-14): '-' TIDAK ikut
+      // tercetak untuk undangan_gugus (blok sembunyikan bila '-'); nilai tetap
+      // dipertahankan di data agar undangan_mamin tak terpengaruh.
+      sifatUndangan: formData.sifatUndangan || '-',
+    }
+
+    // â”€â”€â”€ Sprint 003 FASE 2: section builder kartu ringkasan (layar-only) â”€â”€â”€
+    // 0 kop, 0 TTD: nama penandatangan/NIP/kop gugus SENGAJA tidak masuk seksi â€”
+    // mereka milik jalur CETAK (Fase 3) yang memakai builder di atas apa adanya.
+    const RECIPIENT_COLS = [
+      { key: 'no', label: 'No' },
+      { key: 'nama', label: 'Nama' },
+      { key: 'nip', label: 'NIP/NUPTK' },
+      { key: 'jabatan', label: 'Jabatan' },
+    ]
+    const recipientRows = tRows.map((r, i) => ({
+      id: r.id, no: i + 1, nama: r.nama || '', nip: r.nip || r.nuptk || '', jabatan: r.jabatan || '',
+    }))
+    const sptSections = (row) => {
+      const d = buildSptData(row)
+      return [
+        { title: 'Penerima Tugas', fields: [
+          { label: 'Nama', value: d.nama },
+          { label: 'NIP', value: d.sptNip },
+          { label: 'Pangkat', value: d.sptPangkat },
+          { label: 'Jabatan', value: d.sptJabatan },
+        ] },
+        { title: 'Isi Penugasan', fields: [
+          { label: 'Nomor SPT', value: d.nomorSpt },
+          { label: 'Untuk', value: d.sptUntuk },
+          { label: 'Hari', value: d.sptHari },
+          { label: 'Tanggal', value: d.sptTanggal },
+          { label: 'Tempat', value: d.sptTempat },
+        ] },
+      ]
+    }
+    const sppdSections = (row) => {
+      const d = buildSppdData(row)
+      return [
+        { title: 'Pelaksana', fields: [
+          { label: 'Nama', value: d.nama },
+          { label: 'NIP', value: d.sppdNip },
+          { label: 'Pangkat', value: d.sppdPangkat },
+          { label: 'Jabatan', value: d.sppdJabatan },
+        ] },
+        { title: 'Perjalanan', fields: [
+          { label: 'Nomor SPPD', value: d.nomorSurat },
+          { label: 'Maksud', value: d.maksud },
+          { label: 'Berangkat', value: d.tempatBerangkat },
+          { label: 'Tujuan', value: d.tempatTujuan },
+          { label: 'Tgl Berangkat', value: d.tanggalBerangkat },
+          { label: 'Tgl Kembali', value: d.tanggalKembali },
+          { label: 'Lama', value: d.lama },
+        ] },
+      ]
+    }
+    const resumeSections = () => ([
+      { title: 'Acara', fields: [
+        { label: 'Hari', value: resumeData.hari },
+        { label: 'Tanggal', value: resumeData.tanggal },
+        { label: 'Tempat', value: resumeData.tempat },
+        { label: 'Acara', value: resumeData.acara },
+      ] },
+      { title: 'Poin Pembahasan', fields: [
+        { label: 'Resume', value: (resumeData.poinPembahasan || []).map((p) => p.text) },
+      ] },
+    ])
+    const undanganSections = () => ([
+      { title: 'Surat Undangan', fields: [
+        { label: 'Nomor', value: formData.nomorUndangan },
+        { label: 'Tanggal Surat', value: undanganData.tanggalSurat },
+        { label: 'Hari Acara', value: undanganData.hariUndangan },
+        { label: 'Tanggal Acara', value: undanganData.tanggalAcara },
+        { label: 'Tempat Acara', value: undanganData.tempatAcara },
+        { label: 'Sifat', value: undanganData.sifatUndangan },
+        { label: 'Isi', value: undanganData.isiUndangan },
+        { label: 'Tembusan', value: formData.tembusanItems },
+      ] },
+    ])
+    const daftarSections = () => ([
+      { title: 'Informasi Perjalanan', fields: [
+        { label: 'Nomor', value: formData.nomor },
+        { label: 'Kegiatan', value: sppdData.tujuan },
+        { label: 'Tanggal', value: sppdData.tanggal },
+        { label: 'Tempat', value: sppdData.tempat },
+        { label: 'Lama', value: sppdData.lama },
+      ] },
+      { title: `Daftar Penerima (${recipientRows.length})`, table: { columns: RECIPIENT_COLS, rows: recipientRows } },
+    ])
+    const maminSections = () => ([
+      { title: isMamin ? 'Detail Acara' : 'Detail Pekerjaan', fields: [
+        { label: 'Nomor Surat', value: formData.nomor },
+        ...(isMamin ? [
+          { label: 'Tanggal', value: formData.tanggal },
+          { label: 'Waktu', value: formData.waktu },
+          { label: 'Tempat', value: formData.tempat },
+          { label: 'Acara', value: formData.acara },
+          { label: 'Resume', value: formData.resume },
+        ] : [
+          { label: 'Bulan', value: formData.bulan },
+          { label: 'Tahun', value: formData.tahun },
+        ]),
+      ] },
+      { title: `Daftar Hadir (${recipientRows.length})`, table: { columns: RECIPIENT_COLS, rows: recipientRows } },
+    ])
 
     const handlePrint = () => {
-      const printContainer = document.querySelector('.print-container')
+      const printContainer = document.querySelector('.sk-print-area .print-container')
       if (printContainer) {
         printContainer.classList.remove('portrait', 'landscape')
         printContainer.classList.add(config.orientation || 'portrait')
@@ -1176,51 +1894,72 @@ export default function DokumenFormPreview({
       window.print()
     }
 
+    // Revisi 2026-10-06 (task 37): hanya area cetak formal. Kartu
+    // ringkasan layar + tab preview + tombol Kembali/Cetak-Semua DIHAPUS —
+    // pratinjau tunggal = Panel Preview Document (Zona B).
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-bold">Preview: {selectedSub?.label}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setViewMode('form')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">edit</span>
-              Kembali ke Form
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-lg">print</span>
-              Cetak
-            </button>
-          </div>
-        </div>
+      <>
 
-        {/* Dokumen Utama */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
-          <TemplateEngine templateConfig={config} data={previewData} mode="print" />
-        </div>
-
-        {/* SPPD (transport only) */}
-        {isTransport && sppdPreview && (sppdPreview.rows || []).length > 0 && (
-          <div className="bg-white rounded-2xl border border-blue-200 shadow-sm p-4 overflow-auto">
-            <div className="flex items-center gap-2 text-blue-700 mb-3">
-              <span className="material-symbols-outlined">assignment</span>
-              <span className="text-sm font-bold">Surat Perintah Tugas (SPPD)</span>
-            </div>
-            <TemplateEngine templateConfig={TEMPLATE_CONFIGS.sppd} data={sppdPreview} mode="print" />
+        {/* Area cetak Daftar Penerima: dokumen lengkap (judul + info keuangan + tabel + ttd) */}
+        {isDaftarTab && !isTransport && (
+          <div className="sk-print-area">
+            <TemplateEngine templateConfig={config} data={previewData} mode="print" />
           </div>
         )}
-      </div>
+
+        {/* Revisi 2026-10-06 (task 37): render tab SK dihapus — editor SK
+            + area cetaknya hidup di form Zona A (tanpa hidePrint). */}
+
+        {/* â”€â”€â”€ Sprint 003 FASE 3 (US-22): area cetak Perjalanan Dinas = 5 dokumen
+            formal kopâ†’TTD berurutan: penerima â†’ undangan â†’ SPT â†’ SPD â†’ resume.
+            Builder data dipakai ulang apa adanya; tiap .sk-doc-print ganti
+            halaman (anti-terpotong, task 3.2). Layar: hidden.
+            Keputusan audit gugus task 41 (G13, P1): Daftar Penerima + Resume
+            DIPERTAHANKAN di cakupan cetak walau tak ada di docx sumber gugus
+            (kebutuhan arsip LPJ). */}
+        {isTransport && (
+          <div className="sk-print-area">
+            <div className="sk-doc-print">
+              <TemplateEngine templateConfig={config} data={previewData} mode="print" />
+            </div>
+            {getTransportTabs(selectedSub?.id).some((t) => t.id === 'undangan') && (
+              <div className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.undangan_gugus} data={undanganData} mode="print" />
+              </div>
+            )}
+            {tRows.map((row) => (
+              <div key={`print-spt-${row.id}`} className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.spt} data={buildSptData(row)} mode="print" />
+              </div>
+            ))}
+            {tRows.map((row) => (
+              <div key={`print-sppd-${row.id}`} className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.sppd} data={buildSppdData(row)} mode="print" />
+              </div>
+            ))}
+            {getTransportTabs(selectedSub?.id).some((t) => t.id === 'resume') && (
+              <div className="sk-doc-print">
+                <TemplateEngine templateConfig={TEMPLATE_CONFIGS.notulen} data={resumeData} mode="print" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* â”€â”€â”€ Sprint 003 FASE 3: area cetak Pemeliharaan = dokumen formal penuh.
+            (Fase 2 mengganti layar jadi SummaryCard yang tidak ikut cetak â€”
+            tanpa ini cetakan Pemeliharaan kosong.) */}
+        {isPemeliharaan && (
+          <div className="sk-print-area">
+            <div className="sk-doc-print">
+              <TemplateEngine templateConfig={config} data={previewData} mode="print" />
+            </div>
+          </div>
+        )}
+      </>
     )
   }
 
-  return viewMode === 'preview' ? renderPreview() : renderForm()
+  // Revisi 2026-10-06 (task 37): satu-satunya tampilan = form + area cetak.
+  // viewMode/setViewMode dipertahankan di props demi kompatibilitas pemanggil.
+  return renderForm()
 }

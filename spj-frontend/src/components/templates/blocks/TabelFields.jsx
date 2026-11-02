@@ -73,7 +73,7 @@ export default function TabelFields({ blockConfig, data = {}, onChange, mode }) 
   const fields = blockConfig.fields || []
 
   return (
-    <table className="w-full text-xs mb-4">
+    <table className="surat-polos w-full text-xs mb-4">
       <tbody>
         {fields.map((field) => (
           <tr key={field.key} className="border-b border-dashed border-outline-variant">

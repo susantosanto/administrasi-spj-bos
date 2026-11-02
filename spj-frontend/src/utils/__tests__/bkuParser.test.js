@@ -146,9 +146,10 @@ describe('parseBKUExcel (tanggal DD-MM-YYYY & tipe)', () => {
 
   it('menghitung total riil tanpa ganda (pajak & pungutan dikecualikan)', async () => {
     const res = await parseFixture()
-    // RIIL: penerimaan = BOSP saja; pengeluaran = PEMBAYARAN + TARIK_TUNAI
+    // RIIL: penerimaan = BOSP saja; pengeluaran = PEMBAYARAN saja
+    // (Tarik tunai = pemindahan bank→kas, bukan belanja; ADR §T main)
     expect(res.summary.totalPenerimaan).toBe(82560000)
-    expect(res.summary.totalPengeluaran).toBe(1500000)
+    expect(res.summary.totalPengeluaran).toBe(1000000)
     // SEMUA (verifikasi): termasuk setor pajak & pungutan
     expect(res.summary.totalPenerimaanSemua).toBe(82660000)
     expect(res.summary.totalPengeluaranSemua).toBe(1600000)

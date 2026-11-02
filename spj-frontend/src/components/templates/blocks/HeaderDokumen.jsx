@@ -25,7 +25,7 @@ export default function HeaderDokumen({ blockConfig, data = {}, onChange, mode }
   const tahun = data.tahun || ''
 
   return (
-    <div className="mb-4">
+    <div className="surat-polos mb-4">
       {/* Judul */}
       <div className="text-center mb-1">
         <h2 className="text-sm font-bold uppercase tracking-wide">
