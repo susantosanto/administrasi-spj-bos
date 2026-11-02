@@ -13,6 +13,7 @@ import {
 } from '../../utils/templateSuratHelper';
 import { generateNomorSurat, saveNomorSurat } from '../../utils/nomorSuratHelper';
 import { useToast } from '../../components/ui/Toast';
+import { requireWrite } from '../../services/licenseService';
 import { useSidebar } from '../../contexts/SidebarContext';
 
 const TemplateSuratPage = () => {
@@ -109,6 +110,7 @@ const TemplateSuratPage = () => {
   
   // Save as draft
   const handleSaveDraft = () => {
+    if (!requireWrite({ error: (m) => showToast(m, 'error') })) return
     if (!selectedTemplate) return;
     
     const draft = {

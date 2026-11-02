@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -124,6 +125,7 @@ export default function NotesPage() {
 
   // ─── Create New Note ──────────────────────────────────────────
   const handleCreateNote = () => {
+    if (!requireWrite(toast)) return
     setEditingNote(null)
     setEditorTitle('')
     setEditorContent('')
@@ -144,6 +146,7 @@ export default function NotesPage() {
 
   // ─── Save Note ────────────────────────────────────────────────
   const handleSaveNote = () => {
+    if (!requireWrite(toast)) return
     if (!editorTitle.trim()) {
       toast.error('Judul catatan harus diisi')
       return
@@ -181,6 +184,7 @@ export default function NotesPage() {
 
   // ─── Delete Note ──────────────────────────────────────────────
   const handleDeleteNote = (id) => {
+    if (!requireWrite(toast)) return
     if (window.confirm('Hapus catatan ini?')) {
       const updated = notes.filter(n => n.id !== id)
       saveNotes(updated)
@@ -190,6 +194,7 @@ export default function NotesPage() {
 
   // ─── Toggle Pin ───────────────────────────────────────────────
   const handleTogglePin = (id) => {
+    if (!requireWrite(toast)) return
     const updated = notes.map(n =>
       n.id === id ? { ...n, isPinned: !n.isPinned } : n
     )

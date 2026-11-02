@@ -8,6 +8,18 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Pisahkan pustaka berat ke chunk tersendiri agar main bundle ramping
+        // dan halaman yang tak memakai PDF/Excel tak memuatnya di awal.
+        manualChunks: {
+          'pdfjs': ['pdfjs-dist/build/pdf'],
+          'xlsx-vendor': ['xlsx'],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     host: true,

@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
+import ThemeToggle from '../ui/ThemeToggle'
+import BrandedLoader from '../ui/BrandedLoader'
 
 export default function Topbar({ title, subtitle }) {
   const { isOpen, toggle } = useSidebar()
@@ -27,11 +29,22 @@ export default function Topbar({ title, subtitle }) {
     }
   }, [showDropdown])
 
+  // Logout → loader ASIK (fullscreen) dulu, lalu fade-out, baru bersihkan & keluar.
+  // Isi bersihkan + navigate PERSIS versi lama — hanya diberi urutan loader.
+  const [logoutStage, setLogoutStage] = useState(null) // null | 'show' | 'exit'
   const handleLogout = () => {
-    localStorage.removeItem('spj_auth')
-    localStorage.removeItem('spj_auth_user')
-    localStorage.removeItem('spj_auth_token')
-    navigate('/')
+    if (logoutStage) return
+    setShowDropdown(false)
+    setLogoutStage('show')
+    setTimeout(() => {
+      setLogoutStage('exit')
+      setTimeout(() => {
+        localStorage.removeItem('spj_auth')
+        localStorage.removeItem('spj_auth_user')
+        localStorage.removeItem('spj_auth_token')
+        navigate('/')
+      }, 320)
+    }, 850)
   }
 
   const menuItems = [
@@ -41,7 +54,7 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full border-b border-slate-200/60">
+    <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 w-full">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
@@ -56,9 +69,9 @@ export default function Topbar({ title, subtitle }) {
             chevron_right
           </span>
         </button>
-        <div className="min-w-0">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">{title}</h2>
-          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 truncate">{subtitle}</p>}
+        <div className="min-w-0 bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-2 flex flex-col justify-center">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate leading-none">{title}</h2>
+          {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-white/70 truncate leading-none mt-1">{subtitle}</p>}
         </div>
       </div>
 
@@ -72,6 +85,9 @@ export default function Topbar({ title, subtitle }) {
             type="text"
           />
         </div>
+
+        {/* Theme Toggle */}
+        <ThemeToggle variant="icon" />
 
         {/* Notifications */}
         <button className="p-2 sm:p-2.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
@@ -136,6 +152,14 @@ export default function Topbar({ title, subtitle }) {
                     <span className="font-medium">{item.label}</span>
                   </button>
                 ))}
+                {/* Theme Toggle in dropdown */}
+                <div className="px-5 py-3 flex items-center justify-between">
+                  <span className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                    <span className="material-symbols-outlined text-xl text-slate-400">contrast</span>
+                    Tema Gelap
+                  </span>
+                  <ThemeToggle />
+                </div>
               </div>
 
               {/* Divider */}
@@ -155,6 +179,16 @@ export default function Topbar({ title, subtitle }) {
           )}
         </div>
       </div>
+
+      {/* Logout overlay — loader ASIK (satu bahasa visual dengan boot splash) */}
+      {logoutStage && (
+        <BrandedLoader
+          variant="fullscreen"
+          title="Tunggu sebentar..."
+          subtitle="Keluar dari aplikasi"
+          exiting={logoutStage === 'exit'}
+        />
+      )}
     </header>
   )
 }

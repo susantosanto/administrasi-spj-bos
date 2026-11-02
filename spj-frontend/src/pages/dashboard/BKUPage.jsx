@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
@@ -136,6 +137,7 @@ export default function BKUPage() {
   // ─── Upload Handler ───────────────────────────────────────────
 
   const handleFileUpload = async (e) => {
+    if (!requireWrite(toast)) return
     const file = e.target.files[0]
     if (!file) return
 
@@ -716,6 +718,7 @@ export default function BKUPage() {
                   </button>
                   <button
                     onClick={() => {
+                      if (!requireWrite(toast)) return
                       storageHelper.remove('bku_data')
                       setItems([])
                       setUploadedInfo(null)

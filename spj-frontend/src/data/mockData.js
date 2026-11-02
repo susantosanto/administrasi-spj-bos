@@ -88,14 +88,16 @@ export const MOCK_REALISASI = [
   { id: 4, nama: 'Syarat Kecukupan', anggaran: 30000000, realisasi: 27500000, persentase: 91.7 },
 ]
 
+import storageHelper from '../utils/storageHelper'
+
 export function seedMockData() {
-  if (!localStorage.getItem('spj_seeded')) {
-    localStorage.setItem('spj_pendataan', JSON.stringify(MOCK_PENDATAAN))
-    localStorage.setItem('spj_uploads', JSON.stringify(MOCK_UPLOADS))
-    localStorage.setItem('spj_bukti_fisik', JSON.stringify(MOCK_BUKTI_FISIK))
-    localStorage.setItem('spj_workshop', JSON.stringify(MOCK_WORKSHOP))
-    localStorage.setItem('spj_dokumen_wajib', JSON.stringify(MOCK_DOKUMEN_WAJIB))
-    localStorage.setItem('spj_realisasi', JSON.stringify(MOCK_REALISASI))
-    localStorage.setItem('spj_seeded', 'true')
+  if (!storageHelper.get('seeded')) {
+    storageHelper.set('pendataan', MOCK_PENDATAAN)
+    storageHelper.set('uploads', MOCK_UPLOADS)
+    storageHelper.set('bukti_fisik', MOCK_BUKTI_FISIK)
+    storageHelper.set('workshop', MOCK_WORKSHOP)
+    storageHelper.set('dokumen_wajib', MOCK_DOKUMEN_WAJIB)
+    storageHelper.set('realisasi', MOCK_REALISASI)
+    storageHelper.set('seeded', true)
   }
 }

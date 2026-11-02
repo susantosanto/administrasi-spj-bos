@@ -2,10 +2,221 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================
-   SPJ BOS/BOSP Design System - Global Styles
-   Material Design 3 Inspired Corporate Modern
-   ============================================ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   LPJ BOS/BOSP — Premium Blue Design System (Consolidated 2026-09-02)
+   Audit: tailwind.config 58→18 token, rounded-xl 223x dominan, text-sm/xs 563x
+   Fonts: Inter (body) + Hanken Grotesk (display). 8px grid.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand — Primary scale (konsolidasi dari #004ac6) */
+  --color-primary: #004ac6;
+  --color-primary-hover: #003ea8;
+  --color-primary-light: #dbe1ff;
+  --color-on-primary: #ffffff;
+
+  /* Surface — page & card — LIGHT */
+  --color-background: #f8f9fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f4f6;
+  --color-surface-container: #edeef0;
+  --color-surface-container-high: #e7e8ea;
+
+  /* Border — LIGHT */
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
+  --color-border: #e2e8f0; /* slate-200 default */
+
+  /* Text — LIGHT */
+  --color-text-high: #111827;
+  --color-text-muted: #64748b;
+  --color-text-low: #6b7280;
+
+  /* Semantic */
+  --color-danger: #dc2626;
+  --color-warning: #eab308;
+  --color-success: #059669;
+
+  /* Radius — dominan rounded-xl (12px) & rounded-2xl (16px) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadow — 3 level + primary glow */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 24px -6px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.05);
+  --shadow-primary: 0 8px 24px rgba(0,74,198,0.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE — Premium Blue Dark — GRADASI ANIMASI (dari Dark Mode.jpeg)
+   Aktif saat <html class="dark">. Body bukan hitam, tapi gradasi animasi
+   biru → ungu → magenta → pink yang mengalir (sesuai referensi jpeg).
+   Semua (body, bukan hanya sisi) berubah.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dark {
+  --color-background: #0f0f3e;
+  --color-surface: rgba(19,29,51,0.85);
+  --color-surface-muted: rgba(30,43,74,0.9);
+  --color-surface-container: #1a2642;
+  --color-surface-container-high: #24365f;
+  --color-outline: #3a4a6b;
+  --color-outline-variant: #2a3a5c;
+  --color-border: rgba(255,255,255,0.08);
+  --color-text-high: #ffffff;
+  --color-text-muted: #e2e8f0;
+  --color-text-low: #cbd5e1;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --color-primary-light: #1e3a5f;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 10px 24px -6px rgba(0,0,0,0.6), 0 4px 12px -4px rgba(0,0,0,0.5);
+  --shadow-primary: 0 8px 24px rgba(96,165,250,0.35);
+  color-scheme: dark;
+}
+.dark body {
+  color: #ffffff;
+  /* Body gradasi statis — meniru Dark Mode.jpeg (biru → ungu → pink) */
+  background: linear-gradient(135deg, #0f0cc0 0%, #3a00b8 18%, #6d00c2 32%, #9a00a8 48%, #c8007a 62%, #e6006b 78%, #1a1a6c 90%, #0f0cc0 100%) !important;
+  background-size: 100% 100% !important;
+  position: relative;
+  min-height: 100vh;
+}
+/* Layer aura tambahan (dark) — statis, tanpa animasi agar tidak berat */
+.dark body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 800px 600px at 15% 20%, rgba(26,0,255,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 85% 30%, rgba(196,0,122,0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 900px 700px at 50% 85%, rgba(255,0,107,0.35) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%);
+  filter: saturate(1.2);
+  opacity: 0.9;
+}
+/* Hapus layer wave kedua yang duplikat (penyebab double background) */
+@keyframes dark-body-gradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes dark-aura-drift {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  33% { transform: translate(18px, -14px) scale(1.04); opacity: 1; }
+  66% { transform: translate(-12px, 10px) scale(0.98); opacity: 0.85; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+}
+@keyframes dark-wave-sweep {
+  0% { background-position: -100% 0; }
+  50% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+/* glass-input — field kaca asli untuk kartu login glassmorphism (tembus, bukan solid).
+   Sengaja bukan bg-slate-50 karena global .dark .bg-slate-50 memaksa opaque 0.88 !important. */
+.glass-input { background-color: rgba(255, 255, 255, 0.55); }
+.dark .glass-input { background-color: rgba(255, 255, 255, 0.08); }
+
+/* Global dark overrides — body gradasi terlihat, card jadi glass (bukan solid hitam) */
+.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; border-color: rgba(255,255,255,0.08) !important; }
+.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; }
+.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; }
+.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; }
+.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; }
+.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; }
+.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; }
+.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; }
+.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; }
+.dark .bg-slate-100\/80 { background-color: rgba(26,38,66,0.75) !important; }
+.dark .bg-slate-200 { background-color: rgba(26,38,66,0.9) !important; }
+.dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
+.dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
+.dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
+.dark .border-white\/60 { border-color: rgba(255,255,255,0.12) !important; }
+.dark .border-slate-100 { border-color: rgba(255,255,255,0.06) !important; }
+.dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.08) !important; }
+/* Pastikan semua wrapper dashboard ikut transparan agar gradasi body terlihat */
+.dark .bg-slate-100\/80 { background-color: transparent !important; }
+.dark .min-h-screen.bg-slate-100\/80,
+.dark .flex-1.bg-slate-100\/80 { background: transparent !important; }
+/* ── FIX KHUSUS: Hero CTA putih di dark harus tetap putih dengan teks gelap ── */
+.dark .hero-cta-primary { background-color: #ffffff !important; border-color: #ffffff !important; }
+.dark .hero-cta-primary .hero-cta-text,
+.dark .hero-cta-primary .hero-cta-icon { color: #1a0a6c !important; }
+.dark .hero-cta-primary span.material-symbols-outlined { color: #1a0a6c !important; font-variation-settings: 'FILL' 0 !important; }
+.dark .hero-cta-secondary { background-color: rgba(255,255,255,0.10) !important; color: #ffffff !important; border-color: rgba(255,255,255,0.20) !important; backdrop-filter: blur(12px); }
+.dark .hero-cta-secondary span { color: #ffffff !important; }
+/* Light mode — pastikan hero CTA tetap biru gelap teks putih */
+.hero-cta-primary { background-color: #004ac6; color: #ffffff; }
+.hero-cta-primary .hero-cta-text,
+.hero-cta-primary .hero-cta-icon { color: #ffffff; }
+/* ── FIX KHUSUS: PremiumTypingCard di dark — card jadi glass gelap, teks putih terbaca ── */
+.dark .premium-typing-card { background-color: rgba(19,29,51,0.92) !important; border-color: rgba(255,255,255,0.12) !important; }
+.dark .premium-typing-card .text-slate-700 { color: #ffffff !important; }
+.dark .premium-typing-card .text-slate-500 { color: rgba(255,255,255,0.75) !important; }
+.dark .premium-typing-card .text-slate-400 { color: rgba(255,255,255,0.55) !important; }
+.dark .premium-typing-card .bg-slate-100 { background-color: rgba(255,255,255,0.10) !important; }
+.dark .premium-typing-card .bg-primary\/10 { background-color: rgba(96,165,250,0.15) !important; }
+.dark .premium-typing-card .text-primary\/60 { color: rgba(96,165,250,0.9) !important; }
+.dark .premium-typing-card .border-slate-100 { border-color: rgba(255,255,255,0.08) !important; }
+.dark .premium-typing-card .bg-slate-50\/50 { background-color: rgba(255,255,255,0.06) !important; }
+/* ── TULISAN: light = biru gelap, dark = putih (sesuai request) ── */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-zinc-900,
+.dark .text-zinc-800,
+.dark .text-neutral-900,
+.dark .text-primary,
+.dark .text-blue-900,
+.dark .text-blue-800,
+.dark .text-blue-700,
+.dark .text-indigo-900,
+.dark .text-indigo-800,
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #ffffff !important;
+}
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-zinc-600,
+.dark .text-blue-600,
+.dark .text-indigo-600 {
+  color: #f1f5f9 !important;
+}
+.dark .text-slate-400 { color: #cbd5e1 !important; }
+.dark .text-slate-300 { color: #94a3b8 !important; }
+/* Primary & biru gelap khusus — light: #004ac6/#0f172a/#111827, dark: putih */
+.dark .text-primary { color: #ffffff !important; }
+.dark .text-blue-600 { color: #f1f5f9 !important; }
+.dark .text-blue-500 { color: #e2e8f0 !important; }
+/* Angka & label di kartu — pastikan putih di dark */
+.dark .text-slate-900.font-bold,
+.dark .text-slate-800.font-bold,
+.dark .font-bold { color: #ffffff !important; }
+.dark .border-slate-100 { border-color: #1e2e50 !important; }
+.dark .border-slate-200 { border-color: #24365f !important; }
+.dark .border-slate-200\/80 { border-color: rgba(36,54,95,0.8) !important; }
+.dark .border-slate-200\/50 { border-color: rgba(36,54,95,0.5) !important; }
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1e2e50 !important; }
+.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
+/* Scrollbar dark */
+.dark ::-webkit-scrollbar-thumb { background: #2a3a5c !important; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #3a4a6b !important; }
+/* Selection dark */
+.dark ::selection { background: #1e3a5f; color: #dbeafe; }
 
 * {
   margin: 0;
@@ -20,10 +231,122 @@ html, body, #root {
 }
 
 body {
-  background: #f8f9fb;
+  /* Light Mode gradasi statis — TEBAL dari Light Mode.jpeg (biru → cyan → putih pekat) */
+  background: linear-gradient(135deg, #7fbfe0 0%, #4aa3d1 14%, #b8e0f0 28%, #ffffff 42%, #d0eaf8 58%, #6fb9e3 76%, #4aa3d1 88%, #7fbfe0 100%);
+  background-size: 100% 100%;
   color: #191c1e;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 1100px 800px at 10% 15%, rgba(74,163,209,0.85) 0%, transparent 62%),
+    radial-gradient(ellipse 900px 700px at 90% 25%, rgba(255,255,255,1) 0%, transparent 58%),
+    radial-gradient(ellipse 1000px 750px at 58% 88%, rgba(111,185,227,0.75) 0%, transparent 65%),
+    radial-gradient(ellipse 750px 550px at 78% 12%, rgba(74,163,209,0.70) 0%, transparent 60%),
+    radial-gradient(ellipse 650px 500px at 28% 68%, rgba(184,224,240,0.80) 0%, transparent 60%);
+  filter: saturate(1.35) contrast(1.08);
+  opacity: 1;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 22%, rgba(255,255,255,0.75) 46%, rgba(74,163,209,0.45) 52%, transparent 74%);
+  background-size: 100% 100%;
+  opacity: 0.90;
+  filter: none;
+}
+@keyframes light-body-gradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes light-aura-drift {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+  33% { transform: translate(22px, -14px) scale(1.05) rotate(0.6deg); opacity: 1; }
+  66% { transform: translate(-14px, 12px) scale(0.97) rotate(-0.4deg); opacity: 0.95; }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes light-wave-sweep {
+  0% { background-position: -130% 0; transform: translateX(0); }
+  50% { background-position: 190% 0; transform: translateX(8px); }
+  100% { background-position: -130% 0; transform: translateX(0); }
+}
+
+/* Headings use Hanken Grotesk — display */
+h1, h2, h3, .font-display {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+/* Focus — aksesibilitas (audit: focus:ring-2 68x fragmented → unified) */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0,74,198,0.12);
+}
+
+/* Hero Wavy/Floral — 4 sisi paskan + motion ke 4 sisi saling bergerak */
+.hero-bg-wavy {
+  will-change: transform;
+  animation: hero-bg-4sides 14s ease-in-out infinite;
+  transform-origin: center;
+}
+.hero-bg-floral {
+  will-change: background-position;
+  animation: hero-floral-pan 30s linear infinite;
+}
+/* Fly-in-Fly — untuk card Laporan Pertanggungjawaban */
+@keyframes fly-in-fly {
+  0% { transform: translateX(120px) translateY(30px) rotate(3deg) scale(0.92); opacity: 0; }
+  35% { transform: translateX(-8px) translateY(-6px) rotate(-1deg) scale(1.02); opacity: 1; }
+  55% { transform: translateX(4px) translateY(2px) rotate(0.6deg) scale(1); opacity: 1; }
+  75% { transform: translateX(0) translateY(-3px) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateX(0) translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
+@keyframes fly-continuous {
+  0%,100% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-8px) translateX(4px) rotate(0.6deg); }
+  50% { transform: translateY(0) translateX(0) rotate(0deg); }
+  75% { transform: translateY(-5px) translateX(-3px) rotate(-0.5deg); }
+}
+.animate-fly-in { animation: fly-in-fly 1.4s cubic-bezier(0.16,1,0.3,1) forwards; }
+.animate-fly-continuous { animation: fly-continuous 6s ease-in-out infinite 1.5s; }
+@keyframes hero-bg-4sides {
+  0% { transform: scale(1) translate(0, 0); }
+  15% { transform: scale(1.03) translate(0.6%, 0.4%); }
+  30% { transform: scale(1.06) translate(-0.4%, 0.6%); }
+  45% { transform: scale(1.04) translate(-0.6%, -0.4%); }
+  60% { transform: scale(1.06) translate(0.5%, -0.6%); }
+  75% { transform: scale(1.03) translate(0.3%, 0.3%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+@keyframes hero-floral-pan {
+  0% { background-position: 0 0; }
+  100% { background-position: 420px 420px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-wavy, .hero-bg-floral, .animate-fly-in, .animate-fly-continuous { animation: none !important; }
 }
 
 /* Premium Animations */
@@ -119,36 +442,33 @@ body {
   vertical-align: middle;
 }
 
-/* Selection */
+/* Selection — primary-light */
 ::selection {
-  background: #dbe1ff;
+  background: var(--color-primary-light);
   color: #00174b;
 }
 
-/* Scrollbar Styling */
+/* Scrollbar — 6px, outline-variant */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #c3c6d7;
+  background: var(--color-outline-variant);
   border-radius: 10px;
 }
+::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #737686;
-}
+/* Theme transition — smooth, tidak statis */
+html { transition: background-color 0.35s ease, color 0.35s ease; }
 
 /* ============================================
-   Component Classes
+   Component Primitives — Premium Blue
+   Audit: glass-card 2x, bento-card 0x — keep untuk hero saja
    ============================================ */
 @layer components {
-  /* Glass Card - frosted glass effect */
+  /* Glass Card — hero/premium only (backdrop blur) */
   .glass-card {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
@@ -156,39 +476,48 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
-  /* Bento Card - hover lift effect */
+  /* Bento Card — hover lift (DashboardHome fitur) */
   .bento-card {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
   }
   .bento-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    box-shadow: var(--shadow-lg);
   }
 
-  /* Financial Table */
-  .financial-table tr:nth-child(even) {
-    background-color: #f9fafb;
-  }
-  .financial-table th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
+  /* Financial Table — BKU */
+  .financial-table tr:nth-child(even) { background-color: #f9fafb; }
+  .financial-table th { position: sticky; top: 0; z-index: 10; }
 
-  /* Custom Scrollbar Container */
+  /* Custom Scrollbar */
   .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
 
-  /* Sidebar Nav Item */
+  /* Sidebar Nav Item — 8px grid (gap-md=16px, gap-sm=8px) */
   .nav-item {
     @apply flex items-center gap-md px-md py-sm rounded-lg transition-colors duration-200 cursor-pointer;
   }
-  .nav-item:hover {
-    @apply bg-surface-container-high;
+  .nav-item:hover { @apply bg-surface-container-high; }
+  .nav-item-active { @apply bg-primary-container text-on-primary-container font-semibold; }
+
+  /* Premium Card — unified (audit: rounded-xl 223x + rounded-2xl 132x) */
+  .card-premium {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300;
   }
-  .nav-item-active {
-    @apply bg-primary-container text-on-primary-container font-semibold;
+  .card-premium-active {
+    @apply border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10;
+  }
+
+  /* Button — primary (audit: 539x bg-primary, fragment focus → unified) */
+  .btn-primary {
+    @apply bg-primary text-white font-semibold shadow-sm shadow-primary/20 hover:bg-primary-hover hover:shadow-md active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none;
+  }
+  .btn-secondary {
+    @apply bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 font-semibold transition-all active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors;
   }
 }
 
@@ -236,6 +565,177 @@ body {
 @keyframes orb-pulse {
   0%, 100% { transform: scale(1); opacity: 0.5; }
   50% { transform: scale(1.3); opacity: 0.9; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   A1 — MAGNETIC SPOTLIGHT (Landing FeatureCard)
+   out-of-the-box: spotlight mengikuti kursor + tilt 3D halus
+   ═══════════════════════════════════════════════════════════════════════════ */
+.magnetic-card {
+  --x: 50%;
+  --y: 50%;
+  --rotateX: 0deg;
+  --rotateY: 0deg;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+.magnetic-card-inner {
+  transform: rotateX(var(--rotateX)) rotateY(var(--rotateY));
+  transition: transform 0.15s ease-out;
+}
+.magnetic-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(600px circle at var(--x) var(--y), rgba(255,255,255,0.18), rgba(255,255,255,0.06) 25%, transparent 55%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.magnetic-card:hover .magnetic-spotlight { opacity: 1; }
+.magnetic-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(500px circle at var(--x) var(--y), rgba(0,74,198,0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.magnetic-card:hover .magnetic-glow { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   A2 — METABALLS / GOOEY ORBS (Dashboard Hero + Login)
+   out-of-the-box: blob morphing organik + gooey filter + drift
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes metaball-morph {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) scale(1) rotate(0deg); }
+  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(30px, -20px) scale(1.08) rotate(3deg); }
+  50% { border-radius: 40% 60% 30% 70% / 70% 30% 60% 40%; transform: translate(-15px, 25px) scale(0.96) rotate(-2deg); }
+  75% { border-radius: 60% 40% 70% 30% / 30% 70% 40% 60%; transform: translate(20px, 10px) scale(1.05) rotate(2deg); }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) scale(1) rotate(0deg); }
+}
+@keyframes metaball-drift {
+  0% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(18px, -22px) scale(1.06); }
+  66% { transform: translate(-12px, 18px) scale(0.98); }
+  100% { transform: translate(0,0) scale(1); }
+}
+@keyframes metaball-float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-14px) scale(1.04); }
+}
+.metaballs-container {
+  filter: contrast(1.15) saturate(1.05);
+  isolation: isolate;
+}
+.metaball {
+  position: absolute;
+  filter: blur(18px);
+  will-change: transform, border-radius;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+.metaball-primary {
+  background: radial-gradient(circle at 30% 30%, rgba(96,165,250,0.9) 0%, rgba(59,130,246,0.7) 35%, rgba(0,74,198,0.5) 70%, transparent 78%);
+}
+.metaball-accent {
+  background: radial-gradient(circle at 40% 30%, rgba(125,211,252,0.85) 0%, rgba(56,189,248,0.6) 40%, rgba(14,165,233,0.35) 75%, transparent 80%);
+}
+.metaball-deep {
+  background: radial-gradient(circle at 50% 50%, rgba(30,64,175,0.5) 0%, rgba(0,50,150,0.35) 60%, transparent 75%);
+}
+.animate-metaball-1 { animation: metaball-morph 14s ease-in-out infinite; }
+.animate-metaball-2 { animation: metaball-morph 18s ease-in-out infinite reverse; }
+.animate-metaball-3 { animation: metaball-morph 22s ease-in-out infinite; }
+.animate-metaball-drift { animation: metaball-drift 12s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIVING UI — Tidak Statis: Global Non-Static Animations 2026
+   Semua elemen punya napas halus, tidak diam. Hormati reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes breathing {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+@keyframes float-particle {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+  33% { transform: translateY(-18px) translateX(10px) scale(1.1); opacity: 1; }
+  66% { transform: translateY(-32px) translateX(-8px) scale(0.95); opacity: 0.6; }
+  100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+}
+@keyframes border-rotate {
+  0% { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes live-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+.living-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+.living-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.living-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: translateX(-100%);
+  animation: shimmer-sweep 2.2s ease-in-out infinite;
+}
+.living-breathing { animation: breathing 4s ease-in-out infinite; }
+.marquee-track { animation: marquee 28s linear infinite; }
+.marquee-track-reverse { animation: marquee-reverse 32s linear infinite; }
+.marquee-track:hover, .marquee-track-reverse:hover { animation-play-state: paused; }
+.floating-particle { animation: float-particle 7s ease-in-out infinite; }
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+.live-dot { animation: live-dot 1.6s ease-in-out infinite; }
+
+/* Reduced motion — hormati aksesibilitas */
+@media (prefers-reduced-motion: reduce) {
+  .magnetic-card-inner { transition: none !important; }
+  .magnetic-spotlight, .magnetic-glow { display: none !important; }
+  .metaball, .animate-metaball-1, .animate-metaball-2, .animate-metaball-3, .animate-metaball-drift,
+  .animate-card-glow, .animate-accent-flow,
+  .living-gradient, .living-shimmer::after, .living-breathing, .marquee-track, .marquee-track-reverse,
+  .floating-particle, .pulse-ring::before, .live-dot, .animate-pulse { animation: none !important; }
+  .metaball { filter: blur(22px) !important; opacity: 0.5 !important; }
+  .living-shimmer::after { display: none !important; }
 }
 
 @keyframes shimmer {
@@ -381,12 +881,6 @@ body {
   .print-container,
   .print-container * {
     visibility: visible;
-    /* ⚠️ PENTING (temuan user 2026-10-18): Chrome/Edge mematikan "Background
-       graphics" secara default saat cetak → bar warna (#002060 cover, #004ac6
-       sekat, hijau PBD) TIDAK ikut tercetak. print-color-adjust: exact memaksa
-       background ikut tercetak tanpa user mengubah setelan dialog cetak. */
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
   }
 
   /* Position print container */
@@ -408,24 +902,6 @@ body {
   .print-container.landscape {
     width: 297mm;
     padding: 15mm 20mm;
-    /* Tinggi ikut kertas LANDSCAPE (210mm) — min-height 297mm dari aturan
-       dasar membuat dokumen landscape tercetak 2 halaman (temuan 2026-10-18:
-       sekat/cover keluar halaman kosong kedua). */
-    min-height: 210mm;
-  }
-
-  /* ⚠️ TEMUAN 2026-10-18 (dokumen sekat/cover tercetak PORTRAIT 595x842):
-     named page `@page landscape` hanya menaungi elemen yang IKUT ALUR (in-flow).
-     Box `position: absolute` keluar dari alur → Chromium tak membuatkan
-     halaman landscape untuknya, `page: landscape` diabaikan (terbukti dengan
-     page.pdf preferCSSPageSize: 594,96x841,92 walau @page landscape benar).
-     Dokumentasi landscape TIDAK butuh absolute — hanya SATU .print-container
-     terlihat saat cetak (panel preview dibungkus print:hidden), jadi
-     `position: relative` aman dan membuat named page berlaku. */
-  .print-container.landscape {
-    position: relative;
-    left: auto;
-    top: auto;
   }
 
   /* Hide edit-mode elements */
@@ -439,23 +915,10 @@ body {
     margin: 0;
   }
 
-  /* Named page untuk dokumen LANDSCAPE (templateConfig.orientation).
-     ⚠️ Aturan bernama TIDAK berlaku otomatis — elemen WAJIB punya properti
-     `page: landscape` (lihat .print-container.landscape di bawah). Tanpa itu
-     dokumen landscape (cover/sekat/pbj_data) tercetak di kertas portrait —
-     temuan user 2026-10-18 (PDF sekat keluar 595x842 = portrait). */
   @page landscape {
     size: A4 landscape;
     margin: 0;
   }
-}
-
-/* ── Kertas landscape (cover/sekat/pbj_data) ──
-   `page:` mengaitkan elemen ke named page @page landscape di atas. Chromium
-   modern (Edge/Chrome ≥85) mendukung named pages; @page size di-inject
-   paperSize.js (ikut pilihan A4/F4 user). */
-.print-container.landscape {
-  page: landscape;
 }
 
 /* Preview container — seperti kertas */
@@ -485,14 +948,7 @@ body {
 
 .template-engine th,
 .template-engine td {
-  /* ⚠️ TEMUAN USER 2026-10-22 ("di dokumen yang non tabel ada garis-garis tipis,
-     hilangkan untuk semua format dokumen non tabel"): grid abu-abu #d1d5db
-     dulu dipasang ke SETIAP sel, sehingga SURAT UNDANGAN / SURAT TUGAS / SK
-     tampil seperti tabel penuh (blok label:nilai ikut bergaris).
-     Sekarang TIDAK ada grid global. Tabel yang MEMANG perlu garis menyatakan
-     sendiri: `.spd-tabel` (hitam 1px), `.pajak-tabel` (hitam), `.kas-tabel`
-     (titik, inline), dan `TabelDinamis` (`border border-gray-300` per sel).
-     Blok surat memakai `.surat-polos` (lihat aturan di bawah). */
+  border: 1px solid #d1d5db;
   padding: 4px 8px;
   text-align: left;
 }
@@ -500,108 +956,6 @@ body {
 .template-engine th {
   background-color: #f3f4f6;
   font-weight: 600;
-}
-
-/* ⚠️ TEMUAN USER 2026-10-19 ("untuk dokumen register kas saya tidak ingin
-   menggunakan garis tabel"): aturan global .template-engine th/td di atas
-   memberi GRID ABU-ABU (#d1d5db) ke SETIAP sel — termasuk Register Kas,
-   padahal file sumber ("Template Register Kas Contoh.xlsx", sheet
-   Register_Kas) gridlines-nya OFF: hanya garis TITIK (border dotted) pada
-   kolom LEMBAR/KEPING (E:F) dan JUMLAH (H) baris pecahan, yang ditulis
-   inline di RegisterKas.jsx (inline MENANG atas reset ini).
-   Reset HANYA untuk tabel kas (.kas-tabel) — blok lain tetap pakai grid
-   global. Bukti: audit DOM menemukan 113 border solid 1px di dokumen. */
-.template-engine .kas-tabel th,
-.template-engine .kas-tabel td {
-  border: 0;
-}
-
-/* ═══ SURAT POLOS — dokumen NON-TABEL tanpa garis tipis (2026-10-22) ═══
-   Dipakai blok surat: `SuratUndangan`, `SuratTugas`, `TabelLetterHeader`,
-   `TabelFields`, `InfoKeuangan`, `HeaderDokumen`, `SignatureFooter`,
-   `UraianKegiatan`. Grid sel, garis putus-putus antar baris, dan garis
-   bawah field semuanya DIHILANGKAN — di layar MAUPUN di cetak, supaya
-   pratinjau = hasil cetak. Garis field muncul lagi saat hover/fokus saja
-   (petunjuk bahwa field bisa diklik), jadi tidak hilang fungsinya. */
-.template-engine .surat-polos th,
-.template-engine .surat-polos td,
-.template-engine .surat-polos tr {
-  border: 0;
-}
-
-.template-engine .surat-polos input,
-.template-engine .surat-polos textarea,
-.template-engine .surat-polos select {
-  border-color: transparent;
-}
-
-.template-engine .surat-polos input:hover,
-.template-engine .surat-polos textarea:hover,
-.template-engine .surat-polos input:focus,
-.template-engine .surat-polos textarea:focus {
-  border-color: #94a3b8;
-}
-
-/* Garis putus-putus dekoratif (bukan tabel) di dokumen surat */
-.template-engine .surat-polos .border-dashed {
-  border-style: solid;
-  border-color: transparent;
-}
-
-/* RINCIAN PAJAK (sprint-014): sumber PAKAI grid hitam — tepi MEDIUM (2px),
-   dalam THIN (1px) — openpyxl: border L/R header medium, sisanya thin.
-   Reset grid abu-abu global jadi hitam; border table 2px menang di tepi luar
-   (collapse model: border lebih lebar menang). Sumber: template/Contoh
-   template Rincian Pajak Sekolah Dasar Negeri.xlsx sheet SD_SMP. */
-.template-engine .pajak-tabel {
-  border: 2px solid #000;
-}
-.template-engine .pajak-tabel .th-pajak,
-.template-engine .pajak-tabel .th-pajak-num,
-.template-engine .pajak-tabel .td-pajak {
-  border: 1px solid #000;
-  padding: 1px 2px;
-  vertical-align: middle;
-}
-.template-engine .pajak-tabel .th-pajak {
-  font-weight: bold;
-  text-align: center;
-}
-.template-engine .pajak-tabel .th-pajak-num {
-  font-weight: bold;
-  text-align: center;
-  padding: 0.5px 1px;
-}
-
-@media print {
-  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) sudah
-     memaksa hitam — pajak-tabel memang hitam, jadi TIDAK perlu reset
-     kembali seperti kas-tabel. Aturan di atas tetap dipakai apa adanya. */
-  /* Rincian Pajak (sprint-014): sumber Excel print scale 45% → font efektif
-     ~3,6pt; kita pakai 4pt agar muat di kolom sempit (2–4%) tanpa tumpang
-     tindih, sementara preview layar tetap 6pt. */
-  .pajak-dok { font-size: 4pt !important; }
-  /* Padding default (px-1 = 4px) terlalu besar untuk kolom sempit (~2–4%).
-     Di cetak padding dipangkas agar angka muat. */
-  .pajak-tabel .th-pajak,
-  .pajak-tabel .th-pajak-num,
-  .pajak-tabel .td-pajak {
-    padding: 0.5px 1px !important;
-  }
-}
-
-@media print {
-  /* Print-hitam (.sk-print-area td { border-color: #000 !important }) memaksa
-     grid global jadi HITAM saat cetak. Dimenangkan khusus kas-tabel; sel
-     bergaris titik (inline "dotted") dikembalikan hitam — selector style*
-     lebih spesifik dari reset di atas, jadi garis titik TETAP tercetak. */
-  .sk-print-area .kas-tabel th,
-  .sk-print-area .kas-tabel td {
-    border-color: transparent !important;
-  }
-  .sk-print-area .kas-tabel td[style*="dotted"] {
-    border-color: #000 !important;
-  }
 }
 
 .template-engine input,
@@ -636,178 +990,93 @@ body {
   }
 }
 
-/* Audit gugus task 41 (P1 print-hitam, tanpa ubah font-family/size):
-   area cetak formal (.sk-print-area) WAJIB hitam polos — dekorasi layar
-   (abu, dashed, bg thead) tidak ikut cetak. Scope ketat ke .sk-print-area
-   agar Panel Preview Document (layar) tak berubah. */
-@media print {
-  .sk-print-area,
-  .sk-print-area * {
-    color: #000 !important;
-    background: transparent !important;
-    text-shadow: none !important;
-    box-shadow: none !important;
-  }
 
-  .sk-print-area thead,
-  .sk-print-area th {
-    background: transparent !important;
-  }
-
-  .sk-print-area table,
-  .sk-print-area th,
-  .sk-print-area td {
-    border-color: #000 !important;
-  }
-
-  /* Garis tab putus-putus (border-dashed) jadi garis polos di cetak */
-  .sk-print-area .border-dashed,
-  .sk-print-area tr[class*="border-dashed"],
-  .sk-print-area td[class*="border-dashed"] {
-    border-bottom-style: solid !important;
-  }
-
-  .sk-print-area .border-t[class*="border-dashed"] {
-    border-top-style: solid !important;
-  }
-
-  /* Judul SPT bold + underline seperti docx (khusus print) */
-  .sk-print-area .spt-judul {
-    text-decoration: underline !important;
-  }
-
-  /* ⚠️ TEMUAN USER 2026-10-18 ("cover tidak ada bar background biru"):
-     aturan print-hitam di atas memaksa `background: transparent !important` untuk
-     SEMUA elemen .sk-print-area — ikut mematikan warna milik DOKUMEN (bukan
-     dekorasi layar): bar navy #002060 Cover, bar SEKAT (kini bentuk & warna
-     SAMA dengan cover — temuan "warna biru sekat tidak sama dengan cover"
-     2026-10-18 ronde-3, dulu #004ac6 terang), judul PBD hijau #00b050.
-     Elemen berikut diberi warna KEMBALI lewat kelas eksplisit (inline style
-     kalah dari !important author rule, jadi harus ditulis di sini).
-     Sumber warna: content stream `template/Contoh template COVER.pdf`. */
-  .sk-print-area .bar-navy {
-    background-color: #002060 !important;
-    color: #ffffff !important;
-  }
-
-  .sk-print-area .bar-pbd {
-    color: #00b050 !important;
-  }
+/* ═══ Landing motion (subtle tapi terlihat) ═══ */
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-float-soft { animation: float-soft 6s ease-in-out infinite; }
+/* view switch untuk mockup dashboard (ganti menu/tab otomatis) */
+@keyframes view-switch {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-view-switch { animation: view-switch 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+/* text-shimmer — sapuan highlight lembut pada aksen heading (font terasa "hidup") */
+@keyframes text-shimmer {
+  0% { background-position: 250% 0; }
+  100% { background-position: -150% 0; }
+}
+.text-shimmer {
+  /* warna dasar teks = color elemen; glint disapu lewat background-clip: text */
+  background-color: currentColor;
+  background-image: linear-gradient(
+    110deg,
+    transparent 42%,
+    var(--ts-glint, rgba(199, 221, 248, 0.95)) 50%,
+    transparent 58%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 6.5s ease-in-out 1.4s infinite;
+}
+.dark .text-shimmer { --ts-glint: rgba(255, 255, 255, 0.85); }
+/* batik-drift — motif batik bergerak pelan dari atas ke bawah (1 siklus = 1 tile 360px → loop mulus) */
+@keyframes batik-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(360px); }
+}
+.animate-batik-drift {
+  animation: batik-drift 40s linear infinite;
+  will-change: transform;
+}
+/* ── BrandedLoader (ASIK) — layar penuh & overlay proses di dalam aplikasi ──
+   Animasi .asik-* (ring, halo, dots) hidup global dari <style> index.html. */
+@keyframes app-loader-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes app-loader-fade-out { to { opacity: 0; } }
+.app-loader-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: #F3F5F9;
+  animation: app-loader-fade-in 0.25s ease both;
+}
+html.dark .app-loader-screen { background: #0F172A; }
+.app-loader-overlay {
+  position: absolute; inset: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(243, 245, 249, 0.78);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  animation: app-loader-fade-in 0.25s ease both;
+}
+html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
+.app-loader-screen.is-exiting,
+.app-loader-overlay.is-exiting { animation: app-loader-fade-out 0.3s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-float-soft, .animate-view-switch, .text-shimmer, .animate-batik-drift,
+  .app-loader-screen, .app-loader-overlay { animation: none !important; }
 }
 
-/* ============================================
-   Kertas cetak — A4 vs F4 (Folio 8,5x13")
-   Pilihan user (spj_kertas) via kelas paper-a4/paper-f4.
-   @page dinamis disuntik paperSize.js (#spj-paper-page);
-   blok di bawah fallback statis.
-   ============================================ */
-/* F4 portrait: 215,9mm x 330mm.
-   CATATAN: .print-container (dipakai TemplateEngine mode=print, termasuk di
-   dalam panel layar) WAJIB width:auto di layar — ia mengisi kertas induk
-   (.panel-a4-paper / .sk-print-area) yang sudah berukuran mm persis. Paksa
-   lebar di sini hanya untuk .preview-container (mode edit, kertas mandiri).
-   Ukuran cetak F4 diatur di @media print bawah + #spj-paper-page dinamis. */
-.preview-container.paper-f4.portrait {
-  width: 215.9mm;
-  min-height: 330mm;
+/* ── Card slash motion — sapuan diagonal halus saat hover ── */
+.card-slash {
+  background-image: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.26) 50%, transparent 62%);
+  background-size: 260% 100%;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  transition: background-position 0.7s ease, transform 0.2s ease;
 }
-/* F4 landscape: tinggi ikut folio */
-.preview-container.paper-f4.landscape {
-  width: 330mm;
-  min-height: 215.9mm;
-  padding: 15mm 20mm;
+.card-slash:hover {
+  background-position: 0% 0;
 }
-@media print {
-  .print-container.paper-f4.portrait {
-    width: 215.9mm;
-    min-height: 330mm;
-  }
-  .print-container.paper-f4.landscape {
-    width: 330mm;
-    min-height: 215.9mm;
-    padding: 15mm 20mm;
-  }
+.dark .card-slash {
+  background-image: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
 }
-
-/* Kop garis ganda meniru docx (thinThickSmallGap bawah P3) */
-.kop-ganda {
-  border-bottom: 4px double #000 !important;
-}
-
-/* Tabel SPD meniru TABLE3 docx: bingkai penuh + nomor */
-.spd-tabel {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-.spd-tabel > tbody > tr > td,
-.spd-tabel > tbody > tr > th {
-  border: 1px solid #000;
-  padding: 4px 6px;
-  vertical-align: top;
-  text-align: left;
-}
-.spd-tabel .spd-no {
-  width: 28px;
-  text-align: center;
-  white-space: nowrap;
-}
-.spd-tabel .spd-label {
-  width: 32%;
-}
-
-/* Kotak berangkat/tiba meniru TABLE4 docx (pasangan 2 kolom) */
-.spd-kotak {
-  border: 1px solid #000;
-  padding: 6px 8px;
-  font-size: 11px;
-}
-
-/* Baris surat (SPT/Undangan) polos seperti docx — tanpa garis */
-@media print {
-  .sk-print-area .surat-polos tr,
-  .sk-print-area .surat-polos td {
-    border: none !important;
-  }
-}
-
-/* ============================================
-   SK Honorer — Review Premium
-   ============================================ */
-
-/* Field kosong pada preview layar (tidak ikut cetak) */
-.sk-missing-field {
-  background: rgba(245, 158, 11, 0.14);
-  border-bottom: 1.5px dashed #f59e0b;
-  border-radius: 3px;
-  padding: 0 2px;
-}
-
-/* Area cetak SK Honorer: tersembunyi di layar, muncul saat print */
-.sk-print-area {
-  display: none;
-}
-
-/* Konten layar (mis. preview tabel saja) yang disembunyikan saat print */
-.sk-screen-only {
-  display: block;
-}
-
-@media print {
-  .sk-print-area {
-    display: block !important;
-  }
-
-  .sk-print-area .sk-doc-print {
-    page-break-after: always;
-  }
-
-  .sk-print-area .sk-doc-print:last-child {
-    page-break-after: auto;
-  }
-
-  .sk-screen-only {
-    display: none !important;
-  }
-}
-
