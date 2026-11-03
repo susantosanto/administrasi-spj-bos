@@ -210,7 +210,7 @@ export default function DashboardHome() {
           return (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {stats.map((stat) => (
-                <div key={stat.label} className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
+                <div key={stat.label} className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
                     <span className="material-symbols-outlined text-lg text-slate-400 dark:text-slate-500">{stat.icon}</span>
@@ -241,7 +241,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
+        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700">download</span>
             <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>
@@ -280,7 +280,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-4">
+        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700">auto_awesome</span>
             <h3 className="text-base font-bold text-slate-900">Fitur Unggulan</h3>
@@ -292,7 +292,7 @@ export default function DashboardHome() {
                 to={feature.path}
                 className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
               >
-                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:scale-105 transition-all duration-200">
+                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:scale-105 transition-all duration-200">
                   <span className="material-symbols-outlined text-slate-700 dark:text-slate-200 text-lg group-hover:text-white transition-colors">
                     {feature.icon}
                   </span>

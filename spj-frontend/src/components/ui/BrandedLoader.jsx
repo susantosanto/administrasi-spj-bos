@@ -16,7 +16,7 @@
  */
 export default function BrandedLoader({
   variant = "fullscreen",
-  title = "Aplikasi Sistem Keuangan",
+  title = "Aplikasi Dokumentasi LPJ",
   subtitle = "Pertanggungjawaban Dana BOS/BOSP",
   exiting = false,
 }) {

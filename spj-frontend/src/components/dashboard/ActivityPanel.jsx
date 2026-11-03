@@ -27,7 +27,7 @@ export default function ActivityPanel() {
   }, [])
 
   return (
-    <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
+    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Aktivitas Terbaru</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Jejak kerja operator di aplikasi</p>
@@ -39,7 +39,7 @@ export default function ActivityPanel() {
           <ol className="flex flex-col gap-4">
             {items.map((a) => (
               <li key={a.id} className="flex items-start gap-3 min-w-0">
-                <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center shrink-0">
+                <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-base text-slate-500 dark:text-slate-300">{a.icon || 'info'}</span>
                 </span>
                 <div className="min-w-0 flex-1">

@@ -45,7 +45,7 @@ export default function ArusKasChart() {
 
   if (monthly.length === 0) {
     return (
-      <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-6 text-center">
+      <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 text-center">
         <span className="material-symbols-outlined text-3xl text-slate-300">bar_chart</span>
         <p className="mt-2 text-sm font-bold text-slate-700 dark:text-slate-200">Belum ada data arus kas</p>
         <p className="text-xs text-slate-500 dark:text-slate-400">Upload BKU agar grafik penerimaan vs pengeluaran muncul.</p>
@@ -65,7 +65,7 @@ export default function ArusKasChart() {
   const ticks = [0.25, 0.5, 0.75, 1].map((f) => ({ v: max * f, y: PAD.t + (H - PAD.t - PAD.b) * (1 - f) }))
 
   return (
-    <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
+    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Arus Kas</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Penerimaan vs pengeluaran per bulan (BKU)</p>

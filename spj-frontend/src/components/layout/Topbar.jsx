@@ -104,7 +104,7 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-lg shadow-slate-900/5 flex justify-between items-center px-3 sm:px-4 py-2.5">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/70 dark:bg-slate-900/75 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-lg shadow-slate-900/5 flex justify-between items-center px-3 sm:px-4 py-2.5">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button */}
         <button
@@ -128,7 +128,7 @@ export default function Topbar({ title, subtitle }) {
               onClick={() => setShowLicInfo(true)}
               title="Lihat info lisensi"
               aria-haspopup="dialog"
-              className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/25 hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/25 hover:bg-amber-500/15'}`}
+              className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:bg-red-900/30 dark:text-red-200 border-red-500/25 dark:border-red-700/30 hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200 border-amber-500/25 dark:border-amber-700/30 hover:bg-amber-500/15'}`}
             >
               <span className={`w-2 h-2 rounded-full relative shrink-0 ${licTone === 'dang' ? 'bg-red-500' : 'bg-amber-500'}`} aria-hidden="true">
                 <span className="lic-ring absolute inset-0 rounded-full bg-inherit" />
@@ -148,9 +148,9 @@ export default function Topbar({ title, subtitle }) {
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Kartu trial ala referensi: ikon | divider | label + pil durasi */}
-                  <div className="relative overflow-hidden flex items-center gap-4 p-4 rounded-[22px] border border-[#c9ddff] dark:border-white/10 bg-[linear-gradient(125deg,#ffffff,#f2f7ff_65%,#e2efff)] dark:bg-[linear-gradient(125deg,#1e293b,#0f172a_65%,#1e3a5f)]">
+                  <div className="relative overflow-hidden flex items-center gap-4 p-4 rounded-[22px] border border-[#c9ddff] dark:border-slate-700/40 bg-[linear-gradient(125deg,#ffffff,#f2f7ff_65%,#e2efff)] dark:bg-[linear-gradient(125deg,#1e293b,#0f172a_65%,#1e3a5f)]">
                     <div className="absolute w-40 h-40 rounded-full bg-[#70a9ff]/10 dark:bg-white/5 -right-12 -top-20 pointer-events-none" aria-hidden="true" />
-                    <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center text-[#2676dc] dark:text-blue-300 bg-[linear-gradient(145deg,#d8eaff,#edf5ff)] dark:bg-white/10">
+                    <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center text-[#2676dc] dark:text-blue-300 bg-[linear-gradient(145deg,#d8eaff,#edf5ff)] dark:bg-slate-700/70 border dark:border-slate-600/30">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10" aria-hidden="true">
                         <rect x="3" y="5" width="18" height="16" rx="3" />
                         <path d="M16 3v4M8 3v4" />
@@ -159,7 +159,7 @@ export default function Topbar({ title, subtitle }) {
                         <path d="M8 17h2M14 17h2" />
                       </svg>
                     </div>
-                    <div className="w-0.5 self-stretch bg-[#c7dcff] dark:bg-white/10 shrink-0" aria-hidden="true" />
+                    <div className="w-0.5 self-stretch bg-[#c7dcff] dark:bg-slate-800/60 shrink-0" aria-hidden="true" />
                     <div className="flex-1 min-w-0 relative">
                       <p className="text-sm font-semibold text-[#294776] dark:text-slate-200 mb-1.5">
                         {lic.status === 'TRIAL' ? 'Masa Percobaan :' : `${licMain} :`}
@@ -189,7 +189,7 @@ export default function Topbar({ title, subtitle }) {
                     <button
                       type="button"
                       onClick={() => { licenseService.refresh(); }}
-                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
+                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
                     >
                       Periksa ulang
                     </button>

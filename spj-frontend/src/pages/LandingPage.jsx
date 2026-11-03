@@ -197,7 +197,7 @@ function DashboardMockup({ palette: P, isDark }) {
       >
         <div className="flex items-center gap-2">
           <img src="/asik-logo.png" alt="Asik" className="h-4 w-auto" draggable="false" />
-          <span className="text-xs font-semibold" style={{ color: P.heading }}>Aplikasi Sistem Keuangan</span>
+          <span className="text-xs font-semibold" style={{ color: P.heading }}>Aplikasi Dokumentasi LPJ</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs" style={{ color: P.muted }}>Operator Sekolah</span>
@@ -336,7 +336,7 @@ backgroundColor: scrolled
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/asik-logo.png" alt="Asik" className="h-8 w-auto" draggable="false" />
             <span className="text-base font-bold" style={{ color: P.heading }}>
-              Aplikasi Sistem Keuangan
+              Aplikasi Dokumentasi LPJ
             </span>
           </Link>
 
@@ -427,7 +427,7 @@ backgroundColor: scrolled
                   <br />
                   Selamat Datang di{" "}
                   <span className="text-shimmer" style={{ color: P.primary, animationDelay: "2.4s" }}>
-                    Aplikasi Sistem Keuangan
+                    Aplikasi Dokumentasi LPJ
                   </span>
                 </h1>
 
@@ -680,11 +680,11 @@ backgroundColor: scrolled
             <div className="flex items-center gap-2.5">
               <img src="/asik-logo.png" alt="Asik" className="h-7 w-auto" draggable="false" />
               <span className="text-sm font-bold" style={{ color: P.heading }}>
-                Aplikasi Sistem Keuangan
+                Aplikasi Dokumentasi LPJ
               </span>
             </div>
             <p className="text-xs" style={{ color: P.muted }}>
-              © {new Date().getFullYear()} Aplikasi Sistem Keuangan. All rights reserved.
+              © {new Date().getFullYear()} Aplikasi Dokumentasi LPJ. All rights reserved.
             </p>
           </div>
         </div>
