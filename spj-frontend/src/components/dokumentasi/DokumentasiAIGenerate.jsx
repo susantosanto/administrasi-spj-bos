@@ -17,11 +17,15 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { generateDocumentationImage, generatePlaceholderImage, ACTIVITY_PROMPTS, preloadPuter, cekSigninPuter, masukPuter, resizeImage } from '../../services/imageGenerator'
 import { tambahAkunDariSesi, generateDenganRotasi, adalahErrorKuota, pasangSupresiDialogPuter } from '../../services/puterAkun'
 import PuterAkunManager from '../ai/PuterAkunManager'
-import storageHelper from '../../utils/storageHelper'
+import { daftarWajahTerupload, petaWajahTerupload, wajahFallback } from '../../utils/fotoReferensi'
 
 // ═══════════════════════════════════════════════════════════════════
 // CONSTANTS — opsi chip: satu gaya (slate netral / primary terpilih)
 // ═══════════════════════════════════════════════════════════════════
+
+// Sprint 027: label peran untuk foto personel (SAMA dengan PERSONEL_ROLES di
+// PersonelFotoTab.jsx — writer keyed by role id, reader WAJIB ikut bentuk ini).
+// Dipindah ke utils/fotoReferensi.js (PERAN_LABEL) — satu sumber, teruji node.
 
 const PERSONEL_KEY = 'personel_photos'
 // Foto ruangan referensi (Data Sekolah → Foto Referensi → Ruangan) — Sprint 020 revisi
@@ -63,6 +67,8 @@ const SET_FOTO_DEFAULT = [
 ]
 // Rincian item & jumlah per baris BKU (diketik/ditempel user dari surat perencanaan)
 const ITEMS_KEY = 'spj_dok_ai_items'
+// Sprint 027: label peran untuk foto personel — lihat utils/fotoReferensi.js
+// (PERAN_LABEL; SAMA dengan PERSONEL_ROLES di PersonelFotoTab.jsx).
 // Mapping suasana → slot foto ruangan (id PersonelFotoTab RUANGAN_TYPES)
 const SUASANA_KE_RUANGAN = { ruang_rapat: 'ruang_rapat', aula: 'aula', kantor: 'ruang_kantor' }
 
@@ -203,9 +209,10 @@ export default function DokumentasiAIGenerate({
   // Foto owner pihak luar (warung makan / toko ATK) — per aktivitas, persist
   // localStorage (prefix spj_ sesuai konstitusi): { mamin: dataUrl, atk: dataUrl }
   const ownerPhotos = (() => { try { return JSON.parse(localStorage.getItem(OWNER_KEY) || '{}') } catch { return {} } })()
-  const guruList = storageHelper.get('data_guru', []) || []
-  const orangWithPhotos = guruList.filter((g) => personelPhotos[g.nama]?.dataUrl)
-  const orangHasPhotos = Object.keys(personelPhotos).length > 0
+  // Sprint 027: personel_photos keyed by ROLE id — normalisasi via fotoReferensi
+  // (dulu dicari by nama guru → selalu kosong; wajah tak pernah ke AI).
+  const orangWithPhotos = daftarWajahTerupload(personelPhotos)
+  const orangHasPhotos = orangWithPhotos.length > 0
 
   // Foto ruangan yang terpakai — Sprint 023 (R-3): prioritas ruang LOKAL
   // transaksi ini (spj_ruang_lokal[rowKey][slot]) → fallback foto global
@@ -283,7 +290,21 @@ export default function DokumentasiAIGenerate({
     if (adalahErrorKuota(err)) {
       return 'Kuota AI Puter habis untuk semua akun tersimpan. Tambahkan akun Puter lain lewat tombol "+ Tambah akun" di bagian Akun Puter, atau coba lagi nanti (kuota bisa reset).'
     }
-    return teks || 'Gagal generate gambar'
+    // Sprint 026 (FR-3): cabang yang dulu jatuh ke teks mentah provider.
+    if (/moderation|flagged|konten/i.test(teks)) {
+      return 'Gambar ditolak filter keamanan Puter (konten dianggap sensitif). Coba ubah kata di prompt kegiatan, atau pakai tombol Unggah foto di slot ini — foto asli tetap sah untuk LPJ.'
+    }
+    if (/network|fetch failed|failed to fetch|offline|tidak ada internet|timeout/i.test(teks)) {
+      return 'Jaringan bermasalah (tidak bisa menghubungi Puter). Periksa koneksi internet, lalu klik Generate lagi.'
+    }
+    if (/upstream|service unavailable|502|503|429|rate limit|batas/i.test(teks)) {
+      return 'Layanan AI Puter sedang sibuk (coba lagi beberapa saat). Bila terus gagal, pakai tombol Unggah foto di slot ini.'
+    }
+    if (/401|unauthorized|token|expired|sesi berakhir|sign-?in/i.test(teks)) {
+      return 'Sesi Puter berakhir. Klik Generate lagi untuk masuk ulang (sekali saja), atau tambahkan akun di bagian Akun Puter.'
+    }
+    return (teks || 'Gagal generate gambar') +
+      ' Bila terus gagal, pakai tombol Unggah foto di slot ini — foto asli tetap sah untuk LPJ.'
   }
 
   /** Generate satu slot set foto. timpaId = id foto lama yang ditimpa (regenerate). */
@@ -299,13 +320,16 @@ export default function DokumentasiAIGenerate({
     // diupload — bila user belum memilih siapa pun, otomatis pakai guru
     // pertama yang punya foto (jangan pernah generate tanpa referensi wajah).
     let orangTerpakai = [...selectedOrangList]
-    if (slot.butuhOrang && orangTerpakai.length === 0 && orangWithPhotos.length > 0) {
-      orangTerpakai = [orangWithPhotos[0].nama]
+    const fb = wajahFallback(orangWithPhotos)
+    if (slot.butuhOrang && orangTerpakai.length === 0 && fb) {
+      orangTerpakai = [fb]
     }
     // Input images per slot: wajah personel terpilih + owner (penyerahan),
     // foto ruangan (rapat & produk barang — kunci latar ruang rapat asli).
+    // Sprint 027-verifikasi: peta nama→dataUrl dari entri peran (teruji node).
+    const wajahPeran = petaWajahTerupload(orangWithPhotos)
     const faceImages = slot.butuhOrang
-      ? orangTerpakai.map((n) => personelPhotos[n]?.dataUrl).filter(Boolean)
+      ? orangTerpakai.map((n) => wajahPeran[n]).filter(Boolean)
       : []
     if (slot.butuhOwner && ownerFoto) faceImages.push(ownerFoto)
     const metaFoto = {
@@ -601,7 +625,7 @@ export default function DokumentasiAIGenerate({
                 <label key={g.nama} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all ${
                   selectedOrang[g.nama] ? 'bg-primary/10 border border-primary/40' : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
                 }`}>
-                  <img src={personelPhotos[g.nama]?.dataUrl} alt={g.nama} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
+                  <img src={g.dataUrl} alt={g.nama} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
                   <span className="text-xs font-semibold text-slate-700 flex-1">{g.nama}</span>
                   <span className="text-[9px] text-slate-400">{g.jabatan || 'Guru'}</span>
                   <input type="checkbox" checked={!!selectedOrang[g.nama]} onChange={() => setSelectedOrang((prev) => ({ ...prev, [g.nama]: !prev[g.nama] }))} className="w-4 h-4 rounded border-slate-300 accent-[#004ac6]" />
