@@ -3,6 +3,7 @@ import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { requireWrite } from '../../services/licenseService'
+import { logActivity } from '../../utils/activityLog'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
@@ -173,6 +174,12 @@ export default function BKUPage() {
 
       // Hide upload form after successful upload
       setShowUploadForm(false)
+
+      logActivity({
+        type: 'bku_upload',
+        title: `Upload BKU ${result.summary.totalTransactions} transaksi`,
+        detail: `${monthNames} • Saldo Rp ${fmt(result.summary.saldoAkhir)}`,
+      })
 
       // Build success message
       const monthNames = result.summary.months.map(m => MONTH_NAMES[m - 1]).join(', ')

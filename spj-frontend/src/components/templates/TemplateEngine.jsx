@@ -10,7 +10,11 @@
  *   mode="edit" | "print"
  * />
  */
+<<<<<<< HEAD
 import { useEffect, useState } from 'react'
+=======
+import { Component, useEffect, useState } from 'react'
+>>>>>>> feat/license-sync
 import {
   KopSurat,
   HeaderDokumen,
@@ -95,6 +99,13 @@ export default function TemplateEngine({
     }
   }
 
+<<<<<<< HEAD
+=======
+  // Guard: data null/non-objek (mis. entri BKU kosong) → objek aman
+  const safeData = data && typeof data === 'object' ? data : {}
+  const blocks = Array.isArray(templateConfig.blocks) ? templateConfig.blocks : []
+
+>>>>>>> feat/license-sync
   // Kertas A4/F4 pilihan user (spj_kertas) — ikut tanpa reload.
   const [kertas, setKertas] = useState(getPaperSize())
   useEffect(() => {

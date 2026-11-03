@@ -2,6 +2,10 @@ import { useState } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+<<<<<<< HEAD
+=======
+import { requireWrite } from '../../services/licenseService'
+>>>>>>> feat/license-sync
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import { agregatRealisasi, denganKoreksi } from '../../utils/realisasiAgregat'
 import { KOMPONEN, SNP_ROWS } from '../../utils/realisasiPeta'
@@ -44,6 +48,7 @@ function MatriksRealisasi({ toast }) {
   const docs = realisasiDocs({ tahun, tahap, txs, koreksi, sumberDana, periode })
 
   const simpanKoreksi = (key, nilai) => {
+    if (!requireWrite(toast)) return
     const next = { ...storageHelper.get('spj_realisasi_koreksi', {}) }
     const penuh = `${tahun}-${tahap}-${key}`
     if (nilai === '' || nilai == null) delete next[penuh]
@@ -52,6 +57,7 @@ function MatriksRealisasi({ toast }) {
     setSegar((v) => v + 1)
   }
   const simpanMeta = (key, nilai) => {
+    if (!requireWrite(toast)) return
     const semua = storageHelper.get('spj_realisasi_meta', {})
     const k = `${tahun}-${tahap}`
     storageHelper.set('spj_realisasi_meta', { ...semua, [k]: { ...(semua[k] || {}), [key]: nilai } })

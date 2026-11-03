@@ -9,7 +9,6 @@ import { SidebarProvider, useSidebar } from '../contexts/SidebarContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { seedMockData } from '../data/mockData'
 import storageHelper from '../utils/storageHelper'
-import LicenseBanner from '../components/layout/LicenseBanner'
 import { licenseService } from '../services/licenseService'
 
 function DashboardContent() {
@@ -52,7 +51,6 @@ function DashboardContent() {
           !isMobile && isOpen ? 'lg:ml-[260px]' : 'ml-0'
         }`}
       >
-        <LicenseBanner />
         <Outlet />
       </main>
     </div>

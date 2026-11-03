@@ -6,6 +6,8 @@ import ThemeToggle from '../components/ui/ThemeToggle'
 import { useTheme } from '../contexts/ThemeContext'
 import cpApi, { CpError } from '../services/cpClient'
 import { licenseService } from '../services/licenseService'
+import { saveLocalAccount } from '../utils/localAccount'
+import LicenseCardModal from '../components/LicenseCardModal'
 
 const INIT = {
   schoolName: '',
@@ -14,6 +16,9 @@ const INIT = {
   email: '',
   phone: '',
   address: '',
+  username: '',
+  password: '',
+  confirmPassword: '',
 }
 
 export default function RegisterPage() {
@@ -22,14 +27,16 @@ export default function RegisterPage() {
   const toast = useToast()
   const [form, setForm] = useState(() => storageHelper.get('registration_pending') || INIT)
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
   const [result, setResult] = useState(null)
 
-  // Jika lisensi sudah dihubungkan, langsung ke dashboard.
+  // Jika lisensi sudah ada, beri tahu tapi jangan paksa redirect (biar bisa tes daftar di incognito / setelah clear).
+  // Redirect otomatis hanya jika sudah login.
   useEffect(() => {
-    if (storageHelper.get('license_code')) {
-      toast.info('Lisensi sudah terhubung di aplikasi ini.')
+    if (storageHelper.get('license_code') && storageHelper.get('auth_user')) {
+      toast.info('Lisensi sudah terhubung — masuk ke dashboard.')
       navigate('/dashboard', { replace: true })
+    } else if (storageHelper.get('license_code')) {
+      toast.info('Perangkat ini sudah punya lisensi. Untuk daftar sekolah lain, pakai incognito atau hapus lisensi di Pengaturan.')
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -41,6 +48,12 @@ export default function RegisterPage() {
     if (!/^\d{8}$/.test(form.npsn.trim())) errs.push('NPSN harus 8 digit angka')
     if (form.operatorName.trim().length < 2) errs.push('Nama operator minimal 2 karakter')
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.push('Format email tidak valid')
+    if (!/^[A-Za-z0-9._-]{3,32}$/.test(form.username.trim()))
+      errs.push('Username 3–32 karakter, hanya huruf, angka, titik, garis bawah, atau strip')
+    if (form.password.length < 8) errs.push('Password minimal 8 karakter')
+    else if (!/[A-Za-z]/.test(form.password) || !/\d/.test(form.password))
+      errs.push('Password harus memuat huruf dan angka')
+    if (form.password !== form.confirmPassword) errs.push('Konfirmasi password tidak sama')
     return errs
   }
 
@@ -60,7 +73,8 @@ export default function RegisterPage() {
       return
     }
     // Simpan draf: kalau jaringan gagal/timeout, user cukup kirim ulang tanpa isi ulang.
-    storageHelper.set('registration_pending', form)
+    // Password & konfirmasi tidak pernah disimpan di draf.
+    storageHelper.set('registration_pending', { ...form, password: '', confirmPassword: '' })
     setLoading(true)
     try {
       const payload = {
@@ -90,9 +104,20 @@ export default function RegisterPage() {
         trialDays: reg.trialDays,
       })
       storageHelper.remove('registration_pending')
-      setResult(reg)
-      setDone(true)
-      toast.success('Registrasi berhasil! Masa percobaan dimulai.')
+      const account = await saveLocalAccount({
+        username: form.username,
+        password: form.password,
+        name: form.operatorName,
+        email: form.email,
+      })
+      setResult({
+        ...reg,
+        schoolName: form.schoolName.trim(),
+        npsn: form.npsn.trim(),
+        username: account.username,
+        password: form.password,
+      })
+      toast.success('Registrasi berhasil! Kartu lisensi siap dicetak atau diunduh.')
     } catch (err) {
       if (err instanceof CpError) {
         if (err.status === 429) toast.error(err.message)
@@ -141,7 +166,7 @@ export default function RegisterPage() {
             className="text-lg font-bold tracking-tight"
             style={{ color: isDark ? '#F1F5F9' : '#1D2939' }}
           >
-            Aplikasi Sistem Keuangan
+            Aplikasi Dokumentasi LPJ
           </h2>
           <p className="text-xs mt-1" style={{ color: isDark ? '#94A3B8' : '#66758A' }}>
             Pertanggungjawaban Dana BOS/BOSP
@@ -172,34 +197,11 @@ export default function RegisterPage() {
             <ThemeToggle variant="icon" />
           </div>
 
-          {done && result ? (
-            <div className="text-center py-2">
-              <span className="material-symbols-outlined text-5xl text-emerald-500">check_circle</span>
-              <h1 className="text-[22px] font-bold text-slate-900 mt-2 mb-1">Registrasi Berhasil!</h1>
-              <p className="text-slate-500 text-[13px] mb-3">
-                Sekolah <b>{form.schoolName}</b> terdaftar di ASIK Control Plane dan perangkat ini sudah diaktivasi.
-              </p>
-              <div className="rounded-xl bg-blue-50/80 border border-blue-100 p-4 text-left text-[13px] text-slate-600 space-y-1">
-                <div className="flex justify-between"><span>Kode lisensi:</span><b className="font-mono">{result.licenseCode}</b></div>
-                <div className="flex justify-between"><span>Status:</span><b>{result.status}</b></div>
-                <div className="flex justify-between">
-                  <span>Masa percobaan {result.trialDays} hari,</span>
-                  <b>berlaku sampai {new Date(result.endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</b>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/dashboard', { replace: true })}
-                className="mt-4 w-full h-11 bg-[#2457A7] hover:bg-[#1D4688] text-white font-semibold rounded-xl shadow-lg shadow-[#2457A7]/20 transition-all"
-              >
-                Buka Dashboard
-              </button>
-            </div>
-          ) : (
-            <>
+          <>
               <div className="mb-4">
                 <h1 className="text-[22px] font-bold text-slate-900 mb-1">Daftar Sekolah</h1>
                 <p className="text-slate-500 text-[13px]">
-                  Daftarkan sekolah Anda untuk mencoba aplikasi (14 hari), lalu perangkat ini langsung diaktivasi.
+                  Daftarkan sekolah, buat username &amp; password Anda, lalu perangkat ini langsung diaktivasi.
                 </p>
               </div>
 
@@ -216,6 +218,40 @@ export default function RegisterPage() {
                 />
                 <Field label="Nama Operator (Anda)" id="operatorName" value={form.operatorName} onChange={set('operatorName')} placeholder="Nama lengkap" isDark={isDark} />
                 <Field label="Email" id="email" type="email" value={form.email} onChange={set('email')} placeholder="operator@sekolah.sch.id" isDark={isDark} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    label="Username"
+                    id="username"
+                    value={form.username}
+                    onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.replace(/\s/g, '') }))}
+                    placeholder="mis. operator.sdn01"
+                    isDark={isDark}
+                    autoComplete="username"
+                  />
+                  <Field
+                    label="Password"
+                    id="password"
+                    type="password"
+                    value={form.password}
+                    onChange={set('password')}
+                    placeholder="Min. 8 karakter"
+                    isDark={isDark}
+                    autoComplete="new-password"
+                  />
+                </div>
+                <Field
+                  label="Konfirmasi Password"
+                  id="confirmPassword"
+                  type="password"
+                  value={form.confirmPassword}
+                  onChange={set('confirmPassword')}
+                  placeholder="Ulangi password"
+                  isDark={isDark}
+                  autoComplete="new-password"
+                />
+                <p className="text-[11px] text-slate-500 -mt-1">
+                  Username dan password ini dipakai untuk masuk ke aplikasi dan akan tercetak pada kartu lisensi.
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="No. HP" id="phone" value={form.phone} onChange={set('phone')} placeholder="Opsional" isDark={isDark} optional />
                   <Field label="Alamat" id="address" value={form.address} onChange={set('address')} placeholder="Opsional" isDark={isDark} optional />
@@ -260,15 +296,21 @@ export default function RegisterPage() {
                   Masuk / Hubungkan lewat Pengaturan
                 </Link>
               </p>
-            </>
-          )}
+          </>
         </div>
 
         <div className="flex items-center gap-3 mt-5 text-[11px] text-slate-400">
           <span className="px-2.5 py-1 bg-slate-100 rounded-md font-medium text-slate-500">PROTOTYPE</span>
-          <span>© {new Date().getFullYear()} Aplikasi Sistem Keuangan</span>
+          <span>© {new Date().getFullYear()} Aplikasi Dokumentasi LPJ</span>
         </div>
       </div>
+
+      <LicenseCardModal
+        open={!!result}
+        data={result}
+        onClose={() => navigate('/dashboard', { replace: true })}
+        onDashboard={() => navigate('/dashboard', { replace: true })}
+      />
     </div>
   )
 }

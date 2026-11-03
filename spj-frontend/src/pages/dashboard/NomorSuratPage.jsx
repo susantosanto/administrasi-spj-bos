@@ -12,6 +12,7 @@ import Topbar from '../../components/layout/Topbar';
 import storageHelper from '../../utils/storageHelper';
 import { useToast } from '../../components/ui/Toast';
 import { requireWrite } from '../../services/licenseService';
+import { logActivity } from '../../utils/activityLog';
 import { useSidebar } from '../../contexts/SidebarContext';
 
 const { get, set } = storageHelper;
@@ -198,6 +199,7 @@ const NomorSuratPage = () => {
         status: 'used'
       };
       saveNomorSurat(record);
+      logActivity({ type: 'nomor', title: `Nomor surat ${record.nomor}`, detail: record.jenis });
       toast.success('Nomor tersimpan!');
       setGeneratedNomor('');
       loadData();
