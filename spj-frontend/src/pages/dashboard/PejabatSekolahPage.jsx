@@ -6,7 +6,10 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+<<<<<<< HEAD
+=======
 import { requireWrite } from '../../services/licenseService'
+>>>>>>> feat/license-sync
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import { loadRiwayat, tambahPeriode } from '../../utils/bkuKategori'
 
@@ -82,7 +85,6 @@ export default function PejabatSekolahPage() {
 
   // ─── Save ────────────────────────────────────────────────────────
   const handleSave = () => {
-    if (!requireWrite(toast)) return
     const stored = storageHelper.get('data_sekolah', {})
     storageHelper.set('data_sekolah', { ...stored, pejabat })
     setHasChanges(false)

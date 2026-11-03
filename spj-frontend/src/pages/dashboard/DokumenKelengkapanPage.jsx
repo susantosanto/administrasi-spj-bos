@@ -6,8 +6,11 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+<<<<<<< HEAD
+=======
 import { requireWrite } from '../../services/licenseService'
 import { logActivity } from '../../utils/activityLog'
+>>>>>>> feat/license-sync
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import BlankoHadir from '../../components/blanko/BlankoHadir'
@@ -624,8 +627,11 @@ export default function DokumenKelengkapanPage() {
   const fmtRpPecahan = (n) => `Rp ${(Number(n) || 0).toLocaleString('id-ID')}`
 
   const handleSaveForm = () => {
+<<<<<<< HEAD
+=======
     if (!requireWrite(toast)) return
     logActivity({ type: 'dokumen', title: `Simpan ${selectedDokumen.nama}`, detail: selectedDokumen.kategori || '' })
+>>>>>>> feat/license-sync
     toast.success(`Form "${selectedDokumen.nama}" berhasil disimpan`)
     setSelectedDokumen(null)
     setFormData({})

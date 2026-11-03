@@ -2,7 +2,10 @@ import { useState } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+<<<<<<< HEAD
+=======
 import { requireWrite } from '../../services/licenseService'
+>>>>>>> feat/license-sync
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import { agregatRealisasi, denganKoreksi } from '../../utils/realisasiAgregat'
 import { KOMPONEN, SNP_ROWS } from '../../utils/realisasiPeta'

@@ -162,7 +162,11 @@ function parseNumber(val) {
 const TARIK_RE = /(^|\s)(tarik|penarikan|ditarik)(\s|$)/;
 const isTarikTunai = (u) => TARIK_RE.test(u || '');
 
+<<<<<<< HEAD
+const TRANSACTION_TYPES = {
+=======
 export const TRANSACTION_TYPES = {
+>>>>>>> feat/license-sync
   PENERIMAAN_BOSP: 'PENERIMAAN_BOSP',
   PUNGUT_PPH: 'PUNGUT_PPH',
   PERGESERAN_BANK: 'PERGESERAN_BANK',
@@ -175,7 +179,7 @@ export const TRANSACTION_TYPES = {
   LAINNYA: 'LAINNYA',
 };
 
-export const KATEGORI_BELANJA = {
+const KATEGORI_BELANJA = {
   HONOR: { pattern: /^5\.1\.02\.02/, label: 'Honor/Gaji', color: 'purple' },
   LISTRIK: { pattern: /^5\.2\.05\.01\.01\.0001$/, label: 'Listrik', color: 'orange' },
   ATK: { pattern: /^5\.1\.02\.01\.01\.0024$/, label: 'ATK', color: 'blue' },

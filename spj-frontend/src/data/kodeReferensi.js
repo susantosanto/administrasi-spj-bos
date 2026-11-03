@@ -9,8 +9,6 @@
  * Last updated: 2026-10-31 (Sprint 023 — REKENING_MAP ganti total dari Excel 5.1 2026)
  */
 
-import storageHelper from '../utils/storageHelper'
-
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA DASAR — Kode Kegiatan ARKAS BOS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -460,13 +458,13 @@ export async function refreshKodeReferensi() {
     const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || []
     
     if (tables.length > 0) {
-      // Berhasil parse → simpan ke storage (quota-safe)
+      // Berhasil parse → simpan ke localStorage
       const parsedData = {
         timestamp: new Date().toISOString(),
         source: url,
         tables: tables.length,
       }
-      storageHelper.set('kode_referensi_update', parsedData)
+      localStorage.setItem('spj_kode_referensi_update', JSON.stringify(parsedData))
       return { success: true, message: `Berhasil mengambil ${tables.length} tabel referensi.` }
     }
     

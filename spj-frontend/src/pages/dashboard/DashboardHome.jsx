@@ -61,7 +61,7 @@ const FEATURES = [
   },
   {
     id: 'bku',
-    title: 'Kas & Dokumen',
+    title: 'Data BKU',
     subtitle: 'Import data dari ARKAS',
     description: 'Upload file BKU Excel untuk referensi pembuatan dokumen. Otomatis terdeteksi transaksi.',
     icon: 'upload_file',
@@ -168,12 +168,58 @@ export default function DashboardHome() {
                 <img src="/asik-logo.png" alt="Asik" className="h-5 w-auto object-contain" draggable="false" />
               </div>
               <div className="min-w-0">
+<<<<<<< HEAD
+                <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
+                <p className="text-[10px] text-slate-500 truncate">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {lpjProgress.total > 0 && (
+          <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">checklist</span>
+                <h3 className="text-base font-bold text-slate-900">Progress Kelengkapan LPJ</h3>
+              </div>
+              <Link
+                to="/dashboard/bku"
+                className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+              >
+                Kelola di Data BKU
+                <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
+            </div>
+            <div className="px-5 py-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">Dokumen LPJ sudah lengkap</span>
+                </div>
+                <span className="text-lg font-bold text-primary">
+                  {lpjProgress.checked}/{lpjProgress.total}
+                </span>
+              </div>
+              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-blue-500 rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${lpjProgress.total > 0 ? Math.round((lpjProgress.checked / lpjProgress.total) * 100) : 0}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-[11px] text-slate-400">
+                  Centang checklist di halaman Data BKU untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
+=======
                 <p className="text-blue-100/80 text-[10px] uppercase tracking-[0.2em] font-semibold">Sistem Informasi</p>
                 <h1 className="text-lg sm:text-xl font-bold text-white/95 tracking-tight leading-tight">
                   LPJ BOS/BOSP
                 </h1>
                 <p className="text-blue-100/70 text-xs sm:text-sm leading-snug">
                   Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
+>>>>>>> feat/license-sync
                 </p>
               </div>
             </div>
@@ -277,6 +323,8 @@ export default function DashboardHome() {
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
@@ -309,6 +357,7 @@ export default function DashboardHome() {
           </div>
         </div>
 
+>>>>>>> feat/license-sync
       </div>
       <DownloadConfirmModal
         doc={selectedDoc}

@@ -1,8 +1,0 @@
-{
-  "id": "feature_ui-ux-design-system-audit-consolidation-premium-blue_20260902_f058",
-  "type": "feature",
-  "status": "in_progress",
-  "created_at": "2026-09-02T10:32:49.890Z",
-  "updated_at": "2026-09-02T10:44:51.237Z",
-  "description": "Audit menyeluruh dan konsolidasi design system aplikasi LPJ BOS/BOSP dengan mempertahankan tema Premium Blue. Merapikan token warna, tipografi, spacing, radius, shadow, dan komponen untuk konsistensi dan aksesibilitas."
-}

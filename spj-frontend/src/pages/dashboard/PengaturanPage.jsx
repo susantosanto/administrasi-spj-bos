@@ -2,9 +2,12 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+<<<<<<< HEAD
+=======
 import ThemeToggle from '../../components/ui/ThemeToggle'
 import { useTheme } from '../../contexts/ThemeContext'
 import LicenseSyncCard from '../../components/settings/LicenseSyncCard'
+>>>>>>> feat/license-sync
 import PuterAkunManager from '../../components/ai/PuterAkunManager'
 
 export default function PengaturanPage() {
@@ -14,7 +17,6 @@ export default function PengaturanPage() {
     ['profil', 'tampilan', 'akun-ai', 'master', 'lisensi', 'backup', 'tentang'].includes(awal) ? awal : 'profil'
   )
   const [siplah, setSiplah] = useState(false)
-  const { isDark, toggle } = useTheme()
   const toast = useToast()
 
   return (
@@ -26,10 +28,12 @@ export default function PengaturanPage() {
         <div className="flex flex-wrap gap-sm border-b border-outline-variant pb-md">
           {[
             { id: 'profil', label: 'Profil Sekolah', icon: 'school' },
+<<<<<<< HEAD
+=======
             { id: 'tampilan', label: 'Tampilan', icon: 'contrast' },
+>>>>>>> feat/license-sync
             { id: 'akun-ai', label: 'Akun AI', icon: 'manage_accounts' },
             { id: 'master', label: 'Data Master', icon: 'database' },
-            { id: 'lisensi', label: 'Lisensi & Sinkron', icon: 'verified' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
             { id: 'tentang', label: 'Tentang', icon: 'info' },
           ].map(t => (
@@ -70,6 +74,8 @@ export default function PengaturanPage() {
           </div>
         )}
 
+<<<<<<< HEAD
+=======
         {tab === 'tampilan' && (
           <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
@@ -102,6 +108,7 @@ export default function PengaturanPage() {
             <p className="text-xs text-text-low flex items-center gap-1"><span className="material-symbols-outlined text-sm">info</span> Tema tersimpan otomatis dan mengikuti pengaturan sistem jika belum dipilih.</p>
           </div>
         )}
+>>>>>>> feat/license-sync
         {tab === 'akun-ai' && <PuterAkunManager variant="page" />}
 
         {tab === 'master' && (
@@ -123,8 +130,6 @@ export default function PengaturanPage() {
             </div>
           </div>
         )}
-
-        {tab === 'lisensi' && <LicenseSyncCard />}
 
         {tab === 'backup' && (
           <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
