@@ -168,16 +168,30 @@ export default function DashboardHome() {
                 <img src="/asik-logo.png" alt="Asik" className="h-5 w-auto object-contain" draggable="false" />
               </div>
               <div className="min-w-0">
-<<<<<<< HEAD
-                <p className="text-lg font-bold text-slate-900 leading-none">{stat.value}</p>
-                <p className="text-[10px] text-slate-500 truncate">{stat.label}</p>
+                <p className="text-blue-100/80 text-[10px] uppercase tracking-[0.2em] font-semibold">Sistem Informasi</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white/95 tracking-tight leading-tight">
+                  LPJ BOS/BOSP
+                </h1>
+                <p className="text-blue-100/70 text-xs sm:text-sm leading-snug">
+                  Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
+                </p>
               </div>
             </div>
-          ))}
+
+            {/* Right — Waktu */}
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl px-4 py-2.5 border border-white/20 shadow shrink-0 sm:text-right">
+              <div className="text-2xl sm:text-3xl font-light tracking-tight font-mono text-white leading-none">
+                {String(currentTime.getHours()).padStart(2, '0')}:{String(currentTime.getMinutes()).padStart(2, '0')}
+              </div>
+              <div className="text-[10px] sm:text-xs text-blue-200 tracking-wide mt-1">
+                {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU                       */}
+        {/* PROGRESS KELENGKAPAN LPJ — Dari Checklist BKU (di luar hero)         */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {lpjProgress.total > 0 && (
           <div className="bg-white/60 dark:bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden">
@@ -212,29 +226,11 @@ export default function DashboardHome() {
               <div className="flex items-center justify-between mt-2">
                 <p className="text-[11px] text-slate-400">
                   Centang checklist di halaman Data BKU untuk setiap transaksi yang sudah lengkap dokumen LPJ-nya
-=======
-                <p className="text-blue-100/80 text-[10px] uppercase tracking-[0.2em] font-semibold">Sistem Informasi</p>
-                <h1 className="text-lg sm:text-xl font-bold text-white/95 tracking-tight leading-tight">
-                  LPJ BOS/BOSP
-                </h1>
-                <p className="text-blue-100/70 text-xs sm:text-sm leading-snug">
-                  Aplikasi pencetakan dokumen pertanggungjawaban dana BOS/BOSP.
->>>>>>> feat/license-sync
                 </p>
               </div>
             </div>
-
-            {/* Right — Waktu */}
-            <div className="bg-white/10 backdrop-blur-xl rounded-xl px-4 py-2.5 border border-white/20 shadow shrink-0 sm:text-right">
-              <div className="text-2xl sm:text-3xl font-light tracking-tight font-mono text-white leading-none">
-                {String(currentTime.getHours()).padStart(2, '0')}:{String(currentTime.getMinutes()).padStart(2, '0')}
-              </div>
-              <div className="text-[10px] sm:text-xs text-blue-200 tracking-wide mt-1">
-                {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </div>
-            </div>
           </div>
-        </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* QUICK STATS — ala referensi: label + value besar + hint konteks      */}
@@ -323,8 +319,6 @@ export default function DashboardHome() {
           </div>
         </div>
 
-<<<<<<< HEAD
-=======
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
@@ -357,7 +351,6 @@ export default function DashboardHome() {
           </div>
         </div>
 
->>>>>>> feat/license-sync
       </div>
       <DownloadConfirmModal
         doc={selectedDoc}

@@ -10,11 +10,7 @@
  *   mode="edit" | "print"
  * />
  */
-<<<<<<< HEAD
 import { useEffect, useState } from 'react'
-=======
-import { Component, useEffect, useState } from 'react'
->>>>>>> feat/license-sync
 import {
   KopSurat,
   HeaderDokumen,
@@ -74,6 +70,9 @@ const BLOCK_RENDERERS = {
   'undangan-blanko': SuratUndanganPaper,
 }
 
+// Daftar tipe blok yang dikenal — dipakai test konsistensi templateConfig.
+export const KNOWN_BLOCK_TYPES = Object.keys(BLOCK_RENDERERS)
+
 export default function TemplateEngine({
   templateConfig,
   data = {},
@@ -99,13 +98,6 @@ export default function TemplateEngine({
     }
   }
 
-<<<<<<< HEAD
-=======
-  // Guard: data null/non-objek (mis. entri BKU kosong) → objek aman
-  const safeData = data && typeof data === 'object' ? data : {}
-  const blocks = Array.isArray(templateConfig.blocks) ? templateConfig.blocks : []
-
->>>>>>> feat/license-sync
   // Kertas A4/F4 pilihan user (spj_kertas) — ikut tanpa reload.
   const [kertas, setKertas] = useState(getPaperSize())
   useEffect(() => {

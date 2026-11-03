@@ -1080,8 +1080,6 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
 .dark .card-slash {
   background-image: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
 }
-<<<<<<< HEAD
-=======
 /* Audit gugus task 41 (P1 print-hitam, tanpa ubah font-family/size):
    area cetak formal (.sk-print-area) WAJIB hitam polos — dekorasi layar
    (abu, dashed, bg thead) tidak ikut cetak. Scope ketat ke .sk-print-area
@@ -1256,5 +1254,3 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
     display: none !important;
   }
 }
-
->>>>>>> feat/license-sync
