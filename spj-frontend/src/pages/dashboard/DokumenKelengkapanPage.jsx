@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { logActivity } from '../../utils/activityLog'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import BlankoHadir from '../../components/blanko/BlankoHadir'
@@ -622,6 +623,7 @@ export default function DokumenKelengkapanPage() {
   const fmtRpPecahan = (n) => `Rp ${(Number(n) || 0).toLocaleString('id-ID')}`
 
   const handleSaveForm = () => {
+    logActivity({ type: 'dokumen', title: `Simpan ${selectedDokumen.nama}`, detail: selectedDokumen.kategori || '' })
     toast.success(`Form "${selectedDokumen.nama}" berhasil disimpan`)
     setSelectedDokumen(null)
     setFormData({})

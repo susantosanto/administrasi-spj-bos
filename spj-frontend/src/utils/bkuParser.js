@@ -162,7 +162,7 @@ function parseNumber(val) {
 const TARIK_RE = /(^|\s)(tarik|penarikan|ditarik)(\s|$)/;
 const isTarikTunai = (u) => TARIK_RE.test(u || '');
 
-const TRANSACTION_TYPES = {
+export const TRANSACTION_TYPES = {
   PENERIMAAN_BOSP: 'PENERIMAAN_BOSP',
   PUNGUT_PPH: 'PUNGUT_PPH',
   PERGESERAN_BANK: 'PERGESERAN_BANK',

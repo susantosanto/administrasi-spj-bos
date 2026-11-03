@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import storageHelper from "../utils/storageHelper";
 import { useToast } from "../components/ui/Toast";
+import { logActivity } from "../utils/activityLog";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { useTheme } from "../contexts/ThemeContext";
+import { verifyLocalAccount } from "../utils/localAccount";
 
 export default function LoginPage() {
   const { isDark } = useTheme();
@@ -15,22 +17,27 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Delay pendek untuk umpan balik UI — jangan 1.5 detik lagi (mock tua).
-    setTimeout(() => {
-      if (username && password) {
-        localStorage.setItem("spj_auth", "true");
-        storageHelper.set("auth_user", { name: username, role: "admin" });
-        storageHelper.set("auth_token", "mock-token-" + Date.now());
-        toast.success("Selamat datang, " + username + "!");
-        navigate("/dashboard");
-      } else {
-        toast.error("Username dan password harus diisi");
+    try {
+      const res = await verifyLocalAccount(username, password);
+      if (!res.ok) {
+        toast.error("Username atau password salah");
+        return;
       }
+      const displayName = res.account?.name || username;
+      localStorage.setItem("spj_auth", "true");
+      storageHelper.set("auth_user", { name: displayName, role: "admin" });
+      storageHelper.set("auth_token", "mock-token-" + Date.now());
+      logActivity({ type: 'auth', title: `Masuk ${displayName}`, detail: 'login dashboard' });
+      toast.success("Selamat datang, " + displayName + "!");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error("Gagal memeriksa akun: " + (err.message || err));
+    } finally {
       setLoading(false);
-    }, 400);
+    }
   };
 
   return (
@@ -72,7 +79,7 @@ export default function LoginPage() {
             className="text-lg font-bold tracking-tight"
             style={{ color: isDark ? "#F1F5F9" : "#1D2939" }}
           >
-            Aplikasi Sistem Keuangan
+            Aplikasi Dokumentasi LPJ
           </h2>
           <p className="text-xs mt-1" style={{ color: isDark ? "#94A3B8" : "#66758A" }}>
             Pertanggungjawaban Dana BOS/BOSP
@@ -250,7 +257,7 @@ export default function LoginPage() {
           <span className="px-2.5 py-1 bg-slate-100 rounded-md font-medium text-slate-500">
             PROTOTYPE
           </span>
-          <span>© {new Date().getFullYear()} Aplikasi Sistem Keuangan</span>
+          <span>© {new Date().getFullYear()} Aplikasi Dokumentasi LPJ</span>
         </div>
       </div>
     </div>

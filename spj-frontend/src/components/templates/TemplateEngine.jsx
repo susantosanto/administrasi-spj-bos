@@ -70,6 +70,9 @@ const BLOCK_RENDERERS = {
   'undangan-blanko': SuratUndanganPaper,
 }
 
+// Daftar tipe blok yang dikenal — dipakai test konsistensi templateConfig.
+export const KNOWN_BLOCK_TYPES = Object.keys(BLOCK_RENDERERS)
+
 export default function TemplateEngine({
   templateConfig,
   data = {},
