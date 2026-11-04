@@ -3,13 +3,10 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import { ThemeProvider } from './contexts/ThemeContext'
-<<<<<<< HEAD
-=======
 import { initPaperSize } from './utils/paperSize'
 
 // Terapkan @page (A4/F4 pilihan user, spj_kertas) sebelum cetak pertama.
 initPaperSize()
->>>>>>> feat/license-sync
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
