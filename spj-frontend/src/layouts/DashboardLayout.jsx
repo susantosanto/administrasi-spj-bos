@@ -3,7 +3,7 @@
  * Mobile: overlay sidebar, Desktop: push sidebar
  */
 import { useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar'
 import { SidebarProvider, useSidebar } from '../contexts/SidebarContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -14,6 +14,7 @@ import { licenseService } from '../services/licenseService'
 function DashboardContent() {
   const { isOpen, isMobile } = useSidebar()
   const { isDark } = useTheme()
+  const location = useLocation()
 
   useEffect(() => {
     storageHelper.ensureSchemaVersion()
@@ -50,7 +51,9 @@ function DashboardContent() {
           !isMobile && isOpen ? 'lg:ml-[260px]' : 'ml-0'
         }`}
       >
-        <Outlet />
+        <div key={location.pathname} className="animate-fade-in flex-1 flex flex-col">
+          <Outlet />
+        </div>
       </main>
     </div>
   )
