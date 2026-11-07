@@ -122,7 +122,7 @@ export default function SkHonorerEditor({
       {/* ═══ TOOLBAR ═══ */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/25">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/25">
             <span className="material-symbols-outlined text-lg">gavel</span>
           </span>
           <div>
@@ -147,7 +147,7 @@ export default function SkHonorerEditor({
           <button
             type="button"
             onClick={() => doPrint('all')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-lg">print</span>
             Cetak Semua ({skList.length})
@@ -219,7 +219,7 @@ export default function SkHonorerEditor({
                 {/* Header kartu */}
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-blue-600 text-xs font-bold text-white shadow-md shadow-primary/20">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-md shadow-primary/20">
                       {initials(row.nama)}
                     </span>
                     <div className="min-w-0">
@@ -316,7 +316,7 @@ export default function SkHonorerEditor({
               >
                 {/* Header pasal */}
                 <div className="flex items-center gap-2 border-b border-slate-100 bg-gradient-to-r from-primary/5 via-transparent to-transparent px-4 py-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-blue-600 text-[10px] font-bold text-white shadow-sm">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-[10px] font-bold text-white shadow-sm">
                     {pi + 1}
                   </span>
                   <input

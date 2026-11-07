@@ -15,7 +15,7 @@ export default function AskAIButton() {
         onClick={openPanel}
         className="fixed bottom-6 right-6 z-50 
                    w-14 h-14 rounded-full 
-                   bg-gradient-to-br from-primary to-blue-600 
+                   bg-primary 
                    text-white
                    shadow-lg shadow-primary/25
                    hover:shadow-[0_8px_32px_rgba(0,74,198,0.4)]

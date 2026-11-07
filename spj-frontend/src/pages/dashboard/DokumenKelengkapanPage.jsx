@@ -1114,7 +1114,7 @@ export default function DokumenKelengkapanPage() {
           </div>
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
                 <span className="material-symbols-outlined text-2xl text-white">{selectedDokumen.icon}</span>
               </div>
               <div>
@@ -1454,7 +1454,7 @@ export default function DokumenKelengkapanPage() {
         </div>
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
               <span className="material-symbols-outlined text-2xl text-white">folder_shared</span>
             </div>
             <div>

@@ -444,7 +444,7 @@ export default function DokumenSPJPage() {
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
               isSelected 
-                ? 'bg-gradient-to-br from-primary to-blue-600 text-white scale-110 shadow-lg shadow-primary/30' 
+                ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/30' 
                 : 'bg-slate-100 text-slate-600 group-hover:scale-105'
             }`}>
               <span className="material-symbols-outlined text-2xl">{card.icon}</span>

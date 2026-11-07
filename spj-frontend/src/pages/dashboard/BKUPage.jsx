@@ -427,7 +427,7 @@ export default function BKUPage() {
                             transition-all duration-300 cursor-pointer ${
                   isUploading
                     ? 'bg-slate-300 text-white cursor-not-allowed'
-                    : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>

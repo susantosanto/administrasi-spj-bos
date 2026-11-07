@@ -260,7 +260,7 @@ export default function NotesPage() {
             {/* Add Note Button */}
             <button
               onClick={handleCreateNote}
-              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-2xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-primary text-white rounded-2xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               <span className="hidden sm:inline">Buat Catatan</span>
@@ -312,7 +312,7 @@ export default function NotesPage() {
             </p>
             <button
               onClick={handleCreateNote}
-              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
+              className="inline-flex items-center gap-2.5 bg-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               Buat Catatan Pertama
@@ -556,7 +556,7 @@ export default function NotesPage() {
               </button>
               <button
                 onClick={handleSaveNote}
-                className="px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-[0.98]"
+                className="px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-[0.98]"
               >
                 {editingNote ? 'Simpan Perubahan' : 'Buat Catatan'}
               </button>

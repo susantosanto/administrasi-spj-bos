@@ -474,7 +474,7 @@ export default function AskAIPanel({ onClose }) {
         {/* ── HEADER ── */}
         <div className="relative flex items-center justify-between px-6 py-5 border-b border-slate-200/40 bg-white/50 backdrop-blur-xl">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20 ring-1 ring-white/20">
+            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 ring-1 ring-white/20">
               <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
             </div>
             <div>
@@ -636,7 +636,7 @@ export default function AskAIPanel({ onClose }) {
               <button onClick={send} disabled={(!input.trim() && !attachedFiles.length) || isLoading}
                 className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                   (input.trim() || attachedFiles.length) && !isLoading
-                    ? 'bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 active:scale-90'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 active:scale-90'
                     : 'bg-slate-100 text-slate-300 cursor-not-allowed'
                 }`}>
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>

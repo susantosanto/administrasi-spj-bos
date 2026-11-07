@@ -480,7 +480,7 @@ export default function DataSekolahPage() {
                 className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
                   isUploading
                     ? 'bg-slate-300 text-white cursor-not-allowed'
-                    : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
@@ -509,7 +509,7 @@ export default function DataSekolahPage() {
                 </p>
                 <button
                   onClick={() => setShowUpload(true)}
-                  className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2.5 bg-primary text-white px-8 py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">upload</span>
                   Upload Data Sekolah

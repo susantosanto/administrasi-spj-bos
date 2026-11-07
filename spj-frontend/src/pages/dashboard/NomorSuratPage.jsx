@@ -411,7 +411,7 @@ const NomorSuratPage = () => {
 
             {/* Generate */}
             <button onClick={handleGenerate}
-              className="w-full py-4 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl flex items-center justify-center gap-2 mb-6">
+              className="w-full py-4 bg-primary hover:from-blue-600 hover:to-primary text-white font-semibold rounded-2xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl flex items-center justify-center gap-2 mb-6">
               <span className="material-symbols-outlined text-xl">autorenew</span> Generate Nomor
             </button>
 

@@ -274,7 +274,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
           <label htmlFor="bku-pdf-input"
             className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
                        transition-all duration-300 cursor-pointer
-                       bg-gradient-to-r from-primary to-blue-600 text-white
+                       bg-primary text-white
                        hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
             <span className="material-symbols-outlined text-lg">upload</span> Pilih File PDF BKU
           </label>

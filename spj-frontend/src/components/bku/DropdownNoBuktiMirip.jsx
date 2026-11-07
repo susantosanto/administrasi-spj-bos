@@ -109,7 +109,7 @@ export default function DropdownNoBuktiMirip({
                     setTunda(null)
                     onSimpanLaluPilih(k)
                   }}
-                  className="px-4 py-2 bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-semibold rounded-lg shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
+                  className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
                 >
                   Simpan &amp; Pindah
                 </button>

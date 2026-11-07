@@ -473,7 +473,7 @@ export default function DokumentasiAIGenerate({
       {/* Header — premium: aksen gradient primary + chip AI */}
       <div className="px-5 py-4 bg-gradient-to-r from-primary/5 to-blue-50/60 border-b border-primary/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-md shadow-primary/30">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/30">
             <span className="material-symbols-outlined text-white text-xl">auto_awesome</span>
           </div>
           <div className="flex-1">
@@ -763,7 +763,7 @@ export default function DokumentasiAIGenerate({
             type="button"
             onClick={handleGenerateSemua}
             className="w-full flex items-center justify-center gap-2 min-h-[44px] rounded-xl text-sm font-bold text-white
-                       bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30
+                       bg-primary shadow-lg shadow-primary/30
                        ring-1 ring-primary/20 hover:brightness-110 transition-all active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-lg">auto_awesome</span>

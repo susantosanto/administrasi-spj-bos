@@ -155,7 +155,7 @@ export default function ReferensiKodePage() {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-primary/20 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-semibold shadow-lg shadow-primary/20 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
             >
               <span className={`material-symbols-outlined text-base ${refreshing ? 'animate-spin' : ''}`}>
                 {refreshing ? 'sync' : 'refresh'}

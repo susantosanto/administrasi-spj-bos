@@ -81,7 +81,7 @@ export default function BKUSidebarLpjToolbar({
           title={bisaSimpan ? 'Simpan dokumen untuk NoBukti ini' : 'Baris tanpa No Bukti tidak bisa disimpan'}
           className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
             bisaSimpan
-              ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
+              ? 'bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
               : 'bg-slate-200 text-slate-400 cursor-not-allowed'
           }`}
         >

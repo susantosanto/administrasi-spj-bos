@@ -155,7 +155,7 @@ export default function DetailDokumenLpj({
                 <div className="flex items-center gap-3">
                   <button
                     onClick={onPrint}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-primary text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">print</span>
                     Cetak Dokumen

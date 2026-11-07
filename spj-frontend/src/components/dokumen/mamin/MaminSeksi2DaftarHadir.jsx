@@ -98,7 +98,7 @@ export default function MaminSeksi2DaftarHadir({ formData = {}, setFormData }) {
         <button
           type="button"
           onClick={() => setShowPeserta((v) => !v)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-semibold shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
         >
           <span className="material-symbols-outlined text-base">{showPeserta ? 'expand_less' : 'group_add'}</span>
           {showPeserta ? 'Tutup Daftar' : `Pilih Peserta${rows.length ? ` (${rows.length})` : ''}`}

@@ -154,7 +154,7 @@ export default function PejabatSekolahPage() {
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Card Header — blue-only (Sprint 001 task 2.7) */}
-              <div className="relative bg-gradient-to-r from-primary to-blue-600 p-5 overflow-hidden">
+              <div className="relative bg-primary p-5 overflow-hidden">
                 {/* Decorative */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-2xl" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl" />

@@ -59,7 +59,7 @@ export default function MaminSeksi6Notulen({ formData = {}, setFormData }) {
           onClick={onGenerate}
           disabled={busy}
           className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
-            busy ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-md shadow-primary/25 hover:brightness-110 active:scale-95'
+            busy ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-primary text-white shadow-md shadow-primary/25 hover:brightness-110 active:scale-95'
           }`}
         >
           <span className="material-symbols-outlined text-sm">{busy ? 'hourglass_top' : 'auto_awesome'}</span>

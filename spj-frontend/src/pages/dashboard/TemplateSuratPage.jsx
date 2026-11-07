@@ -170,7 +170,7 @@ const TemplateSuratPage = () => {
   return (
     <div className="min-h-screen bg-slate-100/80 pb-8">
       {/* Hero Header */}
-      <div className={`bg-gradient-to-r from-primary to-blue-600 text-white ${isMobile ? 'px-4 py-6' : 'px-8 py-10'} mb-6`}>
+      <div className={`bg-primary text-white ${isMobile ? 'px-4 py-6' : 'px-8 py-10'} mb-6`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">📝</span>

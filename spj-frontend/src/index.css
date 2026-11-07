@@ -727,16 +727,19 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 }
 .live-dot { animation: live-dot 1.6s ease-in-out infinite; }
 
-/* Reduced motion — hormati aksesibilitas */
+/* Motion dial 1 — hover only, no auto drift. Reduced motion global */
+.living-gradient, .hero-bg-wavy, .hero-floral-pan, .animate-batik-drift, .living-breathing { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .magnetic-card-inner { transition: none !important; }
   .magnetic-spotlight, .magnetic-glow { display: none !important; }
   .metaball, .animate-metaball-1, .animate-metaball-2, .animate-metaball-3, .animate-metaball-drift,
   .animate-card-glow, .animate-accent-flow,
   .living-gradient, .living-shimmer::after, .living-breathing, .marquee-track, .marquee-track-reverse,
-  .floating-particle, .pulse-ring::before, .live-dot, .animate-pulse { animation: none !important; }
+  .floating-particle, .pulse-ring::before, .live-dot, .animate-pulse,
+  .hero-bg-wavy, .hero-floral-pan, .animate-batik-drift, .animate-float, .animate-fly-in, .animate-fly-continuous { animation: none !important; }
   .metaball { filter: blur(22px) !important; opacity: 0.5 !important; }
   .living-shimmer::after { display: none !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 @keyframes shimmer {

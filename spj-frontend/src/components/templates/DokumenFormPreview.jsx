@@ -443,7 +443,7 @@ export default function DokumenFormPreview({
                     }}
                     className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                       selectedSub?.id === sub.id
-                        ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30'
+                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
@@ -778,7 +778,7 @@ export default function DokumenFormPreview({
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                         generatingRingkasan
                           ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-md hover:brightness-110 active:scale-95'
+                          : 'bg-primary text-white shadow-md hover:brightness-110 active:scale-95'
                       }`}
                     >
                       <span className="material-symbols-outlined text-sm">
@@ -870,7 +870,7 @@ export default function DokumenFormPreview({
                 <button
                   type="button"
                   onClick={() => setShowRecipients((v) => !v)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">{showRecipients ? 'expand_less' : 'group_add'}</span>
                   {showRecipients ? 'Tutup Daftar Penerima' : `Pilih Penerima${selectedIds.size ? ` (${selectedIds.size})` : ''}`}
@@ -1176,7 +1176,7 @@ export default function DokumenFormPreview({
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                         generatingRingkasan
                           ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-md hover:brightness-110 active:scale-95'
+                          : 'bg-primary text-white shadow-md hover:brightness-110 active:scale-95'
                       }`}
                     >
                       <span className="material-symbols-outlined text-sm">
@@ -1399,7 +1399,7 @@ export default function DokumenFormPreview({
                 <button
                   type="button"
                   onClick={() => setShowRecipients((v) => !v)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">{showRecipients ? 'expand_less' : 'group_add'}</span>
                   {showRecipients ? 'Tutup Daftar' : `Pilih Peserta${selectedIds.size ? ` (${selectedIds.size})` : ''}`}

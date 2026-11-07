@@ -132,7 +132,7 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
                 disabled={!doc.file}
                 className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2
                   ${doc.file
-                    ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-[0.98]'
+                    ? 'bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-[0.98]'
                     : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                   }`}
               >

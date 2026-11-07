@@ -197,7 +197,7 @@ export default function NomorSuratPopup({ onSelect, onClose, currentNomor, bulan
           </button>
           <button
             onClick={handleGenerate}
-            className="flex-1 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-[0.98]"
+            className="flex-1 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-[0.98]"
           >
             {useCustom ? 'Gunakan' : 'Generate & Gunakan'}
           </button>
