@@ -104,7 +104,7 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center px-3 sm:px-4 py-2.5">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex justify-between items-center px-3 sm:px-4 py-2.5">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button — 44px tap target */}
         <button
