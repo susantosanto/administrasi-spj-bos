@@ -29,20 +29,20 @@ function DashboardContent() {
       className="flex min-h-screen relative"
       style={{ backgroundColor: isDark ? '#0F172A' : '#F3F5F9' }}
     >
-      {/* Batik accent — subtle header, drift pelan 60s */}
-      <div className="fixed inset-x-0 top-0 h-[280px] overflow-hidden pointer-events-none" aria-hidden="true">
+      {/* Batik — full dashboard, drift pelan 60s (samain landing) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           className="absolute inset-x-0 -inset-y-[360px] animate-batik-drift"
           style={{
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.03 : 0.04,
+            opacity: isDark ? 0.04 : 0.05,
             mixBlendMode: isDark ? "normal" : "multiply",
             animationDuration: '60s',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#f8f9fb] dark:to-[#0f172a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-transparent dark:from-transparent dark:via-transparent" />
       </div>
       <Sidebar />
       <main
