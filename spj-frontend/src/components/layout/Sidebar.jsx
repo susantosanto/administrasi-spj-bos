@@ -337,10 +337,10 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Logout overlay — loader ASIK (satu bahasa visual dengan boot splash) */}
+      {/* Logout — centered only, tidak full menjorok ke atas */}
       {logoutStage && (
         <BrandedLoader
-          variant="fullscreen"
+          variant="overlay"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}
