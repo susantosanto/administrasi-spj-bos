@@ -1180,14 +1180,14 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 }
 html.dark .app-loader-screen { background: #0F172A; }
 .app-loader-overlay {
-  position: absolute; inset: 0; z-index: 30;
+  position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(243, 245, 249, 0.78);
-  backdrop-filter: blur(10px) saturate(1.15);
-  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  background: rgba(243, 245, 249, 0.88);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
   animation: app-loader-fade-in 0.25s ease both;
 }
-html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.72); }
+html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
 .app-loader-screen.is-exiting,
 .app-loader-overlay.is-exiting { animation: app-loader-fade-out 0.3s ease forwards; }
 @media (prefers-reduced-motion: reduce) {
