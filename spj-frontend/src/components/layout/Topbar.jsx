@@ -3,6 +3,7 @@
  * With user profile dropdown menu
  */
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
@@ -306,14 +307,15 @@ export default function Topbar({ title, subtitle }) {
         </div>
       </div>
 
-      {/* Logout — fullscreen centered, di atas semua */}
-      {logoutStage && (
+      {/* Logout — portal ke body biar tidak kejepit layout */}
+      {logoutStage && typeof document !== 'undefined' && createPortal(
         <BrandedLoader
           variant="fullscreen"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}
-        />
+        />,
+        document.body
       )}
       <style>{`
         .lic-ring { animation: lic-ring 1.6s ease-out infinite; }

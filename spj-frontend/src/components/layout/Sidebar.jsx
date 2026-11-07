@@ -3,6 +3,7 @@
  * Responsive: Overlay on mobile, push on desktop
  */
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import ThemeToggle from '../ui/ThemeToggle'
@@ -337,14 +338,15 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Logout — fullscreen centered, di atas semua */}
-      {logoutStage && (
+      {/* Logout — portal ke body biar tidak kejepit layout */}
+      {logoutStage && typeof document !== 'undefined' && createPortal(
         <BrandedLoader
           variant="fullscreen"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}
-        />
+        />,
+        document.body
       )}
     </>
   )
