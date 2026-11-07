@@ -104,12 +104,12 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/70 dark:bg-slate-900/75 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-lg shadow-slate-900/5 flex justify-between items-center px-3 sm:px-4 py-2.5">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center px-3 sm:px-4 py-2.5">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Toggle Button */}
+        {/* Toggle Button — 44px tap target */}
         <button
           onClick={toggle}
-          className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
+          className="w-11 h-11 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
           title={isOpen ? 'Tutup Sidebar' : 'Buka Menu'}
           aria-label={isOpen ? 'Tutup sidebar' : 'Buka menu'}
           aria-expanded={isOpen}
@@ -176,9 +176,9 @@ export default function Topbar({ title, subtitle }) {
                       type="button"
                       onClick={() => setShowLicInfo(false)}
                       aria-label="Tutup"
-                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-900/5 dark:hover:bg-white/10 transition-colors"
+                      className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-base">close</span>
+                      <span className="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                     </button>
                   </div>
                   <div className="rounded-xl mt-3 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1.5">
@@ -216,16 +216,19 @@ export default function Topbar({ title, subtitle }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Search Bar - Hidden on mobile */}
-        <div className="relative hidden md:block">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+        {/* Search Bar — visible sm+, icon button on mobile */}
+        <div className="relative hidden sm:block">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" aria-hidden="true">search</span>
           <input
-            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm w-48 lg:w-64 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
+            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm w-48 lg:w-64 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none placeholder:text-slate-400"
             placeholder="Cari..."
             type="search"
             aria-label="Cari di aplikasi"
           />
         </div>
+        <button className="sm:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Cari">
+          <span className="material-symbols-outlined text-xl" aria-hidden="true">search</span>
+        </button>
 
         {/* Theme Toggle */}
         <ThemeToggle variant="icon" />

@@ -109,28 +109,24 @@ export default function Sidebar() {
             : '-translate-x-full opacity-0 pointer-events-none'
         }`}
       >
-        {/* Glass Container */}
-        <div className="relative w-[260px] h-full bg-white/60 backdrop-blur-2xl border-r border-white/50 shadow-[8px_0_32px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
+        {/* Container — solid for contrast, no blur stack */}
+        <div className="relative w-[260px] h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 shadow-[8px_0_32px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden">
 
-          {/* ── Decorative Background Elements ── */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-40 -left-24 w-64 h-64 bg-gradient-to-tr from-slate-400/30 to-transparent rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-1/3 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-slate-500/10 rounded-full blur-2xl pointer-events-none" />
+          {/* ── Decorative — single subtle orb only ── */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-3xl pointer-events-none opacity-60" aria-hidden="true" />
 
           {/* ═══════════════════════════════════════════════════════════════ */}
           {/* LOGO SECTION                                                    */}
           {/* ═══════════════════════════════════════════════════════════════ */}
           <div className="relative px-5 pt-6 pb-4">
             <div className="flex items-center gap-3">
-              {/* Logo Icon — breathing */}
-              <div className="relative living-breathing" style={{ animationDuration: '4s' }}>
-                <div className="w-16 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm border border-slate-200/60 px-2">
+              {/* Logo Icon — static, no motion */}
+              <div className="relative">
+                <div className="w-16 h-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-200/60 dark:border-slate-700 px-2">
                   <img src="/asik-logo.png" alt="Asik" className="h-5 w-auto object-contain" draggable="false" />
                 </div>
-                {/* Online dot — live pulse */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white live-dot" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full pulse-ring text-emerald-400" style={{ borderWidth: '2px' }} />
+                {/* Online dot — static */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" aria-hidden="true" />
               </div>
 
               {/* Logo Text */}
@@ -196,7 +192,7 @@ export default function Sidebar() {
                   onClick={() => toggleGroup(group.label)}
                   className="w-full flex items-center justify-between px-3 mb-2.5 group/header"
                 >
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">
                     {group.label}
                   </span>
                   <span
@@ -269,7 +265,7 @@ export default function Sidebar() {
               onClick={() => setSettingsOpen((o) => !o)}
               className="w-full flex items-center justify-between px-3 mb-2.5"
             >
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.14em]">
                 Pengaturan
               </span>
               <span

@@ -119,23 +119,24 @@
   50% { background-position: 200% 0; }
   100% { background-position: -100% 0; }
 }
-/* glass-input — field kaca asli untuk kartu login glassmorphism (tembus, bukan solid).
-   Sengaja bukan bg-slate-50 karena global .dark .bg-slate-50 memaksa opaque 0.88 !important. */
-.glass-input { background-color: rgba(255, 255, 255, 0.55); }
-.dark .glass-input { background-color: rgba(255, 255, 255, 0.08); }
+/* glass-input — solid for AA contrast (was 0.55 transparent → 2.8:1 fail) */
+.glass-input { background-color: #ffffff; border: 1px solid #e2e8f0; }
+.dark .glass-input { background-color: #1e293b; border-color: #334155; color: #f1f5f9; }
+.glass-input::placeholder { color: #64748b; }
+.dark .glass-input::placeholder { color: #94a3b8; }
 
-/* Global dark overrides — body gradasi terlihat, card jadi glass (bukan solid hitam) */
-.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; border-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; }
-.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; }
-.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; }
-.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; }
-.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; }
-.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; }
-.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; }
-.dark .bg-slate-100\/80 { background-color: rgba(26,38,66,0.75) !important; }
-.dark .bg-slate-200 { background-color: rgba(26,38,66,0.9) !important; }
+/* Dark overrides — solid surfaces for contrast (was glass 0.65-0.88 → contrast fail) */
+.dark .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
+.dark .bg-slate-50 { background-color: #0f172a !important; }
+.dark .bg-slate-100 { background-color: #1e293b !important; }
+.dark .bg-slate-50\/50 { background-color: #0f172a !important; }
+.dark .bg-slate-50\/80 { background-color: #0f172a !important; }
+.dark .bg-white\/80 { background-color: #0f172a !important; }
+.dark .bg-white\/60 { background-color: #0f172a !important; }
+.dark .bg-white\/10 { background-color: #1e293b !important; }
+.dark .bg-white\/90 { background-color: #0f172a !important; }
+.dark .bg-slate-100\/80 { background-color: #1e293b !important; }
+.dark .bg-slate-200 { background-color: #1e293b !important; }
 .dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
 .dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
 .dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
