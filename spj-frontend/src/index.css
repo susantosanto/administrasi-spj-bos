@@ -706,8 +706,8 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 }
 .live-dot { animation: live-dot 1.6s ease-in-out infinite; }
 
-/* Motion dial 1 — hover only, no auto drift. Reduced motion global */
-.living-gradient, .hero-bg-wavy, .hero-floral-pan, .animate-batik-drift, .living-breathing { animation: none !important; }
+/* Motion — batik drift pelan 60s keep, lainnya hover only */
+.living-gradient, .hero-bg-wavy, .hero-floral-pan, .living-breathing { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .magnetic-card-inner { transition: none !important; }
   .magnetic-spotlight, .magnetic-glow { display: none !important; }
