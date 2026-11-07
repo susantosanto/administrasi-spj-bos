@@ -120,18 +120,18 @@
 .glass-input::placeholder { color: #64748b; }
 .dark .glass-input::placeholder { color: #94a3b8; }
 
-/* Dark overrides — solid surfaces for contrast (was glass 0.65-0.88 → contrast fail) */
-.dark .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
-.dark .bg-slate-50 { background-color: #0f172a !important; }
+/* Dark — estetik: body #0f172a, card #1e293b elevated + border + shadow */
+.dark .bg-white { background-color: #1e293b !important; border-color: rgba(255,255,255,0.07) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important; }
+.dark .bg-slate-50 { background-color: #1e293b !important; }
 .dark .bg-slate-100 { background-color: #1e293b !important; }
-.dark .bg-slate-50\/50 { background-color: #0f172a !important; }
-.dark .bg-slate-50\/80 { background-color: #0f172a !important; }
-.dark .bg-white\/80 { background-color: #0f172a !important; }
-.dark .bg-white\/60 { background-color: #0f172a !important; }
-.dark .bg-white\/10 { background-color: #1e293b !important; }
-.dark .bg-white\/90 { background-color: #0f172a !important; }
+.dark .bg-slate-50\/50 { background-color: #1e293b !important; }
+.dark .bg-slate-50\/80 { background-color: #1e293b !important; }
+.dark .bg-white\/80 { background-color: #1e293b !important; }
+.dark .bg-white\/60 { background-color: #1e293b !important; }
+.dark .bg-white\/10 { background-color: rgba(255,255,255,0.06) !important; }
+.dark .bg-white\/90 { background-color: #1e293b !important; }
 .dark .bg-slate-100\/80 { background-color: #1e293b !important; }
-.dark .bg-slate-200 { background-color: #1e293b !important; }
+.dark .bg-slate-200 { background-color: #334155 !important; }
 .dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
 .dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
 .dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
