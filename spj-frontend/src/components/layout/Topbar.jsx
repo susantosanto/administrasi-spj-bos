@@ -306,10 +306,10 @@ export default function Topbar({ title, subtitle }) {
         </div>
       </div>
 
-      {/* Logout — centered only, tidak full menjorok ke atas */}
+      {/* Logout — fullscreen centered, di atas semua */}
       {logoutStage && (
         <BrandedLoader
-          variant="overlay"
+          variant="fullscreen"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}

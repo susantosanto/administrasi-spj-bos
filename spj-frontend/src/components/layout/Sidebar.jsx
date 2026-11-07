@@ -337,10 +337,10 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Logout — centered only, tidak full menjorok ke atas */}
+      {/* Logout — fullscreen centered, di atas semua */}
       {logoutStage && (
         <BrandedLoader
-          variant="overlay"
+          variant="fullscreen"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}
