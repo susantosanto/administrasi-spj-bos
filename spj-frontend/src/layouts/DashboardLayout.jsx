@@ -29,7 +29,7 @@ function DashboardContent() {
       className="flex min-h-screen relative"
       style={{ backgroundColor: isDark ? '#0F172A' : '#F3F5F9' }}
     >
-      {/* Batik — full dashboard, drift pelan 60s (samain landing) */}
+      {/* Batik — full dashboard, lebih terlihat 0.08 (was 0.05) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           className="absolute inset-x-0 -inset-y-[360px] animate-batik-drift"
@@ -37,12 +37,12 @@ function DashboardContent() {
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.04 : 0.05,
+            opacity: isDark ? 0.07 : 0.09,
             mixBlendMode: isDark ? "normal" : "multiply",
             animationDuration: '60s',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-transparent dark:from-transparent dark:via-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent dark:from-transparent" />
       </div>
       <Sidebar />
       <main
