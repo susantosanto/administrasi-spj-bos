@@ -120,8 +120,8 @@
 .glass-input::placeholder { color: #64748b; }
 .dark .glass-input::placeholder { color: #94a3b8; }
 
-/* Dark — estetik: body #0f172a, card #1e293b elevated + border + shadow */
-.dark .bg-white { background-color: #1e293b !important; border-color: rgba(255,255,255,0.07) !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important; }
+/* Dark — estetik: body #0f172a, card #1e293b elevated + border + shadow + highlight */
+.dark .bg-white { background-color: #1e293b !important; border-color: rgba(255,255,255,0.07) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.03) inset !important; background-image: linear-gradient(180deg, rgba(255,255,255,0.035), transparent 55%) !important; }
 .dark .bg-slate-50 { background-color: #1e293b !important; }
 .dark .bg-slate-100 { background-color: #1e293b !important; }
 .dark .bg-slate-50\/50 { background-color: #1e293b !important; }
@@ -132,6 +132,14 @@
 .dark .bg-white\/90 { background-color: #1e293b !important; }
 .dark .bg-slate-100\/80 { background-color: #1e293b !important; }
 .dark .bg-slate-200 { background-color: #334155 !important; }
+/* Dark text harmonis — jangan menyatu dengan card #1e293b */
+.dark .text-slate-900 { color: #f1f5f9 !important; }
+.dark .text-slate-800 { color: #e2e8f0 !important; }
+.dark .text-slate-700 { color: #e2e8f0 !important; }
+.dark .text-slate-600 { color: #cbd5e1 !important; }
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #94a3b8 !important; }
+.dark .text-slate-300 { color: #64748b !important; }
 .dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
 .dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
 .dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
