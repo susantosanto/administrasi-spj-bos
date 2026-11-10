@@ -155,7 +155,12 @@ export function kelompokSeNoBukti(rows) {
   const m = new Map();
   for (const r of rows) {
     const nb = normKunci(r.noBukti);
-    const k = nb || ('row:' + (r.row != null ? r.row : Math.random()));
+    // Sprint 029: kunci = noBukti + bulan + tahun agar nomor bukti yang sama
+    // di bulan berbeda (lazim di PDF tahunan 21 halaman) tidak runtuh jadi
+    // satu grup ("kegiatan/belanja acak"). Tanpa bulan/tahun → kunci lama.
+    const b = Number(r.bulan); const t = Number(r.tahun);
+    const per = (b >= 1 && b <= 12 && t) ? (`${t}-${String(b).padStart(2, '0')}`) : '';
+    const k = nb ? (per ? (`${nb}||${per}`) : nb) : ('row:' + (r.row != null ? r.row : Math.random()));
     if (!m.has(k)) m.set(k, []);
     m.get(k).push(r);
   }
@@ -166,6 +171,13 @@ export function kelompokSeNoBukti(rows) {
     for (const r of list) total += nominalTx(r);
     out.push({ key: k, noBukti: list[0].noBukti || '', rows: list, total: total });
   }
+  // Sprint 029: urut grup kronologis (min tanggalISO anggotanya) agar daftar
+  // tahunan stabil seperti gabungan 12× bulanan, bukan urutan first-seen PDF.
+  const minIso = (g) => (g.rows || []).reduce((a, r) => {
+    const iso = r.tanggalISO || r.tanggalStr || '';
+    return (!a || iso < a) ? iso : a;
+  }, '');
+  out.sort((a, b) => (minIso(a) < minIso(b) ? -1 : minIso(a) > minIso(b) ? 1 : 0));
   return out;
 }
 

@@ -330,3 +330,9 @@
   Dampak: Rendah — hanya pada entri yang sengaja dikosongkan; cetakan baku tetap "di"/"tempat".
   Mitigasi: bila placeholder kosong terlihat lagi, tambahkan penjaga di `TabelLetterHeader` — nilai `''` pada field ini jatuh kembali ke `'di'`/`'tempat'` saat render (satu baris, belum dikerjakan karena belum diminta).
   Status: OPEN (diterima sadar).
+
+⚠️ [Rendah] RISIKO: Sprint 029 dinomori ulang row 1..N setiap simpan PDF + kunci grup baru noBukti+tahun-bulan — sisa yang belum terbukti di browser.
+  FAKTA (2026-11-06): gate node hijau (vitest 62/62 · build exit 0), tapi uji browser upload `bku-tahunan.pdf` 21 halaman end-to-end BELUM jalan; diff tahunan-vs-12-bulanan juga belum (repo hanya punya file Maret/April). Commit BELUM (HEAD=`4984de4`, working tree dirty termasuk pre-existing Sprint 028, kuasa user).
+  Dampak: Rendah — logika grup + nomor-ulang teruji di util; yang belum hanya perilaku klik-di-browser dan angka 12-bulan penuh.
+  Mitigasi: (1) upload `bku-tahunan.pdf` di browser → cek grup per bulan + sidebar per baris; (2) `/acceptance-runner` fresh context; (3) commit/push atas kuasa user.
+  Status: OPEN (diterima user saat penutupan).

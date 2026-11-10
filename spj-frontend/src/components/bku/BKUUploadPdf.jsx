@@ -181,7 +181,11 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
       const lama = storageHelper.get('bku_data', null)
       const lamaRows = lama?.transactions || []
       const { rows, aksi, barisDiganti } = mergePeriode(lamaRows, hasil.baris, { mode, kunci: kunciSimpan })
-      const summary = recalcSummary(rows)
+      // Sprint 029: nomor ulang row 1..N. Parser mengisi row = nomor halaman
+      // (deduplikat lintas 21 halaman PDF tahunan → key React ganda + sidebar
+      // buka baris yang salah). Penomoran di sini = lapisan simpan (bukan parser).
+      const rowsBernomor = (rows || []).map((r, i) => ({ ...r, row: i + 1 }))
+      const summary = recalcSummary(rowsBernomor)
       const riwayat = [...(lama?.riwayatImporPdf || [])].filter((r) => r.kunci !== kunciSimpan || mode === 'tahunan')
       riwayat.push({
         kunci: kunciSimpan, label: labelSimpan, mode, hash: hasil.hash,
@@ -200,7 +204,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
         tanggalPenutupan: '', tempat: '',
       }
       storageHelper.set('bku_data', {
-        transactions: rows, header, footer, summary,
+        transactions: rowsBernomor, header, footer, summary,
         uploadedAt: new Date().toISOString(),
         riwayatImporPdf: riwayat,
         sumberImpor: { jenis: 'pdf', mode, kunci: kunciSimpan, namaFile: fileName, halaman: hasil.halaman },
@@ -208,7 +212,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
       const aksiTeks = aksi === 'tambah' ? 'ditambah' : aksi === 'ganti' ? `diganti (${barisDiganti} baris lama)` : 'menggantikan SELURUH data'
       toast.success(
         `${hasil.baris.length} baris ${labelSimpan} ${aksiTeks}.\n` +
-        `Total kini: ${rows.length} baris.\n` +
+        `Total kini: ${rowsBernomor.length} baris.\n` +
         `Penerimaan: ${rp(summary.totalPenerimaan)}\n` +
         `Pengeluaran: ${rp(summary.totalPengeluaran)}\n` +
         `Saldo Akhir: ${rp(summary.saldoAkhir)}` +
