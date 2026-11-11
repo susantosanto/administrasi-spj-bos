@@ -140,6 +140,17 @@
 .dark .text-slate-500 { color: #94a3b8 !important; }
 .dark .text-slate-400 { color: #94a3b8 !important; }
 .dark .text-slate-300 { color: #64748b !important; }
+.dark .text-on-surface { color: #f1f5f9 !important; }
+.dark .text-on-surface-variant { color: #cbd5e1 !important; }
+.dark .text-text-high { color: #f1f5f9 !important; }
+.dark .text-text-low { color: #94a3b8 !important; }
+.dark .text-on-primary { color: #ffffff !important; }
+.dark .glass-card { background-color: #1e293b !important; border-color: rgba(255,255,255,0.07) !important; }
+.dark .glass-card .text-green-700 { color: #4ade80 !important; }
+.dark .glass-card .text-red-700 { color: #f87171 !important; }
+.dark .bg-surface-container-lowest { background-color: #1e293b !important; }
+.dark .bg-surface-container-low { background-color: #0f172a !important; }
+.dark .bg-surface-container { background-color: #1e293b !important; }
 .dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
 .dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
 .dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }

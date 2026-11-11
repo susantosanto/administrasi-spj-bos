@@ -338,8 +338,8 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Logout — portal ke body biar tidak kejepit layout */}
-      {logoutStage && typeof document !== 'undefined' && createPortal(
+      {/* Logout — portal ke body biar center viewport */}
+      {logoutStage && createPortal(
         <BrandedLoader
           variant="fullscreen"
           title="Tunggu sebentar..."

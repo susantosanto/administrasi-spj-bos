@@ -10,6 +10,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { seedMockData } from '../data/mockData'
 import storageHelper from '../utils/storageHelper'
 import { licenseService } from '../services/licenseService'
+import TrialMiniBanner from '../components/ui/TrialMiniBanner'
 
 function DashboardContent() {
   const { isOpen, isMobile } = useSidebar()
@@ -46,6 +47,8 @@ function DashboardContent() {
         <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent dark:from-transparent" />
       </div>
       <Sidebar />
+      {/* Mini banner trial mengambang draggable — khusus TRIAL, hilang saat berbayar */}
+      <TrialMiniBanner variant="floating" />
       <main
         className={`flex-1 flex flex-col min-h-screen relative z-10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           !isMobile && isOpen ? 'lg:ml-[260px]' : 'ml-0'
