@@ -1410,11 +1410,8 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
      Ke Dark : Golden Hour → Sunset → Twilight → Night
      Ke Light: Moonset → Dawn → Sunrise → Day
 
-   Konsep: lingkaran besar di belakang layar (garis putus-putus). Pusatnya ada di
-   bawah layar, jadi busur yang terlihat = tepi kiri → puncak → tepi kanan.
-   Matahari & bulan berjalan di busur itu dan saling menggantikan:
-     Ke Dark : matahari 0–1650ms kiri→kanan (turun), bulan 1100–2200ms dari kiri (terbit)
-     Ke Light: bulan 0–1650ms kiri→kanan (turun), matahari 1100–2200ms dari kiri (terbit)
+   Tampilan profesional: crossfade 4 lapisan langit polos + veil batik halus.
+   Tanpa matahari/bulan/lengkung/bintang — tidak mengganggu pekerjaan pengguna.
 
    ══ KONFIG ANIMASI — SEMUA DI SATU TEMPAT ══
    Ubah nilai variable di bawah saja. --fx-stage-ms diisi otomatis dari
@@ -1422,18 +1419,9 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
    ═══════════════════════════════════════════════════════════════════════════ */
 .theme-fx-layer {
   /* ── Waktu ── */
-  --fx-stage-ms: 550ms;        /* durasi satu tahap (default; ditimpa dari STAGE_MS) */
+  --fx-stage-ms: 550ms;        /* durasi satu tahap (default; ditimpa STAGE_MS) */
   --fx-layer-fade-ms: 600ms;   /* fade in/out overlay */
   --fx-sky-fade-ms: 900ms;     /* crossfade antar layer langit */
-  --fx-glow-ms: 1200ms;        /* perubahan warna halo */
-  /* ── Lingkaran lintasan ── */
-  --fx-orb-size: 46px;         /* diameter matahari/bulan */
-  --fx-orb-glow: 34px;         /* radius halo */
-  --fx-arc-r: 54vw;            /* jari-jari lingkaran = lebar layar / 2 / sin(68°) */
-  --fx-arc-pivot-y: 126vh;     /* pusat lingkaran (di bawah layar) → puncak busur ≈ 30% tinggi */
-  --fx-arc-edge: 68deg;        /* sudut titik tepi kiri/kanan layar (±) */
-  --fx-sun-rest: -18deg;       /* posisi matahari saat Day (0° = puncak, negatif = kiri) */
-  --fx-moon-rest: -30deg;      /* posisi bulan saat Night */
   /* ── Langit per tahap, ke DARK: Golden Hour, Sunset, Twilight, Night ── */
   --fx-sky-1: linear-gradient(180deg, #7fb2e8 0%, #f5c169 48%, #f2a65a 78%, #d98e4a 100%);
   --fx-sky-2: linear-gradient(180deg, #4a5fa8 0%, #c96a8e 45%, #e88a5d 75%, #a05a78 100%);
@@ -1444,15 +1432,9 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   --fx-sky-light-2: linear-gradient(180deg, #35406e 0%, #7a5f96 40%, #d98a9e 70%, #c9a06a 100%);
   --fx-sky-light-3: linear-gradient(180deg, #5f7ab4 0%, #9db8e0 45%, #f0c98a 75%, #fbe3b8 100%);
   --fx-sky-light-4: linear-gradient(180deg, #9cc6f0 0%, #c3ddf3 55%, #f8f9fb 100%);
-  /* ── Matahari & bulan ── */
-  --fx-sun: radial-gradient(circle at 36% 32%, #fff7d6 0%, #ffd76e 55%, #f2b64b 100%);
-  --fx-sun-halo: rgba(255, 205, 110, 0.38);
-  --fx-sunset-halo: rgba(255, 150, 80, 0.4);
-  --fx-moon: radial-gradient(circle at 38% 34%, #fdfbf4 0%, #dbe3f5 62%, #aab6d6 100%);
-  --fx-moon-halo: rgba(203, 219, 255, 0.28);
 }
 
-/* ── Layer overlay: tersembunyi total saat idle (visibility) ── */
+/* ── Layer overlay ── */
 .theme-fx-layer {
   position: fixed;
   inset: 0;
@@ -1469,7 +1451,7 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   transition: opacity var(--fx-layer-fade-ms) ease, visibility 0s;
 }
 
-/* ── Langit: 4 layer bertumpuk, crossfade opacity (gradient tak bisa di-transition) ── */
+/* ── Langit: 4 lapisan bertumpuk, crossfade opacity (gradient tak bisa di-transition) ── */
 .theme-fx-sky {
   position: absolute;
   inset: 0;
@@ -1485,130 +1467,14 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
 [data-fx-target="light"] .theme-fx-sky--2 { background: var(--fx-sky-light-2); }
 [data-fx-target="light"] .theme-fx-sky--3 { background: var(--fx-sky-light-3); }
 [data-fx-target="light"] .theme-fx-sky--4 { background: var(--fx-sky-light-4); }
+/* Tahap aktif: layer tahap itu + layer sebelumnya tetap terlihat → overlap halus. */
 [data-stage="1"] .theme-fx-sky--1 { opacity: 0.94; }
-[data-stage="2"] .theme-fx-sky--1,
+[data-stage="2"] .theme-fx-sky--1 { opacity: 0.94; }
 [data-stage="2"] .theme-fx-sky--2 { opacity: 0.94; }
-[data-stage="3"] .theme-fx-sky--2,
+[data-stage="3"] .theme-fx-sky--2 { opacity: 0.94; }
 [data-stage="3"] .theme-fx-sky--3 { opacity: 0.94; }
 [data-stage="4"] .theme-fx-sky--3 { opacity: 0.94; }
 [data-stage="4"] .theme-fx-sky--4 { opacity: 1; }
-
-/* ── Bintang: hanya saat malam (arah Dark naik, arah Light turun) ── */
-.theme-fx-stars {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity calc(var(--fx-sky-fade-ms) + 200ms) ease-in-out;
-  background-image:
-    radial-gradient(1.4px 1.4px at 18% 22%, rgba(255,255,255,0.9), transparent 55%),
-    radial-gradient(1.2px 1.2px at 64% 12%, rgba(255,255,255,0.8), transparent 55%),
-    radial-gradient(1.6px 1.6px at 82% 38%, rgba(255,255,255,0.85), transparent 55%),
-    radial-gradient(1.1px 1.1px at 34% 8%,  rgba(255,255,255,0.75), transparent 55%),
-    radial-gradient(1.3px 1.3px at 50% 30%, rgba(255,255,255,0.7),  transparent 55%),
-    radial-gradient(1px 1px at 90% 16%,     rgba(255,255,255,0.8), transparent 55%),
-    radial-gradient(1.2px 1.2px at 8% 44%,  rgba(255,255,255,0.7),  transparent 55%),
-    radial-gradient(1px 1px at 72% 52%,     rgba(255,255,255,0.65), transparent 55%);
-}
-[data-fx-target="dark"][data-stage="2"] .theme-fx-stars { opacity: 0.35; }
-[data-fx-target="dark"][data-stage="3"] .theme-fx-stars { opacity: 0.75; }
-[data-fx-target="dark"][data-stage="4"] .theme-fx-stars { opacity: 0.9; }
-[data-fx-target="light"][data-stage="1"] .theme-fx-stars { opacity: 0.9; }
-[data-fx-target="light"][data-stage="2"] .theme-fx-stars { opacity: 0.45; }
-
-/* ── Lingkaran lintasan di belakang layar (garis putus-putus) ── */
-.theme-fx-ring {
-  position: absolute;
-  left: calc(50% - var(--fx-arc-r));
-  top: calc(var(--fx-arc-pivot-y) - var(--fx-arc-r));
-  width: calc(var(--fx-arc-r) * 2);
-  height: calc(var(--fx-arc-r) * 2);
-  border-radius: 9999px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.42);
-}
-
-/* ── Pusat lingkaran (di bawah layar) + tangan rotasi untuk matahari & bulan ── */
-.theme-fx-pivot {
-  position: absolute;
-  left: 50%;
-  top: var(--fx-arc-pivot-y);
-  width: 0;
-  height: 0;
-}
-.theme-fx-hand {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  transform-origin: 0 0;
-  will-change: transform, opacity;
-}
-.theme-fx-orb {
-  position: absolute;
-  left: calc(var(--fx-orb-size) / -2);
-  top: calc(var(--fx-arc-r) * -1 - var(--fx-orb-size) / 2);
-  width: var(--fx-orb-size);
-  height: var(--fx-orb-size);
-  border-radius: 9999px;
-}
-
-/* Posisi dasar = posisi AKHIR tiap arah (dipakai saat animasi sudah selesai). */
-[data-fx-target="dark"] .theme-fx-hand--sun { transform: rotate(var(--fx-arc-edge)); opacity: 0; }
-[data-fx-target="dark"] .theme-fx-hand--moon { transform: rotate(var(--fx-moon-rest)); opacity: 1; }
-[data-fx-target="light"] .theme-fx-hand--sun { transform: rotate(var(--fx-sun-rest)); opacity: 1; }
-[data-fx-target="light"] .theme-fx-hand--moon { transform: rotate(var(--fx-arc-edge)); opacity: 0; }
-
-/* Gerak hanya saat layer aktif. Durasi = kelipatan tahap; delay bulan/matahari masuk = 2 tahap. */
-.theme-fx-layer--active[data-fx-target="dark"] .theme-fx-hand--sun {
-  animation: fx-sun-set calc(var(--fx-stage-ms) * 3) cubic-bezier(0.45, 0, 0.55, 1) both;
-}
-.theme-fx-layer--active[data-fx-target="dark"] .theme-fx-hand--moon {
-  animation: fx-moon-rise calc(var(--fx-stage-ms) * 2) cubic-bezier(0.45, 0, 0.55, 1) calc(var(--fx-stage-ms) * 2) both;
-}
-.theme-fx-layer--active[data-fx-target="light"] .theme-fx-hand--moon {
-  animation: fx-moon-set calc(var(--fx-stage-ms) * 3) cubic-bezier(0.45, 0, 0.55, 1) both;
-}
-.theme-fx-layer--active[data-fx-target="light"] .theme-fx-hand--sun {
-  animation: fx-sun-rise calc(var(--fx-stage-ms) * 2) cubic-bezier(0.45, 0, 0.55, 1) calc(var(--fx-stage-ms) * 2) both;
-}
-
-@keyframes fx-sun-set {
-  0%   { transform: rotate(calc(var(--fx-arc-edge) * -1)); opacity: 0; }
-  15%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: rotate(var(--fx-arc-edge)); opacity: 0; }
-}
-@keyframes fx-moon-rise {
-  0%   { transform: rotate(calc(var(--fx-arc-edge) * -1)); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: rotate(var(--fx-moon-rest)); opacity: 1; }
-}
-@keyframes fx-moon-set {
-  0%   { transform: rotate(var(--fx-moon-rest)); opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: rotate(var(--fx-arc-edge)); opacity: 0; }
-}
-@keyframes fx-sun-rise {
-  0%   { transform: rotate(calc(var(--fx-arc-edge) * -1)); opacity: 0; }
-  40%  { opacity: 1; }
-  100% { transform: rotate(var(--fx-sun-rest)); opacity: 1; }
-}
-
-/* ── Matahari & bulan (warna halo transisi lewat box-shadow; gradient tetap) ── */
-.theme-fx-orb--sun {
-  background: var(--fx-sun);
-  box-shadow: 0 0 var(--fx-orb-glow) calc(var(--fx-orb-glow) * 0.35) var(--fx-sun-halo);
-  transition: box-shadow var(--fx-glow-ms) ease;
-}
-[data-fx-target="dark"][data-stage="2"] .theme-fx-orb--sun,
-[data-fx-target="dark"][data-stage="3"] .theme-fx-orb--sun,
-[data-fx-target="dark"][data-stage="4"] .theme-fx-orb--sun {
-  box-shadow: 0 0 var(--fx-orb-glow) calc(var(--fx-orb-glow) * 0.4) var(--fx-sunset-halo);
-}
-.theme-fx-orb--moon {
-  background: var(--fx-moon);
-  box-shadow: 0 0 calc(var(--fx-orb-glow) * 0.75) calc(var(--fx-orb-glow) * 0.26) var(--fx-moon-halo);
-}
 
 /* ── Veil batik — identitas ASIK, transparansi sangat rendah ── */
 .theme-fx-batik {
@@ -1622,7 +1488,7 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   transition: opacity var(--fx-sky-fade-ms) ease;
 }
 .theme-fx-layer--active .theme-fx-batik {
-  opacity: 0.05;
+  opacity: 0.04;
   animation: theme-fx-batik-drift 14s linear infinite;
 }
 @keyframes theme-fx-batik-drift {
@@ -1631,7 +1497,7 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
 }
 
 /* ── Crossfade warna konten saat class `dark` di-swap. Hanya #root (konten app);
-   overlay ada di <body> sehingga transisi langitnya tidak ikut ditimpa. ── */
+   overlay ada di <body> sehingga transisi langit tidak ikut ditimpa. ── */
 html.theme-crossfade #root *,
 html.theme-crossfade #root *::before,
 html.theme-crossfade #root *::after {
@@ -1644,9 +1510,5 @@ html.theme-crossfade #root *::after {
   .theme-fx-layer,
   .theme-fx-layer--active {
     display: none !important;
-  }
-  .theme-fx-hand,
-  .theme-fx-batik {
-    animation: none !important;
   }
 }

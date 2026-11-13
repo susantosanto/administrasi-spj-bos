@@ -15,8 +15,7 @@ import { getItem, setItem } from '../utils/storageAdapter'
 const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'spj_theme' // 'light' | 'dark'
-// Durasi satu tahap overlay (ms). Dikirim juga ke CSS sebagai --fx-stage-ms
-// (ThemeTransitionLayer), jadi gerak matahari/bulan selalu sinkron dengan tahap.
+// Durasi satu tahap overlay (ms). Dikirim ke CSS sebagai --fx-stage-ms.
 export const STAGE_MS = 550
 
 function getInitialTheme() {
@@ -34,7 +33,7 @@ function getInitialTheme() {
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(getInitialTheme)
   const [mounted, setMounted] = useState(false)
-  // Transisi bertahap: { active, stage, toDark } — stage 0 = idle. Dibaca ThemeTransitionLayer.
+  // Transisi bertahap: { active, stage, toDark } — stage 0 = idle.
   const [stageFx, setStageFx] = useState({ active: false, stage: 0, toDark: true })
   const fxTimers = useRef([])
   const fxActive = useRef(false)
@@ -56,7 +55,6 @@ export function ThemeProvider({ children }) {
       root.classList.remove('dark')
     }
     setItem(STORAGE_KEY, theme)
-    // for CSS variables sync
     root.setAttribute('data-theme', theme)
     setMounted(true)
   }, [theme])
@@ -93,10 +91,10 @@ export function ThemeProvider({ children }) {
   }, [])
 
   // Transisi bertahap via overlay langit — HANYA dari klik pengguna (ThemeToggle).
-  // Tahap ke Dark : Golden Hour → Sunset → Twilight → Night
-  // Tahap ke Light: Moonset → Dawn → Sunrise → Day
+  // Ke Dark : Golden Hour → Sunset → Twilight → Night
+  // Ke Light: Moonset → Dawn → Sunrise → Day
   const toggleWithTransition = useCallback(() => {
-    // Transisi masih berjalan → klik lagi = selesaikan instan ke arah transisi (bukan balik).
+    // Transisi masih berjalan → klik lagi = selesaikan instan ke arah transisi.
     if (fxActive.current) {
       clearFxTimers()
       fxActive.current = false
@@ -112,19 +110,17 @@ export function ThemeProvider({ children }) {
     const toDark = theme !== 'dark'
     fxActive.current = true
     fxTarget.current = toDark
-    // Tahap 1 tampil langsung; crossfade antar-layer (CSS) yang menghaluskan pindahnya.
     setStageFx({ active: true, stage: 1, toDark })
     const D = STAGE_MS
     const at = (fn, ms) => fxTimers.current.push(setTimeout(fn, ms))
     at(() => setStageFx({ active: true, stage: 2, toDark }), D)
     at(() => setStageFx({ active: true, stage: 3, toDark }), D * 2)
     at(() => setStageFx({ active: true, stage: 4, toDark }), D * 3)
-    // Swap class `dark` di tengah crossfade tahap 4 — konten ikut halus lewat theme-crossfade.
+    // Swap class `dark` di tengah crossfade tahap 4.
     at(() => {
       document.documentElement.classList.add('theme-crossfade')
       setTheme(toDark ? 'dark' : 'light')
     }, D * 3 + D * 0.55)
-    // Tutup overlay setelah gerak matahari/bulan & crossfade langit selesai.
     at(() => {
       fxActive.current = false
       setStageFx({ active: false, stage: 0, toDark })
