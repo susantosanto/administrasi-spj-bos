@@ -28,11 +28,11 @@ function DashboardContent() {
     return () => clearInterval(iv)
   }, [])
 
-  // Loader tiap pindah halaman — animasi ASIK singkat
+  // Loader tiap pindah halaman — singkat, anti-stagnan (StrictMode safe)
   useEffect(() => {
     show('Memuat halaman...', 'Mohon tunggu sebentar')
-    const t = setTimeout(hide, 450)
-    return () => clearTimeout(t)
+    const t = setTimeout(hide, 350)
+    return () => { clearTimeout(t); hide() }
   }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
