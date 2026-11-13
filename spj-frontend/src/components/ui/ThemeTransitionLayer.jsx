@@ -37,7 +37,13 @@ export default function ThemeTransitionLayer() {
       <div className="theme-fx-sky theme-fx-sky--3" />
       <div className="theme-fx-sky theme-fx-sky--4" />
       <div className="theme-fx-stars" />
-      <div className="theme-fx-orb" />
+      {/* Arc pelangi: pivot di bawah tengah viewport; hand berotasi → orb menyapu
+          lintasan melengkung dari sisi ke sisi (terbit/terbenam) */}
+      <div className="theme-fx-arc">
+        <div className="theme-fx-arc-hand">
+          <div className="theme-fx-orb" />
+        </div>
+      </div>
       <div className="theme-fx-batik" />
     </div>
   )

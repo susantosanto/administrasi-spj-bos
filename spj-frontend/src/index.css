@@ -1494,39 +1494,67 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
 [data-fx-target="light"] .theme-fx-stars,
 [data-fx-target="light"][data-stage="2"] .theme-fx-stars { opacity: 0.6; }
 
-/* Matahari → bulan: satu orb; perpindahan panjang & easing lembut biar arc terasa */
-.theme-fx-orb {
+/* ── Arc pelangi: matahari/bulan terbit & terbenam dari sisi ke sisi ──
+   Pivot di bawah tengah viewport; "hand" berotasi dengan transisi sudut —
+   orb di ujungnya menyapu lintasan melengkung (arc circle besar), seperti
+   pelangi: naik dari satu sisi, turun ke sisi lain. */
+.theme-fx-arc {
   position: absolute;
-  width: 84px;
-  height: 84px;
-  left: 68%;
-  top: 18%;
-  border-radius: 9999px;
-  background: radial-gradient(circle at 36% 32%, #fff7d6 0%, #ffd76e 55%, #f2b64b 100%);
-  box-shadow: 0 0 60px 22px rgba(255, 205, 110, 0.42);
-  transition: transform 1.6s cubic-bezier(0.37, 0, 0.32, 1), background 1.2s ease, box-shadow 1.2s ease;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.theme-fx-arc-hand {
+  position: absolute;
+  bottom: 0;
+  left: -23px;
+  width: 46px;
+  height: 82vh;
+  transform-origin: 50% 100%;
+  transition: transform 1.7s cubic-bezier(0.37, 0, 0.32, 1);
   will-change: transform;
 }
+/* Ke Dark: matahari mulai tinggi di kiri → tenggelam ke sisi kanan */
+[data-stage="1"] .theme-fx-arc-hand { transform: rotate(-40deg); }
+[data-stage="2"] .theme-fx-arc-hand { transform: rotate(-8deg); }
+[data-stage="3"] .theme-fx-arc-hand { transform: rotate(26deg); }
+[data-stage="4"] .theme-fx-arc-hand { transform: rotate(58deg); }
+/* Ke Light: terbit dari sisi kiri (horizon) → naik ke tengah atas (Day) */
+[data-stage="1"][data-fx-target="light"] .theme-fx-arc-hand { transform: rotate(-58deg); }
+[data-stage="2"][data-fx-target="light"] .theme-fx-arc-hand { transform: rotate(-26deg); }
+[data-stage="3"][data-fx-target="light"] .theme-fx-arc-hand { transform: rotate(8deg); }
+[data-stage="4"][data-fx-target="light"] .theme-fx-arc-hand { transform: rotate(4deg); }
+
+/* Orb — kecil (46px), warna mengikuti tahap; posisi dikendalikan arc di atas */
+.theme-fx-orb {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 36% 32%, #fff7d6 0%, #ffd76e 55%, #f2b64b 100%);
+  box-shadow: 0 0 34px 12px rgba(255, 205, 110, 0.38);
+  transition: background 1.2s ease, box-shadow 1.2s ease;
+}
 [data-stage="2"] .theme-fx-orb {
-  transform: translate(6%, 16%) scale(0.92);
   background: radial-gradient(circle at 36% 32%, #ffedd0 0%, #ff9d5c 60%, #d96e3f 100%);
-  box-shadow: 0 0 70px 26px rgba(255, 157, 92, 0.4);
+  box-shadow: 0 0 38px 14px rgba(255, 157, 92, 0.36);
 }
 [data-stage="3"] .theme-fx-orb {
-  transform: translate(-34%, 34%) scale(0.66);
   background: radial-gradient(circle at 38% 34%, #fdfbf4 0%, #dbe3f5 62%, #aab6d6 100%);
-  box-shadow: 0 0 42px 14px rgba(203, 219, 255, 0.28);
+  box-shadow: 0 0 26px 9px rgba(203, 219, 255, 0.26);
 }
 [data-stage="4"] .theme-fx-orb {
-  transform: translate(-58%, 64%) scale(0.56);
   background: radial-gradient(circle at 38% 34%, #f4f6fd 0%, #c9d4ec 60%, #93a1c4 100%);
-  box-shadow: 0 0 34px 10px rgba(197, 213, 255, 0.22);
+  box-shadow: 0 0 22px 7px rgba(197, 213, 255, 0.2);
 }
-/* Ke Light: tahap 4 = matahari naik (Day) */
+/* Ke Light tahap akhir: matahari penuh naik */
 [data-stage="4"][data-fx-target="light"] .theme-fx-orb {
-  transform: translate(2%, -4%) scale(0.9);
   background: radial-gradient(circle at 36% 32%, #fffbe8 0%, #ffe38a 58%, #f5c25c 100%);
-  box-shadow: 0 0 66px 24px rgba(255, 214, 120, 0.4);
+  box-shadow: 0 0 38px 14px rgba(255, 214, 120, 0.38);
 }
 
 /* Veil batik — identitas ASIK, transparansi sangat rendah, ikut melintas pelan */
@@ -1561,7 +1589,8 @@ html.theme-crossfade body * {
    transisi, CSS ini memastikan layer tak pernah terlihat/bergerak. */
 @media (prefers-reduced-motion: reduce) {
   .theme-fx-layer,
-  .theme-fx-layer--active {
+  .theme-fx-layer--active,
+  .theme-fx-arc-hand {
     display: none !important;
     animation: none !important;
     transition: none !important;
