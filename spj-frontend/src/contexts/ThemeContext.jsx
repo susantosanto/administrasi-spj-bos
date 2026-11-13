@@ -15,8 +15,9 @@ import { getItem, setItem } from '../utils/storageAdapter'
 const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'spj_theme' // 'light' | 'dark'
-// Urutan tahap overlay langit (0 = idle). Index ganjil/genap dipakai overlay CSS.
-const STAGE_MS = [520, 520, 520, 520] // durasi tiap tahap; total ~2.1s — halus, tidak mengganggu
+// Urutan tahap overlay langit (0 = idle). 1 tahap = 550ms; kehalusan datang dari
+// crossfade antar-layer CSS (opacity), bukan dari durasi tahap.
+const STAGE_MS = [550, 550, 550, 550]
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light'
@@ -108,30 +109,26 @@ export function ThemeProvider({ children }) {
     }
     const toDark = theme !== 'dark'
     fxActive.current = true
+    // Tahap 1 tampil langsung; crossfade antar-layer (CSS) yang menghaluskan pindahnya.
     setStageFx({ active: true, stage: 1, toDark })
-    let elapsed = 0
-    for (let i = 0; i < STAGE_MS.length; i++) {
-      elapsed += STAGE_MS[i]
-      const stage = i + 1
-      if (stage < STAGE_MS.length) {
-        // Tahap tengah — cuma ganti warna overlay
-        fxTimers.current.push(setTimeout(() => setStageFx({ active: true, stage, toDark }), elapsed))
-      } else {
-        // Tahap terakhir: swap class `dark` di tema nyata, lalu tutup overlay
-        fxTimers.current.push(
-          setTimeout(() => {
-            setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
-            setStageFx({ active: true, stage, toDark })
-          }, elapsed - STAGE_MS[STAGE_MS.length - 1] * 0.4)
-        )
-        fxTimers.current.push(
-          setTimeout(() => {
-            fxActive.current = false
-            setStageFx({ active: false, stage: 0, toDark })
-          }, elapsed + 260)
-        )
-      }
-    }
+    const D = STAGE_MS[0] // durasi satu tahap
+    const at = (fn, ms) => fxTimers.current.push(setTimeout(fn, ms))
+    at(() => setStageFx({ active: true, stage: 2, toDark }), D)
+    at(() => setStageFx({ active: true, stage: 3, toDark }), D * 2)
+    // Tahap 4: langit target mulai crossfade-in dulu...
+    at(() => setStageFx({ active: true, stage: 4, toDark }), D * 3)
+    // ...baru swap class `dark` di tengah crossfade (UI tak kedip — tertutup overlay
+    // + html.theme-crossfade menghaluskan perpindahan warna konten).
+    at(() => {
+      document.documentElement.classList.add('theme-crossfade')
+      setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+    }, D * 3 + D * 0.55)
+    // Tutup overlay setelah crossfade langit selesai; crossfade token dilepas setelahnya.
+    at(() => {
+      fxActive.current = false
+      setStageFx({ active: false, stage: 0, toDark })
+    }, D * 4 + 150)
+    at(() => document.documentElement.classList.remove('theme-crossfade'), D * 4 + 1100)
   }, [theme, toggle, prefersReducedMotion, clearFxTimers])
 
   const set = useCallback((v) => {

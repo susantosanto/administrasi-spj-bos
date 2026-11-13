@@ -32,7 +32,10 @@ export default function ThemeTransitionLayer() {
       data-fx-target={toDark ? 'dark' : 'light'}
       aria-hidden="true"
     >
-      <div className="theme-fx-sky" />
+      <div className="theme-fx-sky theme-fx-sky--1" />
+      <div className="theme-fx-sky theme-fx-sky--2" />
+      <div className="theme-fx-sky theme-fx-sky--3" />
+      <div className="theme-fx-sky theme-fx-sky--4" />
       <div className="theme-fx-stars" />
       <div className="theme-fx-orb" />
       <div className="theme-fx-batik" />
