@@ -5,7 +5,10 @@
 import { useTheme } from '../../contexts/ThemeContext'
 
 export default function ThemeToggle({ variant = 'default', className = '' }) {
-  const { theme, toggle, isDark, mounted } = useTheme()
+  const { theme, toggle, toggleWithTransition, isDark, mounted } = useTheme()
+  // Global Theme Engine: klik pengguna → transisi Day/Night bertahap.
+  // Fallback `toggle` instan bila hook transisi tidak tersedia.
+  const onToggle = toggleWithTransition ?? toggle
 
   // Hindari flash saat SSR/hydrate
   if (!mounted) {
@@ -17,7 +20,7 @@ export default function ThemeToggle({ variant = 'default', className = '' }) {
   if (variant === 'icon') {
     return (
       <button
-        onClick={toggle}
+        onClick={onToggle}
         aria-label={isDark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'}
         aria-pressed={isDark}
         title={isDark ? 'Mode Terang' : 'Mode Gelap'}
@@ -44,7 +47,7 @@ export default function ThemeToggle({ variant = 'default', className = '' }) {
   // default: pill switch
   return (
     <button
-      onClick={toggle}
+      onClick={onToggle}
       aria-label={isDark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'}
       aria-pressed={isDark}
       title={isDark ? 'Mode Terang (klik untuk Light)' : 'Mode Gelap (klik untuk Dark)'}

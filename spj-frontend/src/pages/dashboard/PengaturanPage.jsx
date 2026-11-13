@@ -14,7 +14,7 @@ export default function PengaturanPage() {
     ['profil', 'tampilan', 'akun-ai', 'master', 'lisensi', 'backup', 'tentang'].includes(awal) ? awal : 'profil'
   )
   const [siplah, setSiplah] = useState(false)
-  const { isDark, toggle } = useTheme()
+  const { isDark, toggle, toggleWithTransition } = useTheme()
   const toast = useToast()
 
   return (
@@ -88,12 +88,12 @@ export default function PengaturanPage() {
               <ThemeToggle />
             </div>
             <div className="grid grid-cols-2 gap-md">
-              <button onClick={() => { if (isDark) toggle(); toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
+              <button onClick={() => { if (isDark) { (toggleWithTransition || toggle)() } toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
                 <div className="w-full h-20 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-200 mb-3" />
                 <p className="font-semibold text-sm text-text-high">Terang</p>
                 <p className="text-xs text-text-low">Background putih, kontras tinggi</p>
               </button>
-              <button onClick={() => { if (!isDark) toggle(); toast.success('Mode gelap diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${isDark ? 'border-primary bg-primary/10' : 'border-outline-variant hover:border-primary/30'}`}>
+              <button onClick={() => { if (!isDark) { (toggleWithTransition || toggle)() } toast.success('Mode gelap diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${isDark ? 'border-primary bg-primary/10' : 'border-outline-variant hover:border-primary/30'}`}>
                 <div className="w-full h-20 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg border border-slate-700 mb-3" />
                 <p className="font-semibold text-sm text-text-high">Gelap</p>
                 <p className="text-xs text-text-low">Background gelap, hemat mata</p>
