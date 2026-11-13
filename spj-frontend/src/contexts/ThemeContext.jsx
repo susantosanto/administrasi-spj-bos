@@ -16,7 +16,7 @@ const ThemeContext = createContext(null)
 
 const STORAGE_KEY = 'spj_theme' // 'light' | 'dark'
 // Durasi satu tahap overlay (ms). Dikirim ke CSS sebagai --fx-stage-ms.
-export const STAGE_MS = 550
+export const STAGE_MS = 300
 
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light'
