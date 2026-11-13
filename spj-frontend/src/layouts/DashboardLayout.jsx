@@ -40,7 +40,7 @@ function DashboardContent() {
       className="flex min-h-screen relative"
       style={{ backgroundColor: isDark ? '#0F172A' : '#F3F5F9' }}
     >
-      {/* Batik — full dashboard, lebih terlihat 0.08 (was 0.05) */}
+      {/* Batik — Capitalia-combine: drift halus 0.05 agar dense card tetap pop */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           className="absolute inset-x-0 -inset-y-[360px] animate-batik-drift"
@@ -48,12 +48,12 @@ function DashboardContent() {
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.07 : 0.09,
+            opacity: isDark ? 0.045 : 0.06,
             mixBlendMode: isDark ? "normal" : "multiply",
-            animationDuration: '60s',
+            animationDuration: '70s',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-transparent dark:from-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent dark:from-transparent dark:via-transparent" />
       </div>
       <Sidebar />
       {/* Mini banner trial mengambang draggable — khusus TRIAL, hilang saat berbayar */}

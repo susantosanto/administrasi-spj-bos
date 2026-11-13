@@ -210,13 +210,13 @@ export default function DashboardHome() {
           return (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {stats.map((stat) => (
-                <div key={stat.label} className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
+                <div key={stat.label} className="group bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{stat.label}</p>
-                    <span className="material-symbols-outlined text-lg text-slate-400 dark:text-slate-500">{stat.icon}</span>
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-slate-500 dark:text-slate-400">{stat.label}</p>
+                    <span className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-700/60 flex items-center justify-center material-symbols-outlined text-[16px] text-slate-500 dark:text-slate-300 group-hover:text-primary dark:group-hover:text-white transition-colors">{stat.icon}</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{stat.value}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{stat.hint}</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums tracking-tight">{stat.value}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{stat.hint}</p>
                 </div>
               ))}
             </div>
@@ -241,10 +241,11 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-slate-700">download</span>
-            <h3 className="text-base font-bold text-slate-900">Dokumen Referensi</h3>
+            <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">download</span>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Dokumen Referensi</h3>
+            <span className="ml-auto text-[11px] font-medium tracking-wide uppercase text-slate-400 dark:text-slate-500">26+ template</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {DOCUMENTS_REF.map((doc) => {
@@ -280,10 +281,11 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-4">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-slate-700">auto_awesome</span>
-            <h3 className="text-base font-bold text-slate-900">Fitur Unggulan</h3>
+            <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">auto_awesome</span>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Fitur Unggulan</h3>
+            <span className="ml-auto text-[11px] font-medium tracking-wide uppercase text-slate-400 dark:text-slate-500">7 modul</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {FEATURES.map((feature) => (
