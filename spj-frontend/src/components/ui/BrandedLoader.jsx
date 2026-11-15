@@ -29,7 +29,6 @@ export default function BrandedLoader({
           <stop offset="100%" stopColor="#12DCE8" />
         </linearGradient>
       </defs>
-      <circle className="asik-loader__track" cx="60" cy="60" r="57" />
       <circle
         className="asik-loader__ring"
         cx="60" cy="60" r="57"
