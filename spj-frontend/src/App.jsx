@@ -4,7 +4,6 @@ import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { LoadingProvider } from './contexts/LoadingContext'
-import ThemeTransitionLayer from './components/ui/ThemeTransitionLayer'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -92,7 +91,6 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <ThemeTransitionLayer />
       <ToastProvider>
         <LoadingProvider>
           <AIProvider>
