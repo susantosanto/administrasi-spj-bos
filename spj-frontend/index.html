@@ -60,11 +60,11 @@
       .asik-loader__ring {
         fill: none; stroke: url(#asik-ring-gradient); stroke-width: 5.5; stroke-linecap: round;
         stroke-dasharray: 155 210; transform-origin: 60px 60px;
-        animation: asik-orbit 2.5s cubic-bezier(.65,0,.35,1) infinite, asik-dash 2.1s ease-in-out infinite;
+        animation: asik-orbit 2.4s linear infinite, asik-dash 2.4s ease-in-out infinite;
       }
       .asik-loader__ring--secondary {
         stroke-width: 2.4; stroke-dasharray: 62 298;
-        animation: asik-orbit-reverse 4.4s linear infinite, asik-secondary-dash 2.8s ease-in-out infinite;
+        animation: asik-orbit-reverse 3.6s linear infinite, asik-secondary-dash 3.6s ease-in-out infinite;
         opacity: .88;
       }
       .asik-loader__disc {
@@ -85,7 +85,7 @@
       .asik-loading__dots span:nth-child(3) { animation-delay: .32s; }
       .asik-loading__title { margin: 0; font-size: 15px; font-weight: 650; }
       .asik-loading__subtitle { margin: -5px 0 0; font-size: 12px; color: #7b8da7; }
-      @keyframes asik-orbit { 0%{transform:rotate(-35deg)} 50%{transform:rotate(160deg)} 100%{transform:rotate(325deg)} }
+      @keyframes asik-orbit { to { transform: rotate(360deg); } }
       @keyframes asik-dash { 0%,100%{stroke-dasharray:155 210;stroke-dashoffset:0} 50%{stroke-dasharray:85 280;stroke-dashoffset:-36} }
       @keyframes asik-orbit-reverse { to{transform:rotate(-360deg)} }
       @keyframes asik-secondary-dash { 0%,100%{stroke-dasharray:62 298;stroke-dashoffset:0} 50%{stroke-dasharray:115 245;stroke-dashoffset:-42} }
