@@ -30,12 +30,11 @@ export default function BrandedLoader({
         </linearGradient>
       </defs>
       <circle
-        className="asik-loader__ring"
+        className="asik-loader__base"
         cx="60" cy="60" r="57"
-        style={{ stroke: "url(#asik-ring-gradient--app)" }}
       />
       <circle
-        className="asik-loader__ring asik-loader__ring--secondary"
+        className="asik-loader__comet"
         cx="60" cy="60" r="57"
         style={{ stroke: "url(#asik-ring-gradient--app)" }}
       />

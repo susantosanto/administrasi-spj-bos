@@ -42,13 +42,13 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 22px;
+        gap: 16px;
         text-align: center;
         color: #203b60;
         font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       }
       .asik-loader {
-        width: 116px; height: 116px; position: relative;
+        width: 140px; height: 140px; position: relative;
         display: grid; place-items: center; isolation: isolate;
       }
       .asik-loader__halo {
@@ -57,24 +57,25 @@
         filter: blur(9px); animation: asik-halo-pulse 2.6s ease-in-out infinite; z-index: -1;
       }
       .asik-loader__rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-      .asik-loader__ring {
-        fill: none; stroke: url(#asik-ring-gradient); stroke-width: 5.5; stroke-linecap: round;
-        stroke-dasharray: 155 210; transform-origin: 60px 60px;
-        animation: asik-orbit 2.4s linear infinite, asik-dash 2.4s ease-in-out infinite;
+      /* Base: lingkaran penuh statis, sangat samar — struktur */
+      .asik-loader__base {
+        fill: none; stroke: rgba(7,87,238,.14); stroke-width: 3;
       }
-      .asik-loader__ring--secondary {
-        stroke-width: 2.4; stroke-dasharray: 62 298;
-        animation: asik-orbit-reverse 3.6s linear infinite, asik-secondary-dash 3.6s ease-in-out infinite;
-        opacity: .88;
+      /* Komet: satu arc panjang konstan, putaran linear — tanpa morph dash */
+      .asik-loader__comet {
+        fill: none; stroke: url(#asik-ring-gradient); stroke-width: 4.5; stroke-linecap: round;
+        stroke-dasharray: 95 263; transform-origin: 60px 60px;
+        animation: asik-orbit 1.8s linear infinite;
+        filter: drop-shadow(0 0 6px rgba(18,165,238,.55));
       }
       .asik-loader__disc {
-        position: relative; width: 84px; height: 84px; border-radius: 50%;
+        position: relative; width: 100px; height: 100px; border-radius: 50%;
         display: grid; place-items: center; background: rgba(255,255,255,.94);
         border: 1px solid rgba(217,231,251,.95);
         box-shadow: 0 5px 18px rgba(38,100,185,.08), inset 0 1px 0 rgba(255,255,255,.95);
         animation: asik-disc-float 2.8s ease-in-out infinite;
       }
-      .asik-loader__logo { width: 67px; height: auto; object-fit: contain; animation: asik-logo-breath 2.8s ease-in-out infinite; }
+      .asik-loader__logo { width: 80px; height: auto; object-fit: contain; animation: asik-logo-breath 2.8s ease-in-out infinite; }
       .asik-loading__dots { display: flex; justify-content: center; gap: 7px; }
       .asik-loading__dots span {
         width: 7px; height: 7px; border-radius: 50%;
@@ -86,9 +87,6 @@
       .asik-loading__title { margin: 0; font-size: 15px; font-weight: 650; }
       .asik-loading__subtitle { margin: -5px 0 0; font-size: 12px; color: #7b8da7; }
       @keyframes asik-orbit { to { transform: rotate(360deg); } }
-      @keyframes asik-dash { 0%,100%{stroke-dasharray:155 210;stroke-dashoffset:0} 50%{stroke-dasharray:85 280;stroke-dashoffset:-36} }
-      @keyframes asik-orbit-reverse { to{transform:rotate(-360deg)} }
-      @keyframes asik-secondary-dash { 0%,100%{stroke-dasharray:62 298;stroke-dashoffset:0} 50%{stroke-dasharray:115 245;stroke-dashoffset:-42} }
       @keyframes asik-disc-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
       @keyframes asik-logo-breath { 0%,100%{transform:scale(.97);opacity:.94} 50%{transform:scale(1);opacity:1} }
       @keyframes asik-halo-pulse { 0%,100%{opacity:.5;transform:scale(.95)} 50%{opacity:.95;transform:scale(1.06)} }
@@ -104,6 +102,7 @@
       html.dark .asik-loading { color: #E2E8F0; }
       html.dark .asik-loading__title { color: #F1F5F9; }
       html.dark .asik-loading__subtitle { color: #94A3B8; }
+      html.dark .asik-loader__base { stroke: rgba(148, 163, 184, 0.22); }
       html.dark .asik-loader__disc {
         background: rgba(30, 41, 59, 0.94);
         border-color: rgba(255, 255, 255, 0.08);
@@ -151,8 +150,8 @@
                 <stop offset="100%" stop-color="#12DCE8"/>
               </linearGradient>
             </defs>
-            <circle class="asik-loader__ring" cx="60" cy="60" r="57"/>
-            <circle class="asik-loader__ring asik-loader__ring--secondary" cx="60" cy="60" r="57"/>
+            <circle class="asik-loader__base" cx="60" cy="60" r="57"/>
+            <circle class="asik-loader__comet" cx="60" cy="60" r="57"/>
           </svg>
           <div class="asik-loader__disc">
             <img class="asik-loader__logo" src="/asik-logo.png" alt="ASIK" draggable="false" />
