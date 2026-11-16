@@ -29,6 +29,11 @@ export default function BrandedLoader({
           <stop offset="100%" stopColor="#12DCE8" />
         </linearGradient>
       </defs>
+      <circle
+        className="asik-loader__ring-solid"
+        cx="60" cy="60" r="57"
+        style={{ stroke: "url(#asik-ring-gradient--app)" }}
+      />
     </svg>
   );
 
