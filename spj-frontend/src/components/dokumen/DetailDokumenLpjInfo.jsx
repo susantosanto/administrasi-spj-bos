@@ -68,7 +68,7 @@ export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData,
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 space-y-6">
           {/* Auto-Fill Button */}
-          <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-100">
+          <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-xl p-4 border border-slate-100">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
                 <span className="material-symbols-outlined text-amber-600">auto_awesome</span>
@@ -130,7 +130,7 @@ export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData,
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl border border-blue-200 p-6">
+              <div className="bg-gradient-to-br from-blue-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 dark:border-slate-700 rounded-2xl border border-blue-200 p-6">
                 <TemplateEngine
                   templateConfig={TEMPLATE_CONFIGS.sppd}
                   data={sppdData}

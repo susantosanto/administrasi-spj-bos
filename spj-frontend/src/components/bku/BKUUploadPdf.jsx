@@ -236,7 +236,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
       {tahap === 'pilih' && (
         <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                         hover:border-primary/40 transition-all duration-300
-                        bg-gradient-to-b from-slate-50/50 to-transparent">
+                        bg-gradient-to-b from-slate-50/50 to-transparent dark:from-slate-800/40">
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
                           flex items-center justify-center mx-auto mb-5 shadow-inner">
             <span className="material-symbols-outlined text-4xl text-primary">picture_as_pdf</span>

@@ -1101,7 +1101,7 @@ export default function DokumenKelengkapanPage() {
     const isKasDoc = ['RK', 'BAP'].includes(selectedDokumen?.id)
     return (
       <section ref={kasSectionRef} id="kas-section" aria-label={`Kelengkapan Kas — ${selectedDokumen.nama}`}
-        className="relative mt-2 mb-8 w-full max-w-none bg-gradient-to-br from-white via-primary/[0.04] to-blue-50/40 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
+        className="relative mt-2 mb-8 w-full max-w-none bg-gradient-to-br from-white via-primary/[0.04] to-blue-50/40 dark:from-slate-800 dark:via-slate-800/60 dark:to-slate-900 dark:border-slate-700 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary" />
         <div className="relative p-5 sm:p-7 lg:p-9 space-y-5">
           <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan Kas">

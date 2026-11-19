@@ -76,7 +76,7 @@ export default function DetailDokumenLpj({
           : 'opacity-100 translate-y-0 scale-100'
       }`}
     >
-      <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
+      <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 dark:from-slate-800 dark:via-slate-800/60 dark:to-slate-900 dark:border-slate-700 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
         {/* Premium Decorative Elements */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />

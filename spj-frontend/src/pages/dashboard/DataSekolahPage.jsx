@@ -728,7 +728,7 @@ export default function DataSekolahPage() {
             {PEJABAT_ROLES.map((role) => (
               <div key={role.key} className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
                 {/* Card Header — blue-only (Sprint 001 task 2.3: warna by role.key) */}
-                <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
+                <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
                       <span className="material-symbols-outlined text-xl text-primary">{role.icon}</span>

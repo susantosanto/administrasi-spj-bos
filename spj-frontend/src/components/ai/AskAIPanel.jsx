@@ -299,9 +299,9 @@ function FileChip({ file, onRemove }) {
   const gradients = {
     pdf: 'from-red-50 to-orange-50 border-red-200/50',
     excel: 'from-emerald-50 to-teal-50 border-emerald-200/50',
-    text: 'from-slate-50 to-gray-50 border-slate-200/50',
+    text: 'from-slate-50 to-gray-50 border-slate-200/50 dark:from-slate-800 dark:to-slate-900 dark:border-slate-700',
     csv: 'from-emerald-50 to-teal-50 border-emerald-200/50',
-    unknown: 'from-slate-50 to-gray-50 border-slate-200/50',
+    unknown: 'from-slate-50 to-gray-50 border-slate-200/50 dark:from-slate-800 dark:to-slate-900 dark:border-slate-700',
   }
   const iconColors = { pdf: 'text-red-500', excel: 'text-emerald-600', text: 'text-slate-500', csv: 'text-emerald-600', unknown: 'text-slate-400' }
   const g = gradients[file.type] || gradients.unknown
@@ -461,7 +461,7 @@ export default function AskAIPanel({ onClose }) {
 
     {/* Panel */}
       <div className="fixed top-0 right-0 h-full w-[580px] max-w-[calc(100vw-32px)] z-[201]
-                       bg-gradient-to-b from-white via-[#fafbfd] to-[#f5f6fa]
+                       bg-gradient-to-b from-white via-[#fafbfd] to-[#f5f6fa] dark:from-slate-800 dark:via-slate-800/70 dark:to-slate-900
                        backdrop-blur-2xl
                        border-l border-white/30
                        shadow-[-12px_0_80px_rgba(0,0,0,0.12),-4px_0_20px_rgba(0,0,0,0.04)]

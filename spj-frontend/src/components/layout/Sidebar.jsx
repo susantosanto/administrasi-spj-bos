@@ -111,7 +111,7 @@ export default function Sidebar() {
         }`}
       >
         {/* Container — glass combine 85% + blur 12px (was solid, now aksen) */}
-        <div className="relative w-[260px] h-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-r border-slate-200/60 dark:border-slate-700/60 shadow-[8px_0_32px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden">
+        <div className="relative w-[260px] h-full bg-white/85 dark:bg-[#16213a] backdrop-blur-md border-r border-slate-200/60 dark:border-slate-700/60 shadow-[8px_0_32px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden">
 
           {/* ── Decorative — single subtle orb only ── */}
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-3xl pointer-events-none opacity-60" aria-hidden="true" />
