@@ -57,15 +57,21 @@
    Semua (body, bukan hanya sisi) berubah.
    ═══════════════════════════════════════════════════════════════════════════ */
 .dark {
-  --color-background: #0f0f3e;
-  --color-surface: rgba(19,29,51,0.85);
-  --color-surface-muted: rgba(30,43,74,0.9);
-  --color-surface-container: #1a2642;
-  --color-surface-container-high: #24365f;
-  --color-outline: #3a4a6b;
-  --color-outline-variant: #2a3a5c;
-  --color-border: rgba(255,255,255,0.08);
-  --color-text-high: #ffffff;
+  /* ── Palet dark kanonik — sumber tunggal ─────────────────────────────
+     Permukaan : page #0f172a · rail #16213a · card #1e293b · well #131d31
+     Garis     : #3a4a63 (kuat) · rgba(148,163,184,.14) (halus)
+     Teks      : #f8fafc · #e2e8f0 · #cbd5e1 · #94a3b8 · #8496ad
+     Aksen     : #60a5fa (teks/ikon) · #2563eb (CTA) · #004ac6 (tombol brand)
+     Semua aturan .dark di bawah memakai nilai dari daftar ini.           */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-muted: #131d31;
+  --color-surface-container: #16213a;
+  --color-surface-container-high: #3a4a63;
+  --color-outline: #3a4a63;
+  --color-outline-variant: rgba(148,163,184,0.14);
+  --color-border: rgba(148,163,184,0.20);
+  --color-text-high: #f8fafc;
   --color-text-muted: #e2e8f0;
   --color-text-low: #cbd5e1;
   --color-primary: #60a5fa;
@@ -78,7 +84,7 @@
   color-scheme: dark;
 }
 .dark body {
-  color: #f1f5f9;
+  color: #e2e8f0;
   /* P2 — solid navy + subtle accent (was 8-stop neon 0.9 opacity) */
   background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
   background-size: 100% 100% !important;
@@ -117,12 +123,12 @@
 /* glass-input — permukaan "resessed" sengaja lebih gelap dari card (#1e293b)
    supaya ada tangga elevasi; border dibuat lebih terang, bukan lebih gelap. */
 .glass-input { background-color: #ffffff; border: 1px solid #e2e8f0; }
-.dark .glass-input { background-color: #131d31; border-color: #3a4a63; color: #f1f5f9; }
+.dark .glass-input { background-color: #131d31; border-color: #3a4a63; color: #f8fafc; }
 .glass-input::placeholder { color: #64748b; }
-/* Placeholder di semua input dark: redup (≈5:1), jangan bersaing dengan isi */
+/* Placeholder di semua input dark: nada faint (#8496ad), seragam dengan teks redup */
 .dark input::placeholder,
 .dark textarea::placeholder,
-.dark .glass-input::placeholder { color: #7c8da5 !important; }
+.dark .glass-input::placeholder { color: #8496ad !important; }
 
 /* Dark — estetik: body #0f172a, card #1e293b elevated + border + shadow + highlight.
    Border sengaja lebih terang dari permukaan (≈1.6:1) agar kartu terbaca di navy. */
@@ -137,17 +143,17 @@
 .dark .bg-white\/90 { background-color: #1e293b !important; }
 .dark .bg-slate-100\/80 { background-color: #1e293b !important; }
 .dark .bg-slate-200 { background-color: #334155 !important; }
-/* Dark text harmonis — jangan menyatu dengan card #1e293b */
-.dark .text-slate-900 { color: #f1f5f9 !important; }
+/* Dark text harmonis — 5 nada kanonik, jangan menyatu dengan card #1e293b */
+.dark .text-slate-900 { color: #f8fafc !important; }
 .dark .text-slate-800 { color: #e2e8f0 !important; }
 .dark .text-slate-700 { color: #e2e8f0 !important; }
 .dark .text-slate-600 { color: #cbd5e1 !important; }
 .dark .text-slate-500 { color: #94a3b8 !important; }
 .dark .text-slate-400 { color: #94a3b8 !important; }
-.dark .text-slate-300 { color: #64748b !important; }
-.dark .text-on-surface { color: #f1f5f9 !important; }
+.dark .text-slate-300 { color: #8496ad !important; }
+.dark .text-on-surface { color: #f8fafc !important; }
 .dark .text-on-surface-variant { color: #cbd5e1 !important; }
-.dark .text-text-high { color: #f1f5f9 !important; }
+.dark .text-text-high { color: #f8fafc !important; }
 .dark .text-text-low { color: #94a3b8 !important; }
 .dark .text-on-primary { color: #ffffff !important; }
 .dark .glass-card { background-color: #1e293b !important; border-color: rgba(148,163,184,0.16) !important; }
@@ -189,7 +195,7 @@
 .hero-cta-primary .hero-cta-icon { color: #ffffff; }
 /* ── FIX KHUSUS: PremiumTypingCard di dark — card jadi glass gelap, teks putih terbaca ── */
 .dark .premium-typing-card { background-color: rgba(19,29,51,0.92) !important; border-color: rgba(255,255,255,0.12) !important; }
-.dark .premium-typing-card .text-slate-700 { color: #ffffff !important; }
+.dark .premium-typing-card .text-slate-700 { color: #f8fafc !important; }
 .dark .premium-typing-card .text-slate-500 { color: rgba(255,255,255,0.75) !important; }
 .dark .premium-typing-card .text-slate-400 { color: rgba(255,255,255,0.55) !important; }
 .dark .premium-typing-card .bg-slate-100 { background-color: rgba(255,255,255,0.10) !important; }
@@ -198,7 +204,7 @@
 .dark .premium-typing-card .border-slate-100 { border-color: rgba(255,255,255,0.08) !important; }
 .dark .premium-typing-card .bg-slate-50\/50 { background-color: rgba(255,255,255,0.06) !important; }
 /* ── TULISAN dark: hierarki nada, bukan semua putih ──
-   Skala slate ada di blok 135–147 (#f1f5f9 → #e2e8f0 → #cbd5e1 → #94a3b8 → #64748b).
+    Skala 5 nada: #f8fafc → #e2e8f0 → #cbd5e1 → #94a3b8 → #8496ad.
    Blok lama meratakan semuanya ke #ffffff dan menggilas varian dark: Tailwind
    pada komponen, sehingga judul/subjudul/label/email jadi identik.
    Sekarang: heading paling terang, secondary redup, aksen biru dipertahankan. */
@@ -223,18 +229,29 @@
 .dark .text-slate-500,
 .dark .text-gray-500,
 .dark .text-slate-400 { color: #94a3b8 !important; }
-.dark .text-slate-300 { color: #64748b !important; }
+/* dark:text-slate-100 dipakai judul kecil (nama user, judul aktivitas) → heading */
+.dark .text-slate-100 { color: #f8fafc !important; }
 /* Aksen biru untuk state aktif — config primary #004ac6 terlalu gelap di navy */
-.dark .text-primary { color: #60a5fa !important; }
+.dark .text-primary,
 .dark .text-blue-500,
 .dark .text-blue-600,
-.dark .text-indigo-600 { color: #93c5fd !important; }
+.dark .text-indigo-600 { color: #60a5fa !important; }
 /* Border dark: lebih TERANG dari permukaan, bukan gelap-di-gelap */
 .dark .border-slate-100 { border-color: rgba(148,163,184,0.14) !important; }
 .dark .border-slate-200 { border-color: #3a4a63 !important; }
 .dark .border-slate-200\/80 { border-color: rgba(148,163,184,0.20) !important; }
 .dark .border-slate-200\/50 { border-color: rgba(148,163,184,0.12) !important; }
 .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(148,163,184,0.14) !important; }
+/* Aksen lama #2457A7 (landing lama, grafik, modal lisensi) diseragamkan
+   ke palet dark. Mockup hero sengaja dikecualikan (ber-permukaan terang). */
+.dark .bg-\[\#2457A7\] { background-color: #2563eb !important; }
+.dark .hover\:bg-\[\#1D4688\]:hover { background-color: #1d4ed8 !important; }
+.dark .border-\[\#2457A7\] { border-color: #2563eb !important; }
+.dark .focus\:border-\[\#2457A7\]:focus { border-color: #60a5fa !important; }
+.dark .hover\:text-\[\#2457A7\]:hover { color: #60a5fa !important; }
+.dark svg [stroke="#2457A7"] { stroke: #60a5fa; }
+.dark svg [fill="#2457A7"] { fill: #60a5fa; }
+.dark svg stop[stop-color="#2457A7"] { stop-color: #60a5fa; }
 .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
 .dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
 /* Scrollbar dark */

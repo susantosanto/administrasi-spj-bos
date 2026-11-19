@@ -168,7 +168,7 @@ export default function RegisterPage() {
           <img src="/asik-logo.png" alt="Asik" className="h-10 w-auto mb-2.5" draggable="false" />
           <h2
             className="text-lg font-bold tracking-tight"
-            style={{ color: isDark ? '#F1F5F9' : '#1D2939' }}
+            style={{ color: isDark ? '#F8FAFC' : '#1D2939' }}
           >
             Aplikasi Dokumentasi LPJ
           </h2>

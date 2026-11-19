@@ -56,12 +56,12 @@ function getPalette(isDark) {
       ctaHover: "#1D4ED8",
       bg: "#0F172A",
       surface: "#1E293B",
-      heading: "#F1F5F9",
-      body: "#CBD5E1",
+      heading: "#F8FAFC",
+      body: "#E2E8F0",
       muted: "#94A3B8",
-      border: "#334155",
+      border: "#3A4A63",
       softBlue: "#1E3A5F",
-      success: "#34D399",
+      success: "#4ADE80",
     };
   }
   return {

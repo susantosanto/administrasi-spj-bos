@@ -116,7 +116,7 @@
 
       /* ── Adaptasi: tema gelap + logo berupa SVG inline (bukan file img) ── */
       html.dark .asik-loading { color: #E2E8F0; }
-      html.dark .asik-loading__title { color: #F1F5F9; }
+      html.dark .asik-loading__title { color: #F8FAFC; }
       html.dark .asik-loading__subtitle { color: #94A3B8; }
       html.dark .asik-loader__track { background: rgba(148, 163, 184, 0.18); }
       html.dark .asik-loader__disc {
@@ -140,7 +140,7 @@
             var root = document.getElementById('root');
             if (root && !root.hasChildNodes()) {
               var note = document.createElement('div');
-              note.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99998;background:#0F172A;color:#F1F5F9;padding:10px 16px;border-radius:10px;font:500 13px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+              note.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99998;background:#0F172A;color:#F8FAFC;padding:10px 16px;border-radius:10px;font:500 13px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';
               note.textContent = 'Aplikasi gagal termuat — muat ulang halaman (Ctrl+Shift+R) atau jalankan ulang dev server.';
               document.body.appendChild(note);
             }
