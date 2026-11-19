@@ -7,10 +7,10 @@
  *                           (import Excel, generate LPJ, dsb.)
  *
  * Catatan teknis:
- *  - Class animasi .asik-* (ring, halo, dots, teks) hidup GLOBAL dari
+ *  - Class animasi .asik-* (track, comet, halo, dots) hidup GLOBAL dari
  *    <style> di index.html — tidak perlu CSS tambahan di sini.
- *  - Gradient ring memakai id sendiri (asik-ring-gradient--app) + stroke
- *    inline agar tidak berbenturan dengan <defs> splash (id unik/dokumen).
+ *  - Komet memakai conic-gradient + CSS mask, tanpa <defs>/id SVG →
+ *    tidak ada benturan id antar instance (splash & in-app).
  *  - Mode gelap otomatis via rule html.dark pada CSS global yang sama.
  *  - exiting=true → animasi keluar 0.3s; parent melepas elemen setelahnya.
  */
@@ -21,24 +21,10 @@ export default function BrandedLoader({
   exiting = false,
 }) {
   const rings = (
-    <svg className="asik-loader__rings" viewBox="0 0 120 120">
-      <defs>
-        <linearGradient id="asik-ring-gradient--app" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0757EE" />
-          <stop offset="55%" stopColor="#0AA5EE" />
-          <stop offset="100%" stopColor="#12DCE8" />
-        </linearGradient>
-      </defs>
-      <circle
-        className="asik-loader__base"
-        cx="60" cy="60" r="57"
-      />
-      <circle
-        className="asik-loader__comet"
-        cx="60" cy="60" r="57"
-        style={{ stroke: "url(#asik-ring-gradient--app)" }}
-      />
-    </svg>
+    <>
+      <span className="asik-loader__track" />
+      <span className="asik-loader__comet" />
+    </>
   );
 
   return (
