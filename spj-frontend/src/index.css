@@ -171,11 +171,15 @@
 .dark .from-slate-50,
 .dark .from-slate-50\/50,
 .dark .from-white,
-.dark .from-blue-50\/50 { --tw-gradient-from: #1e293b !important; }
+.dark .from-blue-50\/50,
+.dark .from-emerald-50 { --tw-gradient-from: #1e293b !important; }
 .dark .to-white,
 .dark .to-gray-50,
+.dark .to-blue-50,
 .dark .to-blue-50\/30,
-.dark .to-blue-50\/40 { --tw-gradient-to: #16213a !important; }
+.dark .to-blue-50\/40,
+.dark .to-blue-50\/60,
+.dark .to-teal-50 { --tw-gradient-to: #16213a !important; }
 .dark .border-white\/60 { border-color: rgba(255,255,255,0.12) !important; }
 .dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.08) !important; }
 /* Pastikan semua wrapper dashboard ikut transparan agar gradasi body terlihat */
@@ -252,6 +256,47 @@
 .dark svg [stroke="#2457A7"] { stroke: #60a5fa; }
 .dark svg [fill="#2457A7"] { fill: #60a5fa; }
 .dark svg stop[stop-color="#2457A7"] { stop-color: #60a5fa; }
+/* ── Permukaan pastel (bg-*-50) → rail #16213a ───────────────────────
+   81 pemakaian di 27 file (banner info, badge, header kartu peran).
+   Di dark jangan jadi blok terang yang menyilaukan / white-on-white. */
+.dark :is(
+  .bg-amber-50, .bg-blue-50, .bg-cyan-50, .bg-emerald-50, .bg-fuchsia-50,
+  .bg-green-50, .bg-indigo-50, .bg-lime-50, .bg-orange-50, .bg-pink-50,
+  .bg-purple-50, .bg-red-50, .bg-rose-50, .bg-sky-50, .bg-teal-50,
+  .bg-violet-50, .bg-yellow-50,
+  .bg-blue-50\/50, .bg-emerald-50\/50, .bg-indigo-50\/40,
+  .bg-red-50\/60, .bg-red-50\/80
+) { background-color: #16213a !important; }
+.dark :is(
+  .border-amber-200, .border-blue-200, .border-emerald-200, .border-orange-200,
+  .border-red-200, .border-rose-200, .border-violet-200, .border-yellow-200
+) { border-color: #3a4a63 !important; }
+/* Teks semantik → 4 warna status kanonik (bukan abu, bukan hue gelap) */
+.dark :is(
+  .text-amber-600, .text-amber-700, .text-amber-800,
+  .text-orange-600, .text-orange-700, .text-orange-800,
+  .text-yellow-600, .text-yellow-700, .text-yellow-800
+) { color: #fbbf24 !important; }
+.dark :is(
+  .text-emerald-600, .text-emerald-700, .text-emerald-800,
+  .text-green-600, .text-green-700, .text-green-800,
+  .text-teal-600, .text-teal-700, .text-teal-800,
+  .text-lime-600, .text-lime-700, .text-lime-800
+) { color: #4ade80 !important; }
+.dark :is(
+  .text-red-500, .text-red-600, .text-red-700, .text-red-800,
+  .text-rose-600, .text-rose-700, .text-rose-800,
+  .text-pink-600, .text-pink-700, .text-pink-800
+) { color: #f87171 !important; }
+.dark :is(
+  .text-violet-600, .text-violet-700, .text-violet-800,
+  .text-purple-600, .text-purple-700, .text-purple-800,
+  .text-fuchsia-600, .text-fuchsia-700, .text-fuchsia-800,
+  .text-cyan-600, .text-cyan-700, .text-cyan-800,
+  .text-indigo-600, .text-indigo-700, .text-indigo-800,
+  .text-sky-600, .text-sky-700, .text-sky-800
+) { color: #60a5fa !important; }
+.dark .ring-slate-100 { --tw-ring-color: #3a4a63 !important; }
 .dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
 .dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
 /* Scrollbar dark */
