@@ -147,9 +147,8 @@
           }, 1200);
         }
         setTimeout(failSafe, 6500);
-        window.addEventListener('error', function (e) {
-          if (!armed && document.getElementById('boot-splash')) failSafe();
-        }, true);
+        // Resource error (font/image/CDN) tidak boleh dianggap React gagal mount.
+        // Timer di atas tetap menjadi fallback jika root benar-benar kosong.
       })();
     </script>
   </head>
