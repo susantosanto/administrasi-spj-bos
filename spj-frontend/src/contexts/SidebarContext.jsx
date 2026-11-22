@@ -5,10 +5,11 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
 const SidebarContext = createContext(null)
+const DESKTOP_SIDEBAR_MIN = 1180
 
 export function SidebarProvider({ children }) {
   // Check if screen is mobile
-  const getIsMobile = () => typeof window !== 'undefined' && window.innerWidth < 1024
+  const getIsMobile = () => typeof window !== 'undefined' && window.innerWidth < DESKTOP_SIDEBAR_MIN
 
   const [isOpen, setIsOpen] = useState(() => !getIsMobile())
   const [isMobile, setIsMobile] = useState(getIsMobile())
@@ -16,7 +17,7 @@ export function SidebarProvider({ children }) {
   // Handle resize
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 1024
+      const mobile = window.innerWidth < DESKTOP_SIDEBAR_MIN
       setIsMobile(mobile)
       // Auto-close sidebar when switching to mobile
       if (mobile) {

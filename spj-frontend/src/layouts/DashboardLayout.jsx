@@ -60,7 +60,7 @@ function DashboardContent() {
       <TrialMiniBanner variant="floating" />
       <main
         className={`flex-1 flex flex-col min-h-screen relative z-10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          !isMobile && isOpen ? 'lg:ml-[260px]' : 'ml-0'
+          !isMobile && isOpen ? 'min-[1180px]:ml-[260px]' : 'ml-0'
         }`}
       >
         <div key={location.pathname} className="animate-fade-in flex-1 flex flex-col">
