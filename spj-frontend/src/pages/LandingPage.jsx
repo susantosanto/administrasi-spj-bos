@@ -56,12 +56,12 @@ function getPalette(isDark) {
       ctaHover: "#1D4ED8",
       bg: "#0F172A",
       surface: "#1E293B",
-      heading: "#F1F5F9",
-      body: "#CBD5E1",
+      heading: "#F8FAFC",
+      body: "#E2E8F0",
       muted: "#94A3B8",
-      border: "#334155",
+      border: "#3A4A63",
       softBlue: "#1E3A5F",
-      success: "#34D399",
+      success: "#4ADE80",
     };
   }
   return {
@@ -183,17 +183,24 @@ function DashboardMockup({ palette: P, isDark }) {
 
   return (
     <div
-      className="relative rounded-2xl border overflow-hidden"
+      className="relative rounded-[1.75rem] border overflow-hidden"
       style={{
-        borderColor: P.border,
-        backgroundColor: P.surface,
-        boxShadow: "0 20px 50px -20px rgba(36,87,167,0.18)",
+        borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.85)",
+        backgroundColor: isDark ? "rgba(30,41,59,0.88)" : "rgba(255,255,255,0.78)",
+        backdropFilter: "blur(18px) saturate(1.3)",
+        WebkitBackdropFilter: "blur(18px) saturate(1.3)",
+        boxShadow: isDark
+          ? "0 24px 50px -20px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08)"
+          : "0 24px 50px -20px rgba(36,87,167,0.20), inset 0 1px 0 rgba(255,255,255,0.85)",
       }}
     >
       {/* Top bar */}
       <div
         className="flex items-center justify-between px-4 py-3 border-b"
-        style={{ borderColor: P.border, backgroundColor: P.softBlue }}
+        style={{
+          borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(36,87,167,0.10)",
+          backgroundColor: isDark ? "rgba(15,23,42,0.35)" : "rgba(255,255,255,0.55)",
+        }}
       >
         <div className="flex items-center gap-2">
           <img src="/asik-logo.png" alt="Asik" className="h-4 w-auto" draggable="false" />
@@ -209,7 +216,10 @@ function DashboardMockup({ palette: P, isDark }) {
         {/* Sidebar */}
         <div
           className="w-40 shrink-0 border-r p-3 space-y-1 hidden md:block"
-          style={{ borderColor: P.border, backgroundColor: "#FAFBFD" }}
+          style={{
+            borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(36,87,167,0.10)",
+            backgroundColor: isDark ? "rgba(15,23,42,0.32)" : "rgba(239,246,255,0.42)",
+          }}
         >
           {MENU.map((item, i) => (
             <div
@@ -239,7 +249,10 @@ function DashboardMockup({ palette: P, isDark }) {
               <div
                 key={label}
                 className="rounded-xl border p-3"
-                style={{ borderColor: P.border, backgroundColor: P.surface }}
+              style={{
+                borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.90)",
+                backgroundColor: isDark ? "rgba(15,23,42,0.52)" : "rgba(255,255,255,0.82)",
+              }}
               >
                 <p className="text-[10px] font-medium" style={{ color: P.muted }}>{label}</p>
                 <p className="text-xs font-bold mt-1" style={{ color }}>{value}</p>
@@ -248,10 +261,20 @@ function DashboardMockup({ palette: P, isDark }) {
           </div>
 
           {/* Table */}
-          <div className="rounded-xl border overflow-hidden" style={{ borderColor: P.border }}>
+          <div
+            className="rounded-xl border overflow-hidden"
+            style={{
+              borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.90)",
+              backgroundColor: isDark ? "rgba(15,23,42,0.38)" : "rgba(255,255,255,0.58)",
+            }}
+          >
             <div
               className="grid grid-cols-3 text-[10px] font-semibold px-3 py-2 border-b"
-              style={{ borderColor: P.border, backgroundColor: "#FAFBFD", color: labelSolid }}
+              style={{
+                borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(36,87,167,0.10)",
+                backgroundColor: isDark ? "rgba(30,41,59,0.62)" : "rgba(239,246,255,0.55)",
+                color: labelSolid,
+              }}
             >
               <span>{view.label}</span>
               <span>Detail</span>
@@ -323,13 +346,12 @@ export default function LandingPage() {
       <header
         className="fixed top-0 w-full z-50 transition-all duration-200"
         style={{
-backgroundColor: scrolled
-            ? isDark
-              ? "rgba(30,41,59,0.92)"
-              : "rgba(255,255,255,0.92)"
-            : P.surface,
-          borderBottom: `1px solid ${P.border}`,
-          backdropFilter: scrolled ? "blur(8px)" : "none",
+          backgroundColor: scrolled
+            ? (isDark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.88)")
+            : (isDark ? "rgba(15,23,42,0.46)" : "rgba(255,255,255,0.38)"),
+          borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.78)"}`,
+          backdropFilter: "blur(18px) saturate(1.35)",
+          WebkitBackdropFilter: "blur(18px) saturate(1.35)",
         }}
       >
         <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
@@ -386,26 +408,24 @@ backgroundColor: scrolled
           className="relative overflow-hidden flex items-center min-h-[calc(100vh-64px)]"
           style={{ backgroundColor: P.bg }}
         >
-          {/* Batik motif — subtle accent + drift lembut dari atas ke bawah
-              (elemen melebar 360px ke atas & bawah; geser tepat 1 tile → loop mulus) */}
           <div
+            aria-hidden="true"
             className="absolute inset-x-0 -inset-y-[360px] pointer-events-none animate-batik-drift"
             style={{
               backgroundImage: "url('/floral-pattern.jpg')",
               backgroundSize: "360px 360px",
               backgroundRepeat: "repeat",
-              opacity: isDark ? 0.07 : 0.3,
+              opacity: isDark ? 0.04 : 0.18,
               mixBlendMode: isDark ? "normal" : "multiply",
             }}
           />
-          {/* Mesh gradient — blue (top-left) & purple (bottom-right), very subtle */}
           <div
             className="absolute -top-32 -left-32 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(36,87,167,0.12) 0%, transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(36,87,167,0.08) 0%, transparent 70%)" }}
           />
           <div
             className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.10) 0%, transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(36,87,167,0.04) 0%, transparent 70%)" }}
           />
 
           <div className="max-w-[1280px] mx-auto px-6 py-16 lg:py-20">
@@ -414,7 +434,7 @@ backgroundColor: scrolled
               <div>
                 <span
                   className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-5 animate-fade-up"
-                  style={{ backgroundColor: P.primary, color: "#ffffff", animationDelay: "0s" }}
+                  style={{ backgroundColor: P.cta, color: "#ffffff", animationDelay: "0s" }}
                 >
                   Sistem Informasi LPJ BOS/BOSP
                 </span>
@@ -587,15 +607,11 @@ backgroundColor: scrolled
             <div
               className="rounded-2xl border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6"
               style={{
-                borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.65)",
-                background: isDark
-                  ? "linear-gradient(135deg, rgba(30,41,59,0.62), rgba(15,23,42,0.45))"
-                  : "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52))",
-                backdropFilter: "blur(18px) saturate(1.5)",
-                WebkitBackdropFilter: "blur(18px) saturate(1.5)",
+                borderColor: isDark ? P.border : "rgba(36,87,167,0.14)",
+                backgroundColor: P.surface,
                 boxShadow: isDark
-                  ? "0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10)"
-                  : "0 12px 40px rgba(36,87,167,0.12), inset 0 1px 0 rgba(255,255,255,0.65)",
+                  ? "0 8px 24px rgba(0,0,0,0.20)"
+                  : "0 8px 24px rgba(15,23,42,0.06)",
               }}
             >
               <div>
@@ -632,10 +648,8 @@ backgroundColor: scrolled
             className="flex items-center p-1 sm:p-1.5 rounded-2xl sm:rounded-full border"
             style={{
               borderColor: P.border,
-              backgroundColor: isDark ? "rgba(30,41,59,0.85)" : "rgba(255,255,255,0.85)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              boxShadow: "0 10px 30px -12px rgba(36,87,167,0.28)",
+              backgroundColor: P.surface,
+              boxShadow: "0 10px 30px -12px rgba(36,87,167,0.22)",
             }}
           >
             {VALUES.map((v, i) => (

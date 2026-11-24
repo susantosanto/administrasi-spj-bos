@@ -246,7 +246,7 @@ export default function PanelPreviewDocument({ title, docs = [], status = null, 
               onClick={handleCetak}
               disabled={!bisaCetak}
               title={bisaCetak ? 'Cetak dokumen' : 'Lengkapi dulu — tekan Cek untuk melompat ke field yang kurang'}
-              className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-xl text-xs font-bold text-white bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
+              className="inline-flex items-center gap-1.5 px-5 min-h-[44px] rounded-xl text-xs font-bold text-white bg-primary shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
             >
               <span className="material-symbols-outlined text-base">print</span>
               Cetak

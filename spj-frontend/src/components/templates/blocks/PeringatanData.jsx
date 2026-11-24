@@ -77,7 +77,7 @@ export default function PeringatanData({ cetakGate = null }) {
           onClick={handleCetak}
           disabled={!bolehCetak}
           title={bolehCetak ? 'Cetak dokumen' : 'Terhalang: lengkapi checklist dan data'}
-          className="inline-flex items-center gap-2 px-5 min-h-[44px] rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
+          className="inline-flex items-center gap-2 px-5 min-h-[44px] rounded-xl text-sm font-semibold text-white bg-primary shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
         >
           <span className="material-symbols-outlined text-lg">print</span>
           Cetak

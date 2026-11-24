@@ -113,7 +113,7 @@ export default function MaminPreview({ formData, setViewMode, selectedSub, print
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 transition-all"
           >
             <span className="material-symbols-outlined text-lg">print</span>
             Cetak
