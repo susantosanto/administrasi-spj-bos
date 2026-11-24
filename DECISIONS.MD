@@ -1424,6 +1424,12 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Dibuat oleh: user (klarifikasi) + agent (eksekusi)
   Dampak: `src/components/dashboard/ArusKasChart.jsx` diperbarui menjadi 3 seri (Penerimaan biru, Tahap 1 biru muda terasering, Tahap 2 abu), header tetap rata, legenda ditambahkan, state kosong tetap ditangani. Tidak ada commit.
 
+[2026-11-25] Keputusan: Ada kontrol tombol/Segment untuk menampilkan **Hanya Tahap 1** atau **Hanya Tahap 2** pada Grafik Arus Kas
+  Status: accepted
+  Alasan: pengguna ingin mengklik tombol khusus sehingga chart menampilkan satu siklus pencairan tanpa mencampur Tahap 1 dan Tahap 2.
+  Dibuat oleh: user (klarifikasi) + agent (eksekusi)
+  Dampak: `src/components/dashboard/ArusKasChart.jsx` ditambahkan state `view` dengan opsi “Semua”, “Tahap 1”, “Tahap 2”. Saat tombol Tejahp 1 dipilih, hanya seri Tahap 1 yang digambar (Penerimaan tetap). Saat “Tahap 2” dipilih, hanya seri Tahap 2 yang digambar. Tombol pop up garis, aksesibel, tanpa mengubah tinggi kartu. Tidak ada commit.
+
 [2026-10-31] Keputusan: Sprint 022 — AI generate dokumen memakai PROVIDER API (BFL, kredit prabayar), default FLUX 3 Klein 1K, eskalasi FLUX 3 Image 1K, tanpa self-host; FLUX.2 [pro] hanya jika A/B menang
   Status: accepted (keputusan user 2026-10-31, diminta "kunci keputusan ... dan simpan di file tahap sprint optimize generate documents ai")
   Alasan: (1) pada 200 sekolah biaya API Rp 4,5-9,4 jt/tahun vs GPU 24/7 Rp 140 jt/tahun (31x) - titik impas self-host +-860 sekolah (serverless) / +-6.200 (pod 24/7); (2) FLUX 3 Image menagih referensi GRATIS, sedangkan FLUX.2 [pro] menagih $0,015/MP per referensi sehingga 1,56x lebih mahal untuk pipeline 3 referensi; (3) Klein 5,3x lebih murah dan cukup untuk cetak 60x40 mm (1K = +-170 dpi); (4) kunci API wajib di main process karena kunci di bundle = kunci publik (temuan lama aiConfig.js); (5) foto sintetis sebagai bukti LPJ berisiko dianggap bukti palsu saat audit dan wajah = data biometrik (UU PDP 27/2022) sehingga label "ILUSTRASI AI" + is_ai wajib

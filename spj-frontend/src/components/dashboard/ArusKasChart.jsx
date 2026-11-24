@@ -83,10 +83,15 @@ export default function ArusKasChart() {
   const areaTahap1 = `${kePath(pTahap1)} L${pTahap1[pTahap1.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pTahap1[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
   const ticks = LEVEL.map((f) => ({ v: max * f, y: PAD.t + (H - PAD.t - PAD.b) * (1 - f) }))
 
-  const series = [
-    { key: 'masuk', label: 'Penerimaan', color: '#2457A7', dash: '0 0', type: 'area' },
-    { key: 'tahap1', label: 'Tahap 1', color: '#3B82F6', dash: '4 4', type: 'line' },
-    { key: 'tahap2', label: 'Tahap 2', color: '#94A3B8', dash: '4 4', type: 'line' },
+  const [view, setView] = useState('semua') // semua | tahap1 | tahap2
+
+  const showTahap1 = view === 'semua' || view === 'tahap1'
+  const showTahap2 = view === 'semua' || view === 'tahap2'
+
+  const segments = [
+    { id: 'semua', label: 'Semua' },
+    { id: 'tahap1', label: 'Tahap 1' },
+    { id: 'tahap2', label: 'Tahap 2' },
   ]
 
   if (monthly.length === 0) {
@@ -120,6 +125,23 @@ export default function ArusKasChart() {
     <div ref={wrapRef} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
       <Header title="Arus Kas" subtitle="Penerimaan vs pengeluaran per bulan (BKU)" />
       <div className="px-3 py-3">
+        <div className="flex items-center justify-between gap-3 pt-2">
+          {segments.map((seg) => (
+            <button
+              key={seg.id}
+              type="button"
+              onClick={() => setView(seg.id)}
+              aria-selected={view === seg.id}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-colors ${view === seg.id
+                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
+                  : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-blue-300'
+                }
+              `}
+            >
+              {seg.label}
+            </button>
+          ))}
+        </div>
         <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} className="block" role="img" aria-label="Grafik arus kas per bulan">
           <defs>
             <linearGradient id="akMasuk" x1="0" y1="0" x2="0" y2="1">
@@ -145,21 +167,29 @@ export default function ArusKasChart() {
               <title>{`${monthly[i].namaBulan}: masuk ${fmtSingkat(masuk[i])}, keluar ${fmtSingkat(keluar[i])}`}</title>
             </circle>
           ))}
-          {/* Tahap 1 */}
-          <path d={areaTahap1} fill="url(#akTahap1)" />
-          <path d={kePath(pTahap1)} fill="none" stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 4" />
-          {pTahap1.map((p, i) => (
-            <circle key={`t1${i}`} cx={p.x} cy={p.y} r="3" fill="#3B82F6" opacity="0.7">
-              <title>{`Tahap 1 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap1[i])}`}</title>
-            </circle>
-          ))}
-          {/* Tahap 2 */}
-          <path d={kePath(pTahap2)} fill="none" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 4" />
-          {pTahap2.map((p, i) => (
-            <circle key={`t2${i}`} cx={p.x} cy={p.y} r="3" fill="#94A3B8" opacity="0.7">
-              <title>{`Tahap 2 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap2[i])}`}</title>
-            </circle>
-          ))}
+          {showTahap1 && (
+            <>
+              {/* Tahap 1 */}
+              <path d={areaTahap1} fill="url(#akTahap1)" />
+              <path d={kePath(pTahap1)} fill="none" stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 4" />
+              {pTahap1.map((p, i) => (
+                <circle key={`t1${i}`} cx={p.x} cy={p.y} r="3" fill="#3B82F6" opacity="0.7">
+                  <title>{`Tahap 1 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap1[i])}`}</title>
+                </circle>
+              ))}
+            </>
+          )}
+          {showTahap2 && (
+            <>
+              {/* Tahap 2 */}
+              <path d={kePath(pTahap2)} fill="none" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 4" />
+              {pTahap2.map((p, i) => (
+                <circle key={`t2${i}`} cx={p.x} cy={p.y} r="3" fill="#94A3B8" opacity="0.7">
+                  <title>{`Tahap 2 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap2[i])}`}</title>
+                </circle>
+              ))}
+            </>
+          )}
           {pMasuk.map((p, i) => (
             <text key={`x${i}`} x={p.x} y={H - 10} textAnchor="middle" fontSize="11" className="fill-slate-500 dark:fill-slate-400">
               {String(monthly[i].namaBulan || '').slice(0, 3)}
