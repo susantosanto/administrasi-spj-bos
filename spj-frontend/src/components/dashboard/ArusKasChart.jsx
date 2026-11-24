@@ -1,8 +1,8 @@
 /**
  * ArusKasChart — Arus kas BKU per bulan (SVG mandiri, tanpa deps chart).
  * Sumber: `bku_data.summary.monthlySummaries` (penerimaan vs pengeluaran).
+ * Baru: 3 seri — Penerimaan, Pengeluaran Tahap 1 (Bln 1–6), Pengeluaran Tahap 2 (Bln 7–12).
  * Lebar SVG mengikuti lebar kartu (ResizeObserver) agar teks tetap 11 px.
- * Seri 1 (penerimaan): garis + area gradien. Seri 2 (pengeluaran): garis putus.
  * Kosong → kerangka grafik tanpa angka + tautan upload.
  */
 import { useEffect, useRef, useState } from 'react'
@@ -34,11 +34,14 @@ function titik(data, max, w) {
 
 const kePath = (pts) => pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
 
-function Header() {
+const HEADER_CLASS =
+  'px-5 py-4 border-b border-slate-100 dark:border-white/10'
+
+function Header({ title, subtitle }) {
   return (
-    <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
-      <h3 className="text-base font-bold text-slate-900 dark:text-white">Arus Kas</h3>
-      <p className="text-xs text-slate-500 dark:text-slate-400">Penerimaan vs pengeluaran per bulan (BKU)</p>
+    <div className={HEADER_CLASS}>
+      <h3 className="text-base font-bold text-slate-900 dark:text-white">{title}</h3>
+      <p className="text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
     </div>
   )
 }
@@ -66,12 +69,30 @@ export default function ArusKasChart() {
   }, [])
 
   const w = lebar > 0 ? lebar - 24 : 600
-  const cardClass = 'bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm'
+
+  const masuk = monthly.map((m) => Number(m.totalPenerimaan) || 0)
+  const keluar = monthly.map((m) => Number(m.totalPengeluaran) || 0)
+  const tahap1 = monthly.map((m) => (Number(m.bulan) >= 1 && Number(m.bulan) <= 6 ? Number(m.totalPengeluaran) || 0 : 0))
+  const tahap2 = monthly.map((m) => (Number(m.bulan) >= 7 && Number(m.bulan) <= 12 ? Number(m.totalPengeluaran) || 0 : 0))
+  const max = Math.max(...masuk, ...keluar, ...tahap1, ...tahap2, 1)
+
+  const pMasuk = titik(masuk, max, w)
+  const pTahap1 = titik(tahap1, max, w)
+  const pTahap2 = titik(tahap2, max, w)
+  const areaMasuk = `${kePath(pMasuk)} L${pMasuk[pMasuk.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pMasuk[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
+  const areaTahap1 = `${kePath(pTahap1)} L${pTahap1[pTahap1.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pTahap1[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
+  const ticks = LEVEL.map((f) => ({ v: max * f, y: PAD.t + (H - PAD.t - PAD.b) * (1 - f) }))
+
+  const series = [
+    { key: 'masuk', label: 'Penerimaan', color: '#2457A7', dash: '0 0', type: 'area' },
+    { key: 'tahap1', label: 'Tahap 1', color: '#3B82F6', dash: '4 4', type: 'line' },
+    { key: 'tahap2', label: 'Tahap 2', color: '#94A3B8', dash: '4 4', type: 'line' },
+  ]
 
   if (monthly.length === 0) {
     return (
-      <div ref={wrapRef} className={cardClass}>
-        <Header />
+      <div ref={wrapRef} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+        <Header title="Arus Kas" subtitle="Penerimaan vs pengeluaran per bulan (BKU)" />
         <div className="relative px-3 py-3">
           <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} className="block" aria-hidden="true">
             {LEVEL.map((f) => {
@@ -95,23 +116,19 @@ export default function ArusKasChart() {
     )
   }
 
-  const masuk = monthly.map((m) => Number(m.totalPenerimaan) || 0)
-  const keluar = monthly.map((m) => Number(m.totalPengeluaran) || 0)
-  const max = Math.max(...masuk, ...keluar, 1)
-  const pMasuk = titik(masuk, max, w)
-  const pKeluar = titik(keluar, max, w)
-  const area = `${kePath(pMasuk)} L${pMasuk[pMasuk.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pMasuk[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
-  const ticks = LEVEL.map((f) => ({ v: max * f, y: PAD.t + (H - PAD.t - PAD.b) * (1 - f) }))
-
   return (
-    <div ref={wrapRef} className={cardClass}>
-      <Header />
+    <div ref={wrapRef} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+      <Header title="Arus Kas" subtitle="Penerimaan vs pengeluaran per bulan (BKU)" />
       <div className="px-3 py-3">
         <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} className="block" role="img" aria-label="Grafik arus kas per bulan">
           <defs>
             <linearGradient id="akMasuk" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2457A7" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#2457A7" stopOpacity="0.02" />
+            </linearGradient>
+            <linearGradient id="akTahap1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.14" />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.02" />
             </linearGradient>
           </defs>
           {ticks.map((t) => (
@@ -120,23 +137,45 @@ export default function ArusKasChart() {
               <text x={PAD.l - 8} y={t.y + 4} textAnchor="end" fontSize="11" className="fill-slate-500 dark:fill-slate-400">{fmtSingkat(t.v)}</text>
             </g>
           ))}
-          <path d={area} fill="url(#akMasuk)" />
-          <path d={kePath(pKeluar)} fill="none" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 4" />
+          {/* Penerimaan */}
+          <path d={areaMasuk} fill="url(#akMasuk)" />
           <path d={kePath(pMasuk)} fill="none" stroke="#2457A7" strokeWidth="2" />
           {pMasuk.map((p, i) => (
             <circle key={`m${i}`} cx={p.x} cy={p.y} r="3.5" fill="#2457A7">
               <title>{`${monthly[i].namaBulan}: masuk ${fmtSingkat(masuk[i])}, keluar ${fmtSingkat(keluar[i])}`}</title>
             </circle>
           ))}
-          {monthly.map((m, i) => (
-            <text key={`x${i}`} x={pMasuk[i].x} y={H - 10} textAnchor="middle" fontSize="11" className="fill-slate-500 dark:fill-slate-400">
-              {String(m.namaBulan || '').slice(0, 3)}
+          {/* Tahap 1 */}
+          <path d={areaTahap1} fill="url(#akTahap1)" />
+          <path d={kePath(pTahap1)} fill="none" stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 4" />
+          {pTahap1.map((p, i) => (
+            <circle key={`t1${i}`} cx={p.x} cy={p.y} r="3" fill="#3B82F6" opacity="0.7">
+              <title>{`Tahap 1 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap1[i])}`}</title>
+            </circle>
+          ))}
+          {/* Tahap 2 */}
+          <path d={kePath(pTahap2)} fill="none" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 4" />
+          {pTahap2.map((p, i) => (
+            <circle key={`t2${i}`} cx={p.x} cy={p.y} r="3" fill="#94A3B8" opacity="0.7">
+              <title>{`Tahap 2 ${monthly[i].namaBulan}: keluar ${fmtSingkat(tahap2[i])}`}</title>
+            </circle>
+          ))}
+          {pMasuk.map((p, i) => (
+            <text key={`x${i}`} x={p.x} y={H - 10} textAnchor="middle" fontSize="11" className="fill-slate-500 dark:fill-slate-400">
+              {String(monthly[i].namaBulan || '').slice(0, 3)}
             </text>
           ))}
         </svg>
-        <div className="flex items-center gap-4 px-2 pt-1 pb-1 text-xs text-slate-500 dark:text-slate-400">
-          <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-[#2457A7] rounded" /> Penerimaan</span>
-          <span className="flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-slate-400" /> Pengeluaran</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-2 pt-1 pb-1 text-xs text-slate-500 dark:text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <span className="w-4 h-0.5 bg-[#2457A7] rounded" /> Penerimaan
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-4 h-0.5 bg-[#3B82F6] border-t-2 border-dashed border-[#3B82F6]" /> Tahap 1
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-4 h-0.5 bg-[#94A3B8] border-t-2 border-dashed border-[#94A3B8]" /> Tahap 2
+          </span>
         </div>
       </div>
     </div>
