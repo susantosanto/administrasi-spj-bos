@@ -182,6 +182,120 @@
 .dark .to-teal-50 { --tw-gradient-to: #16213a !important; }
 .dark .border-white\/60 { border-color: rgba(255,255,255,0.12) !important; }
 .dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.08) !important; }
+/* Dokumen LPJ — lapisan surface biru-slate menjaga kontras navigasi, konten,
+   dan panel; kertas preview tetap putih agar serupa hasil cetak. */
+.dark .dokumen-lpj-page {
+  background: linear-gradient(145deg, #0b1426 0%, #111f36 52%, #0f172a 100%) !important;
+}
+.dark .dokumen-lpj-page .dokumen-lpj-primary-cards > button,
+.dark .dokumen-lpj-page .dokumen-lpj-support-cards > button {
+  background-color: #182943 !important;
+  border-color: #3c5272 !important;
+  box-shadow: 0 5px 16px rgba(2, 8, 23, 0.28), 0 1px 0 rgba(191, 219, 254, 0.06) inset !important;
+}
+.dark .dokumen-lpj-page .dokumen-lpj-primary-cards > button:hover,
+.dark .dokumen-lpj-page .dokumen-lpj-support-cards > button:hover {
+  background-color: #1c3150 !important;
+  border-color: #6287bb !important;
+}
+.dark .dokumen-lpj-page .dokumen-lpj-primary-cards > button .bg-slate-100,
+.dark .dokumen-lpj-page .dokumen-lpj-support-cards > button .bg-slate-100 {
+  background-color: #263d5b !important;
+  color: #bfdbfe !important;
+}
+.dark .dokumen-lpj-page .border-t.border-slate-100 {
+  border-color: #3a4a63 !important;
+}
+.dark .dokumen-lpj-page .bg-slate-50 {
+  background-color: #172943 !important;
+}
+.dark .dokumen-lpj-page .bg-slate-100 {
+  background-color: #213653 !important;
+}
+.dark .dokumen-lpj-page .border-slate-200 {
+  border-color: #405775 !important;
+}
+.dark .dokumen-lpj-page .border-slate-100 {
+  border-color: #334a68 !important;
+}
+.dark .dokumen-lpj-page .text-slate-500,
+.dark .dokumen-lpj-page .text-slate-400 {
+  color: #a8bbd3 !important;
+}
+.dark .dokumen-lpj-page .text-slate-300 {
+  color: #8ea6c4 !important;
+}
+.dark .dokumen-lpj-page .bg-primary\/5 {
+  background-color: rgba(96, 165, 250, 0.09) !important;
+}
+.dark .dokumen-lpj-page .bg-primary\/10 {
+  background-color: rgba(96, 165, 250, 0.16) !important;
+}
+.dark .dokumen-lpj-page .bg-emerald-50 {
+  background-color: rgba(34, 197, 94, 0.13) !important;
+}
+.dark .dokumen-lpj-page .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+}
+.dark .dokumen-lpj-page .border-emerald-200 {
+  border-color: rgba(74, 222, 128, 0.4) !important;
+}
+.dark .dokumen-lpj-page .border-amber-200 {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+}
+.dark .dokumen-lpj-page .bg-slate-200\/60 {
+  background-color: #15253b !important;
+}
+.dark .dokumen-lpj-page .panel-preview-root > .bg-white {
+  background-color: #172943 !important;
+}
+.dark .dokumen-lpj-page .panel-preview-root > .bg-slate-100\/60 {
+  background-color: #101d30 !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper {
+  background: #fff !important;
+  color: #111827 !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper :is(h1, h2, h3, h4, h5, h6) {
+  color: #111827 !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper :is(
+  .text-slate-900, .text-gray-900, .text-slate-800, .text-gray-800,
+  .text-slate-700, .text-gray-700, .text-slate-600, .text-gray-600,
+  .text-slate-500, .text-gray-500, .text-slate-400, .text-slate-300
+) {
+  color: #334155 !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper .bg-white {
+  background-color: #fff !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper .bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+.dark .dokumen-lpj-page .panel-a4-paper .bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+/* Warna ikon kategori LPJ mengikuti jenis dokumen, bukan warna kartu umum. */
+.dokumen-lpj-page [data-card-icon="honor"] { background-color: #dbeafe; color: #1d4ed8; }
+.dokumen-lpj-page [data-card-icon="perjalanan_dinas"] { background-color: #cffafe; color: #0e7490; }
+.dokumen-lpj-page [data-card-icon="mamin"] { background-color: #e0e7ff; color: #4338ca; }
+.dokumen-lpj-page [data-card-icon="pemeliharaan"] { background-color: #ccfbf1; color: #0f766e; }
+.dokumen-lpj-page [data-card-icon="penggandaan"] { background-color: #bfdbfe; color: #1e40af; }
+.dokumen-lpj-page [data-card-icon="cetak_foto"] { background-color: #cffafe; color: #155e75; }
+.dokumen-lpj-page [data-card-icon="cetak_banner"] { background-color: #e0e7ff; color: #3730a3; }
+.dokumen-lpj-page [data-card-icon="tagihan"] { background-color: #ccfbf1; color: #115e59; }
+.dark .dokumen-lpj-page [data-card-icon="honor"] { background-color: #1e3a5f; color: #93c5fd; }
+.dark .dokumen-lpj-page [data-card-icon="perjalanan_dinas"] { background-color: #164e63; color: #67e8f9; }
+.dark .dokumen-lpj-page [data-card-icon="mamin"] { background-color: #312e81; color: #a5b4fc; }
+.dark .dokumen-lpj-page [data-card-icon="pemeliharaan"] { background-color: #134e4a; color: #5eead4; }
+.dark .dokumen-lpj-page [data-card-icon="penggandaan"] { background-color: #1e40af; color: #bfdbfe; }
+.dark .dokumen-lpj-page [data-card-icon="cetak_foto"] { background-color: #164e63; color: #a5f3fc; }
+.dark .dokumen-lpj-page [data-card-icon="cetak_banner"] { background-color: #3730a3; color: #c7d2fe; }
+.dark .dokumen-lpj-page [data-card-icon="tagihan"] { background-color: #115e59; color: #99f6e4; }
+.dokumen-lpj-page [data-card-icon] .material-symbols-outlined { color: inherit; }
+
 /* Pastikan semua wrapper dashboard ikut transparan agar gradasi body terlihat */
 .dark .bg-slate-100\/80 { background-color: transparent !important; }
 .dark .min-h-screen.bg-slate-100\/80,

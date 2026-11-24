@@ -9,6 +9,42 @@
 
 ## Daftar Keputusan
 
+[2026-11-24] Keputusan: Sidebar desktop tertutup 76 px sebagai default, ikon awal Lucide (diganti Heroicons), pola interaksi rail dari source referensi, tinggi header 76 px
+  Status: superseded
+  Alasan: pengguna memilih empat opsi saat ditanya (tertutup seperti source, coba lucide-react, adopsi interaksi rail, setuju header 76 px). Keputusan ini menimpa default 232 px pada entri dashboard sebelumnya.
+  Dibuat oleh: user (jawaban langsung) + builder
+  Dampak: `SidebarContext` memisahkan state mobile (`isOpen`) dan desktop (`isExpanded`, default false) dengan ambang 900 px; `DashboardLayout` memakai offset 108 px saat rail ciut dan 264 px saat terbuka; `Topbar` setinggi 76 px dan tombol drawer hanya tampil di bawah 900 px; `Sidebar` memakai ikon lucide-react, tooltip portal saat rail ciut, penutupan lewat klik di luar dan Escape, serta jarak grup dirapatkan agar rail 76 px memuat seluruh ikon pada tinggi layar 800 px. Tidak ada commit.
+
+[2026-11-24] Keputusan: Pindah dari Lucide ke Heroicons outline
+  Status: accepted
+  Alasan: pengguna menyetujui penambahan Heroicons dan meminta pergantian ikon dari Lucide; satu set outline dipakai agar gaya dan geometri konsisten.
+  Dibuat oleh: user (persetujuan eksplisit) + builder
+  Dampak: menambah `@heroicons/react` 2.2.0, mengganti seluruh pemakaian Lucide di Sidebar, KPI dashboard, dan halaman Pratinjau, lalu menghapus `lucide-react`; ikon KPI tetap terpusat di lingkaran 36×36 px dan Saldo memakai Wallet. Audit npm melaporkan 15 kerentanan pada dependency tree, tidak di-fix di luar cakupan. Tidak ada commit.
+
+[2026-11-24] Keputusan: Ikon KPI dashboard memakai lingkaran 36 px dengan glyph terpusat, tanpa ikon celengan
+  Status: accepted
+  Alasan: pengguna meminta setiap ikon berada tepat di tengah lingkaran dan melarang ikon yang menyerupai babi.
+  Dibuat oleh: user + builder
+  Dampak: ikon KPI pada `DashboardHome.jsx` memakai SVG lucide yang relevan di dalam wadah lingkaran 36×36 px dengan grid-centering eksplisit; saldo memakai ikon Wallet, bukan glyph `savings`. Tidak ada commit.
+
+[2026-11-24] Keputusan: Dashboard utama — sidebar desktop terbuka default 232 px, rail 76 px, dashboard keuangan berbasis data BKU dan surface solid
+  Status: accepted
+  Alasan: pengguna meminta penerapan prompt dashboard baru; lebar sidebar dan konten harus selaras tanpa overlap, metrik harus nyata, dan motif/palet ASIK tetap terjaga.
+  Dibuat oleh: user (arahan implementasi) + builder
+  Dampak: SidebarContext, DashboardLayout, Sidebar, Topbar, DashboardHome, dan panel dashboard terkait diperbarui; ambang desktop 900 px menyatukan state dengan layout, tombol drawer header hanya untuk layar kecil, kartu statistik dari ringkasan BKU dengan state kosong jujur. Tidak ada commit.
+
+[2026-11-23] Keputusan: Sprint 030 — kembalikan hero ke rancangan awal setelah pengguna meminta pembatalan adaptasi referensi
+  Status: accepted
+  Alasan: pengguna meminta kembali ke desain awal; motif batik bergerak dan glow biru bawaan dipertahankan, sementara gelombang/kontur/halo SVG dan kontrol jeda tambahan dihapus.
+  Dibuat oleh: user + builder
+  Dampak: markup hero di `LandingPage.jsx` kembali pada struktur awal dekorasi batik/glow; perubahan surface glass CTA/dock tetap dipertahankan sesuai persetujuan sebelumnya. FigCraft editable menunggu penyelarasan.
+
+[2026-11-23] Keputusan: Sprint 030 — batasi glassmorphism landing page pada header dan mockup dashboard; CTA dan dock memakai permukaan solid
+  Status: accepted
+  Alasan: pengguna meminta gaya glass pada landing page tanpa mengganggu elemen inti/layout; dua bidang kaca cukup untuk navigasi dan fokus visual produk, permukaan lain tetap jelas.
+  Dibuat oleh: user (persetujuan eksekusi Sprint 030) + builder
+  Dampak: hanya style pada `spj-frontend/src/pages/LandingPage.jsx`; DOM, layout, teks, tautan, perilaku, breakpoint, light/dark dipertahankan. CTA/dock memakai `P.surface`, tanpa backdrop blur.
+
 [2026-11-01] Keputusan: Template Surat Cerdas disambung ke sumber tunggal (getSchoolData/getPejabat); hapus fallback kota "Bandung"
   Status: accepted
   Alasan: audit menemukan getDataPejabat() membaca kunci mati `spj_pejabat_sekolah` (tak pernah ditulis) sehingga nama KS/bendahara+NIP tak pernah terisi otomatis di Template Surat; getDataSekolah() mentah tanpa resolver; fallback kota mengarang data. Bentuk return dipertahankan (TemplateSuratPage 0 diff)

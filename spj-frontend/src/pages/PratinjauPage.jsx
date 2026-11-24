@@ -1,17 +1,39 @@
 /**
  * Pratinjau Desain — 4 view + footer banner sesuai spek (statis, ilustratif).
  * Route publik /pratinjau. Tidak menyentuh halaman/fitur aplikasi yang berjalan.
- * Ikon: lucide-react. Token: blue-600, slate-50, white, slate-900/500.
+ * Ikon: Heroicons outline. Token: blue-600, slate-50, white, slate-900/500.
  */
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  GraduationCap, Sparkles, Play, ArrowRight, ArrowUpRight,
-  Eye, EyeOff, Bell, ChevronDown, Search, Download,
-  LayoutDashboard, FileText, BarChart3, Settings,
-  PlusCircle, Printer, ShieldCheck, BadgeCheck, Headphones,
-  Zap, Target, Clock, CheckCircle2, Menu, X, Landmark,
-} from "lucide-react";
+  AcademicCapIcon as GraduationCap,
+  SparklesIcon as Sparkles,
+  PlayIcon as Play,
+  ArrowRightIcon as ArrowRight,
+  ArrowUpRightIcon as ArrowUpRight,
+  EyeIcon as Eye,
+  EyeSlashIcon as EyeOff,
+  BellIcon as Bell,
+  ChevronDownIcon as ChevronDown,
+  MagnifyingGlassIcon as Search,
+  ArrowDownTrayIcon as Download,
+  Squares2X2Icon as LayoutDashboard,
+  DocumentTextIcon as FileText,
+  ChartBarIcon as BarChart3,
+  Cog6ToothIcon as Settings,
+  PlusCircleIcon as PlusCircle,
+  PrinterIcon as Printer,
+  ShieldCheckIcon as ShieldCheck,
+  CheckBadgeIcon as BadgeCheck,
+  LifebuoyIcon as Headphones,
+  BoltIcon as Zap,
+  CursorArrowRaysIcon as Target,
+  ClockIcon as Clock,
+  CheckCircleIcon as CheckCircle2,
+  Bars3Icon as Menu,
+  XMarkIcon as X,
+  BuildingLibraryIcon as Landmark,
+} from "@heroicons/react/24/outline";
 
 // ─── Data ilustratif ─────────────────────────────────────────────────────────
 const NAV_LINKS = ["Beranda", "Fitur", "Template", "Panduan", "Kontak"];

@@ -408,9 +408,8 @@ export default function LandingPage() {
           className="relative overflow-hidden flex items-center min-h-[calc(100vh-64px)]"
           style={{ backgroundColor: P.bg }}
         >
-          {/* Batik motif — subtle accent + drift lembut dari atas ke bawah
-              (elemen melebar 360px ke atas & bawah; geser tepat 1 tile → loop mulus) */}
           <div
+            aria-hidden="true"
             className="absolute inset-x-0 -inset-y-[360px] pointer-events-none animate-batik-drift"
             style={{
               backgroundImage: "url('/floral-pattern.jpg')",
@@ -420,14 +419,13 @@ export default function LandingPage() {
               mixBlendMode: isDark ? "normal" : "multiply",
             }}
           />
-          {/* Mesh gradient — blue (top-left) & purple (bottom-right), very subtle */}
           <div
             className="absolute -top-32 -left-32 w-[420px] h-[420px] rounded-full pointer-events-none"
             style={{ background: "radial-gradient(circle, rgba(36,87,167,0.08) 0%, transparent 70%)" }}
           />
           <div
             className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(36,87,167,0.04) 0%, transparent 70%)" }}
           />
 
           <div className="max-w-[1280px] mx-auto px-6 py-16 lg:py-20">
@@ -609,15 +607,11 @@ export default function LandingPage() {
             <div
               className="rounded-2xl border p-8 lg:p-10 flex flex-col lg:flex-row items-center justify-between gap-6"
               style={{
-                borderColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.65)",
-                background: isDark
-                  ? "linear-gradient(135deg, rgba(30,41,59,0.62), rgba(15,23,42,0.45))"
-                  : "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52))",
-                backdropFilter: "blur(18px) saturate(1.5)",
-                WebkitBackdropFilter: "blur(18px) saturate(1.5)",
+                borderColor: isDark ? P.border : "rgba(36,87,167,0.14)",
+                backgroundColor: P.surface,
                 boxShadow: isDark
-                  ? "0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10)"
-                  : "0 12px 40px rgba(36,87,167,0.12), inset 0 1px 0 rgba(255,255,255,0.65)",
+                  ? "0 8px 24px rgba(0,0,0,0.20)"
+                  : "0 8px 24px rgba(15,23,42,0.06)",
               }}
             >
               <div>
@@ -654,10 +648,8 @@ export default function LandingPage() {
             className="flex items-center p-1 sm:p-1.5 rounded-2xl sm:rounded-full border"
             style={{
               borderColor: P.border,
-              backgroundColor: isDark ? "rgba(30,41,59,0.85)" : "rgba(255,255,255,0.85)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              boxShadow: "0 10px 30px -12px rgba(36,87,167,0.28)",
+              backgroundColor: P.surface,
+              boxShadow: "0 10px 30px -12px rgba(36,87,167,0.22)",
             }}
           >
             {VALUES.map((v, i) => (

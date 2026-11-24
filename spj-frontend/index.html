@@ -143,6 +143,11 @@
               note.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99998;background:#0F172A;color:#F8FAFC;padding:10px 16px;border-radius:10px;font:500 13px Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)';
               note.textContent = 'Aplikasi gagal termuat — muat ulang halaman (Ctrl+Shift+R) atau jalankan ulang dev server.';
               document.body.appendChild(note);
+              // React bisa selesai mount setelah timer: pesan harus hilang begitu root terisi.
+              var watcher = new MutationObserver(function () {
+                if (root.hasChildNodes()) { note.remove(); watcher.disconnect(); }
+              });
+              watcher.observe(root, { childList: true });
             }
           }, 1200);
         }

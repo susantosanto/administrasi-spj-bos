@@ -404,9 +404,12 @@ export default function DokumenSPJPage() {
               : 'border-slate-200 hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
           }`}
         >
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ${
-            isSelected ? 'bg-primary text-white scale-110' : 'bg-slate-100 text-slate-600 group-hover:scale-105'
-          }`}>
+          <div
+            data-card-icon={card.id}
+            className={`dokumen-lpj-card-icon w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ${
+              isSelected ? 'scale-110 shadow-md' : 'group-hover:scale-105'
+            }`}
+          >
             <span className="material-symbols-outlined text-xl">{card.icon}</span>
           </div>
           <h4 className="text-sm font-bold text-slate-800 mb-1">{card.nama}</h4>
@@ -442,11 +445,12 @@ export default function DokumenSPJPage() {
         {/* Top Row */}
         <div className="relative flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
-              isSelected 
-                ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/30' 
-                : 'bg-slate-100 text-slate-600 group-hover:scale-105'
-            }`}>
+            <div
+              data-card-icon={card.id}
+              className={`dokumen-lpj-card-icon w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                isSelected ? 'scale-110 shadow-lg' : 'group-hover:scale-105'
+              }`}
+            >
               <span className="material-symbols-outlined text-2xl">{card.icon}</span>
             </div>
             <div>
@@ -547,7 +551,7 @@ export default function DokumenSPJPage() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="dokumen-lpj-page flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
       {/* Lebar penuh (revisi 2026-10-06 task 34): grid kategori + panel detail
@@ -575,7 +579,7 @@ export default function DokumenSPJPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="dokumen-lpj-primary-cards grid grid-cols-1 md:grid-cols-2 gap-4">
             {bkuUtama.map((card) => renderCard(card))}
           </div>
         </div>
@@ -590,7 +594,7 @@ export default function DokumenSPJPage() {
             <span className="text-xs text-slate-500">— Informasi tambahan dan blanko</span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="dokumen-lpj-support-cards grid grid-cols-2 md:grid-cols-4 gap-3">
             {dokumenPendukung.map((card) => renderCard(card, true))}
           </div>
         </div>

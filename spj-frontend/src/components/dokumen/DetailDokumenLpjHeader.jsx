@@ -26,8 +26,8 @@ export default function DetailDokumenLpjHeader({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-              <span className="material-symbols-outlined text-3xl text-white">{card.icon}</span>
+            <div data-card-icon={card.id} className="dokumen-lpj-card-icon w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="material-symbols-outlined text-3xl">{card.icon}</span>
             </div>
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
           </div>

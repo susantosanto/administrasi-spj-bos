@@ -27,14 +27,18 @@ export default function ActivityPanel() {
   }, [])
 
   return (
-    <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl overflow-hidden">
+    <div className="flex flex-col bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Aktivitas Terbaru</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Jejak kerja operator di aplikasi</p>
       </div>
-      <div className="px-5 py-4">
+      <div className="px-5 py-4 flex-1 flex flex-col">
         {items.length === 0 ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400">Belum ada aktivitas — upload BKU atau buat nomor surat untuk mulai.</p>
+          <div className="flex flex-1 flex-col items-center justify-center text-center gap-2 py-6">
+            <span className="material-symbols-outlined text-3xl text-slate-400 dark:text-slate-500">history</span>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Belum ada aktivitas</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">Upload BKU atau buat nomor surat untuk mulai mencatat jejak kerja.</p>
+          </div>
         ) : (
           <ol className="flex flex-col gap-4">
             {items.map((a) => (
@@ -45,7 +49,7 @@ export default function ActivityPanel() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm leading-snug text-slate-800 dark:text-slate-100 truncate">{a.title}</p>
                   {a.detail ? <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{a.detail}</p> : null}
-                  <p className="text-[11px] text-slate-400">{relatif(a.ts)}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{relatif(a.ts)}</p>
                 </div>
               </li>
             ))}

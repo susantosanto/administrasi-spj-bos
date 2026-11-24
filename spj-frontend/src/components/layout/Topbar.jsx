@@ -105,14 +105,14 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex justify-between items-center px-3 sm:px-4 py-2.5">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex justify-between items-center h-[76px] px-3 sm:px-4">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button — 44px tap target */}
         <button
           onClick={toggle}
-          className="w-11 h-11 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-          title={isOpen ? 'Tutup Sidebar' : 'Buka Menu'}
-          aria-label={isOpen ? 'Tutup sidebar' : 'Buka menu'}
+          className="w-11 h-11 min-[900px]:hidden flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          title={isOpen ? 'Tutup menu' : 'Buka menu'}
+          aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={isOpen}
         >
           <span
