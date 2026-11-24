@@ -3,6 +3,7 @@
  * With user profile dropdown menu
  */
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import storageHelper from '../../utils/storageHelper'
@@ -104,14 +105,14 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/70 dark:bg-slate-900/75 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-lg shadow-slate-900/5 flex justify-between items-center px-3 sm:px-4 py-2.5">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex justify-between items-center h-[76px] px-3 sm:px-4">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Toggle Button */}
+        {/* Toggle Button — 44px tap target */}
         <button
           onClick={toggle}
-          className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
-          title={isOpen ? 'Tutup Sidebar' : 'Buka Menu'}
-          aria-label={isOpen ? 'Tutup sidebar' : 'Buka menu'}
+          className="w-11 h-11 min-[900px]:hidden flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          title={isOpen ? 'Tutup menu' : 'Buka menu'}
+          aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={isOpen}
         >
           <span
@@ -176,9 +177,9 @@ export default function Topbar({ title, subtitle }) {
                       type="button"
                       onClick={() => setShowLicInfo(false)}
                       aria-label="Tutup"
-                      className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-900/5 dark:hover:bg-white/10 transition-colors"
+                      className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
                     >
-                      <span className="material-symbols-outlined text-base">close</span>
+                      <span className="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                     </button>
                   </div>
                   <div className="rounded-xl mt-3 px-3.5 py-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1.5">
@@ -216,16 +217,19 @@ export default function Topbar({ title, subtitle }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Search Bar - Hidden on mobile */}
-        <div className="relative hidden md:block">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+        {/* Search Bar — visible sm+, icon button on mobile */}
+        <div className="relative hidden sm:block">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" aria-hidden="true">search</span>
           <input
-            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-sm w-48 lg:w-64 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-400"
+            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm w-48 lg:w-64 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none placeholder:text-slate-400"
             placeholder="Cari..."
             type="search"
             aria-label="Cari di aplikasi"
           />
         </div>
+        <button className="sm:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Cari">
+          <span className="material-symbols-outlined text-xl" aria-hidden="true">search</span>
+        </button>
 
         {/* Theme Toggle */}
         <ThemeToggle variant="icon" />
@@ -247,7 +251,7 @@ export default function Topbar({ title, subtitle }) {
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</p>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">{user.email || 'operator@sekolah.id'}</p>
             </div>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-white text-base sm:text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
             </div>
             <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-200 hidden sm:block ${showDropdown ? 'rotate-180' : ''}`}>
@@ -261,7 +265,7 @@ export default function Topbar({ title, subtitle }) {
               {/* User Info Header */}
               <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
+                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                     <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                   </div>
                   <div className="min-w-0">
@@ -303,14 +307,15 @@ export default function Topbar({ title, subtitle }) {
         </div>
       </div>
 
-      {/* Logout overlay — loader ASIK (satu bahasa visual dengan boot splash) */}
-      {logoutStage && (
+      {/* Logout — portal ke body biar center viewport */}
+      {logoutStage && createPortal(
         <BrandedLoader
           variant="fullscreen"
           title="Tunggu sebentar..."
           subtitle="Keluar dari aplikasi"
           exiting={logoutStage === 'exit'}
-        />
+        />,
+        document.body
       )}
       <style>{`
         .lic-ring { animation: lic-ring 1.6s ease-out infinite; }

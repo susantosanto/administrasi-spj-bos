@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { LoadingProvider } from './contexts/LoadingContext'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -91,8 +92,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <AIProvider>
-          <Router>
+        <LoadingProvider>
+          <AIProvider>
+            <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -131,8 +133,9 @@ export default function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          </Router>
-        </AIProvider>
+            </Router>
+          </AIProvider>
+        </LoadingProvider>
       </ToastProvider>
     </ThemeProvider>
   )
