@@ -85,11 +85,10 @@ export default function ArusKasChart() {
 
   const [view, setView] = useState('semua') // semua | tahap1 | tahap2
 
-  const showTahap1 = view === 'semua' || view === 'tahap1'
-  const showTahap2 = view === 'semua' || view === 'tahap2'
+  const showTahap1 = view !== 'tahap2'
+  const showTahap2 = view !== 'tahap1'
 
   const segments = [
-    { id: 'semua', label: 'Semua' },
     { id: 'tahap1', label: 'Tahap 1' },
     { id: 'tahap2', label: 'Tahap 2' },
   ]

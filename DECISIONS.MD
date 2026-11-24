@@ -1424,6 +1424,12 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Dibuat oleh: user (klarifikasi) + agent (eksekusi)
   Dampak: `src/components/dashboard/ArusKasChart.jsx` diperbarui menjadi 3 seri (Penerimaan biru, Tahap 1 biru muda terasering, Tahap 2 abu), header tetap rata, legenda ditambahkan, state kosong tetap ditangani. Tidak ada commit.
 
+[2026-11-25] Keputusan: Tombol/Segment Kontrol Filter Tahap 1 dan Tahap 2 pada Grafik Arus Kas
+  Status: accepted
+  Alasan: pengguna meminta tombol khusus untuk menampilkan hanya Tahap 1 atau hanya Tahap 2 dalam grafik arus kas, sehingga pelacakan per siklus pencairan lebih jelas.
+  Dibuat oleh: user (klarifikasi) + agent (eksekusi)
+  Dampak: `src/components/dashboard/ArusKasChart.jsx` ditambahkan state `view` dengan opsi “Tahap 1” dan “Tahap 2”. Saat tombol “Tahap 1” dipilih, hanya seri Tahap 1 yang digambar (Penerimaan tetap). Saat “Tahap 2” dipilih, hanya seri Tahap 2 yang digambar. Tombol berukuran kecil, berwarna biru, dengan efek terpilih; tidak mengubah tinggi kartu. Tidak ada commit.
+
 [2026-11-25] Keputusan: Ada kontrol tombol/Segment untuk menampilkan **Hanya Tahap 1** atau **Hanya Tahap 2** pada Grafik Arus Kas
   Status: accepted
   Alasan: pengguna ingin mengklik tombol khusus sehingga chart menampilkan satu siklus pencairan tanpa mencampur Tahap 1 dan Tahap 2.
