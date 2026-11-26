@@ -398,7 +398,7 @@ export default function DokumenSPJPage() {
         <button
           key={card.id}
           onClick={() => handleCardClick(card)}
-          className={`group relative bg-white rounded-xl border-2 p-4 text-left transition-all duration-500 ease-out ${
+          className={`group relative glass-surface rounded-2xl border-2 p-4 text-left transition-all duration-500 ease-out ${
             isSelected
               ? 'border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10 scale-[1.02]'
               : 'border-slate-200 hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
@@ -431,7 +431,7 @@ export default function DokumenSPJPage() {
       <button
         key={card.id}
         onClick={() => handleCardClick(card)}
-        className={`group relative bg-white rounded-2xl border-2 p-5 text-left transition-all duration-500 ease-out overflow-hidden ${
+        className={`group relative glass-surface rounded-2xl border-2 p-5 text-left transition-all duration-500 ease-out overflow-hidden ${
           isSelected
             ? 'border-primary ring-4 ring-primary/10 shadow-xl shadow-primary/15 scale-[1.02]'
             : 'border-slate-200 hover:border-slate-300 hover:shadow-lg hover:scale-[1.01]'
@@ -551,7 +551,7 @@ export default function DokumenSPJPage() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   return (
-    <div className="dokumen-lpj-page flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="dokumen-lpj-page flex flex-col min-h-screen bg-transparent">
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
       {/* Lebar penuh (revisi 2026-10-06 task 34): grid kategori + panel detail

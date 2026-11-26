@@ -9,6 +9,23 @@
 
 ## Daftar Keputusan
 
+[2026-11-26] Keputusan: Hapus seluruh efek motion zoom & terapkan transisi smooth fade langsung dari animasi loading ke landing page
+  Status: accepted
+  Alasan: pengguna mengevaluasi bahwa efek zoom in/motion zoom tidak efektif. Pengguna meminta seluruh efek zoom dihapus, dan alur disederhanakan: dari animasi loading (rolling motion orbit komet bawaan), splash screen melakukan transisi fade-out halus (smooth, 0.5s ease-out) langsung masuk ke landing page tanpa distorsi zoom atau scale.
+  Dibuat oleh: user (arahan revisi final) + agent (eksekusi)
+  Dampak: (a) `index.html` menghapus seluruh `@keyframes asik-logo-*` dan rule transform scale pada logo disc/ornamen, menyisakan transisi murni `transition: opacity 0.5s ease-out`; (b) `App.jsx` menyetel `MIN_SPIN = 600ms` dan timer pembersihan splash `550ms`; (c) `LandingPage.jsx` menghapus kelas `.landing-zoom-in` dan `.landing-header-reveal`; (d) `index.css` membersihkan keyframes zoom; (e) transisi kini bersih, elegan, dan instan.
+
+[2026-11-26] Keputusan: Optimasi visual ke arah referensi mockup (glass lebih kuat + sidebar gradien biru berbatik + hero foto Kantor Bupati) — palet TETAP biru/slate
+  Status: accepted
+  Alasan: pengguna memberi 3 gambar referensi (mockup dashboard, mockup landing, foto Kantor Bupati Kabupaten Bandung Barat) dan meminta optimasi desain UI/UX ke arah itu tanpa mengubah tombol/fitur apa pun. Saat ditanya, pengguna memilih: (1) palet TETAP biru/slate (BUKAN multi-warna seperti chip violet/emerald/oranye di mockup), (2) batik di sidebar YA, (3) "lebih glass", (4) foto hero = Kantor Bupati Bandung Barat.
+  Dibuat oleh: user (referensi + empat pilihan) + agent (eksekusi)
+  Dampak: (a) `index.css` menambah util `.sidebar-panel` (gradien navy→biru; dark lebih pekat), `.sidebar-batik`, `.glass-surface` (backdrop-blur lebih kuat), `.text-gradient-blue`; (b) `Sidebar.jsx` jadi panel gradien biru + motif batik dasar + logo glow + pill nav glass (teks terang); menu/grup/collapse/logout/profil TETAP; (c) `DashboardHome.jsx` hero memuat `public/hero-kantor-bupati.jpg` (1600×900, 323 KB, dikompres dari PNG 2,8 MB) menyatu via gradasi + aksen batik; kartu KPI jadi glass dengan chip biru/biru/slate/slate (BUKAN multi-warna); (d) `ArusKasChart.jsx`, `ActivityPanel.jsx`, `PaketProgressPanel.jsx` + kartu Dokumen Referensi & Fitur Unggulan → `glass-surface`. Nilai/data tetap dari localStorage (bukan angka contoh); sparkline mini sengaja TIDAK ditambah agar tidak memasang data palsu. Landing page sudah sesuai referensi sebelumnya (headline gradien, mockup mengambang, trust badge) → tidak diubah. Tidak ada commit.
+
+[2026-11-26] Keputusan: Perbaikan crash ArusKasChart pada data kosong — terbukti sebagai akar toast "Aplikasi gagal termuat"
+  Status: accepted
+  Alasan: `ArusKasChart` menghitung `areaMasuk`/`areaTahap1` lalu mengakses `pMasuk[pMasuk.length-1].x` SEBELUM empty-check. Saat `bku_data` kosong (fresh login), `pMasuk=[]` → `undefined.x` → TypeError → React unmount → `#root` kosong → fail-safe `index.html` menampilkan toast "Aplikasi gagal termuat". Bukti stack trace browser: "The above error occurred in the <ArusKasChart> component" (ArusKasChart.jsx). Ini menjawab pertanyaan lama yang belum terbukti soal penyebab toast.
+  Dibuat oleh: agent (temuan + perbaikan), termasuk scope pembersihan visual
+  Dampak: `ArusKasChart.jsx` menambah `tutupArea(pts)` yang mengembalikan string kosong bila `pts` kosong (guard `pMasuk[0]`/`pMasuk[len-1]`). Teruji: data kosong → empty state tanpa crash; data terisi → 5 path chart + KPI berisi. `npm test` 31/31; `vite build` exit 0. Catatan terbuka: `segments` filter Tahap 1/2 belum punya opsi "Semua" (default `view='semua'` menampilkan keduanya tapi tidak ada tombol aktif) — dibiarkan karena user meminta "tanpa mengubah tombol".
 [2026-11-24] Keputusan: Sidebar desktop tertutup 76 px sebagai default, ikon awal Lucide (diganti Heroicons), pola interaksi rail dari source referensi, tinggi header 76 px
   Status: superseded
   Alasan: pengguna memilih empat opsi saat ditanya (tertutup seperti source, coba lucide-react, adopsi interaksi rail, setuju header 76 px). Keputusan ini menimpa default 232 px pada entri dashboard sebelumnya.
@@ -1430,14 +1447,39 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Dibuat oleh: user (klarifikasi) + agent (eksekusi)
   Dampak: `src/components/dashboard/ArusKasChart.jsx` ditambahkan state `view` dengan opsi “Tahap 1” dan “Tahap 2”. Saat tombol “Tahap 1” dipilih, hanya seri Tahap 1 yang digambar (Penerimaan tetap). Saat “Tahap 2” dipilih, hanya seri Tahap 2 yang digambar. Tombol berukuran kecil, berwarna biru, dengan efek terpilih; tidak mengubah tinggi kartu. Tidak ada commit.
 
-[2026-11-25] Keputusan: Ada kontrol tombol/Segment untuk menampilkan **Hanya Tahap 1** atau **Hanya Tahap 2** pada Grafik Arus Kas
-  Status: accepted
-  Alasan: pengguna ingin mengklik tombol khusus sehingga chart menampilkan satu siklus pencairan tanpa mencampur Tahap 1 dan Tahap 2.
-  Dibuat oleh: user (klarifikasi) + agent (eksekusi)
-  Dampak: `src/components/dashboard/ArusKasChart.jsx` ditambahkan state `view` dengan opsi “Semua”, “Tahap 1”, “Tahap 2”. Saat tombol Tejahp 1 dipilih, hanya seri Tahap 1 yang digambar (Penerimaan tetap). Saat “Tahap 2” dipilih, hanya seri Tahap 2 yang digambar. Tombol pop up garis, aksesibel, tanpa mengubah tinggi kartu. Tidak ada commit.
 
 [2026-10-31] Keputusan: Sprint 022 — AI generate dokumen memakai PROVIDER API (BFL, kredit prabayar), default FLUX 3 Klein 1K, eskalasi FLUX 3 Image 1K, tanpa self-host; FLUX.2 [pro] hanya jika A/B menang
   Status: accepted (keputusan user 2026-10-31, diminta "kunci keputusan ... dan simpan di file tahap sprint optimize generate documents ai")
   Alasan: (1) pada 200 sekolah biaya API Rp 4,5-9,4 jt/tahun vs GPU 24/7 Rp 140 jt/tahun (31x) - titik impas self-host +-860 sekolah (serverless) / +-6.200 (pod 24/7); (2) FLUX 3 Image menagih referensi GRATIS, sedangkan FLUX.2 [pro] menagih $0,015/MP per referensi sehingga 1,56x lebih mahal untuk pipeline 3 referensi; (3) Klein 5,3x lebih murah dan cukup untuk cetak 60x40 mm (1K = +-170 dpi); (4) kunci API wajib di main process karena kunci di bundle = kunci publik (temuan lama aiConfig.js); (5) foto sintetis sebagai bukti LPJ berisiko dianggap bukti palsu saat audit dan wajah = data biometrik (UU PDP 27/2022) sehingga label "ILUSTRASI AI" + is_ai wajib
   Dibuat oleh: user (arahan) + agent (riset & dokumen)
   Dampak: (a) file pengikat `planning/sprints/sprint-022/KEPUTUSAN-DIKUNCI.MD` (D-01..D-22, gate G-1..G-9, daftar larangan); (b) AGENTS.MD butir 7 + aturan builder: WAJIB baca file itu sebelum menyentuh imageGenerator.js / DokumentasiAIGenerate.jsx / SidebarPbj.jsx / puterAkun.js; (c) anggaran demo DIKUNCI top-up $10 (Rp 187.000) - kapasitas Klein +-740 foto / campuran +-449 foto / FLUX 3 Image +-143 foto; premium $30 hanya jika demo menuntut; (d) resolusi 1K 1152x864, 2K/4K DILARANG untuk LPJ; (e) kuota 60 foto/sekolah/tahun + cap bulanan $50 + log_ai (cost/input_mp/output_mp); (f) `templateConfig.js` dan blok cetak 0 diff; (g) angka harga dirujuk dari docs/RESEARCH-AI-FOTO-PRODUCTION-200-USER.MD + docs/PANDUAN-FLUX-LANGGANAN-INTEGRASI.MD + docs/PANDUAN-FLUX-2-PRO.md (dicek 31 Okt 2026, kurs Rp 18.100/USD)
+
+[2026-11-26] Keputusan: Penyempurnaan hero — foto Kantor Bupati melebur via gradasi (tanpa blok) + batik disamakan dengan background (floral-pattern)
+  Status: accepted (instruksi eksplisit user)
+  Alasan: (a) foto hero terlihat "bloking"/kotak keras sehingga diminta diberi gradasi agar tepinya melebur; (b) batik sebelumnya memakai motif SVG custom (mandala) sedangkan batik background aplikasi adalah `floral-pattern.jpg`, sehingga diminta disamakan agar konsisten.
+  Dibuat oleh: user (instruksi) + agent (eksekusi)
+  Dampak: (a) `hero-photo-mask` (mask-image 2 arah + `mask-composite: intersect`) + dua overlay gradien biru pada foto hero (`DashboardHome.jsx`) → tepi atas/bawah/kiri foto melebur ke gradien biru, tanpa blok keras; (b) batik floral `floral-pattern.jpg` (sama dengan background) diterapkan dua level sesuai klarifikasi user: sidebar & hero/header (`Sidebar.jsx`, `DashboardHome.jsx` via `.sidebar-batik`) = SANGAT TIPIS (`overlay`, opacity 0.16) — setelah percobaan awal (mandala SVG, floral-batik.png 0.38) dinilai terlalu menonjol; sedangkan background konten dashboard & menu (`DashboardLayout.jsx`) dibuat lebih terlihat (multiply, opacity 0.18 gelap / 0.24 terang, naik dari 0.045–0.06) agar batik pada background dashboard & menu tampak jelas. Aset `public/hero-kantor-bupati.jpg` (1600×900). Tes 31/31 lulus, build sukses. Belum di-commit.
+
+[2026-11-26] Keputusan: Seragamkan kartu semua menu ke style dashboard (glass-surface rounded-2xl)
+  Status: accepted (instruksi eksplisit user: "ya betul, seragamkan saja semuanya")
+  Alasan: kartu/panel di berbagai menu memakai permukaan berbeda-beda (bg-white, bg-surface-container-lowest, bg-gradient-from-white, rounded-3xl, dsb.) sehingga tidak konsisten dengan style dashboard (glass-surface). Pengguna meminta semua menu diseragamkan.
+  Dibuat oleh: user (instruksi) + agent (eksekusi)
+  Dampak: seluruh kartu permukaan di 13 halaman dashboard dinormalisasi ke `glass-surface rounded-2xl` (51+ kartu): DataSekolah, DataGuru, BKU, Pejabat, Notes, Instrumen, NomorSurat, Pengaturan, Realisasi, ReferensiKode, TemplateSurat, DokumenKelengkapan, dan DokumenSPJPage (kartu pemilih template). Layout, konten, dan tombol tidak diubah; hanya permukaan kartu. Pada DokumenSPJPage, kertas preview A4 tetap putih (tidak ikut menjadi glass) dan warna ikon kategori dipertahankan. Build sukses, tes 31/31 lulus. Belum di-commit.
+
+[2026-11-26] Keputusan: Animasi loading hanya untuk aktivitas memproses; perpindahan antar menu cukup transisi smooth
+  Status: accepted (instruksi eksplisit user)
+  Alasan: pengguna meminta animasi loading (BrandedLoader) dipakai sebagai bagian "mem-proses apapun", sedangkan perpindahan antar menu/halaman cukup memakai transisi smooth (tanpa loader). Sebelumnya setiap navigasi memicu loader "Memuat halaman..." (useEffect pada location.pathname di DashboardLayout).
+  Dibuat oleh: user (instruksi) + agent (eksekusi)
+  Dampak: (a) `DashboardLayout.jsx` — useEffect loader navigasi ("Memuat halaman...") dihapus sehingga perpindahan menu kini hanya memakai transisi `animate-fade-in` (fade + slide + scale, 0.6s) yang sudah ada; (b) `withLoading()` (BrandedLoader) dipasang pada operasi pemrosesan data berat (upload/parse Excel di `DataSekolahPage`, `BKUPage`, `DataGuruPage`) sehingga animasi loading tampil saat memproses; loader tetap dipakai untuk login/register/logout. Verifikasi (preview browser): navigasi antar menu tidak menampilkan loader (hanya fade) dan konten termuat; build sukses, tes 31/31 lulus. Belum di-commit.
+
+[2026-11-26] Keputusan: Teks brand "LPJ BOS/BOSP" diganti nama sekolah dari lisensi (huruf besar)
+  Status: accepted (instruksi eksplisit user)
+  Alasan: pengguna meminta teks brand "LPJ BOS/BOSP" diganti dengan nama sekolah sesuai lisensi yang dimiliki user (huruf besar). Contoh: lisensi "SD Negeri Admin" → tampil "SD NEGERI ADMIN".
+  Dibuat oleh: user (instruksi) + agent (eksekusi)
+  Dampak: `Sidebar.jsx` dan `Topbar.jsx` — teks brand "LPJ BOS/BOSP" diganti `brandLabel = (useLicenseStatus().schoolName || '').toUpperCase() || 'LPJ BOS/BOSP'` (fallback "LPJ BOS/BOSP" bila lisensi tidak punya nama sekolah). Nama sekolah bersumber dari `licenseService` (heartbeat lisensi → `license_status.schoolName`). Label sidebar disetel 13px + wrap agar nama sekolah panjang tampil penuh (sebelumnya terpotong). Sampel: `spj_license_status` (localStorage sementara) diisi `schoolName: 'SD Negeri Admin'` → tampil "SD NEGERI ADMIN" di sidebar & topbar (terverifikasi via preview). Data uji bersifat sementara dan akan dibersihkan. Build sukses, tes 31/31 lulus. Belum di-commit.
+
+[2026-11-26] Keputusan: Background halaman Dokumen disamakan dengan dashboard (batik floral tampil, wrapper transparan)
+  Status: accepted (instruksi eksplisit user: "cek Dokumen, background nya belum sama dengan tampilan UI UX Dashboard")
+  Alasan: background halaman Dokumen LPJ (`bg-gradient-to-br from-slate-50 via-white to-blue-50/30`) dan Dokumen Kelengkapan (`bg-surface`) bersifat opaque sehingga menutupi background batik floral dari `DashboardLayout` — berbeda dengan dashboard (DashboardHome `bg-transparent`) dan menu lain (`bg-slate-100/80`) yang memperlihatkan batik.
+  Dibuat oleh: user (instruksi) + agent (eksekusi)
+  Dampak: `DokumenSPJPage.jsx` wrapper → `bg-transparent`; `DokumenKelengkapanPage.jsx` wrapper → `bg-transparent`; `index.css` `.dark .dokumen-lpj-page` background gradient → `transparent` (mode gelap juga menampilkan batik). Kini background batik floral `DashboardLayout` tampil tembus pada halaman Dokumen, sama dengan tampilan dashboard (terverifikasi via preview: mode terang & gelap, lapisan batik opacity 0.24 terlihat; DokumenKelengkapan wrapper `rgba(0,0,0,0)`). Kertas preview A4 tetap putih. Build sukses, tes 31/31 lulus. Belum di-commit.

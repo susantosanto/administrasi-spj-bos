@@ -11,13 +11,11 @@ import { seedMockData } from '../data/mockData'
 import storageHelper from '../utils/storageHelper'
 import { licenseService } from '../services/licenseService'
 import TrialMiniBanner from '../components/ui/TrialMiniBanner'
-import { useLoading } from '../contexts/LoadingContext'
 
 function DashboardContent() {
   const { isOpen, isMobile } = useSidebar()
   const { isDark } = useTheme()
   const location = useLocation()
-  const { show, hide } = useLoading()
 
   useEffect(() => {
     storageHelper.ensureSchemaVersion()
@@ -27,13 +25,6 @@ function DashboardContent() {
     const iv = setInterval(() => licenseService.refresh(), 15 * 60 * 1000)
     return () => clearInterval(iv)
   }, [])
-
-  // Loader tiap pindah halaman — singkat, anti-stagnan (StrictMode safe)
-  useEffect(() => {
-    show('Memuat halaman...', 'Mohon tunggu sebentar')
-    const t = setTimeout(hide, 350)
-    return () => { clearTimeout(t); hide() }
-  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div
@@ -48,7 +39,7 @@ function DashboardContent() {
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.045 : 0.06,
+            opacity: isDark ? 0.18 : 0.24,
             mixBlendMode: isDark ? "normal" : "multiply",
             animationDuration: '70s',
           }}

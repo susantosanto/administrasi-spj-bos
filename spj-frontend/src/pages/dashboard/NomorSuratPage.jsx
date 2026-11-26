@@ -325,7 +325,7 @@ const NomorSuratPage = () => {
 
       <div className="flex-1 px-4 sm:px-6 pb-6 max-w-6xl mx-auto w-full">
         {/* GENERATOR */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+        <div className="glass-surface rounded-2xl overflow-hidden mb-8">
           <div className="p-6">
 
             {/* 1. Kode Klasifikasi */}
@@ -434,7 +434,7 @@ const NomorSuratPage = () => {
         </div>
 
         {/* DAFTAR NOMOR */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="glass-surface rounded-2xl overflow-hidden">
           <div className="p-6 pb-4 border-b border-slate-100">
             <div className="flex items-center justify-between">
               <div>
@@ -532,7 +532,7 @@ const NomorSuratPage = () => {
       {/* KODE KLASIFIKASI MODAL */}
       {showKlasifikasiModal && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <div className="glass-surface rounded-2xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-slate-900">Pilih Kode Klasifikasi</h3>
@@ -575,7 +575,7 @@ const NomorSuratPage = () => {
       {/* KODE PENDEK MODAL */}
       {showKodePendekModal && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <div className="glass-surface rounded-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col">
             <div className="px-6 py-5 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-slate-900">Pilih Kode Surat</h3>
@@ -615,7 +615,7 @@ const NomorSuratPage = () => {
       {/* FORMAT SETTINGS MODAL */}
       {showFormatModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowFormatModal(false)}>
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="glass-surface rounded-2xl w-full max-w-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900">Edit Format Nomor</h3>
@@ -703,7 +703,7 @@ const NomorSuratPage = () => {
       {/* DETAIL MODAL */}
       {showDetailModal && selectedRecord && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
+          <div className="glass-surface rounded-2xl w-full max-w-md">
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-slate-900">Detail</h3>
@@ -739,7 +739,7 @@ const NomorSuratPage = () => {
       {/* DELETE */}
       {showDeleteConfirm && recordToDelete && (
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl">
+          <div className="glass-surface rounded-2xl w-full max-w-sm">
             <div className="p-6 text-center">
               <span className="material-symbols-outlined text-red-500 text-5xl mb-4 block">delete</span>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Hapus?</h3>

@@ -101,7 +101,7 @@ export default function InstrumenPage() {
     <div className="flex flex-col min-h-screen bg-slate-50/50">
       <Topbar title="Instrumen BOS" subtitle="Penyaluran & Penggunaan Dana BOS" />
       <div className="p-4 space-y-4 flex-1">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-wrap items-center gap-2">
+        <div className="glass-surface rounded-2xl p-4 flex flex-wrap items-center gap-2">
           <span className="material-symbols-outlined text-primary">assignment</span>
           <h2 className="text-sm font-bold text-slate-900">Tahun Anggaran</h2>
           <div className="flex gap-1 ml-2">
@@ -116,7 +116,7 @@ export default function InstrumenPage() {
         <div className="grid lg:grid-cols-2 gap-4 items-start">
           <div className="space-y-4">
             {SEKSI.map((s) => (
-              <div key={s.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+              <div key={s.id} className="glass-surface rounded-2xl p-4">
                 <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">{s.judul}</h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {(s.id === 'e' ? [...s.fields] : s.fields).map((f) => {

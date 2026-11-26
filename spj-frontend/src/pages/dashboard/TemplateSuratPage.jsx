@@ -206,7 +206,7 @@ const TemplateSuratPage = () => {
         )}
         
         {/* Template Selection */}
-        <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
+        <div className="glass-surface rounded-2xl p-6 mb-6">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <span className="text-xl">📋</span>
             Pilih Template Surat
@@ -242,7 +242,7 @@ const TemplateSuratPage = () => {
         {selectedTemplate && (
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Left: Form */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
+            <div className="glass-surface rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <span className="text-xl">✏️</span>
                 Form {selectedTemplate.nama}
@@ -349,7 +349,7 @@ const TemplateSuratPage = () => {
             </div>
             
             {/* Right: Preview */}
-            <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
+            <div className="glass-surface rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <span className="text-xl">📄</span>
                 Preview Surat
@@ -398,7 +398,7 @@ const TemplateSuratPage = () => {
         
         {/* Empty State */}
         {!selectedTemplate && (
-          <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-12 border border-white/20 shadow-lg text-center">
+          <div className="glass-surface rounded-2xl p-12 text-center">
             <span className="text-6xl mb-4 block">📝</span>
             <h3 className="text-xl font-semibold text-slate-800 mb-2">
               Pilih Template Surat

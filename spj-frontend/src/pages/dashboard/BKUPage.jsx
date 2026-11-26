@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { useLoading } from '../../contexts/LoadingContext'
 import { requireWrite } from '../../services/licenseService'
 import { logActivity } from '../../utils/activityLog'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
@@ -66,6 +67,7 @@ const CORETAX_URL = 'https://coretaxdjp.pajak.go.id/'
 // ─── Component ─────────────────────────────────────────────────
 
 export default function BKUPage() {
+  const { withLoading } = useLoading()
   const [items, setItems] = useState([])
   const [filterBulan, setFilterBulan] = useState('Semua')
   const [isUploading, setIsUploading] = useState(false)
@@ -150,7 +152,7 @@ export default function BKUPage() {
 
     setIsUploading(true)
     try {
-      const result = await bkuParser.parseBKUExcel(file)
+      const result = await withLoading(() => bkuParser.parseBKUExcel(file), 'Memproses data BKU', 'Membaca file Excel')
 
       if (result.transactions.length === 0) {
         toast.error('Tidak ada data transaksi yang ditemukan di file BKU')
@@ -400,7 +402,7 @@ export default function BKUPage() {
 
         {/* ── Upload Area — kanon premium yang sama dengan form upload lain ── */}
         {showUploadForm && (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+          <div className="glass-surface rounded-2xl p-8">
             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                             hover:border-primary/40 transition-all duration-300
                             bg-gradient-to-b from-slate-50/50 to-transparent">
@@ -440,7 +442,7 @@ export default function BKUPage() {
 
         {/* ── Sekolah Info Card (setelah upload) ── */}
         {uploadedInfo && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="glass-surface rounded-2xl p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -542,7 +544,7 @@ export default function BKUPage() {
 
         {/* ── Reference Table ── */}
         {activeTab === 'pajak' ? (
-        <div className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant overflow-hidden">
+        <div className="glass-surface rounded-2xl overflow-hidden">
           <div className="p-lg border-b border-outline-variant flex flex-wrap items-center justify-between gap-md bg-surface-container-low">
             <div>
               <h4 className="font-headline-sm text-headline-sm font-bold text-on-surface">
@@ -668,7 +670,7 @@ export default function BKUPage() {
           )}
         </div>
         ) : (
-        <div className="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant overflow-hidden">
+        <div className="glass-surface rounded-2xl overflow-hidden">
           <div className="p-lg border-b border-outline-variant flex flex-wrap items-center justify-between gap-md bg-surface-container-low">
             <div>
               <h4 className="font-headline-sm text-headline-sm font-bold text-on-surface">

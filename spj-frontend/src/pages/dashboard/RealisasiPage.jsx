@@ -62,7 +62,7 @@ function MatriksRealisasi({ toast }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="glass-surface rounded-2xl overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-100">
         <span className="material-symbols-outlined text-primary">table_chart</span>
         <h2 className="text-sm font-bold text-slate-900">Matriks Realisasi Dana</h2>
@@ -172,7 +172,7 @@ export default function RealisasiPage() {
         <MatriksRealisasi toast={toast} />
 
         {/* Info */}
-        <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
+        <div className="glass-surface p-lg rounded-2xl">
           <div className="flex items-start gap-sm">
             <span className="material-symbols-outlined text-primary text-lg">info</span>
             <div>

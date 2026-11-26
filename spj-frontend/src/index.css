@@ -185,7 +185,7 @@
 /* Dokumen LPJ — lapisan surface biru-slate menjaga kontras navigasi, konten,
    dan panel; kertas preview tetap putih agar serupa hasil cetak. */
 .dark .dokumen-lpj-page {
-  background: linear-gradient(145deg, #0b1426 0%, #111f36 52%, #0f172a 100%) !important;
+  background: transparent !important;
 }
 .dark .dokumen-lpj-page .dokumen-lpj-primary-cards > button,
 .dark .dokumen-lpj-page .dokumen-lpj-support-cards > button {
@@ -1587,5 +1587,63 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   .sk-screen-only {
     display: none !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARAH DESAIN (2026-11-26): sidebar gradien biru + batik, kartu glass lebih
+   kuat, teks gradien. Palet TETAP biru/slate. Lapisan visual saja.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Sidebar — panel gradien biru (navy → biru). Dark: navy lebih pekat. */
+.sidebar-panel {
+  background: linear-gradient(168deg, #0a2472 0%, #123a94 42%, #1c56c4 100%);
+}
+.dark .sidebar-panel {
+  background: linear-gradient(168deg, #071a52 0%, #0e2f7a 45%, #16408f 100%);
+}
+
+/* Batik — motif floral, SAMA dengan background aplikasi (floral-pattern.jpg). Sangat tipis. */
+.sidebar-batik {
+  background-image: url("/floral-pattern.jpg");
+  background-size: 340px 340px;
+  background-repeat: repeat;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+}
+
+/* Foto hero — tepi melebur via mask (kiri/atas/bawah) agar tidak terlihat "blok" keras. */
+.hero-photo-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 36%), linear-gradient(to bottom, transparent 0%, #000 20%, #000 80%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0%, #000 36%), linear-gradient(to bottom, transparent 0%, #000 20%, #000 80%, transparent 100%);
+  mask-composite: intersect;
+}
+
+/* Permukaan glass — lebih glass untuk kartu/panel dashboard. */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+.dark .glass-surface {
+  background: rgba(30, 41, 59, 0.55);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+/* Teks gradien — headline hero (biru navy → biru). Dark: biru muda. */
+.text-gradient-blue {
+  background: linear-gradient(92deg, #0b2a6b 0%, #1c56c4 52%, #2f6fe0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dark .text-gradient-blue {
+  background: linear-gradient(92deg, #bfdbfe 0%, #93c5fd 50%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 

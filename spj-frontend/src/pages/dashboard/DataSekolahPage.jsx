@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { useLoading } from '../../contexts/LoadingContext'
 import { parseSekolahExcel } from '../../utils/sekolahParser'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import PersonelFotoTab from '../../components/dokumentasi/PersonelFotoTab'
@@ -87,6 +88,7 @@ function VerifikasiKs({ nama, nip, onPakai }) {
 }
 
 export default function DataSekolahPage() {
+  const { withLoading } = useLoading()
   const [tab, setTab] = useState('sekolah')
   const [data, setData] = useState(defaultData)
   const [isUploading, setIsUploading] = useState(false)
@@ -274,7 +276,7 @@ export default function DataSekolahPage() {
     }
     setIsUploading(true)
     try {
-      const result = await parseSekolahExcel(file)
+      const result = await withLoading(() => parseSekolahExcel(file), 'Memproses data sekolah', 'Membaca file Excel')
       const header = result.header
 
       const newData = {
@@ -464,7 +466,7 @@ export default function DataSekolahPage() {
         {/* UPLOAD SECTION — Toggle                                         */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {showUpload && tab === 'sekolah' && (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm animate-in slide-in-from-top-2 duration-300">
+          <div className="glass-surface rounded-2xl p-8 animate-in slide-in-from-top-2 duration-300">
             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-primary/40 transition-all duration-300 bg-gradient-to-b from-slate-50/50 to-transparent">
               <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-5 shadow-inner">
                 <span className="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
@@ -499,7 +501,7 @@ export default function DataSekolahPage() {
           <>
             {!hasSchoolData ? (
               /* ── Empty State ── */
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
+              <div className="glass-surface rounded-2xl p-16 text-center">
                 <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
                   <span className="material-symbols-outlined text-5xl text-slate-300">school</span>
                 </div>
@@ -517,7 +519,7 @@ export default function DataSekolahPage() {
               </div>
             ) : (
               /* ── School Profile Card ── */
-              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="glass-surface rounded-2xl overflow-hidden">
                 {/* Hero Header */}
                 <div className="relative bg-gradient-to-r from-primary via-blue-600 to-primary p-8 overflow-hidden">
                   {/* Decorative elements */}
@@ -622,7 +624,7 @@ export default function DataSekolahPage() {
             )}
 
             {/* ── Seksi Data Gugus (US-18) — Nama + Alamat Gugus, simpan di spj_data_sekolah ── */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+            <div className="glass-surface rounded-2xl overflow-hidden">
               <div className="px-8 py-4 bg-slate-50/80">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-slate-400 text-xl">groups</span>
@@ -671,7 +673,7 @@ export default function DataSekolahPage() {
             </div>
 
             {/* ── Seksi Rekening & SK (Sprint 024 — Instrumen BOS seksi A) ── */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+            <div className="glass-surface rounded-2xl overflow-hidden">
               <div className="px-8 py-4 bg-slate-50/80">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-slate-400 text-xl">account_balance</span>
@@ -712,7 +714,7 @@ export default function DataSekolahPage() {
         {tab === 'pejabat' && (
           <div className="space-y-4">
             {/* Header Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+            <div className="glass-surface rounded-2xl p-6">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center shadow-inner">
                   <span className="material-symbols-outlined text-2xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
@@ -726,7 +728,7 @@ export default function DataSekolahPage() {
 
             {/* Pejabat Cards */}
             {PEJABAT_ROLES.map((role) => (
-              <div key={role.key} className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+              <div key={role.key} className="glass-surface rounded-2xl overflow-hidden hover:shadow-md transition-shadow duration-300">
                 {/* Card Header — blue-only (Sprint 001 task 2.3: warna by role.key) */}
                 <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100">
                   <div className="flex items-center gap-3">
@@ -799,7 +801,7 @@ export default function DataSekolahPage() {
         {tab === 'logo' && (
           <div className="space-y-4">
             {/* Header Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+            <div className="glass-surface rounded-2xl p-6">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shadow-inner">
                   <span className="material-symbols-outlined text-2xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>add_a_photo</span>
@@ -833,7 +835,7 @@ export default function DataSekolahPage() {
               {/* ═══════════════════════════════════════════════════════════════ */}
               {/* LOGO SEKOLAH                                                 */}
               {/* ═══════════════════════════════════════════════════════════════ */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="glass-surface rounded-2xl overflow-hidden">
                 {/* Blue-only (Sprint 001 task 2.3): header kartu logo netral slate */}
                 <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
@@ -882,7 +884,7 @@ export default function DataSekolahPage() {
               {/* ═══════════════════════════════════════════════════════════════ */}
               {/* LOGO DINAS                                                    */}
               {/* ═══════════════════════════════════════════════════════════════ */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="glass-surface rounded-2xl overflow-hidden">
                 <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -930,7 +932,7 @@ export default function DataSekolahPage() {
               {/* ═══════════════════════════════════════════════════════════════ */}
               {/* LOGO GUGUS                                                    */}
               {/* ═══════════════════════════════════════════════════════════════ */}
-              <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
+              <div className="glass-surface rounded-2xl overflow-hidden">
                 <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white border-b border-slate-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -977,7 +979,7 @@ export default function DataSekolahPage() {
             </div>
 
             {/* Info Card */}
-            <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+            <div className="glass-surface rounded-2xl p-6">
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
                   <span className="material-symbols-outlined text-xl text-blue-500">info</span>

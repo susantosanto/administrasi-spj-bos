@@ -151,7 +151,7 @@ export default function PejabatSekolahPage() {
           {PEJABAT_ROLES.map((role) => (
             <div
               key={role.key}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="glass-surface rounded-2xl overflow-hidden transition-shadow"
             >
               {/* Card Header — blue-only (Sprint 001 task 2.7) */}
               <div className="relative bg-primary p-5 overflow-hidden">
@@ -231,7 +231,7 @@ export default function PejabatSekolahPage() {
         {/* RIWAYAT PERIODE (Sprint 004 C.2) — dokumen mengunci pejabat     */}
         {/* per tanggal BKU; daftar ini tidak mengubah dokumen lama.       */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div className="glass-surface rounded-2xl p-5">
           <h3 className="text-base font-bold text-slate-900">Riwayat Pejabat</h3>
           <p className="text-xs text-slate-500 mt-0.5 mb-4">Periode per tanggal — dokumen LPJ dari BKU mengunci pejabat sesuai tanggal transaksi.</p>
           {riwayat.length > 0 && (

@@ -1101,7 +1101,7 @@ export default function DokumenKelengkapanPage() {
     const isKasDoc = ['RK', 'BAP'].includes(selectedDokumen?.id)
     return (
       <section ref={kasSectionRef} id="kas-section" aria-label={`Kelengkapan Kas — ${selectedDokumen.nama}`}
-        className="relative mt-2 mb-8 w-full max-w-none bg-gradient-to-br from-white via-primary/[0.04] to-blue-50/40 dark:from-slate-800 dark:via-slate-800/60 dark:to-slate-900 dark:border-slate-700 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
+        className="relative mt-2 mb-8 w-full max-w-none glass-surface rounded-2xl overflow-x-clip">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary" />
         <div className="relative p-5 sm:p-7 lg:p-9 space-y-5">
           <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan Kas">
@@ -1159,12 +1159,12 @@ export default function DokumenKelengkapanPage() {
             </div>
           </div>
           {(bkuKas?.transactions || []).length === 0 && (
-            <div className="print:hidden bg-white rounded-2xl border border-slate-200/90 px-5 py-4 text-xs text-slate-600">
+            <div className="print:hidden glass-surface rounded-2xl px-5 py-4 text-xs text-slate-600">
               Belum ada data BKU di aplikasi — angka dokumen kosong. Upload BKU dulu di halaman BKU agar D/K/A terisi otomatis.
             </div>
           )}
           <div className={`grid gap-4 items-start ${selectedDokumen?.id === 'RPAJAK' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)]'}`}>
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 space-y-4">
+            <div className="glass-surface rounded-2xl p-5 space-y-4">
               {fields.map((field) => (
                 <div key={field.name}>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">{field.label}</label>
@@ -1440,7 +1440,7 @@ export default function DokumenKelengkapanPage() {
   // dengan tombol lengkap: PaperSize + Cek + Cetak + zoom + fullscreen.
   const renderPbjDetail = () => (
     <section ref={pbjSectionRef} id="pbj-section" aria-label="Kelengkapan PBJ — semua pengadaan"
-      className="relative mt-2 mb-8 w-full max-w-none bg-gradient-to-br from-white via-primary/[0.04] to-blue-50/40 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
+      className="glass-surface relative mt-2 mb-8 w-full max-w-none rounded-2xl overflow-x-clip">
       <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary" />
       <div className="relative p-5 sm:p-7 lg:p-9 space-y-5">
         {/* ─── Revisi UX 011-65: tombol Kembali di atas (sticky) agar tanpa scroll ─── */}
@@ -1478,7 +1478,7 @@ export default function DokumenKelengkapanPage() {
           </div>
         </div>
         {/* ─── Sprint 011 B-01: toggle SIPLAH/NON-SIPLAH (print:hidden) ─── */}
-        <div className="print:hidden w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center gap-3" role="group" aria-label="Mode pengadaan PBJ">
+        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center gap-3" role="group" aria-label="Mode pengadaan PBJ">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mode pengadaan</span>
           <div className="flex items-center gap-1.5 bg-slate-100 rounded-xl p-1" role="switch" aria-checked={modeSiplah === 'siplah'} aria-label="Toggle SIPLAH NON-SIPLAH" tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleMode(modeSiplah === 'siplah' ? 'non' : 'siplah') } }}>
@@ -1494,7 +1494,7 @@ export default function DokumenKelengkapanPage() {
           <span className="text-[11px] text-slate-500" aria-live="polite">{modeSiplah === 'siplah' ? 'SIPLAH — hanya tab Perencanaan + cetak 1 dokumen' : 'NON-SIPLAH — keenam dokumen seperti biasa'}</span>
         </div>
         {/* ─── Sprint 011 B-03: command-bar satu pintu (print:hidden) ─── */}
-        <div className="print:hidden w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm px-5 sm:px-6 lg:px-8 py-5">
+        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Sumber baris PBJ — satu pintu">
             <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all cursor-pointer min-h-[44px]">
               <span className="material-symbols-outlined text-lg">upload_file</span>
@@ -1538,7 +1538,7 @@ export default function DokumenKelengkapanPage() {
             (default ON) + daftar ringkas grup per NoBukti (buka-tutup) +
             centang pilih + Terima ke PBJ sekaligus. */}
         {keranjangBuka && (
-          <div className="print:hidden w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Ambil dari BKU — cari dan centang">
+          <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Ambil dari BKU — cari dan centang">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ambil dari BKU — cari + centang · {bkuTampil.length} cocok · {bkuGrup.length} No. Bukti</p>
               <button onClick={() => setKeranjangBuka(false)} className="text-xs font-semibold text-slate-500 hover:text-slate-700 min-h-[44px] px-2">Tutup</button>
@@ -1635,7 +1635,7 @@ export default function DokumenKelengkapanPage() {
         )}
         {/* ─── Sprint 011 B-08 + Revisi UX 011-65: panduan Manual + form subset A5 (print:hidden) ─── */}
         {manualBuka && (
-          <div className="print:hidden w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Form manual PBJ">
+          <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Form manual PBJ">
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Manual — subset esensial (kolom lain tampil ‘-’)</p>
             {/* ─── 011-65(a): panduan langkah jelas — selalu tampil saat form manual dibuka ─── */}
             <div className="mb-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3" role="note" aria-label="Panduan isi manual">
@@ -1667,7 +1667,7 @@ export default function DokumenKelengkapanPage() {
             15 kolom persis sheet + 1 kolom expand. Kontainer hanya overflow-x
             (horizontal muncul bila viewport sempit); TIDAK ada max-h /
             overflow-y sehingga semua baris terlihat penuh secara vertikal. */}
-        <div className="w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="glass-surface w-full max-w-none rounded-2xl overflow-hidden">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 sm:px-6 lg:px-8 pt-5 pb-3">
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tabel Data — isi invoice PDF</p>
             <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">{pbjInvoices.length} baris · 15 kolom persis sheet</span>
@@ -1789,7 +1789,7 @@ export default function DokumenKelengkapanPage() {
           </div>
         </div>
         {/* ─── Sprint 011 B-07: panel arsip halus tertutup default (print:hidden) ─── */}
-        <div className="print:hidden w-full max-w-none bg-white rounded-2xl border border-slate-200/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Arsip baris PBJ">
+        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Arsip baris PBJ">
           <button onClick={() => setArsipBuka((v) => !v)} aria-expanded={arsipBuka} className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider min-h-[44px]">
             <span className="material-symbols-outlined text-base">archive</span>
             Arsip ({pbjArsip.length} baris){arsipBuka ? ' — tutup' : ' — buka'}
@@ -1813,7 +1813,7 @@ export default function DokumenKelengkapanPage() {
           )}
         </div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
-          <div className="min-w-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="glass-surface min-w-0 rounded-2xl overflow-hidden">
             <div role="tablist" aria-label="Dokumen PBJ" className="flex flex-wrap gap-1.5 px-4 sm:px-5 pt-3">
               {PBJ_TABS_TAMPIL.map((t) => (
                 <button key={t.id} role="tab" aria-selected={pbjTab === t.id}
@@ -1936,7 +1936,7 @@ export default function DokumenKelengkapanPage() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface">
+    <div className="flex flex-col min-h-screen bg-transparent">
       <Topbar title="Dokumen Kelengkapan" subtitle="Dokumen di luar ARKAS yang harus dilampirkan" />
 
       <div className={(pbjAktif || kasAktif) ? 'px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 max-w-none mx-auto w-full' : 'p-lg space-y-lg flex-1 max-w-7xl mx-auto w-full'}>
@@ -2067,7 +2067,7 @@ export default function DokumenKelengkapanPage() {
           onClick={() => setSelectedDokumen(null)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
+            className="glass-surface rounded-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

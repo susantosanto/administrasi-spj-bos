@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { useLoading } from '../../contexts/LoadingContext'
 import { requireWrite } from '../../services/licenseService'
 import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
 
@@ -32,6 +33,7 @@ const ROLE_HONOR_OPTIONS = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DataGuruPage() {
+  const { withLoading } = useLoading()
   const [tab, setTab] = useState('guru')
   const [guru, setGuru] = useState([])
   const [tendik, setTendik] = useState([])
@@ -66,7 +68,7 @@ export default function DataGuruPage() {
 
     setIsUploading(true)
     try {
-      const result = await parseGuruTendikExcel(file)
+      const result = await withLoading(() => parseGuruTendikExcel(file), 'Memproses data guru & tendik', 'Membaca file Excel')
       if (result.total === 0) {
         toast.error('Tidak ada data yang ditemukan')
         return
@@ -198,7 +200,7 @@ export default function DataGuruPage() {
 
             {/* Upload Form — kanon premium seragam dengan form upload lain di app */}
             {showUploadGuru && (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+              <div className="glass-surface rounded-2xl p-8">
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                                 hover:border-primary/40 transition-all duration-300
                                 bg-gradient-to-b from-slate-50/50 to-transparent">
@@ -230,7 +232,7 @@ export default function DataGuruPage() {
             )}
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="glass-surface rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
@@ -301,7 +303,7 @@ export default function DataGuruPage() {
 
             {/* Upload Form — kanon premium seragam dengan form upload lain di app */}
             {showUploadTendik && (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+              <div className="glass-surface rounded-2xl p-8">
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                                 hover:border-primary/40 transition-all duration-300
                                 bg-gradient-to-b from-slate-50/50 to-transparent">
@@ -333,7 +335,7 @@ export default function DataGuruPage() {
             )}
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="glass-surface rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>

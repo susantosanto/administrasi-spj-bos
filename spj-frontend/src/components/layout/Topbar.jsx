@@ -19,6 +19,7 @@ export default function Topbar({ title, subtitle }) {
 
   // Status lisensi untuk zona banner (ganti judul bila ada lisensi)
   const lic = useLicenseStatus()
+  const brandLabel = (lic.schoolName || '').toUpperCase() || 'LPJ BOS/BOSP'
   const hasCode = !!storageHelper.get('license_code')
   const daysLeft = lic.validUntil ? Math.max(0, Math.ceil((new Date(lic.validUntil) - new Date()) / 86400000)) : null
   const trialDate = lic.validUntil ? new Date(lic.validUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : null
@@ -212,7 +213,7 @@ export default function Topbar({ title, subtitle }) {
             {subtitle && <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>}
           </div>
         ) : (
-          <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">LPJ BOS/BOSP</span>
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{brandLabel}</span>
         )}
       </div>
 

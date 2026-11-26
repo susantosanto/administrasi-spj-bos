@@ -302,7 +302,7 @@ export default function NotesPage() {
         {/* NOTES GRID                                                      */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {sortedNotes.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-12 sm:p-16 text-center shadow-sm">
+          <div className="glass-surface rounded-2xl p-12 sm:p-16 text-center">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-300">note_add</span>
             </div>
@@ -463,7 +463,7 @@ export default function NotesPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditor(false)}>
           <div
             ref={editorRef}
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+            className="glass-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Editor Header */}

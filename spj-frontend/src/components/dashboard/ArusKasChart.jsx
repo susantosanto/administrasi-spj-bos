@@ -79,8 +79,9 @@ export default function ArusKasChart() {
   const pMasuk = titik(masuk, max, w)
   const pTahap1 = titik(tahap1, max, w)
   const pTahap2 = titik(tahap2, max, w)
-  const areaMasuk = `${kePath(pMasuk)} L${pMasuk[pMasuk.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pMasuk[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
-  const areaTahap1 = `${kePath(pTahap1)} L${pTahap1[pTahap1.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pTahap1[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z`
+  const tutupArea = (pts) => (pts.length ? `${kePath(pts)} L${pts[pts.length - 1].x.toFixed(1)},${(H - PAD.b).toFixed(1)} L${pts[0].x.toFixed(1)},${(H - PAD.b).toFixed(1)} Z` : '')
+  const areaMasuk = tutupArea(pMasuk)
+  const areaTahap1 = tutupArea(pTahap1)
   const ticks = LEVEL.map((f) => ({ v: max * f, y: PAD.t + (H - PAD.t - PAD.b) * (1 - f) }))
 
   const [view, setView] = useState('semua') // semua | tahap1 | tahap2
@@ -95,7 +96,7 @@ export default function ArusKasChart() {
 
   if (monthly.length === 0) {
     return (
-      <div ref={wrapRef} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+      <div ref={wrapRef} className="glass-surface rounded-2xl overflow-hidden">
         <Header title="Arus Kas" subtitle="Penerimaan vs pengeluaran per bulan (BKU)" />
         <div className="relative px-3 py-3">
           <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} className="block" aria-hidden="true">
@@ -121,7 +122,7 @@ export default function ArusKasChart() {
   }
 
   return (
-    <div ref={wrapRef} className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+    <div ref={wrapRef} className="glass-surface rounded-2xl overflow-hidden">
       <Header title="Arus Kas" subtitle="Penerimaan vs pengeluaran per bulan (BKU)" />
       <div className="px-3 py-3">
         <div className="flex items-center justify-between gap-3 pt-2">

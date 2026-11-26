@@ -46,7 +46,7 @@ export default function PengaturanPage() {
 
         {/* Tab Content */}
         {tab === 'profil' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">school</span> Profil Sekolah
             </h3>
@@ -71,7 +71,7 @@ export default function PengaturanPage() {
         )}
 
         {tab === 'tampilan' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">contrast</span> Tampilan
             </h3>
@@ -105,7 +105,7 @@ export default function PengaturanPage() {
         {tab === 'akun-ai' && <PuterAkunManager variant="page" />}
 
         {tab === 'master' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">database</span> Data Master
             </h3>
@@ -127,7 +127,7 @@ export default function PengaturanPage() {
         {tab === 'lisensi' && <LicenseSyncCard />}
 
         {tab === 'backup' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">backup</span> Backup & Restore
             </h3>
@@ -165,7 +165,7 @@ export default function PengaturanPage() {
         )}
 
         {tab === 'tentang' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">info</span> Tentang Aplikasi
             </h3>

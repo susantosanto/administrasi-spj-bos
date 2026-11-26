@@ -126,7 +126,7 @@ export default function ReferensiKodePage() {
 
       <div className="p-lg space-y-lg flex-1">
         {/* ── Header Info ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-lg">
+        <div className="glass-surface rounded-2xl p-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -166,7 +166,7 @@ export default function ReferensiKodePage() {
         </div>
 
         {/* ── Tab Navigation ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="glass-surface rounded-2xl overflow-hidden">
           {/* Tab buttons + Search */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100">
             <div className="flex gap-1">

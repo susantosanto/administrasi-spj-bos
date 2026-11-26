@@ -27,7 +27,7 @@ export default function ActivityPanel() {
   }, [])
 
   return (
-    <div className="flex flex-col bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+    <div className="glass-surface flex flex-col rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Aktivitas Terbaru</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Jejak kerja operator di aplikasi</p>

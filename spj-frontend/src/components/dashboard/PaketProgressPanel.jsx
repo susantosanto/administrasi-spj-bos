@@ -79,7 +79,7 @@ export default function PaketProgressPanel() {
   }, [])
 
   return (
-    <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm">
+    <div className="glass-surface rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Progres Paket Kerja</h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Capaian per paket dari data nyata</p>
