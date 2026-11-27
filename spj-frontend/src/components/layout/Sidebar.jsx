@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sidebar — ASIK
  * Desktop: rail 76 px (default tertutup) ↔ 232 px. Mobile: drawer overlay.
  * Ikon: Heroicons outline. Tooltip saat rail tertutup dirender lewat portal agar tidak terpotong.
@@ -26,6 +26,7 @@ import {
 import { useSidebar } from '../../contexts/SidebarContext'
 import BrandedLoader from '../ui/BrandedLoader'
 import storageHelper from '../../utils/storageHelper'
+import { useLicenseStatus } from '../../services/licenseService'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -45,9 +46,7 @@ const MENU_GROUPS = [
   {
     label: 'DOKUMEN',
     items: [
-      // HIDE-2026-11-26: menu Dokumen LPJ disembunyikan sementara pra-hapus permanen.
-      // Route /dashboard/dokumen-lpj TETAP hidup (deep-link dari sidebar BKU).
-      { label: 'Dokumen LPJ', icon: FileText, path: '/dashboard/dokumen-lpj', hidden: true },
+      { label: 'Dokumen LPJ', icon: FileText, path: '/dashboard/dokumen-lpj' },
       { label: 'Dokumen Kelengkapan', icon: FolderOpen, path: '/dashboard/dokumen-kelengkapan' },
       { label: 'Nomor Surat', icon: Hash, path: '/dashboard/nomor-surat' },
     ],
@@ -74,6 +73,8 @@ export default function Sidebar() {
   const navigate = useNavigate()
   const { isOpen, isMobile, close, toggle } = useSidebar()
   const isExpanded = isMobile || isOpen
+  const lic = useLicenseStatus()
+  const brandLabel = (lic.schoolName || '').toUpperCase() || 'LPJ BOS/BOSP'
   const asideRef = useRef(null)
   const [tip, setTip] = useState(null)
 
@@ -125,10 +126,9 @@ export default function Sidebar() {
     }, 850)
   }
 
-  // Ciutkan sidebar tiap klik menu — mobile: tutup drawer; desktop: kuncup ke rail.
-  // Sama persis seperti klik di luar sidebar (close() menangani kedua mode).
+  // Tutup drawer saat berpindah halaman (mobile saja)
   const handleNavClick = () => {
-    close()
+    if (isMobile) close()
   }
 
   const showTip = (e, label) => {
@@ -156,18 +156,18 @@ export default function Sidebar() {
         aria-label={item.label}
         {...tipProps(item.label)}
         className={({ isActive }) =>
-          `group relative flex min-h-[44px] items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-low ${
-            isActive ? 'bg-primary/10 text-primary' : ''
+          `group relative flex min-h-[44px] items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl transition-colors duration-200 ${
+            isActive ? 'bg-white/18 text-white shadow-[0_6px_18px_rgba(2,20,60,0.22)]' : 'text-white/70 hover:bg-white/10 hover:text-white'
           }`
         }
       >
         {({ isActive }) => (
           <>
-            {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />}
+            {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-white rounded-r-full" />}
             <Icon
               aria-hidden="true"
               className={`h-5 w-5 shrink-0 transition-colors duration-200 ${
-                isActive ? 'text-primary' : 'text-on-surface-variant'
+                isActive ? 'text-white' : 'text-white/60 group-hover:text-white'
               }`}
             />
             {isExpanded && (
@@ -200,54 +200,40 @@ export default function Sidebar() {
               : 'w-[76px]'
         }`}
       >
-        <div className="relative w-full h-full rounded-3xl backdrop-blur-md border shadow-[0_16px_48px_rgba(15,23,42,0.18)] flex flex-col overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 88%, transparent)', borderColor: 'var(--color-border)' }}>
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-3xl pointer-events-none opacity-60" aria-hidden="true" />
+        <div className="sidebar-panel relative w-full h-full rounded-3xl border border-white/10 shadow-[0_18px_54px_rgba(2,20,60,0.32)] flex flex-col overflow-hidden">
+          <div className="sidebar-batik absolute inset-0 pointer-events-none" aria-hidden="true" />
+          <div className="absolute top-0 right-0 w-52 h-52 bg-gradient-to-br from-white/12 to-transparent rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
-          {/* BRAND — satu panel premium: logo + wordmark + kontrol ciutkan */}
-          <div className={`relative pt-4 pb-2 ${isExpanded ? 'px-3' : 'px-1.5'}`}>
-            {isExpanded ? (
-              <div className="sidebar-brand relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-[#0040a8] to-[#00297a] p-3">
-                {/* aksen cahaya editorial */}
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
-                <div className="absolute -bottom-12 -left-8 w-28 h-28 bg-white/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
-                <div className="relative">
-                  <div className="flex items-center gap-2.5">
-                    <div className="sidebar-brand-logo w-11 h-11 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shrink-0 shadow-md px-1.5">
-                      <img src="/asik-logo.png" alt="ASIK" className="h-6 w-full object-contain" draggable="false" />
-                    </div>
-                    <div className="flex-1 min-w-0" />
-                    <button
-                      type="button"
-                      onClick={isMobile ? close : toggle}
-                      aria-label={toggleLabel}
-                      title={toggleLabel}
-                      className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl text-white/80 bg-white/10 hover:bg-white/20 hover:text-white transition-colors"
-                    >
-                      <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div className="mt-2.5">
-                    <p className="text-[11px] text-white font-semibold leading-tight mt-0.5 tracking-wide">Sistem Dokumen Sekolah</p>
-                    <p className="text-[9px] text-white/50 font-medium leading-tight mt-0.5 tracking-[0.14em] uppercase">LPJ BOS · BOSP</p>
-                  </div>
+          {/* LOGO */}
+          <div className={`relative pt-6 pb-4 ${isExpanded ? 'px-5' : 'px-1.5'}`}>
+            <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
+              <div className="relative">
+                <div className="absolute -inset-1 rounded-xl bg-white/25 blur-md" aria-hidden="true" />
+                <div className={`${isExpanded ? 'w-16' : 'w-10'} relative h-8 rounded-lg bg-white/95 flex items-center justify-center shadow-sm px-1.5`}>
+                  <img src="/asik-logo.png" alt="ASIK" className="h-5 w-full object-contain" draggable="false" />
                 </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-300 rounded-full border-2 border-white/80" aria-hidden="true" />
               </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-200/60 dark:border-transparent px-1.5">
-                  <img src="/asik-logo.png" alt="ASIK" className="h-6 w-full object-contain" draggable="false" />
+              {isExpanded && (
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-[13px] font-bold text-white tracking-tight leading-tight mb-0.5 break-words">{brandLabel}</h1>
+                  <p className="text-xs text-blue-100/80 font-medium">Sistem Dokumen Sekolah</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={isMobile ? close : toggle}
-                  aria-label={toggleLabel}
-                  title={toggleLabel}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors"
-                >
-                  <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-                </button>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+
+          {/* Satu-satunya kontrol buka/tutup desktop */}
+          <div className={`relative px-3 ${isExpanded ? 'flex justify-end' : 'flex justify-center'}`}>
+            <button
+              type="button"
+              onClick={isMobile ? close : toggle}
+              aria-label={toggleLabel}
+              title={toggleLabel}
+              className="w-11 h-11 flex items-center justify-center rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+            </button>
           </div>
 
           {/* MENU */}
@@ -255,13 +241,10 @@ export default function Sidebar() {
             {renderLink(MENU_DASHBOARD, true)}
 
             <div className={`relative mx-3 ${isExpanded ? '' : 'hidden'}`} aria-hidden="true">
-              <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
+              <div className="h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
 
-            {MENU_GROUPS.map((group, groupIdx) => {
-              const visibleItems = (group.items || []).filter((item) => !item.hidden)
-              if (visibleItems.length === 0) return null
-              return (
+            {MENU_GROUPS.map((group, groupIdx) => (
               <div key={group.label} className={groupIdx > 0 ? 'mt-1' : ''}>
                 {isExpanded && (
                   <button
@@ -270,41 +253,40 @@ export default function Sidebar() {
                     aria-expanded={expanded[group.label]}
                     className="w-full min-h-[36px] flex items-center justify-between px-3 mb-1 cursor-pointer"
                   >
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.12em]">{group.label}</span>
+                    <span className="text-xs font-bold text-blue-100/70 uppercase tracking-[0.12em]">{group.label}</span>
                     <ChevronDown
                       aria-hidden="true"
-                      className="h-3.5 w-3.5 text-slate-400 transition-transform duration-200"
+                      className="h-3.5 w-3.5 text-white/60 transition-transform duration-200"
                       style={{ transform: expanded[group.label] ? 'rotate(0deg)' : 'rotate(-90deg)' }}
                     />
                   </button>
                 )}
 
                 {(expanded[group.label] || !isExpanded) && (
-                  <div className="space-y-1">{visibleItems.map((item) => renderLink(item))}</div>
+                  <div className="space-y-1">{group.items.map((item) => renderLink(item))}</div>
                 )}
               </div>
-              )
-            })}
+            ))}
           </nav>
 
           {/* BOTTOM — profil, Pengaturan, Keluar */}
           <div className={`sidebar-bottom pb-4 space-y-1 ${isExpanded ? 'px-3' : 'px-1.5'}`}>
-            <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-3" aria-hidden="true" />
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-3" aria-hidden="true" />
 
             <button
               type="button"
               onClick={() => { navigate('/dashboard/pengaturan'); handleNavClick() }}
               aria-label={`Profil ${userName}`}
               {...tipProps(userName)}
-              className={`w-full min-h-[48px] flex items-center ${isExpanded ? 'gap-3 px-2.5' : 'justify-center'} rounded-xl text-left hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors`}
+              className={`w-full min-h-[48px] flex items-center ${isExpanded ? 'gap-3 px-2.5' : 'justify-center'} rounded-xl text-left hover:bg-white/10 transition-colors`}
             >
-              <span className="w-9 h-9 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs font-bold" aria-hidden="true">
+              <span className="w-9 h-9 rounded-xl shrink-0 bg-white/20 text-white flex items-center justify-center text-xs font-bold" aria-hidden="true">
                 {userInitials}
               </span>
               {isExpanded && (
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-xs font-semibold text-slate-800 dark:text-slate-100">{userName}</span>
-                  <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{currentUser.role || 'Operator sekolah'}</span>
+                  <span className="block truncate text-xs font-semibold text-white">{userName}</span>
+                  <span className="block truncate text-xs text-blue-100/70">{currentUser.role || 'Operator sekolah'}</span>
                 </span>
               )}
             </button>
@@ -316,9 +298,9 @@ export default function Sidebar() {
               onClick={() => { handleNavClick(); handleLogout() }}
               aria-label="Keluar"
               {...tipProps('Keluar')}
-              className={`group w-full min-h-[44px] flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50/60 transition-colors duration-200`}
+              className={`group w-full min-h-[44px] flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-white/70 hover:text-red-300 hover:bg-white/10 transition-colors duration-200`}
             >
-              <LogOut aria-hidden="true" className="h-5 w-5 shrink-0 text-slate-400 group-hover:text-red-500 transition-colors" />
+              <LogOut aria-hidden="true" className="h-5 w-5 shrink-0 text-white/60 group-hover:text-red-300 transition-colors" />
               {isExpanded && <span className="text-[13px] font-medium">Keluar</span>}
             </button>
           </div>
