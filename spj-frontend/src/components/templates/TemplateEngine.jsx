@@ -38,6 +38,11 @@ SPDForm,
   InstrumenBos,
   DaftarHadirPaper,
   SuratUndanganPaper,
+  UndanganKegiatan,
+  SuratTugasKegiatan,
+  DaftarHadirKegiatan,
+  ProposalKegiatan,
+  SpandukPreview,
 } from './blocks'
 import { PAPER_EVENT, getPaperSize } from '../../utils/paperSize'
 
@@ -68,6 +73,11 @@ const BLOCK_RENDERERS = {
   'instrumen-bos': InstrumenBos,
   'daftar-hadir': DaftarHadirPaper,
   'undangan-blanko': SuratUndanganPaper,
+  'undangan-kegiatan': UndanganKegiatan,
+  'surat-tugas-kegiatan': SuratTugasKegiatan,
+  'daftar-hadir-kegiatan': DaftarHadirKegiatan,
+  'proposal-kegiatan': ProposalKegiatan,
+  'spanduk-preview': SpandukPreview,
 }
 
 export const KNOWN_BLOCK_TYPES = Object.keys(BLOCK_RENDERERS)

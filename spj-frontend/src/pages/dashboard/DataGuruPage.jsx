@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/Toast'
 import { useLoading } from '../../contexts/LoadingContext'
 import { requireWrite } from '../../services/licenseService'
 import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
+import UploadSurface from '../../components/ui/UploadSurface'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -204,29 +205,18 @@ export default function DataGuruPage() {
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                                 hover:border-primary/40 transition-all duration-300
                                 bg-gradient-to-b from-slate-50/50 to-transparent">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
-                                  flex items-center justify-center mx-auto mb-5 shadow-inner">
-                    <span className="material-symbols-outlined text-4xl text-primary">school</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Guru</h3>
-                  <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                    File Excel Dapodik — data guru akan langsung terisi otomatis
-                  </p>
-
-                  <input type="file" ref={guruFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'guru')} className="hidden" id="guru-upload" />
-                  <label
-                    htmlFor="guru-upload"
-                    className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                                transition-all duration-300 cursor-pointer ${
-                      isUploading
-                        ? 'bg-slate-300 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                    {isUploading ? 'Memproses...' : 'Pilih File Excel Guru'}
-                  </label>
-                  <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
+                  <UploadSurface
+                    id="guru-upload"
+                    icon="school"
+                    title="Upload Data Guru"
+                    description="File Excel Dapodik — data guru akan langsung terisi otomatis"
+                    formatHint="Format: .xlsx atau .xls"
+                    accept=".xlsx,.xls"
+                    loading={isUploading}
+                    loadingText="Memproses..."
+                    actionText="Pilih File Excel Guru"
+                    onFiles={(files) => handleFileUpload({ target: { files } }, 'guru')}
+                  />
                 </div>
               </div>
             )}
@@ -307,29 +297,18 @@ export default function DataGuruPage() {
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                                 hover:border-primary/40 transition-all duration-300
                                 bg-gradient-to-b from-slate-50/50 to-transparent">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
-                                  flex items-center justify-center mx-auto mb-5 shadow-inner">
-                    <span className="material-symbols-outlined text-4xl text-primary">groups</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Tendik</h3>
-                  <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                    File Excel Dapodik — data pegawai akan langsung terisi otomatis
-                  </p>
-
-                  <input type="file" ref={tendikFileRef} accept=".xlsx,.xls" onChange={(e) => handleFileUpload(e, 'tendik')} className="hidden" id="tendik-upload" />
-                  <label
-                    htmlFor="tendik-upload"
-                    className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                                transition-all duration-300 cursor-pointer ${
-                      isUploading
-                        ? 'bg-slate-300 text-white cursor-not-allowed'
-                        : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                    {isUploading ? 'Memproses...' : 'Pilih File Excel Tendik'}
-                  </label>
-                  <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
+                  <UploadSurface
+                    id="tendik-upload"
+                    icon="groups"
+                    title="Upload Data Tendik"
+                    description="File Excel Dapodik — data pegawai akan langsung terisi otomatis"
+                    formatHint="Format: .xlsx atau .xls"
+                    accept=".xlsx,.xls"
+                    loading={isUploading}
+                    loadingText="Memproses..."
+                    actionText="Pilih File Excel Tendik"
+                    onFiles={(files) => handleFileUpload({ target: { files } }, 'tendik')}
+                  />
                 </div>
               </div>
             )}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import UploadSurface from '../../components/ui/UploadSurface'
 import { useLoading } from '../../contexts/LoadingContext'
 import { requireWrite } from '../../services/licenseService'
 import { logActivity } from '../../utils/activityLog'
@@ -406,36 +407,18 @@ export default function BKUPage() {
             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
                             hover:border-primary/40 transition-all duration-300
                             bg-gradient-to-b from-slate-50/50 to-transparent">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
-                              flex items-center justify-center mx-auto mb-5 shadow-inner">
-                <span className="material-symbols-outlined text-4xl text-primary">table_view</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Upload File BKU Excel</h3>
-              <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                File Excel dari ARKAS — transaksi akan langsung terisi otomatis
-              </p>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".xlsx,.xls"
-                onChange={handleFileUpload}
-                className="hidden"
+              <UploadSurface
                 id="bku-file-input"
+                icon="table_view"
+                title="Upload File BKU Excel"
+                description="File Excel dari ARKAS — transaksi akan langsung terisi otomatis"
+                formatHint="Format: .xlsx atau .xls"
+                accept=".xlsx,.xls"
+                loading={isUploading}
+                loadingText="Memproses..."
+                actionText="Pilih File Excel BKU"
+                onFiles={(files) => handleFileUpload({ target: { files } })}
               />
-              <label
-                htmlFor="bku-file-input"
-                className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                            transition-all duration-300 cursor-pointer ${
-                  isUploading
-                    ? 'bg-slate-300 text-white cursor-not-allowed'
-                    : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                {isUploading ? 'Memproses...' : 'Pilih File Excel BKU'}
-              </label>
-              <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
             </div>
           </div>
         )}

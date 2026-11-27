@@ -4,6 +4,7 @@ import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { LoadingProvider } from './contexts/LoadingContext'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 import AskAIButton from './components/ai/AskAIButton'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
@@ -89,6 +90,7 @@ export default function App() {
   }, [])
 
   return (
+    <ErrorBoundary>
     <ThemeProvider>
       <ToastProvider>
         <LoadingProvider>
@@ -137,5 +139,6 @@ export default function App() {
         </LoadingProvider>
       </ToastProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   )
 }

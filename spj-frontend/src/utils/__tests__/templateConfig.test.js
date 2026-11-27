@@ -33,8 +33,8 @@ describe('TEMPLATE_CONFIGS', () => {
     }
   })
 
-  it('semua tipe blok dikenal TemplateEngine (25 jenis)', () => {
-    expect(KNOWN_BLOCK_TYPES).toHaveLength(25)
+  it('semua tipe blok dikenal TemplateEngine (30 jenis)', () => {
+    expect(KNOWN_BLOCK_TYPES).toHaveLength(30)
     for (const [key, cfg] of Object.entries(TEMPLATE_CONFIGS)) {
       for (const b of cfg.blocks) {
         expect(KNOWN_BLOCK_TYPES, `${key} → ${b?.type}`).toContain(b?.type)

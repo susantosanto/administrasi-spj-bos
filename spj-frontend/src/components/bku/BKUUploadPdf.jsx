@@ -19,6 +19,7 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useToast } from '../ui/Toast'
+import UploadDropzone from '../ui/UploadDropzone'
 import storageHelper from '../../utils/storageHelper'
 import { redetectTypes } from '../../utils/bkuParser'
 import { bukaPdf, renderHalaman, periksaFilePdf, headerPdfValid, pesanGagalPdf, ukurTextLayer, bacaTeksNative } from '../../utils/bkuPdfPages'
@@ -269,16 +270,13 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
               )}
             </div>
           </div>
-          <input ref={fileRef} type="file" accept="application/pdf,.pdf"
-            onChange={pilihFile} className="hidden" id="bku-pdf-input" />
-          <label htmlFor="bku-pdf-input"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                       transition-all duration-300 cursor-pointer
-                       bg-primary text-white
-                       hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
-            <span className="material-symbols-outlined text-lg">upload</span> Pilih File PDF BKU
-          </label>
-          <p className="text-xs text-slate-400 mt-4">Format: .pdf &nbsp;•&nbsp; diproses sepenuhnya di perangkat ini</p>
+          <UploadDropzone
+            id="bku-pdf-input"
+            accept="application/pdf,.pdf"
+            actionText="Pilih File PDF BKU"
+            formatHint="Format: .pdf • diproses sepenuhnya di perangkat ini"
+            onFiles={(files) => pilihFile({ target: { files } })}
+          />
         </div>
       )}
 

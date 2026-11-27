@@ -8,6 +8,7 @@ import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
 import { useLoading } from '../../contexts/LoadingContext'
 import { parseSekolahExcel } from '../../utils/sekolahParser'
+import UploadSurface from '../../components/ui/UploadSurface'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import PersonelFotoTab from '../../components/dokumentasi/PersonelFotoTab'
 import { verifikasiKs } from '../../utils/verifikasiKs'
@@ -467,30 +468,18 @@ export default function DataSekolahPage() {
         {/* ═══════════════════════════════════════════════════════════════ */}
         {showUpload && tab === 'sekolah' && (
           <div className="glass-surface rounded-2xl p-8 animate-in slide-in-from-top-2 duration-300">
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-primary/40 transition-all duration-300 bg-gradient-to-b from-slate-50/50 to-transparent">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mx-auto mb-5 shadow-inner">
-                <span className="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Upload Data Sekolah</h3>
-              <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                Upload file Excel Dapodik — data profil sekolah akan langsung terisi otomatis
-              </p>
-
-              <input type="file" ref={fileInputRef} accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" id="sekolah-upload" />
-              <label
-                htmlFor="sekolah-upload"
-                className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                  isUploading
-                    ? 'bg-slate-300 text-white cursor-not-allowed'
-                    : 'bg-primary text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                {isUploading ? 'Memproses...' : 'Pilih File Excel'}
-              </label>
-
-              <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
-            </div>
+            <UploadSurface
+              id="sekolah-upload"
+              icon="cloud_upload"
+              title="Upload Data Sekolah"
+              description="Upload file Excel Dapodik — data profil sekolah akan langsung terisi otomatis"
+              formatHint="Format: .xlsx atau .xls"
+              accept=".xlsx,.xls"
+              loading={isUploading}
+              loadingText="Memproses..."
+              actionText="Pilih File Excel"
+              onFiles={(files) => handleFileUpload({ target: { files } })}
+            />
           </div>
         )}
 
