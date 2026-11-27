@@ -85,7 +85,7 @@ export default function PengaturanPage() {
                   <p className="text-text-low text-sm">{isDark ? 'Nyaman di mata saat malam hari' : 'Cerah dan jelas untuk siang hari'}</p>
                 </div>
               </div>
-              <ThemeToggle />
+              <ThemeToggle variant="icon" />
             </div>
         <div className="grid grid-cols-2 gap-md">
               <button onClick={() => { if (isDark) toggle(); toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
