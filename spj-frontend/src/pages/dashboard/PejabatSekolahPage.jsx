@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { requireWrite } from '../../services/licenseService'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
 import { loadRiwayat, tambahPeriode } from '../../utils/bkuKategori'
 
