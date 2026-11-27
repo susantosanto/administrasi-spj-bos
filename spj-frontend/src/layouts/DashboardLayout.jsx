@@ -11,11 +11,13 @@ import { seedMockData } from '../data/mockData'
 import storageHelper from '../utils/storageHelper'
 import { licenseService } from '../services/licenseService'
 import TrialMiniBanner from '../components/ui/TrialMiniBanner'
+import { useLoading } from '../contexts/LoadingContext'
 
 function DashboardContent() {
   const { isOpen, isMobile } = useSidebar()
   const { isDark } = useTheme()
   const location = useLocation()
+  const { show, hide } = useLoading()
 
   useEffect(() => {
     storageHelper.ensureSchemaVersion()
@@ -26,10 +28,17 @@ function DashboardContent() {
     return () => clearInterval(iv)
   }, [])
 
+  // Loader tiap pindah halaman — singkat, anti-stagnan (StrictMode safe)
+  useEffect(() => {
+    show('Memuat halaman...', 'Mohon tunggu sebentar')
+    const t = setTimeout(hide, 350)
+    return () => { clearTimeout(t); hide() }
+  }, [location.pathname]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div
       className="flex min-h-screen relative"
-      style={{ backgroundColor: isDark ? '#0F172A' : '#F3F5F9' }}
+      style={{ backgroundColor: isDark ? 'var(--color-background)' : '#F3F5F9' }}
     >
       {/* Batik — Capitalia-combine: drift halus 0.05 agar dense card tetap pop */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -39,7 +48,7 @@ function DashboardContent() {
             backgroundImage: "url('/floral-pattern.jpg')",
             backgroundSize: "360px 360px",
             backgroundRepeat: "repeat",
-            opacity: isDark ? 0.18 : 0.24,
+            opacity: isDark ? 0 : 0.06,
             mixBlendMode: isDark ? "normal" : "multiply",
             animationDuration: '70s',
           }}

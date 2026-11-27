@@ -22,7 +22,7 @@ export default function ThemeToggle({ variant = 'default', className = '' }) {
         aria-pressed={isDark}
         title={isDark ? 'Mode Terang' : 'Mode Gelap'}
         className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 overflow-hidden group
-          ${isDark ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}
+          ${isDark ? 'bg-slate-800 text-yellow-400 hover:bg-slate-700' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}
           ${className}`}
       >
         <span
@@ -49,11 +49,11 @@ export default function ThemeToggle({ variant = 'default', className = '' }) {
       aria-pressed={isDark}
       title={isDark ? 'Mode Terang (klik untuk Light)' : 'Mode Gelap (klik untuk Dark)'}
       className={`relative inline-flex items-center w-[68px] h-[36px] rounded-full p-1 transition-all duration-500 cursor-pointer select-none
-        ${isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white border border-slate-200 shadow-sm'}
+        ${isDark ? 'bg-slate-800 border border-slate-700' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent shadow-sm'}
         hover:shadow-md group ${className}`}
     >
       {/* Track icons */}
-      <span className={`absolute left-2 material-symbols-outlined text-[14px] transition-all duration-300 ${isDark ? 'text-slate-600 opacity-40' : 'text-amber-500 opacity-100'}`} style={{ fontVariationSettings: "'FILL' 1" }}>light_mode</span>
+      <span className={`absolute left-2 material-symbols-outlined text-[14px] transition-all duration-300 ${isDark ? 'text-slate-600 dark:text-slate-300 opacity-40' : 'text-amber-500 opacity-100'}`} style={{ fontVariationSettings: "'FILL' 1" }}>light_mode</span>
       <span className={`absolute right-2 material-symbols-outlined text-[14px] transition-all duration-300 ${isDark ? 'text-yellow-400 opacity-100' : 'text-slate-300 opacity-40'}`} style={{ fontVariationSettings: "'FILL' 1" }}>dark_mode</span>
 
       {/* Sliding thumb */}

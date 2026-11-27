@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SidebarPbj — blok "Dokumen PBJ" di sidebar BKU (Sprint 018, K-11/K-12).
  *
  * Letak: DI BAWAH form LPJ dan DI ATAS Panel Preview Document (AD-6, lewat
@@ -68,10 +68,10 @@ function TabelInvoice({ daftar, onBerubah }) {
   }
   return (
     <>
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-transparent">
       <table className="w-full text-[11px] table-fixed">
         <thead>
-          <tr className="bg-slate-100 text-slate-600">
+          <tr className="bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
             <th className="px-2 py-1.5 text-left font-bold w-8">No</th>
             <th className="px-2 py-1.5 text-left font-bold">Nomor / File</th>
             <th className="px-2 py-1.5 text-left font-bold">Penyedia</th>
@@ -88,24 +88,24 @@ function TabelInvoice({ daftar, onBerubah }) {
               <tr
                 key={inv.id || `inv-${i}`}
                 onClick={() => setBukaId(buka ? null : inv.id)}
-                className={`cursor-pointer transition-colors ${buka ? 'bg-primary/5' : 'hover:bg-slate-50'}`}
+                className={`cursor-pointer transition-colors ${buka ? 'bg-primary/5' : 'hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5'}`}
                 title="Klik untuk rincian item"
               >
-                <td className="px-2 py-1.5 text-slate-500">{i + 1}</td>
+                <td className="px-2 py-1.5 text-slate-500 dark:text-slate-400">{i + 1}</td>
                 <td className="px-2 py-1.5 min-w-0">
-                  <span className="block font-semibold text-slate-800 truncate">{inv.nomor || '—'}</span>
+                  <span className="block font-semibold text-slate-800 dark:text-slate-100 truncate">{inv.nomor || '—'}</span>
                   <span className="block text-[10px] text-slate-400 truncate">{inv.namaFile || inv.tanggalTampil || ''}</span>
                 </td>
-                <td className="px-2 py-1.5 text-slate-700 truncate">{inv.namaPenyedia || '—'}</td>
-                <td className="px-2 py-1.5 text-right text-slate-700">{items.length}</td>
-                <td className="px-2 py-1.5 text-right font-semibold text-slate-900">{fmtRp(inv.grandTotal)}</td>
+                <td className="px-2 py-1.5 text-slate-700 dark:text-slate-200 truncate">{inv.namaPenyedia || '—'}</td>
+                <td className="px-2 py-1.5 text-right text-slate-700 dark:text-slate-200">{items.length}</td>
+                <td className="px-2 py-1.5 text-right font-semibold text-slate-900 dark:text-white">{fmtRp(inv.grandTotal)}</td>
                 <td className="px-1 py-1.5 text-center">
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setTargetHapus({ inv, i }) }}
                     title={`Hapus baris ${i + 1}`}
                     aria-label={`Hapus baris invoice ${i + 1}`}
-                    className="p-1 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+                    className="p-1 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-200 transition-colors"
                   >
                     <span className="material-symbols-outlined text-base">delete</span>
                   </button>
@@ -116,7 +116,7 @@ function TabelInvoice({ daftar, onBerubah }) {
                   <td colSpan={6} className="px-2 py-1.5 bg-slate-50/70">
                     <table className="w-full text-[10px]">
                       <thead>
-                        <tr className="text-slate-500">
+                        <tr className="text-slate-500 dark:text-slate-400">
                           <th className="px-1 py-1 text-left font-semibold">Uraian</th>
                           <th className="px-1 py-1 text-right font-semibold">Qty</th>
                           <th className="px-1 py-1 text-right font-semibold">Harga</th>
@@ -126,10 +126,10 @@ function TabelInvoice({ daftar, onBerubah }) {
                       <tbody className="divide-y divide-slate-100">
                         {items.map((it, j) => (
                           <tr key={j}>
-                            <td className="px-1 py-1 text-slate-700">{it.uraian || '—'}</td>
-                            <td className="px-1 py-1 text-right text-slate-600">{it.qty ?? '—'}</td>
-                            <td className="px-1 py-1 text-right text-slate-600">{fmtRp(it.harga)}</td>
-                            <td className="px-1 py-1 text-right font-semibold text-slate-800">{fmtRp(it.total)}</td>
+                            <td className="px-1 py-1 text-slate-700 dark:text-slate-200">{it.uraian || '—'}</td>
+                            <td className="px-1 py-1 text-right text-slate-600 dark:text-slate-300">{it.qty ?? '—'}</td>
+                            <td className="px-1 py-1 text-right text-slate-600 dark:text-slate-300">{fmtRp(it.harga)}</td>
+                            <td className="px-1 py-1 text-right font-semibold text-slate-800 dark:text-slate-100">{fmtRp(it.total)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -167,6 +167,9 @@ export default function SidebarPbj({
   mode = 'non',
   onModeChange = null,
   onPrefillInvoice = null,
+  // Kunci 2026-11-26 (buku): hanya dokumen Perencanaan → switch mode
+  // disembunyikan, SIPLAH terkunci.
+  sembunyiMode = false,
 }) {
   const toast = useToast()
   const [tab, setTab] = useState('perencanaan')
@@ -236,20 +239,20 @@ export default function SidebarPbj({
   }
 
   return (
-    <section data-blok="pbj" className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+    <section data-blok="pbj" className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm p-5 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2.5">
           <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary">
             <span className="material-symbols-outlined text-base">receipt_long</span>
           </span>
           <div>
-            <h3 className="text-[13px] font-semibold text-slate-800 tracking-tight leading-5">Dokumen PBJ</h3>
-            <p className="text-[10px] text-slate-500">No. Bukti {transaction?.noBukti || '—'}</p>
+            <h3 className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 tracking-tight leading-5">Dokumen PBJ</h3>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">No. Bukti {transaction?.noBukti || '—'}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {savedAt && (
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">
               Tersimpan {new Date(savedAt).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </span>
           )}
@@ -260,7 +263,7 @@ export default function SidebarPbj({
             title={transaction?.noBukti ? 'Simpan dokumen PBJ untuk NoBukti ini' : 'Baris tanpa No Bukti tidak bisa disimpan'}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               transaction?.noBukti
-                ? 'bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
+                ? 'bg-primary text-white active:scale-95'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
           >
@@ -270,15 +273,22 @@ export default function SidebarPbj({
         </div>
       </div>
 
-      {/* Mode pengadaan — konsep sama dengan halaman Dokumen Kelengkapan (revisi 2026-10-22) */}
+      {/* Mode pengadaan — konsep sama dengan halaman Dokumen Kelengkapan (revisi 2026-10-22).
+          Kunci 2026-11-26 (buku): switch disembunyikan, SIPLAH terkunci (hanya Perencanaan). */}
+      {sembunyiMode ? (
+        <div className="flex items-center gap-2" aria-label="Mode pengadaan terkunci">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mode pengadaan</span>
+          <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-primary text-white">SIPLAH · Perencanaan</span>
+        </div>
+      ) : (
       <div className="flex flex-wrap items-center gap-3" role="group" aria-label="Mode pengadaan PBJ">
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mode pengadaan</span>
-        <div className="flex items-center gap-1 bg-slate-100 rounded-xl p-1" role="switch" aria-checked={mode === 'siplah'} aria-label="Toggle SIPLAH NON-SIPLAH">
+        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mode pengadaan</span>
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/10 rounded-xl p-1" role="switch" aria-checked={mode === 'siplah'} aria-label="Toggle SIPLAH NON-SIPLAH">
           <button
             type="button"
             onClick={() => gantiMode('non')}
             aria-pressed={mode === 'non'}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${mode === 'non' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800'}`}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${mode === 'non' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800 dark:text-slate-100'}`}
           >
             NON-SIPLAH
           </button>
@@ -286,21 +296,22 @@ export default function SidebarPbj({
             type="button"
             onClick={() => gantiMode('siplah')}
             aria-pressed={mode === 'siplah'}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${mode === 'siplah' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800'}`}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${mode === 'siplah' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800 dark:text-slate-100'}`}
           >
             SIPLAH
           </button>
         </div>
-        <span className="text-[10px] text-slate-500" aria-live="polite">
+        <span className="text-[10px] text-slate-500 dark:text-slate-400" aria-live="polite">
           {mode === 'siplah' ? 'SIPLAH — hanya Perencanaan (1 dokumen)' : 'NON-SIPLAH — enam dokumen'}
         </span>
       </div>
+      )}
 
       {/* Sprint 020: Upload Invoice SIPLah — sama persis dengan "Upload PDF"
           di halaman Dokumen Kelengkapan (menu Dokumen PBJ). Hanya mode SIPLAH
           (revisi 2026-10-24): NON-SIPLAH tanpa fitur upload. */}
       {bolehUpload && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+        <div className="rounded-xl border border-slate-200 dark:border-transparent bg-slate-50/60 dark:bg-white/5 p-3 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <label
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -319,11 +330,11 @@ export default function SidebarPbj({
                 onChange={(e) => { handleUploadInvoice(e.target.files?.[0]); e.target.value = '' }}
               />
             </label>
-            <span className="text-[10px] text-slate-500">PDF invoice SIPLah → terbaca otomatis → form PBJ terisi.</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">PDF invoice SIPLah → terbaca otomatis → form PBJ terisi.</span>
           </div>
           <div aria-live="polite" className="space-y-0.5">
-            {badgeInvoice && <p className="text-[11px] font-semibold text-slate-700">✓ {badgeInvoice}</p>}
-            {pesanInvoice && <p className="text-[11px] text-slate-500">{pesanInvoice}</p>}
+            {badgeInvoice && <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">✓ {badgeInvoice}</p>}
+            {pesanInvoice && <p className="text-[11px] text-slate-500 dark:text-slate-400">{pesanInvoice}</p>}
             {metaInvoice && (
               <p className="text-[10px] text-slate-400">
                 Arsip: {metaInvoice.namaFile} · {metaInvoice.nomorInvoice || 'tanpa nomor'} · Rp {(metaInvoice.grandTotal || 0).toLocaleString('id-ID')}
@@ -333,7 +344,7 @@ export default function SidebarPbj({
           {/* Sprint 023 (R-1): tabel data invoice — bahan Dokumen Perencanaan.
               Klik baris untuk rincian item. */}
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Data Invoice SIPLah — bahan Dokumen Perencanaan
             </p>
             <TabelInvoice daftar={daftarInvoice} onBerubah={setDaftarInvoice} />
@@ -341,12 +352,12 @@ export default function SidebarPbj({
         </div>
       )}
 
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-slate-500 dark:text-slate-400">
         Isian dasar terisi otomatis dari baris BKU (Tanggal · Kegiatan · Nominal · No. Bukti). Tersimpan
         terpisah untuk No. Bukti ini — dokumen PBJ di halaman Dokumen Kelengkapan tidak tersentuh.
       </p>
 
-      <div className="flex flex-wrap gap-1 border-b border-slate-200">
+      <div className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-transparent">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -355,7 +366,7 @@ export default function SidebarPbj({
             className={`px-3 py-2 text-xs font-semibold border-b-2 -mb-px transition-colors ${
               tabAktif === t.id
                 ? 'border-primary text-primary'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-200'
             }`}
           >
             {t.label}

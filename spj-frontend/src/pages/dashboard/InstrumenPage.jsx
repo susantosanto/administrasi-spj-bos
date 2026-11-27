@@ -101,23 +101,23 @@ export default function InstrumenPage() {
     <div className="flex flex-col min-h-screen bg-slate-50/50">
       <Topbar title="Instrumen BOS" subtitle="Penyaluran & Penggunaan Dana BOS" />
       <div className="p-4 space-y-4 flex-1">
-        <div className="glass-surface rounded-2xl p-4 flex flex-wrap items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-transparent p-4 flex flex-wrap items-center gap-2">
           <span className="material-symbols-outlined text-primary">assignment</span>
-          <h2 className="text-sm font-bold text-slate-900">Tahun Anggaran</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Tahun Anggaran</h2>
           <div className="flex gap-1 ml-2">
             {[2025, 2026, 2027].map((t) => (
               <button key={t} onClick={() => setTahun(String(t))}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${String(t) === tahun ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>{t}</button>
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${String(t) === tahun ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>{t}</button>
             ))}
           </div>
-          <p className="w-full text-[11px] text-slate-500">Seksi D (realisasi) otomatis dari BKU + koreksi. A/B/C/E diketik, tersimpan per tahun.</p>
+          <p className="w-full text-[11px] text-slate-500 dark:text-slate-400">Seksi D (realisasi) otomatis dari BKU + koreksi. A/B/C/E diketik, tersimpan per tahun.</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-4 items-start">
           <div className="space-y-4">
             {SEKSI.map((s) => (
-              <div key={s.id} className="glass-surface rounded-2xl p-4">
-                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">{s.judul}</h3>
+              <div key={s.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-transparent p-4">
+                <h3 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-3">{s.judul}</h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {(s.id === 'e' ? [...s.fields] : s.fields).map((f) => {
                     const auto = nilaiOtomatis(s.id, f.key)
@@ -134,7 +134,7 @@ export default function InstrumenPage() {
             ))}
           </div>
           <aside className="print:hidden lg:sticky lg:top-[88px]">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h3>
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Panel Preview Document</h3>
             <PanelPreviewDocument title={`Instrumen BOS ${tahun}`} docs={docs}
               status={{ perlu: 0, violations: [] }} cetakAktif
               onCek={() => toast.success('LENGKAP — siap cetak')}

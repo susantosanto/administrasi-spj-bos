@@ -76,6 +76,14 @@ pencil.dev/
 # Lock file Excel sementara
 ~$*
 
+# Agent working dirs (bukan bagian repo)
+.empryo/
+.opencode/
+architect-packs/
+planning/sprints/
+prompts/
+spj-frontend/src/utils/__tests__/
+
 # Data kerja user (bukan artefak repo, keputusan user 2026-09-14)
 template-data/BKU\ tahunan.pdf
 

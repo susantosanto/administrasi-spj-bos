@@ -5,7 +5,7 @@
 export default function EmptyState({ icon = 'inbox', title, description, actionLabel, onAction }) {
   return (
     <div className="p-xl text-center flex flex-col items-center">
-      <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/10 flex items-center justify-center mb-4">
         <span className="material-symbols-outlined text-3xl text-slate-400" aria-hidden="true">{icon}</span>
       </div>
       <p className="text-sm font-semibold text-text-high mb-1">{title}</p>

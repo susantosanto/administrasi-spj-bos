@@ -82,7 +82,7 @@ export default function MaminPesananRincian({ formData = {}, setFormData, baku =
   const warisan = rows.map((r, i) => ({ ...r, _idx: i })).filter((r) => r.seksi && r.seksi !== 'Nasi Box' && r.seksi !== 'Snack Box')
 
   const barisItem = (row) => (
-    <tr key={row.id} className="border-t border-slate-100 hover:bg-slate-50/70 transition-colors">
+    <tr key={row.id} className="border-t border-slate-100 dark:border-transparent hover:bg-slate-50 dark:hover:bg-white/5/70 transition-colors">
       <td className="px-2 py-1 text-[10px] font-semibold text-slate-400 tabular-nums">{row._idx + 1}</td>
       <td className="px-1 py-0.5">
         <input type="text" value={row.uraian || ''} onChange={(e) => ubahRow(row.id, 'uraian', e.target.value)} placeholder="Uraian" className={SEL} />
@@ -103,17 +103,17 @@ export default function MaminPesananRincian({ formData = {}, setFormData, baku =
 
   const barisGrup = (judul) => (
     <tr>
-      <td colSpan={5} className="px-2 pt-3 pb-1 text-[9px] font-bold uppercase tracking-wider text-slate-500">{judul}</td>
+      <td colSpan={5} className="px-2 pt-3 pb-1 text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{judul}</td>
     </tr>
   )
 
   return (
-    <div className="rounded-xl border border-slate-200 overflow-hidden">
-      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Rincian Pesanan</span>
+    <div className="rounded-xl border border-slate-200 dark:border-transparent overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-transparent">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Rincian Pesanan</span>
         <div className="flex items-center gap-1.5">
           {rows.length === 0 && (
-            <button type="button" onClick={isiMenuBaku} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 text-[10px] font-semibold hover:border-primary/40 hover:text-primary transition-all">
+            <button type="button" onClick={isiMenuBaku} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 text-[10px] font-semibold hover:border-primary/40 hover:text-primary transition-all">
               <span className="material-symbols-outlined text-xs">restaurant_menu</span> Isi menu baku
             </button>
           )}
@@ -123,9 +123,9 @@ export default function MaminPesananRincian({ formData = {}, setFormData, baku =
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-slate-100">
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-slate-100 dark:border-transparent">
         {SEKSI.map((s) => (
-          <label key={s.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-semibold cursor-pointer transition-all ${aktif(s.id) ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+          <label key={s.id} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-semibold cursor-pointer transition-all ${aktif(s.id) ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-transparent text-slate-400'}`}>
             <input type="checkbox" checked={aktif(s.id)} onChange={() => setSeksi(s.id, !aktif(s.id))} className="w-3 h-3 accent-primary" />
             {s.label}
           </label>
@@ -146,7 +146,7 @@ export default function MaminPesananRincian({ formData = {}, setFormData, baku =
             <col style={{ width: '32px' }} />
           </colgroup>
           <thead>
-            <tr className="border-b border-slate-200 bg-white">
+            <tr className="border-b border-slate-200 dark:border-transparent bg-white dark:bg-slate-900">
               <th className={TH}>No</th>
               <th className={TH}>Uraian</th>
               <th className={`${TH} text-center`}>Satuan</th>

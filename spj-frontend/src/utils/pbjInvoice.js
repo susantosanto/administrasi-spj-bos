@@ -23,7 +23,7 @@ import { parseInvoiceSIPLah, terapkanPrefillPbj } from './aturanPbj'
 /** Kategori BKU yang mendapat fitur upload invoice di sidebar (permintaan user
  * Sprint 020: mamin, atk, konsumsi, pemeliharaan, perjalanan dinas — konsumsi
  * dipetakan ke 'mamin' oleh bkuKategori). Honor TIDAK termasuk. */
-export const KATEGORI_UPLOAD_PBJ = ['mamin', 'atk', 'pemeliharaan', 'perjalanan_dinas']
+export const KATEGORI_UPLOAD_PBJ = ['mamin', 'atk', 'pemeliharaan', 'perjalanan_dinas', 'buku']
 
 const BULAN_ID_PBJ = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
 

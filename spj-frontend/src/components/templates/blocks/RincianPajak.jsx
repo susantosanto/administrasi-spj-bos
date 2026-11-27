@@ -15,17 +15,20 @@
  */
 import { formatTanggalContoh } from '../../../utils/dokKas'
 import { getNamaKegiatan } from '../../../data/kodeReferensi'
+import { uraianPajakTampil } from '../../../utils/dokPajak'
 
 const angka = (n) => (Number(n) || 0).toLocaleString('id-ID')
 const tgl = (iso) => (iso ? formatTanggalContoh(iso) : '')
 
-/** Ambil uraian yang tampil: nama kegiatan dari kodeKegiatan kalau ada, else uraian BKU. */
+/** Uraian yang tampil: diawali TEPAT SATU label nama kegiatan sumber
+ *  (Sprint 030, AC-32) — tanpa duplikat bila uraian BKU sudah memuatnya. */
 function uraianTampil(r) {
+  let nama = ''
   if (r._kodeKegiatan) {
-    const nama = getNamaKegiatan(r._kodeKegiatan)
-    if (nama && nama !== r._kodeKegiatan) return nama
+    const n = getNamaKegiatan(r._kodeKegiatan)
+    if (n && n !== r._kodeKegiatan) nama = n
   }
-  return r.uraian || ''
+  return uraianPajakTampil(r, nama)
 }
 
 export default function RincianPajak({ blockConfig, data = {} }) {
@@ -87,7 +90,7 @@ export default function RincianPajak({ blockConfig, data = {} }) {
         <tbody>
           {rows.length === 0 && (
             <tr>
-              <td colSpan={16} className="td-pajak text-center text-slate-500">
+              <td colSpan={16} className="td-pajak text-center text-slate-500 dark:text-slate-400">
                 Belum ada transaksi pajak di BKU — baris terisi otomatis setelah data BKU diunggah.
               </td>
             </tr>

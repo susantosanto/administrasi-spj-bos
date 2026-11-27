@@ -255,7 +255,7 @@ export default function LicenseCardModal({ open, data, onClose, onDashboard }) {
       style={{ backgroundColor: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)' }}
     >
       <div className="absolute inset-0 pointer-events-none opacity-[0.22]" style={{ backgroundImage: "url('/floral-pattern.jpg')", backgroundSize: '360px 360px', backgroundRepeat: 'repeat', mixBlendMode: 'multiply' }} aria-hidden="true" />
-      <div className="relative w-full max-w-[520px] rounded-2xl bg-white shadow-2xl overflow-hidden animate-fade-up">
+      <div className="relative w-full max-w-[520px] rounded-2xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden animate-fade-up">
         <div className="bg-[#2457A7] px-6 py-5 text-white">
           <div className="flex items-start gap-3">
             <span className="material-symbols-outlined text-4xl text-emerald-300">check_circle</span>
@@ -268,14 +268,14 @@ export default function LicenseCardModal({ open, data, onClose, onDashboard }) {
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-3 text-[13px] text-slate-700">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+        <div className="px-6 py-5 space-y-3 text-[13px] text-slate-700 dark:text-slate-200">
+          <div className="rounded-xl border border-slate-200 dark:border-transparent bg-slate-50 dark:bg-white/5 p-4 space-y-2">
             <Row label="Sekolah" value={data.schoolName} />
             <Row label="NPSN" value={data.npsn} />
             <Row label="Kode Lisensi" value={data.licenseCode} mono />
             <Row label="Status" value={data.status} />
             <Row label="Berlaku Sampai" value={fmtDate(data.endDate)} />
-            <div className="border-t border-slate-200 pt-2 mt-2 space-y-2">
+            <div className="border-t border-slate-200 dark:border-transparent pt-2 mt-2 space-y-2">
               <Row label="Username" value={data.username} mono />
               <Row label="Password" value={data.password} mono />
             </div>
@@ -289,7 +289,7 @@ export default function LicenseCardModal({ open, data, onClose, onDashboard }) {
             <button
               type="button"
               onClick={handlePrint}
-              className="h-11 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 font-semibold text-slate-700 transition flex items-center justify-center gap-2"
+              className="h-11 rounded-xl border border-slate-200 dark:border-transparent bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-white/5 font-semibold text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-[18px]">print</span>
               Cetak Kartu
@@ -311,7 +311,7 @@ export default function LicenseCardModal({ open, data, onClose, onDashboard }) {
           >
             Buka Dashboard
           </button>
-          <button type="button" onClick={onClose} className="w-full text-[12px] text-slate-500 hover:underline pt-1">
+          <button type="button" onClick={onClose} className="w-full text-[12px] text-slate-500 dark:text-slate-400 hover:underline pt-1">
             Tutup dan periksa nanti
           </button>
         </div>
@@ -323,8 +323,8 @@ export default function LicenseCardModal({ open, data, onClose, onDashboard }) {
 function Row({ label, value, mono }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-slate-500">{label}</span>
-      <span className={`text-right font-medium text-slate-900 ${mono ? 'font-mono' : ''}`}>{value || '—'}</span>
+      <span className="text-slate-500 dark:text-slate-400">{label}</span>
+      <span className={`text-right font-medium text-slate-900 dark:text-white ${mono ? 'font-mono' : ''}`}>{value || '—'}</span>
     </div>
   )
 }

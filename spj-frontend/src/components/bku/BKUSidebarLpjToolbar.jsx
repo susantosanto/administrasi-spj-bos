@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BKUSidebarLpjToolbar — konteks baris + dropdown NoBukti mirip + tombol Simpan
  * (Sprint 018, dipisah dari `BKUSidebarLpj.jsx` agar file komponen ≤200 baris).
  *
@@ -25,14 +25,14 @@ export default function BKUSidebarLpjToolbar({
 }) {
   const kurang = pelanggaran.length
   return (
-    <div className="sticky top-16 z-10 bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 flex items-center gap-3 flex-wrap">
+    <div className="sticky top-16 z-10 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm px-4 py-3 flex items-center gap-3 flex-wrap">
       <div className="min-w-0 flex-1">
         <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Dokumen untuk baris ini</p>
-        <p className="text-sm font-bold text-slate-800 truncate" title={transaction?.uraian || ''}>
+        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={transaction?.uraian || ''}>
           {transaction?.noBukti ? `#${transaction.noBukti}` : 'Tanpa No Bukti'}
-          <span className="font-normal text-slate-500"> · {transaction?.tanggalStr || '-'}</span>
+          <span className="font-normal text-slate-500 dark:text-slate-400"> · {transaction?.tanggalStr || '-'}</span>
           {transaction?.pengeluaran ? (
-            <span className="font-normal text-slate-500"> · {rp(transaction.pengeluaran)}</span>
+            <span className="font-normal text-slate-500 dark:text-slate-400"> · {rp(transaction.pengeluaran)}</span>
           ) : null}
         </p>
         <p className="text-[11px] text-slate-400 truncate" title={transaction?.uraian || ''}>{transaction?.uraian || '-'}</p>
@@ -46,7 +46,7 @@ export default function BKUSidebarLpjToolbar({
             <button
               onClick={() => onSorot(pelanggaran[0])}
               title="Klik untuk menuju field pertama yang belum terisi"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-[11px] font-semibold text-slate-600 hover:border-slate-400 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5 transition-colors"
             >
               <span className="material-symbols-outlined text-sm">error_outline</span>
               {kurang} field wajib belum terisi
@@ -70,7 +70,7 @@ export default function BKUSidebarLpjToolbar({
         />
 
         {savedAt && (
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
             Tersimpan {new Date(savedAt).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
           </span>
         )}
@@ -81,7 +81,7 @@ export default function BKUSidebarLpjToolbar({
           title={bisaSimpan ? 'Simpan dokumen untuk NoBukti ini' : 'Baris tanpa No Bukti tidak bisa disimpan'}
           className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
             bisaSimpan
-              ? 'bg-primary text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95'
+              ? 'bg-primary text-white active:scale-95'
               : 'bg-slate-200 text-slate-400 cursor-not-allowed'
           }`}
         >

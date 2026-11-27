@@ -2,7 +2,6 @@ import { useState } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
-import { requireWrite } from '../../services/licenseService'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
 import { agregatRealisasi, denganKoreksi } from '../../utils/realisasiAgregat'
 import { KOMPONEN, SNP_ROWS } from '../../utils/realisasiPeta'
@@ -45,7 +44,6 @@ function MatriksRealisasi({ toast }) {
   const docs = realisasiDocs({ tahun, tahap, txs, koreksi, sumberDana, periode })
 
   const simpanKoreksi = (key, nilai) => {
-    if (!requireWrite(toast)) return
     const next = { ...storageHelper.get('spj_realisasi_koreksi', {}) }
     const penuh = `${tahun}-${tahap}-${key}`
     if (nilai === '' || nilai == null) delete next[penuh]
@@ -54,7 +52,6 @@ function MatriksRealisasi({ toast }) {
     setSegar((v) => v + 1)
   }
   const simpanMeta = (key, nilai) => {
-    if (!requireWrite(toast)) return
     const semua = storageHelper.get('spj_realisasi_meta', {})
     const k = `${tahun}-${tahap}`
     storageHelper.set('spj_realisasi_meta', { ...semua, [k]: { ...(semua[k] || {}), [key]: nilai } })
@@ -62,42 +59,42 @@ function MatriksRealisasi({ toast }) {
   }
 
   return (
-    <div className="glass-surface rounded-2xl overflow-hidden">
-      <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-100">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-transparent overflow-hidden">
+      <div className="flex flex-wrap items-center gap-2 p-4 border-b border-slate-100 dark:border-transparent">
         <span className="material-symbols-outlined text-primary">table_chart</span>
-        <h2 className="text-sm font-bold text-slate-900">Matriks Realisasi Dana</h2>
+        <h2 className="text-sm font-bold text-slate-900 dark:text-white">Matriks Realisasi Dana</h2>
         <div className="flex gap-1 ml-2">
           {[2025, 2026, 2027].map((t) => (
             <button key={t} onClick={() => setTahun(String(t))}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${String(t) === tahun ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>{t}</button>
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${String(t) === tahun ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>{t}</button>
           ))}
         </div>
         <div className="flex gap-1">
           {[1, 2].map((t) => (
             <button key={t} onClick={() => setTahap(t)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${t === tahap ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>Tahap {t}</button>
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold ${t === tahap ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>Tahap {t}</button>
           ))}
         </div>
-        <span className={`ml-auto text-[11px] font-bold px-2.5 py-1 rounded-full ${ag.selisih === 0 ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'}`}>
+        <span className={`ml-auto text-[11px] font-bold px-2.5 py-1 rounded-full ${ag.selisih === 0 ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>
           {ag.selisih === 0 ? `Seimbang · Rp ${fmtRp(ag.total)}` : `Selisih Rp ${fmtRp(ag.selisih)}`}
         </span>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 px-4 pt-3">
-        <label className="block text-xs text-slate-600">Sumber Dana
+        <label className="block text-xs text-slate-600 dark:text-slate-300">Sumber Dana
           <input value={sumberDana} onChange={(e) => simpanMeta('sumberDana', e.target.value)} placeholder="BOS Reguler …"
-            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" />
+            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" />
         </label>
-        <label className="block text-xs text-slate-600">Periode (otomatis dari BKU)
+        <label className="block text-xs text-slate-600 dark:text-slate-300">Periode (otomatis dari BKU)
           <input value={periode} onChange={(e) => simpanMeta('periode', e.target.value)} placeholder="01 Januari … s/d …"
-            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" />
+            className="mt-1 w-full px-3 py-2 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" />
         </label>
       </div>
 
       <div className="p-4 overflow-x-auto">
         <table className="w-full text-[11px] border-collapse">
           <thead>
-            <tr className="bg-slate-50 text-slate-500">
+            <tr className="bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400">
               <th className="px-2 py-1.5 text-left">SNP</th>
               {KOMPONEN.map((k, i) => <th key={i} className="px-1 py-1 text-right font-medium" title={k}>{i + 1}</th>)}
               <th className="px-2 py-1.5 text-right">Jumlah</th>
@@ -105,8 +102,8 @@ function MatriksRealisasi({ toast }) {
           </thead>
           <tbody>
             {ag.matrix.map((row, i) => (
-              <tr key={i} className="border-t border-slate-100">
-                <td className="px-2 py-1.5 text-slate-700" title={SNP_ROWS[i]}>{SNP_ROWS[i].split(' ').slice(0, 2).join(' ')}</td>
+              <tr key={i} className="border-t border-slate-100 dark:border-transparent">
+                <td className="px-2 py-1.5 text-slate-700 dark:text-slate-200" title={SNP_ROWS[i]}>{SNP_ROWS[i].split(' ').slice(0, 2).join(' ')}</td>
                 {row.map((v, k) => {
                   const key = `${i}-${k}`
                   const dikoreksi = koreksi[key] != null && koreksi[key] !== ''
@@ -123,7 +120,7 @@ function MatriksRealisasi({ toast }) {
                           className="inline-flex items-center gap-0.5 hover:text-primary">
                           {fmtRp(v)}
                           {dikoreksi && <span onClick={(e) => { e.stopPropagation(); simpanKoreksi(key, ''); }} title="Kembali ke angka BKU"
-                            className="text-[10px] text-slate-400 hover:text-slate-700 px-0.5">×</span>}
+                            className="text-[10px] text-slate-400 hover:text-slate-700 dark:text-slate-200 px-0.5">×</span>}
                         </button>
                       )}
                     </td>
@@ -141,19 +138,19 @@ function MatriksRealisasi({ toast }) {
         </table>
         <p className="text-[10px] text-slate-400 mt-2">Klik angka untuk koreksi manual (latar biru = terkoreksi, × = kembali ke BKU). Kolom 1–12 = komponen PDF.</p>
         {ag.belum.length > 0 && (
-          <p className="text-[11px] text-slate-500 mt-1">Belum dipetakan ({ag.belum.length} baris): {ag.belum.slice(0, 3).map((b) => b.uraian).join('; ')}{ag.belum.length > 3 ? '…' : ''}</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Belum dipetakan ({ag.belum.length} baris): {ag.belum.slice(0, 3).map((b) => b.uraian).join('; ')}{ag.belum.length > 3 ? '…' : ''}</p>
         )}
       </div>
 
       <div className="px-4 pb-4">
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h3>
+        <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Panel Preview Document</h3>
         {docs.length > 0 ? (
           <PanelPreviewDocument title={`Realisasi Dana Tahap ${tahap} ${tahun}`} docs={docs}
             status={{ perlu: 0, violations: [] }} cetakAktif
             onCek={() => toast.success(ag.selisih === 0 ? 'LENGKAP — siap cetak' : `Selisih Rp ${fmtRp(ag.selisih)}`)}
             onCetak={() => window.print()} />
         ) : (
-          <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">Belum ada data tahap ini di BKU.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl px-4 py-3">Belum ada data tahap ini di BKU.</p>
         )}
       </div>
     </div>

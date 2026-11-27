@@ -68,6 +68,37 @@ export const CARDS = [
     ],
   },
   {
+    // Sprint 030 (US-09): alur dokumen Lomba & Workshop — Undangan,
+    // Proposal, Surat Tugas, Daftar Hadir. Pemetaan kategori BKU ke kartu
+    // ini TIDAK ditambahkan (route BKU = keputusan terbuka, lihat
+    // BUILD-REPORT sprint-030); kartu diakses dari halaman Dokumen LPJ.
+    id: 'lomba_workshop',
+    nama: 'Lomba & Workshop',
+    deskripsi: 'Undangan, Proposal, Surat Tugas, Daftar Hadir',
+    kategori: 'BKU Utama',
+    icon: 'emoji_events',
+    hasTemplate: true,
+    subKategori: [
+      { id: 'undangan', label: 'Undangan', templateId: 'undangan_lomba' },
+      // KUNCI 2026-11-26: Proposal masih dalam pengembangan — comingSoon
+      // menyembunyikannya dari pemilih sub + default (lpjSidebarMuat),
+      // templateId null = tak ada dokumen yang bisa dibangun.
+      { id: 'proposal', label: 'Proposal', templateId: null, comingSoon: true },
+      { id: 'surat_tugas', label: 'Surat Tugas', templateId: 'surat_tugas_lomba' },
+      { id: 'daftar_hadir', label: 'Daftar Hadir', templateId: 'daftar_hadir_lomba' },
+    ],
+  },
+  {
+    id: 'buku',
+    nama: 'Buku & Bahan Ajar',
+    deskripsi: 'Buku, Modul, Bahan Praktek — hanya Dokumen Perencanaan PBJ',
+    kategori: 'BKU Utama',
+    icon: 'menu_book',
+    hasTemplate: true,
+    infoOnly: true,
+    infoItems: ['Rencana Pengadaan Buku', 'Arsip Invoice', 'Bukti Terima'],
+  },
+  {
     id: 'penggandaan',
     nama: 'Penggandaan',
     deskripsi: 'Master, Jumlah Lembar, Bukti Pembayaran',
@@ -98,8 +129,15 @@ export const CARDS = [
     deskripsi: 'Desain Banner, Bukti Pemasangan',
     kategori: 'Dokumen Pendukung',
     icon: 'panorama',
-    hasTemplate: false,
+    hasTemplate: true,
+    // Sprint 030 (US-11/AC-25): sub "Desain Spanduk" = pratinjau desain
+    // grafis 4 field (bukan bukti pemasangan). infoOnly tetap true —
+    // halaman LPJ memakai jalur DetailDokumenLpjInfo (TemplateEngine edit),
+    // tanpa panel penerima/form khusus.
     infoOnly: true,
+    subKategori: [
+      { id: 'desain', label: 'Desain Spanduk', templateId: 'spanduk_desain' },
+    ],
     infoItems: ['Desain Banner', 'Bukti Pemasangan'],
   },
   {
@@ -124,6 +162,15 @@ export const KATEGORI_KE_CARD = {
   mamin: 'mamin',
   atk: 'penggandaan',
   pemeliharaan: 'pemeliharaan',
+  // Sprint 030 (US-09): koreksi manual operator — transaksi lomba/workshop
+  // yang diarahkan manual ke kartu lomba_workshop membuka tab Dokumen LPJ
+  // di sidebar BKU (alur inti: upload BKU → detail transaksi). Mapping
+  // rekening otomatis tetap menunggu keputusan (blocker sprint-030).
+  lomba_workshop: 'lomba_workshop',
+  // Kunci 2026-11-26: 'buku' & 'operasional' adalah kategori info-only.
+  // 'buku' punya kartu (akses PBJ Perencanaan); 'operasional' TANPA kartu
+  // (cukup struk/nota/kwitansi) → isLpj=false → tab Detail + catatan info.
+  buku: 'buku',
 }
 
 /** Kartu LPJ untuk satu kategori BKU, atau null bila tidak ada / tanpa form. */

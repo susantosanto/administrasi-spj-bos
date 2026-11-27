@@ -148,17 +148,25 @@ export function gabungKonsumsi(rows = []) {
 }
 
 // Grup se-NoBukti (T2): suara terbanyak menang; seri → prioritas di bawah.
-export const DOMINAN_PRIORITAS = ['mamin', 'atk', 'honor', 'perjalanan_dinas', 'pemeliharaan', 'belum'];
+export const DOMINAN_PRIORITAS = ['mamin', 'atk', 'honor', 'perjalanan_dinas', 'pemeliharaan', 'lomba_workshop', 'buku', 'operasional', 'belum'];
 
 export function kelompokSeNoBukti(rows) {
   rows = rows || [];
   const m = new Map();
-  for (const r of rows) {
+  rows.forEach((r, index) => {
     const nb = normKunci(r.noBukti);
-    const k = nb || ('row:' + (r.row != null ? r.row : Math.random()));
-    if (!m.has(k)) m.set(k, []);
-    m.get(k).push(r);
-  }
+    // Sprint 029 period guard stays: repeated NoBukti in another month/year
+    // is a different receipt group. Sprint 030 adds rekening + effective category.
+    const b = Number(r.bulan); const t = Number(r.tahun);
+    const per = (b >= 1 && b <= 12 && t) ? (`${t}-${String(b).padStart(2, '0')}`) : '';
+    const rekening = normKunci(r.kodeRekening) || 'tanpa-rekening';
+    const kategori = kategoriDenganKoreksi(r.kodeRekening, r.noBukti, r.tanggalISO || r.tanggalStr, r.row)?.kategori || 'belum';
+    const identitas = nb
+      ? [nb, per || 'periode-tidak-diketahui', rekening, kategori].join('||')
+      : `tanpa-bukti||${r.row ?? 'baris'}||${index}`;
+    if (!m.has(identitas)) m.set(identitas, []);
+    m.get(identitas).push(r);
+  });
   const out = [];
   for (const entry of m) {
     const k = entry[0]; const list = entry[1];
@@ -166,6 +174,13 @@ export function kelompokSeNoBukti(rows) {
     for (const r of list) total += nominalTx(r);
     out.push({ key: k, noBukti: list[0].noBukti || '', rows: list, total: total });
   }
+  // Sprint 029: urut grup kronologis (min tanggalISO anggotanya) agar daftar
+  // tahunan stabil seperti gabungan 12× bulanan, bukan urutan first-seen PDF.
+  const minIso = (g) => (g.rows || []).reduce((a, r) => {
+    const iso = r.tanggalISO || r.tanggalStr || '';
+    return (!a || iso < a) ? iso : a;
+  }, '');
+  out.sort((a, b) => (minIso(a) < minIso(b) ? -1 : minIso(a) > minIso(b) ? 1 : 0));
   return out;
 }
 
@@ -178,7 +193,7 @@ export function dominanKategoriGrup(rows) {
   const contoh = {};
   const kodeSet = new Set();
   for (const r of pemilih) {
-    const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti);
+    const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti, r.tanggalISO || r.tanggalStr, r.row);
     const kunci = (kat && kat.kategori) || 'belum';
     suara[kunci] = (suara[kunci] || 0) + 1;
     if (!contoh[kunci] && kat) contoh[kunci] = kat;

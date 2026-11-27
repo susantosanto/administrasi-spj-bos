@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DropdownNoBuktiMirip — lompat ke baris BKU yang "mirip" (Sprint 018, K-1…K-4).
  *
  * Kandidat = baris dengan `kodeRekening` + `kodeKegiatan` identik dan **bulan
@@ -44,8 +44,8 @@ export default function DropdownNoBuktiMirip({
         title={kandidat.length === 0 ? pesanKosong : 'Buka dokumen kegiatan yang sama pada periode lain'}
         className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
           kandidat.length === 0
-            ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed'
-            : 'bg-white text-slate-700 border-slate-200 hover:border-primary/40 hover:text-primary shadow-sm'
+            ? 'bg-slate-50 text-slate-400 border-slate-200 dark:border-transparent cursor-not-allowed'
+            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-transparent hover:border-primary/40 hover:text-primary shadow-sm'
         }`}
       >
         <span className="material-symbols-outlined text-base">content_copy</span>
@@ -58,10 +58,10 @@ export default function DropdownNoBuktiMirip({
       {open && kandidat.length > 0 && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-80 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-              <p className="text-[11px] font-bold text-slate-700">Kegiatan serupa · periode berbeda</p>
-              <p className="text-[10px] text-slate-500">Kode rekening dan kode kegiatan sama. Pilih untuk melanjutkan tanpa mengisi ulang.</p>
+          <div className="absolute right-0 z-50 mt-2 w-80 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-100 dark:border-transparent bg-slate-50 dark:bg-white/5">
+              <p className="text-[11px] font-bold text-slate-700 dark:text-slate-200">Kegiatan serupa · periode berbeda</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Kode rekening dan kode kegiatan sama. Pilih untuk melanjutkan tanpa mengisi ulang.</p>
             </div>
             <div className="max-h-64 overflow-y-auto">
               {kandidat.map((k) => (
@@ -69,9 +69,9 @@ export default function DropdownNoBuktiMirip({
                   key={k.row}
                   type="button"
                   onClick={() => pilih(k)}
-                  className="w-full text-left px-4 py-2.5 hover:bg-primary/5 border-b border-slate-100 last:border-0 transition-colors"
+                  className="w-full text-left px-4 py-2.5 hover:bg-primary/5 border-b border-slate-100 dark:border-transparent last:border-0 transition-colors"
                 >
-                  <span className="block text-xs font-semibold text-slate-800">{labelKandidat(k)}</span>
+                  <span className="block text-xs font-semibold text-slate-800 dark:text-slate-100">{labelKandidat(k)}</span>
                   {k.noBukti ? (
                     <span className="block text-[10px] text-slate-400">No Bukti {k.noBukti}</span>
                   ) : null}
@@ -85,10 +85,10 @@ export default function DropdownNoBuktiMirip({
       {tunda && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/30" onClick={() => setTunda(null)} />
-          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-100 p-5 space-y-4">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-transparent p-5 space-y-4">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Isian belum disimpan</h3>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Isian belum disimpan</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                 Simpan dulu isian untuk NoBukti <strong>{transaction?.noBukti || '—'}</strong> sebelum berpindah ke{' '}
                 <strong>{labelKandidat(tunda)}</strong>?
               </p>
@@ -97,7 +97,7 @@ export default function DropdownNoBuktiMirip({
               <button
                 type="button"
                 onClick={() => setTunda(null)}
-                className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 rounded-lg transition-colors"
               >
                 Batal
               </button>
@@ -109,7 +109,7 @@ export default function DropdownNoBuktiMirip({
                     setTunda(null)
                     onSimpanLaluPilih(k)
                   }}
-                  className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
+                  className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg transition-all"
                 >
                   Simpan &amp; Pindah
                 </button>

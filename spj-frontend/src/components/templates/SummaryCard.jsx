@@ -72,26 +72,26 @@ export default function SummaryCard({ title, icon = 'list_alt', sections = [], p
   const lengkap = status ? status.perlu === 0 : null
 
   return (
-    <div ref={panelRef} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-4">
+    <div ref={panelRef} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm overflow-hidden lg:sticky lg:top-4">
       <style>{`.sprint008-sorot{outline:3px dashed #004ac6 !important;outline-offset:2px;border-radius:0.75rem}
 .sprint008-dot{width:8px;height:8px;border-radius:9999px;background-color:#004ac6;animation:sprint008-pulse 1.6s ease-in-out infinite}
 @keyframes sprint008-pulse{0%,100%{opacity:1}50%{opacity:0.25}}
 @media (prefers-reduced-motion: reduce){.sprint008-dot{animation:none}}`}</style>
       {title && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-primary/5 border-b border-slate-200">
+        <div className="flex items-center gap-2 px-4 py-3 bg-primary/5 border-b border-slate-200 dark:border-transparent">
           <span className="material-symbols-outlined text-primary">{icon}</span>
-          <span className="text-sm font-bold text-slate-800">{title}</span>
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{title}</span>
         </div>
       )}
       {/* ─── Sprint 008 Zona B: bar status panel (screen-only, tak ikut cetak) ─── */}
       {status && (
-        <div className="print:hidden px-4 py-3 border-b border-slate-100 space-y-2">
+        <div className="print:hidden px-4 py-3 border-b border-slate-100 dark:border-transparent space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold min-h-[44px] sm:min-h-0 ${lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-700'}`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold min-h-[44px] sm:min-h-0 ${lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200'}`}>
               <span className="material-symbols-outlined text-sm">{lengkap ? 'check_circle' : 'pending'}</span>
               {lengkap ? 'LENGKAP' : `${status.perlu}-PERLU-DIISI`}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500" aria-live="polite">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400" aria-live="polite">
               <span className="sprint008-dot" aria-hidden="true" />
               DIPERBARUI OTOMATIS
             </span>
@@ -107,30 +107,30 @@ export default function SummaryCard({ title, icon = 'list_alt', sections = [], p
             </button>
             {zoomable && (
               <div className="inline-flex items-center gap-1" role="group" aria-label="Kontrol zoom panel">
-                <button type="button" onClick={zoomOut} disabled={zoom <= 0.5} aria-label="Perkecil panel" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+                <button type="button" onClick={zoomOut} disabled={zoom <= 0.5} aria-label="Perkecil panel" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 disabled:opacity-40 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
                   <span className="material-symbols-outlined">zoom_out</span>
                 </button>
-                <span className="text-[11px] font-bold text-slate-500 w-11 text-center" aria-live="polite">{Math.round(zoom * 100)}%</span>
-                <button type="button" onClick={zoomIn} disabled={zoom >= 1.5} aria-label="Perbesar panel" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 w-11 text-center" aria-live="polite">{Math.round(zoom * 100)}%</span>
+                <button type="button" onClick={zoomIn} disabled={zoom >= 1.5} aria-label="Perbesar panel" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 disabled:opacity-40 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
                   <span className="material-symbols-outlined">zoom_in</span>
                 </button>
-                <button type="button" onClick={() => setZoom(1)} aria-label="Reset zoom 100 persen" className="inline-flex items-center justify-center h-11 px-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+                <button type="button" onClick={() => setZoom(1)} aria-label="Reset zoom 100 persen" className="inline-flex items-center justify-center h-11 px-3 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
                   Reset
                 </button>
-                <button type="button" onClick={bukaFullscreen} aria-label="Panel layar penuh" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
+                <button type="button" onClick={bukaFullscreen} aria-label="Panel layar penuh" className="inline-flex items-center justify-center w-11 h-11 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-primary">
                   <span className="material-symbols-outlined">fullscreen</span>
                 </button>
               </div>
             )}
           </div>
           {fsGagal && (
-            <p className="text-[11px] text-slate-500">Layar penuh ditolak browser — tampilan tetap {Math.round(zoom * 100)}%.</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Layar penuh ditolak browser — tampilan tetap {Math.round(zoom * 100)}%.</p>
           )}
         </div>
       )}
       <div className="p-4 space-y-4" style={zoomable && zoom !== 1 ? { transform: `scale(${zoom})`, transformOrigin: 'top left' } : undefined}>
         {sections.length === 0 && (
-          <p className="text-sm text-slate-500">Belum ada data. Isi form terlebih dahulu.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada data. Isi form terlebih dahulu.</p>
         )}
         {sections.map((s, i) => (
           <div key={s.title || i}>
@@ -141,19 +141,19 @@ export default function SummaryCard({ title, icon = 'list_alt', sections = [], p
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                 {s.fields.map((f, j) => (
                   <div key={f.label || j} className="flex gap-2 text-sm">
-                    <dt className="w-32 shrink-0 text-slate-500">{f.label}</dt>
-                    <dd className="flex-1 font-medium text-slate-800 break-words">{show(f.value)}</dd>
+                    <dt className="w-32 shrink-0 text-slate-500 dark:text-slate-400">{f.label}</dt>
+                    <dd className="flex-1 font-medium text-slate-800 dark:text-slate-100 break-words">{show(f.value)}</dd>
                   </div>
                 ))}
               </dl>
             )}
             {s.table && (s.table.rows || []).length > 0 && (
-              <div className="mt-2 overflow-auto rounded-xl border border-slate-200">
+              <div className="mt-2 overflow-auto rounded-xl border border-slate-200 dark:border-transparent">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50">
+                    <tr className="bg-slate-50 dark:bg-white/5">
                       {(s.table.columns || []).map((c) => (
-                        <th key={c.key} className="px-3 py-2 text-left text-[11px] font-bold text-slate-500 uppercase">
+                        <th key={c.key} className="px-3 py-2 text-left text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                           {c.label}
                         </th>
                       ))}
@@ -161,9 +161,9 @@ export default function SummaryCard({ title, icon = 'list_alt', sections = [], p
                   </thead>
                   <tbody>
                     {s.table.rows.map((r, k) => (
-                      <tr key={r.id || k} className="border-t border-slate-100">
+                      <tr key={r.id || k} className="border-t border-slate-100 dark:border-transparent">
                         {(s.table.columns || []).map((c) => (
-                          <td key={c.key} className="px-3 py-2 text-slate-800">
+                          <td key={c.key} className="px-3 py-2 text-slate-800 dark:text-slate-100">
                             {c.key === 'no' ? r[c.key] ?? k + 1 : show(r[c.key])}
                           </td>
                         ))}

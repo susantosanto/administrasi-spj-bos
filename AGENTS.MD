@@ -25,11 +25,18 @@
    `planning/sprints/sprint-022/KEPUTUSAN-DIKUNCI.MD`** (keputusan beku: provider, model,
    harga, kuota, larangan). File ini mengikat sebelum menyentuh `imageGenerator.js`,
    `DokumentasiAIGenerate.jsx`, `SidebarPbj.jsx`, `puterAkun.js`.
+8. **Fitur AI generate dokumen/foto → WAJIB baca juga
+   `docs/KEPUTUSAN-SEMENTARA-KUOTA-AI-DARI-BKU.MD`** (K-S1…K-S6: peta kebutuhan dari BKU,
+   aturan pemotongan kuota, UX kuota "invisible until it matters"). File ini DIKUNCI sebagai
+   satu-satunya titik rujukan kuota AI — riset/keputusan baru wajib merujuk ke sana, dan
+   bila ada keputusan lain yang mengubahnya, file itu yang diperbarui (entri revisi), bukan
+   diganti file baru.
 
 ## Aturan Builder
 - DILARANG mulai coding tanpa architect pack
 - **Fitur AI generate dokumen: DILARANG coding sebelum membaca `KEPUTUSAN-DIKUNCI.MD`
-  (sprint-022). Deviasi wajib disetujui user + dicatat di `DECISIONS.MD`.**
+  (sprint-022) DAN `docs/KEPUTUSAN-SEMENTARA-KUOTA-AI-DARI-BKU.MD` (K-S1…K-S6).
+  Deviasi wajib disetujui user + dicatat di `DECISIONS.MD`.**
 - SELALU dry run dulu → laporkan rencana → TUNGGU persetujuan
 - SELALU berikan bukti (test output asli, screenshot), bukan klaim
 - DILARANG mengubah requirements tanpa persetujuan

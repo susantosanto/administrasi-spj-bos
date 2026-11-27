@@ -19,7 +19,7 @@ export function muatAwalSidebar({ card, transaction, bkuPrefill, ctxOtomatis }) 
   if (!card) return null
   const entri = bacaEntri(card.id, transaction?.noBukti)
   if (entri) {
-    const sub = card.subKategori?.find((s) => s.id === entri.subId)
+    const sub = card.subKategori?.find((s) => s.id === entri.subId && !s.comingSoon)
       || card.subKategori?.find((s) => !s.comingSoon) || null
     return {
       sub,

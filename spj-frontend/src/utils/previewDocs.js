@@ -16,6 +16,7 @@ import { ringkasanKasPerBulan, bulanNameToNum, teksTanggalPanjang, formatTanggal
 import { agregatRealisasi, denganKoreksi, ringkasTahap, KOMPONEN as KOMPONEN_R, SNP_ROWS as SNP_R } from './realisasiAgregat'
 import { barisPajakDariBku, tahunPajak, totalKolomPajak } from './dokPajak'
 import { TEMPAT_TTD } from './tempatTtd'
+import { jumlahPesertaNotulen } from './jumlahPeserta'
 
 const isKosong = (v) => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0)
 const docPbjKosong = (d = {}) => Object.values(d).every(isKosong)
@@ -103,7 +104,11 @@ function maminDocs(formData, sig) {
     ...TEMPLATE_CONFIGS.notulen.defaults, ...formData, nomor: formData.nomor,
     tanggal: formData.tanggal, waktu: formData.waktu, tempat: formData.tempat, acara: formData.acara,
     pimpinan: formData.pimpinan, pembuka: formData.pembuka, notulen: formData.notulen,
-    peserta: formData.peserta || rows.map((r) => r.nama).filter(Boolean).join(', '),
+    peserta: jumlahPesertaNotulen({
+      pesertaJumlah: formData.pesertaJumlah,
+      peserta: formData.peserta || rows.map((r) => r.nama).filter(Boolean).join(', '),
+      rows,
+    }),
     // TTD notulen: ketikan user → Data Sekolah (live) → '' (mirror area cetak).
     ttd_pimpinan_nama: formData.ttd_pimpinan_nama || sig['pimpinan']?.nama || '',
     ttd_pimpinan_nip: formData.ttd_pimpinan_nip || sig['pimpinan']?.nip || '',
@@ -613,8 +618,49 @@ export function buildPreviewDocs({ cardId, templateId, subId, formData = {}, spp
   return [...docsLpj, ...docsPbj.filter((d) => !dipakai.has(d.label))]
 }
 
+/**
+ * Lomba & Workshop — dokumen GABUNGAN (Aturan US-02 + pola transportDocs).
+ *
+ * Satu `formData` datar → satu daftar berisi:
+ *   Undangan + Surat Tugas + Daftar Hadir
+ * (Proposal TIDAK ikut: punya tab sendiri / konsep terpisah).
+ *
+ * Field antar dokumen sengaja TUMPANG TINDIH (namaKegiatan, tanggal,
+ * tempat) — satu isian dipakai bersama, seperti Undangan/Resume di
+ * transportDocs. Tidak ada namespace `dok_*` (sumber duplikat lama).
+ * Kunci `lomba-<sub>` stabil & unik → syncPrintSelection tidak reset.
+ */
+function lombaDocs(formData = {}, subIdAktif = null, sig = {}) {
+  // KUNCI 2026-11-26: Proposal masih dalam pengembangan → proposal SELALU
+  // kosong meski subId bocor dari state lama.
+  if (subIdAktif === 'proposal') {
+    return []
+  }
+
+  // Undangan + Surat Tugas + Daftar Hadir — satu isian, satu daftar.
+  const adaIsi = Object.values(formData || {}).some((v) => !(v === '' || v == null || (Array.isArray(v) && v.length === 0)))
+  if (!adaIsi) return []
+  const hasil = []
+  const und = TEMPLATE_CONFIGS.undangan_lomba
+  const spt = TEMPLATE_CONFIGS.surat_tugas_lomba
+  const hadir = TEMPLATE_CONFIGS.daftar_hadir_lomba
+
+  if (und) hasil.push({ key: 'lomba-undangan', label: und.label, templateConfig: und,
+    data: { ...und.defaults, ...formData } })
+  if (spt) hasil.push({ key: 'lomba-surat_tugas', label: spt.label, templateConfig: spt,
+    data: { ...spt.defaults, ...formData,
+      namaPenandatangan: formData.namaPenandatangan || sig['kepala-sekolah']?.nama || '',
+      nipPenandatangan: formData.nipPenandatangan || sig['kepala-sekolah']?.nip || '' } })
+  if (hadir) hasil.push({ key: 'lomba-daftar_hadir', label: hadir.label, templateConfig: hadir,
+    data: { ...hadir.defaults, ...formData,
+      kegiatan: formData.kegiatan || formData.namaKegiatan || '',
+      tanggal: formData.tanggal || formData.tanggalAcara || '' } })
+  return hasil
+}
+
 /** Dokumen LPJ saja (tanpa PBJ) — dipakai halaman LPJ & sidebar. */
 function buildDocsLpj({ cardId, templateId, subId, formData = {}, sppdData = {}, sig }) {
+  if (cardId === 'lomba_workshop') return lombaDocs(formData, subId, sig)
   if (cardId === 'mamin') return maminDocs(formData, sig)
   if (cardId === 'perjalanan_dinas') {
     if (!TEMPLATE_CONFIGS[templateId]) return []

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dokumen LPJ Page — Super Premium Accordion Concept 2026
  * 
  * Fitur:
@@ -39,6 +39,7 @@ export default function DokumenSPJPage() {
   // supaya MenuGuide sadar tab mana yang sedang aktif.
   const [formTab, setFormTab] = useState('daftar')
   const [previewTab, setPreviewTab] = useState('daftar')
+  const [printDocs, setPrintDocs] = useState([])
   // Riwayat tab yang pernah dikunjungi menu aktif — kunci "<menu>:<activeTab>"
   // + "<menu>:preview" (penanda "ringkasan sudah dilihat"). Ikut RESET bersih
   // seperti formData: data detail di-wipe saat tutup/ganti menu, centang ikut hilang.
@@ -318,23 +319,32 @@ export default function DokumenSPJPage() {
     if (!pertama) { toast.success('Lengkap — siap cetak'); return }
     if (!sorotPelanggaran(pertama)) toast.info(pertama.label)
   }
-  const handleCetakGate = () => {
-    // Tulis snapshot 1 slot terakhir (spj_otomatis_snapshot) lalu cetak.
-    // Revisi task 37: area cetak selalu render di form — cetak langsung,
-    // tanpa pindah mode preview dulu.
-    snapshotSebelumTimpa(
-      { ...formData, sppdData: { ...sppdData } },
-      [...new Set(Object.keys(formData))],
-      formData.bkuSumber?.noBukti || '',
-    )
-    const printContainer = document.querySelector('.sk-print-area .print-container')
-    if (printContainer) {
-      printContainer.classList.remove('portrait', 'landscape')
-      printContainer.classList.add(getTemplateConfig()?.orientation || 'portrait')
-    }
-    logActivity({ type: 'cetak', title: `Cetak ${getTemplateConfig()?.label || selectedCard?.nama || 'dokumen LPJ'}`, detail: formData.bkuSumber?.noBukti || '' })
-    window.print()
+  const handleCetakGate = (selectedDocs = previewDocs) => {
+    if (!Array.isArray(selectedDocs) || selectedDocs.length === 0) return
+    setPrintDocs(selectedDocs)
   }
+
+  useEffect(() => {
+    if (printDocs.length === 0) return undefined
+    let frame
+    const cetak = () => {
+      snapshotSebelumTimpa(
+        { ...formData, sppdData: { ...sppdData } },
+        [...new Set(Object.keys(formData))],
+        formData.bkuSumber?.noBukti || '',
+      )
+      logActivity({ type: 'cetak', title: `Cetak ${printDocs.map((doc) => doc.label).join(', ')}`, detail: formData.bkuSumber?.noBukti || '' })
+      window.print()
+    }
+    frame = window.requestAnimationFrame ? window.requestAnimationFrame(cetak) : setTimeout(cetak, 0)
+    const reset = () => setPrintDocs([])
+    window.addEventListener('afterprint', reset, { once: true })
+    return () => {
+      window.removeEventListener('afterprint', reset)
+      if (window.cancelAnimationFrame) window.cancelAnimationFrame(frame)
+      else clearTimeout(frame)
+    }
+  }, [printDocs, formData, sppdData])
 
   // ─── Print Handler ───────────────────────────────────────────────────────
   const handlePrint = () => {
@@ -398,23 +408,20 @@ export default function DokumenSPJPage() {
         <button
           key={card.id}
           onClick={() => handleCardClick(card)}
-          className={`group relative glass-surface rounded-2xl border-2 p-4 text-left transition-all duration-500 ease-out ${
+          className={`group relative bg-white dark:bg-slate-900 rounded-xl border-2 p-4 text-left transition-all duration-500 ease-out ${
             isSelected
               ? 'border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10 scale-[1.02]'
-              : 'border-slate-200 hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
+              : 'border-slate-200 dark:border-transparent hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
           }`}
         >
-          <div
-            data-card-icon={card.id}
-            className={`dokumen-lpj-card-icon w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ${
-              isSelected ? 'scale-110 shadow-md' : 'group-hover:scale-105'
-            }`}
-          >
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ${
+            isSelected ? 'bg-primary text-white scale-110' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 group-hover:scale-105'
+          }`}>
             <span className="material-symbols-outlined text-xl">{card.icon}</span>
           </div>
-          <h4 className="text-sm font-bold text-slate-800 mb-1">{card.nama}</h4>
-          <p className="text-[10px] text-slate-500 line-clamp-2">{card.deskripsi}</p>
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">{card.nama}</h4>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">{card.deskripsi}</p>
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-transparent flex items-center justify-between">
             <span className="text-[10px] font-medium text-slate-400">Informasi</span>
             <span className={`material-symbols-outlined text-sm transition-all duration-300 ${
               isSelected ? 'text-primary rotate-90' : 'text-slate-300 group-hover:translate-x-1'
@@ -431,10 +438,10 @@ export default function DokumenSPJPage() {
       <button
         key={card.id}
         onClick={() => handleCardClick(card)}
-        className={`group relative glass-surface rounded-2xl border-2 p-5 text-left transition-all duration-500 ease-out overflow-hidden ${
+        className={`group relative bg-white dark:bg-slate-900 rounded-2xl border-2 p-5 text-left transition-all duration-500 ease-out overflow-hidden ${
           isSelected
             ? 'border-primary ring-4 ring-primary/10 shadow-xl shadow-primary/15 scale-[1.02]'
-            : 'border-slate-200 hover:border-slate-300 hover:shadow-lg hover:scale-[1.01]'
+            : 'border-slate-200 dark:border-transparent hover:border-slate-300 hover:shadow-lg hover:scale-[1.01]'
         }`}
       >
         {/* Premium Glow Effect */}
@@ -445,17 +452,16 @@ export default function DokumenSPJPage() {
         {/* Top Row */}
         <div className="relative flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div
-              data-card-icon={card.id}
-              className={`dokumen-lpj-card-icon w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                isSelected ? 'scale-110 shadow-lg' : 'group-hover:scale-105'
-              }`}
-            >
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+              isSelected
+                ? 'bg-primary text-white'
+                : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300'
+            }`}>
               <span className="material-symbols-outlined text-2xl">{card.icon}</span>
             </div>
             <div>
-              <h4 className="text-base font-bold text-slate-800">{card.nama}</h4>
-              <p className="text-xs text-slate-500 mt-0.5">{card.deskripsi}</p>
+              <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">{card.nama}</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{card.deskripsi}</p>
             </div>
           </div>
         </div>
@@ -477,7 +483,7 @@ export default function DokumenSPJPage() {
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       : isDraft
                         ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-slate-50 text-slate-600 border border-slate-200'
+                        : 'bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-transparent'
                 }`}
               >
                 {isComplete && <span className="text-emerald-500">✓</span>}
@@ -530,6 +536,9 @@ export default function DokumenSPJPage() {
         onClose={handleCloseDetail}
         onCek={handleCekPanel}
         onCetak={handleCetakGate}
+        onCetakTerpilih={handleCetakGate}
+        centralizedPrint
+        printSnapshot={printDocs}
         onPrint={handlePrint}
         onAutoFill={handleAutoFill}
         previewDocs={previewDocs}
@@ -563,15 +572,15 @@ export default function DokumenSPJPage() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
-            <div className="w-1.5 h-6 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">BKU Utama</h3>
-            <span className="text-xs text-slate-500">— Dokumen utama pertanggungjawaban</span>
+            <div className="w-1.5 h-6 bg-primary rounded-full" />
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">BKU Utama</h3>
+            <span className="text-xs text-slate-500 dark:text-slate-400">— Dokumen utama pertanggungjawaban</span>
           </div>
           <div className="flex justify-end">
             <button
               type="button"
               onClick={handleResetDokumenLpj}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-500 hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-transparent text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
               title="Buang seluruh data dokumen LPJ lama (skema baru) — Data Sekolah tidak ikut terhapus"
             >
               <span className="material-symbols-outlined text-sm">restart_alt</span>
@@ -590,8 +599,8 @@ export default function DokumenSPJPage() {
         <div className="space-y-4 w-full">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-6 bg-gradient-to-b from-slate-400 to-slate-500 rounded-full" />
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Dokumen Pendukung</h3>
-            <span className="text-xs text-slate-500">— Informasi tambahan dan blanko</span>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Dokumen Pendukung</h3>
+            <span className="text-xs text-slate-500 dark:text-slate-400">— Informasi tambahan dan blanko</span>
           </div>
 
           <div className="dokumen-lpj-support-cards grid grid-cols-2 md:grid-cols-4 gap-3">

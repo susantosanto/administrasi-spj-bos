@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DokumentasiAIGenerate.jsx — Generate Foto Dokumentasi AI (Sprint 019 revisi)
  *
  * ═══════════════════════════════════════════════════════════════════════
@@ -17,11 +17,15 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { generateDocumentationImage, generatePlaceholderImage, ACTIVITY_PROMPTS, preloadPuter, cekSigninPuter, masukPuter, resizeImage } from '../../services/imageGenerator'
 import { tambahAkunDariSesi, generateDenganRotasi, adalahErrorKuota, pasangSupresiDialogPuter } from '../../services/puterAkun'
 import PuterAkunManager from '../ai/PuterAkunManager'
-import storageHelper from '../../utils/storageHelper'
+import { daftarWajahTerupload, petaWajahTerupload, wajahFallback } from '../../utils/fotoReferensi'
 
 // ═══════════════════════════════════════════════════════════════════
 // CONSTANTS — opsi chip: satu gaya (slate netral / primary terpilih)
 // ═══════════════════════════════════════════════════════════════════
+
+// Sprint 027: label peran untuk foto personel (SAMA dengan PERSONEL_ROLES di
+// PersonelFotoTab.jsx — writer keyed by role id, reader WAJIB ikut bentuk ini).
+// Dipindah ke utils/fotoReferensi.js (PERAN_LABEL) — satu sumber, teruji node.
 
 const PERSONEL_KEY = 'personel_photos'
 // Foto ruangan referensi (Data Sekolah → Foto Referensi → Ruangan) — Sprint 020 revisi
@@ -63,6 +67,8 @@ const SET_FOTO_DEFAULT = [
 ]
 // Rincian item & jumlah per baris BKU (diketik/ditempel user dari surat perencanaan)
 const ITEMS_KEY = 'spj_dok_ai_items'
+// Sprint 027: label peran untuk foto personel — lihat utils/fotoReferensi.js
+// (PERAN_LABEL; SAMA dengan PERSONEL_ROLES di PersonelFotoTab.jsx).
 // Mapping suasana → slot foto ruangan (id PersonelFotoTab RUANGAN_TYPES)
 const SUASANA_KE_RUANGAN = { ruang_rapat: 'ruang_rapat', aula: 'aula', kantor: 'ruang_kantor' }
 
@@ -112,8 +118,8 @@ function ChipOpsi({ opt, aktif, onClick }) {
       onClick={onClick}
       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
         aktif
-          ? 'bg-primary border-primary text-white shadow-md shadow-primary/25'
-          : 'bg-white border-slate-300 text-slate-600 hover:border-blue-400 hover:text-primary'
+          ? 'bg-primary border-primary text-white'
+          : 'bg-white dark:bg-slate-900 border-slate-300 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-primary'
       }`}
     >
       <span className="material-symbols-outlined text-xl">{opt.icon}</span>
@@ -203,9 +209,10 @@ export default function DokumentasiAIGenerate({
   // Foto owner pihak luar (warung makan / toko ATK) — per aktivitas, persist
   // localStorage (prefix spj_ sesuai konstitusi): { mamin: dataUrl, atk: dataUrl }
   const ownerPhotos = (() => { try { return JSON.parse(localStorage.getItem(OWNER_KEY) || '{}') } catch { return {} } })()
-  const guruList = storageHelper.get('data_guru', []) || []
-  const orangWithPhotos = guruList.filter((g) => personelPhotos[g.nama]?.dataUrl)
-  const orangHasPhotos = Object.keys(personelPhotos).length > 0
+  // Sprint 027: personel_photos keyed by ROLE id — normalisasi via fotoReferensi
+  // (dulu dicari by nama guru → selalu kosong; wajah tak pernah ke AI).
+  const orangWithPhotos = daftarWajahTerupload(personelPhotos)
+  const orangHasPhotos = orangWithPhotos.length > 0
 
   // Foto ruangan yang terpakai — Sprint 023 (R-3): prioritas ruang LOKAL
   // transaksi ini (spj_ruang_lokal[rowKey][slot]) → fallback foto global
@@ -283,7 +290,21 @@ export default function DokumentasiAIGenerate({
     if (adalahErrorKuota(err)) {
       return 'Kuota AI Puter habis untuk semua akun tersimpan. Tambahkan akun Puter lain lewat tombol "+ Tambah akun" di bagian Akun Puter, atau coba lagi nanti (kuota bisa reset).'
     }
-    return teks || 'Gagal generate gambar'
+    // Sprint 026 (FR-3): cabang yang dulu jatuh ke teks mentah provider.
+    if (/moderation|flagged|konten/i.test(teks)) {
+      return 'Gambar ditolak filter keamanan Puter (konten dianggap sensitif). Coba ubah kata di prompt kegiatan, atau pakai tombol Unggah foto di slot ini — foto asli tetap sah untuk LPJ.'
+    }
+    if (/network|fetch failed|failed to fetch|offline|tidak ada internet|timeout/i.test(teks)) {
+      return 'Jaringan bermasalah (tidak bisa menghubungi Puter). Periksa koneksi internet, lalu klik Generate lagi.'
+    }
+    if (/upstream|service unavailable|502|503|429|rate limit|batas/i.test(teks)) {
+      return 'Layanan AI Puter sedang sibuk (coba lagi beberapa saat). Bila terus gagal, pakai tombol Unggah foto di slot ini.'
+    }
+    if (/401|unauthorized|token|expired|sesi berakhir|sign-?in/i.test(teks)) {
+      return 'Sesi Puter berakhir. Klik Generate lagi untuk masuk ulang (sekali saja), atau tambahkan akun di bagian Akun Puter.'
+    }
+    return (teks || 'Gagal generate gambar') +
+      ' Bila terus gagal, pakai tombol Unggah foto di slot ini — foto asli tetap sah untuk LPJ.'
   }
 
   /** Generate satu slot set foto. timpaId = id foto lama yang ditimpa (regenerate). */
@@ -299,13 +320,16 @@ export default function DokumentasiAIGenerate({
     // diupload — bila user belum memilih siapa pun, otomatis pakai guru
     // pertama yang punya foto (jangan pernah generate tanpa referensi wajah).
     let orangTerpakai = [...selectedOrangList]
-    if (slot.butuhOrang && orangTerpakai.length === 0 && orangWithPhotos.length > 0) {
-      orangTerpakai = [orangWithPhotos[0].nama]
+    const fb = wajahFallback(orangWithPhotos)
+    if (slot.butuhOrang && orangTerpakai.length === 0 && fb) {
+      orangTerpakai = [fb]
     }
     // Input images per slot: wajah personel terpilih + owner (penyerahan),
     // foto ruangan (rapat & produk barang — kunci latar ruang rapat asli).
+    // Sprint 027-verifikasi: peta nama→dataUrl dari entri peran (teruji node).
+    const wajahPeran = petaWajahTerupload(orangWithPhotos)
     const faceImages = slot.butuhOrang
-      ? orangTerpakai.map((n) => personelPhotos[n]?.dataUrl).filter(Boolean)
+      ? orangTerpakai.map((n) => wajahPeran[n]).filter(Boolean)
       : []
     if (slot.butuhOwner && ownerFoto) faceImages.push(ownerFoto)
     const metaFoto = {
@@ -469,19 +493,19 @@ export default function DokumentasiAIGenerate({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-primary/25 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/25 shadow-sm overflow-hidden">
       {/* Header — premium: aksen gradient primary + chip AI */}
       <div className="px-5 py-4 bg-gradient-to-r from-primary/5 to-blue-50/60 border-b border-primary/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/30">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
             <span className="material-symbols-outlined text-white text-xl">auto_awesome</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               Generate Foto Dokumentasi AI
               <span className="px-1.5 py-0.5 rounded-md bg-primary text-white text-[9px] font-bold tracking-wider">AI</span>
             </p>
-            <p className="text-[10px] text-slate-500">Fitur premium — foto langsung masuk Panel Preview</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">Fitur premium — foto langsung masuk Panel Preview</p>
           </div>
           {fotoAi.length > 0 && (
             <span className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold">{fotoAi.length} foto</span>
@@ -492,7 +516,7 @@ export default function DokumentasiAIGenerate({
       <div className="p-5 space-y-4">
         {/* Aktivitas */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Aktivitas:</span>
+          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aktivitas:</span>
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
             <span className="material-symbols-outlined text-xs">{activityConfig?.icon || 'auto_awesome'}</span>
             {activityConfig?.name || 'Dokumentasi'}
@@ -501,7 +525,7 @@ export default function DokumentasiAIGenerate({
 
         {/* Langkah 1: Pakaian */}
         <div>
-          <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">1</span>
             Pilih Pakaian
           </h4>
@@ -514,7 +538,7 @@ export default function DokumentasiAIGenerate({
 
         {/* Langkah 2: Suasana */}
         <div>
-          <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">2</span>
             Pilih Suasana
           </h4>
@@ -533,9 +557,9 @@ export default function DokumentasiAIGenerate({
                   <span className="text-[10px] text-primary leading-tight flex-1">
                     <span className="font-bold">Foto ruangan terpakai{ruangDariLokal ? ' (transaksi ini)' : ''}</span> — latar foto rapat &amp; foto produk barang mengikuti ruangan asli sekolah.
                   </span>
-                  <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="text-[9px] px-2 py-1 rounded-lg bg-white text-primary border border-primary/30 font-bold hover:bg-primary/10 transition-colors flex-shrink-0">Ganti</button>
+                  <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="text-[9px] px-2 py-1 rounded-lg bg-white dark:bg-slate-900 text-primary border border-primary/30 font-bold hover:bg-primary/10 transition-colors flex-shrink-0">Ganti</button>
                   {ruangDariLokal && (
-                    <button type="button" onClick={() => handleHapusRuang(slotRuangan)} title="Hapus foto ruang transaksi ini" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 flex-shrink-0">
+                    <button type="button" onClick={() => handleHapusRuang(slotRuangan)} title="Hapus foto ruang transaksi ini" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:text-slate-300 flex-shrink-0">
                       <span className="material-symbols-outlined text-sm">delete</span>
                     </button>
                   )}
@@ -544,16 +568,16 @@ export default function DokumentasiAIGenerate({
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-[9px] text-slate-400">Ruang lain transaksi ini:</span>
                     {slotLokalLain.map((s) => (
-                      <span key={s} className="inline-flex items-center gap-1 text-[9px] font-semibold bg-slate-100 text-slate-600 rounded-full pl-2 pr-1 py-0.5">
+                      <span key={s} className="inline-flex items-center gap-1 text-[9px] font-semibold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 rounded-full pl-2 pr-1 py-0.5">
                         {s}
-                        <button type="button" onClick={() => handleHapusRuang(s)} title={`Hapus ruang ${s} transaksi ini`} className="p-0.5 rounded-full hover:bg-slate-300 hover:text-slate-800">
+                        <button type="button" onClick={() => handleHapusRuang(s)} title={`Hapus ruang ${s} transaksi ini`} className="p-0.5 rounded-full hover:bg-slate-300 hover:text-slate-800 dark:text-slate-100">
                           <span className="material-symbols-outlined text-[12px]">close</span>
                         </button>
                       </span>
                     ))}
                   </div>
                 )}
-                <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="w-full flex items-center justify-center gap-2 min-h-[36px] rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-semibold text-slate-500 hover:border-primary/40 hover:text-primary transition-colors">
+                <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="w-full flex items-center justify-center gap-2 min-h-[36px] rounded-xl border border-dashed border-slate-300 bg-slate-50 dark:bg-white/5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:border-primary/40 hover:text-primary transition-colors">
                   <span className="material-symbols-outlined text-sm">upload</span>
                   Upload foto ruang lain untuk transaksi ini
                 </button>
@@ -561,11 +585,11 @@ export default function DokumentasiAIGenerate({
               </div>
             ) : (
               <div className="mt-2 space-y-1.5">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] text-slate-500 flex items-center gap-2">
+                <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl p-2 text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
                   <span className="material-symbols-outlined text-sm text-slate-400">info</span>
                   Foto ruangan belum diupload — hasil AI pakai latar imajinasi. Upload di Data Sekolah → Foto Referensi → Ruangan untuk latar asli.
                 </div>
-                <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="w-full flex items-center justify-center gap-2 min-h-[36px] rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-semibold text-slate-500 hover:border-primary/40 hover:text-primary transition-colors">
+                <button type="button" onClick={() => { slotUploadRef.current = slotRuangan; fileRuangRef.current?.click() }} className="w-full flex items-center justify-center gap-2 min-h-[36px] rounded-xl border border-dashed border-slate-300 bg-slate-50 dark:bg-white/5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:border-primary/40 hover:text-primary transition-colors">
                   <span className="material-symbols-outlined text-sm">upload</span>
                   Upload foto ruang untuk transaksi ini
                 </button>
@@ -577,13 +601,13 @@ export default function DokumentasiAIGenerate({
 
         {/* Langkah 3: Orang yang hadir */}
         <div>
-          <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">3</span>
             Pilih Orang yang Hadir
             <span className="text-[9px] font-normal text-slate-400 ml-1">(opsional)</span>
           </h4>
           {!orangHasPhotos ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-600 flex items-center gap-2">
+            <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl p-3 text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
               <span className="material-symbols-outlined text-sm text-slate-400">info</span>
               Upload foto personel di Data Sekolah → Tab Foto Personel terlebih dahulu
             </div>
@@ -595,14 +619,14 @@ export default function DokumentasiAIGenerate({
                   orangWithPhotos.forEach((g) => { all[g.nama] = true })
                   setSelectedOrang(all)
                 }} className="text-[9px] px-2 py-1 rounded-lg bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors">Pilih Semua</button>
-                <button type="button" onClick={() => setSelectedOrang({})} className="text-[9px] px-2 py-1 rounded-lg bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-colors">Hapus Semua</button>
+                <button type="button" onClick={() => setSelectedOrang({})} className="text-[9px] px-2 py-1 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 font-bold hover:bg-slate-200 transition-colors">Hapus Semua</button>
               </div>
               {orangWithPhotos.map((g) => (
                 <label key={g.nama} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer transition-all ${
-                  selectedOrang[g.nama] ? 'bg-primary/10 border border-primary/40' : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                  selectedOrang[g.nama] ? 'bg-primary/10 border border-primary/40' : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent hover:bg-slate-100 dark:hover:bg-white/10'
                 }`}>
-                  <img src={personelPhotos[g.nama]?.dataUrl} alt={g.nama} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
-                  <span className="text-xs font-semibold text-slate-700 flex-1">{g.nama}</span>
+                  <img src={g.dataUrl} alt={g.nama} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex-1">{g.nama}</span>
                   <span className="text-[9px] text-slate-400">{g.jabatan || 'Guru'}</span>
                   <input type="checkbox" checked={!!selectedOrang[g.nama]} onChange={() => setSelectedOrang((prev) => ({ ...prev, [g.nama]: !prev[g.nama] }))} className="w-4 h-4 rounded border-slate-300 accent-[#004ac6]" />
                 </label>
@@ -619,7 +643,7 @@ export default function DokumentasiAIGenerate({
         {/* Langkah 4: Foto owner pihak luar (sesuai kebutuhan aktivitas) */}
         {ownerSlot && (
           <div>
-            <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">4</span>
               Foto {ownerSlot.label}
               <span className="text-[9px] font-normal text-slate-400 ml-1">(opsional)</span>
@@ -630,13 +654,13 @@ export default function DokumentasiAIGenerate({
                 <span className="text-[10px] text-primary leading-tight flex-1">
                   <span className="font-bold">{ownerSlot.label}</span> ikut dalam foto sebagai penyerah.
                 </span>
-                <button type="button" onClick={() => fileOwnerRef.current?.click()} className="text-[9px] px-2 py-1 rounded-lg bg-white text-primary border border-primary/30 font-bold hover:bg-primary/10 transition-colors flex-shrink-0">Ganti</button>
-                <button type="button" onClick={handleHapusOwner} title="Hapus foto owner" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 flex-shrink-0">
+                <button type="button" onClick={() => fileOwnerRef.current?.click()} className="text-[9px] px-2 py-1 rounded-lg bg-white dark:bg-slate-900 text-primary border border-primary/30 font-bold hover:bg-primary/10 transition-colors flex-shrink-0">Ganti</button>
+                <button type="button" onClick={handleHapusOwner} title="Hapus foto owner" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:text-slate-300 flex-shrink-0">
                   <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
               </div>
             ) : (
-              <button type="button" onClick={() => fileOwnerRef.current?.click()} className="w-full flex items-center justify-center gap-2 min-h-[40px] rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[11px] font-semibold text-slate-500 hover:border-primary/40 hover:text-primary transition-colors">
+              <button type="button" onClick={() => fileOwnerRef.current?.click()} className="w-full flex items-center justify-center gap-2 min-h-[40px] rounded-xl border border-dashed border-slate-300 bg-slate-50 dark:bg-white/5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:border-primary/40 hover:text-primary transition-colors">
                 <span className="material-symbols-outlined text-base">upload</span>
                 Upload foto {ownerSlot.label}
               </button>
@@ -648,7 +672,7 @@ export default function DokumentasiAIGenerate({
         {/* Langkah 5: Rincian item & jumlah (dari surat perencanaan) — dipakai slot box/ATK */}
         {setFoto.some((s) => s.butuhItems) && (
           <div>
-            <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">5</span>
               Rincian Item &amp; Jumlah
               <span className="text-[9px] font-normal text-slate-400 ml-1">(dari surat perencanaan)</span>
@@ -660,7 +684,7 @@ export default function DokumentasiAIGenerate({
                 ? 'Contoh: 2 lusin spidol, 5 rim kertas HVS A4, 1 dus pulpen'
                 : 'Contoh: 6 nasi box, 4 snack box, 10 minuman botol'}
               rows={2}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 placeholder:text-slate-400 focus:border-primary/40 focus:bg-white focus:outline-none resize-none"
+              className="w-full rounded-xl border border-slate-200 dark:border-transparent bg-slate-50 px-3 py-2 text-[11px] text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:border-primary/40 focus:bg-white dark:bg-slate-900 focus:outline-none resize-none"
             />
             <p className="text-[9px] text-slate-400 mt-1">Salin rincian dari surat perencanaan yang diupload — dipakai di foto penyerahan &amp; foto produk.</p>
           </div>
@@ -668,7 +692,7 @@ export default function DokumentasiAIGenerate({
 
         {/* Set foto yang dibutuhkan per kegiatan — generate per slot */}
         <div>
-          <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm text-primary">photo_library</span>
             Set Foto yang Dibutuhkan
             <span className="text-[9px] font-normal text-slate-400 ml-1">({setFoto.length} foto · {setFoto.length}x kuota AI)</span>
@@ -679,16 +703,16 @@ export default function DokumentasiAIGenerate({
               const sedang = slotAktif === slot.id && isGenerating
               return (
                 <div key={slot.id} className={`flex items-center gap-2 rounded-xl p-2 border transition-all ${
-                  sedang ? 'bg-primary/10 border-primary/40' : nAda > 0 ? 'bg-primary/5 border-primary/20' : 'bg-slate-50 border-slate-200'
+                  sedang ? 'bg-primary/10 border-primary/40' : nAda > 0 ? 'bg-primary/5 border-primary/20' : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-transparent'
                 }`}>
                   <span className={`material-symbols-outlined text-base flex-shrink-0 ${nAda > 0 ? 'text-primary' : 'text-slate-400'}`}>{slot.icon}</span>
-                  <span className="text-[11px] font-semibold text-slate-700 flex-1 min-w-0 truncate">{slot.label}</span>
+                  <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 flex-1 min-w-0 truncate">{slot.label}</span>
                   {nAda > 0 && <span className="text-[9px] text-primary font-bold flex-shrink-0">✓ {nAda}</span>}
                   <button
                     type="button"
                     disabled={isGenerating}
                     onClick={() => handleGenerateSlot(slot)}
-                    className="text-[9px] px-2.5 py-1.5 rounded-lg bg-primary text-white font-bold hover:brightness-110 transition-all disabled:opacity-40 flex-shrink-0"
+                    className="text-[9px] px-2.5 py-1.5 rounded-lg bg-primary text-white font-bold transition-all disabled:opacity-40 flex-shrink-0"
                   >
                     {sedang ? '...' : 'Generate'}
                   </button>
@@ -700,8 +724,8 @@ export default function DokumentasiAIGenerate({
 
         {/* Error */}
         {error && (
-          <div className="bg-slate-50 border border-slate-300 text-slate-700 p-3 rounded-xl text-[11px] flex items-start gap-2">
-            <span className="material-symbols-outlined text-sm shrink-0 text-slate-500">error</span>
+          <div className="bg-slate-50 dark:bg-white/5 border border-slate-300 text-slate-700 dark:text-slate-200 p-3 rounded-xl text-[11px] flex items-start gap-2">
+            <span className="material-symbols-outlined text-sm shrink-0 text-slate-500 dark:text-slate-400">error</span>
             <span>{error}</span>
           </div>
         )}
@@ -724,7 +748,7 @@ export default function DokumentasiAIGenerate({
 
         {/* Peringatan fallback — foto placeholder, bukan foto AI (R-3.2 jujur) */}
         {error && fotoAi.some((f) => f.fallback) && !isGenerating && (
-          <div className="bg-slate-50 border border-slate-300 text-slate-600 p-3 rounded-xl text-[11px] flex items-start gap-2">
+          <div className="bg-slate-50 dark:bg-white/5 border border-slate-300 text-slate-600 dark:text-slate-300 p-3 rounded-xl text-[11px] flex items-start gap-2">
             <span className="material-symbols-outlined text-sm shrink-0 text-slate-400">image</span>
             <span>Foto <span className="font-bold">placeholder</span> dibuat sebagai cadangan (AI tidak tersedia). Coba Generate lagi saat koneksi membaik.</span>
           </div>
@@ -734,7 +758,7 @@ export default function DokumentasiAIGenerate({
         {signin === 'belum' && !isGenerating && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-start gap-2">
             <span className="material-symbols-outlined text-sm text-primary shrink-0 mt-0.5">login</span>
-            <span className="text-[11px] text-slate-600 leading-snug">
+            <span className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
               Belum masuk ke <span className="font-bold text-primary">Puter</span> — klik Generate di bawah, jendela sign-in akan terbuka (sekali saja, akun gratis, tanpa API key).
             </span>
           </div>
@@ -752,7 +776,7 @@ export default function DokumentasiAIGenerate({
           <button
             type="button"
             onClick={handleBatal}
-            className="w-full flex items-center justify-center gap-2 min-h-[44px] rounded-xl text-sm font-bold text-slate-700
+            className="w-full flex items-center justify-center gap-2 min-h-[44px] rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200
                        bg-slate-200 ring-1 ring-slate-300 hover:bg-slate-300 transition-all active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-lg">stop_circle</span>
@@ -763,8 +787,8 @@ export default function DokumentasiAIGenerate({
             type="button"
             onClick={handleGenerateSemua}
             className="w-full flex items-center justify-center gap-2 min-h-[44px] rounded-xl text-sm font-bold text-white
-                       bg-primary shadow-lg shadow-primary/30
-                       ring-1 ring-primary/20 hover:brightness-110 transition-all active:scale-[0.98]"
+                       bg-primary
+                       ring-1 ring-primary/20 transition-all active:scale-[0.98]"
           >
             <span className="material-symbols-outlined text-lg">auto_awesome</span>
             Generate Semua Foto ({setFoto.length})
@@ -776,7 +800,7 @@ export default function DokumentasiAIGenerate({
         {isGenerating && (
           <div className="flex flex-col items-center py-4">
             <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent mb-3" />
-            <p className="text-sm font-semibold text-slate-700">
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
               {progressSemua
                 ? `Foto ${progressSemua.i}/${progressSemua.n} — ${progressSemua.label}...`
                 : 'Generating foto dokumentasi...'}
@@ -787,7 +811,7 @@ export default function DokumentasiAIGenerate({
 
         {/* Dibatalkan — jujur: proses di belakang diabaikan, kuota bisa terpakai */}
         {dibatalkan && !isGenerating && (
-          <div className="bg-slate-50 border border-slate-300 text-slate-600 p-3 rounded-xl text-[11px] flex items-start gap-2">
+          <div className="bg-slate-50 dark:bg-white/5 border border-slate-300 text-slate-600 dark:text-slate-300 p-3 rounded-xl text-[11px] flex items-start gap-2">
             <span className="material-symbols-outlined text-sm shrink-0 text-slate-400">stop_circle</span>
             <span>Generate <span className="font-bold">dibatalkan</span> — foto tidak disimpan. Proses yang sudah berjalan di server mungkin tetap memakai kuota.</span>
           </div>
@@ -804,16 +828,16 @@ export default function DokumentasiAIGenerate({
         {/* Daftar foto AI (regenerate per slot tipe) — hapus lewat daftar gabungan di atas */}
         {fotoAi.length > 0 && !isGenerating && (
           <div className="space-y-1.5">
-            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Foto AI di Panel Preview</p>
+            <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Foto AI di Panel Preview</p>
             {fotoAi.map((f) => {
               const slotTipe = setFoto.find((s) => s.id === f.tipeFoto)
               return (
-                <div key={f.id} className="flex items-center gap-2 rounded-xl p-2 border bg-slate-50 border-slate-200">
+                <div key={f.id} className="flex items-center gap-2 rounded-xl p-2 border bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-transparent">
                   <img src={f.dataUrl} alt={f.caption || 'Foto AI'} className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />
-                  <span className="text-[11px] text-slate-600 flex-1 min-w-0 truncate">
-                    <span className="font-bold text-slate-700">{f.tipeLabel || slotTipe?.label || 'Foto'}</span>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-300 flex-1 min-w-0 truncate">
+                    <span className="font-bold text-slate-700 dark:text-slate-200">{f.tipeLabel || slotTipe?.label || 'Foto'}</span>
                     {f.orangList?.length ? ` · ${f.orangList.length} orang` : ''}
-                    {f.fallback && <span className="ml-1.5 px-1 py-0.5 rounded bg-slate-200 text-slate-500 text-[9px] font-bold">placeholder</span>}
+                    {f.fallback && <span className="ml-1.5 px-1 py-0.5 rounded bg-slate-200 text-slate-500 dark:text-slate-400 text-[9px] font-bold">placeholder</span>}
                   </span>
                   <button
                     type="button"
@@ -823,7 +847,7 @@ export default function DokumentasiAIGenerate({
                   >
                     <span className="material-symbols-outlined text-sm">refresh</span>
                   </button>
-                  <button type="button" onClick={() => onHapusFoto && onHapusFoto(f.id)} title="Hapus" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 flex-shrink-0">
+                  <button type="button" onClick={() => onHapusFoto && onHapusFoto(f.id)} title="Hapus" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:text-slate-300 flex-shrink-0">
                     <span className="material-symbols-outlined text-sm">delete</span>
                   </button>
                 </div>

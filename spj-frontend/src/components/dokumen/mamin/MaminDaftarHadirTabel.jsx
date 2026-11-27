@@ -23,9 +23,9 @@ export default function MaminDaftarHadirTabel({
   onHapusKolom,
 }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-slate-50 border-b border-slate-200">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-2xl overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-transparent">
+        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Daftar hadir · {rows.length} peserta
         </p>
         <div className="flex items-center gap-1.5">
@@ -39,14 +39,14 @@ export default function MaminDaftarHadirTabel({
       </div>
 
       {kolomOpsional.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b border-slate-100 bg-white">
+        <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b border-slate-100 dark:border-transparent bg-white dark:bg-slate-900">
           {kolomOpsional.map((c) => (
-            <span key={c.key} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[10px]">
+            <span key={c.key} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent text-[10px]">
               <input
                 type="text"
                 value={c.label}
                 onChange={(e) => onUbahKolom(c.key, e.target.value)}
-                className="w-20 px-1 py-0.5 bg-white border border-slate-200 rounded text-[10px] outline-none focus:ring-1 focus:ring-primary"
+                className="w-20 px-1 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded text-[10px] outline-none focus:ring-1 focus:ring-primary"
               />
               <button type="button" onClick={() => onHapusKolom(c.key)} className="text-red-500 hover:text-red-700 font-bold" title="Hapus kolom">
                 &times;
@@ -74,7 +74,7 @@ export default function MaminDaftarHadirTabel({
               <col style={{ width: '34px' }} />
             </colgroup>
             <thead>
-              <tr className="border-b border-slate-200 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="border-b border-slate-200 dark:border-transparent text-[9px] font-bold uppercase tracking-wider text-slate-400">
                 <th className={TH}>No</th>
                 <th className={TH}>Nama</th>
                 <th className={TH}>NIP</th>
@@ -87,7 +87,7 @@ export default function MaminDaftarHadirTabel({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((row, i) => (
-                <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
+                <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-white/5/60 transition-colors">
                   <td className="px-2 py-1.5 text-[10px] font-semibold text-slate-400">{i + 1}</td>
                   <td className="px-2 py-1.5">
                     <input type="text" value={row.nama || ''} onChange={(e) => onChangeRow(row.id, 'nama', e.target.value)} placeholder="Nama" className={INPUT} />

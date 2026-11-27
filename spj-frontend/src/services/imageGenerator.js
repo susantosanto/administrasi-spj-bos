@@ -305,6 +305,26 @@ async function generateWithFlux(prompt, faceImage = null) {
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
+ * Susun input images untuk image-to-image — MURNI (Sprint 027-verifikasi).
+ * Urutan: wajah dulu, ruangan TERAKHIR (latar). Duplikat dibuang.
+ */
+export function susunInputImages({ faceImages = [], ruangImage = null, faceImage = null } = {}) {
+  const semua = [...(faceImages || [])]
+  if (faceImage && !semua.includes(faceImage)) semua.push(faceImage)
+  if (ruangImage && !semua.includes(ruangImage)) semua.push(ruangImage)
+  return semua
+}
+
+/**
+ * Suntik instruksi referensi eksplisit ke prompt — MURNI (Sprint 027-verifikasi).
+ * Model edit perlu diperintah memakai gambar input; tanpa gambar → prompt utuh.
+ */
+export function suntikInstruksiReferensi(prompt, { adaWajah = false, adaRuang = false } = {}) {
+  if (!adaWajah && !adaRuang) return prompt
+  return `${prompt} WAJIB memakai gambar referensi terlampir: ${adaWajah ? 'wajah setiap orang HARUS persis sesuai foto personel pada gambar input (jangan mengubah wajah), ' : ''}${adaRuang ? 'latar/ruangan HARUS sesuai foto ruangan pada gambar input, ' : ''}gabungkan semua referensi dalam satu foto dokumentasi yang natural.`
+}
+
+/**
  * Generate foto dokumentasi kegiatan sekolah (Sprint 020: foto riil).
  *
  * @param {object} params
@@ -338,17 +358,11 @@ export async function generateDocumentationImage({
   if (faceImage && !allFaceImages.includes(faceImage)) allFaceImages.push(faceImage)
 
   // Input images = wajah personel dulu, foto ruangan terakhir (latar)
-  const inputImages = [...allFaceImages]
-  if (ruangImage && !inputImages.includes(ruangImage)) inputImages.push(ruangImage)
-
-  // Instruksi referensi eksplisit — model edit (gpt-image-2) perlu diperintah
-  // memakai gambar input; tanpa ini hasil cenderung mengabaikan referensi.
-  let promptReferensi = finalPrompt
-  if (inputImages.length > 0) {
-    const adaWajah = allFaceImages.length > 0
-    const adaRuang = !!ruangImage
-    promptReferensi = `${finalPrompt} WAJIB memakai gambar referensi terlampir: ${adaWajah ? 'wajah setiap orang HARUS persis sesuai foto personel pada gambar input (jangan mengubah wajah), ' : ''}${adaRuang ? 'latar/ruangan HARUS sesuai foto ruangan pada gambar input, ' : ''}gabungkan semua referensi dalam satu foto dokumentasi yang natural.`
-  }
+  // Instruksi referensi eksplisit (fungsi murni, teruji node)
+  const inputImages = susunInputImages({ faceImages: allFaceImages, ruangImage })
+  const promptReferensi = suntikInstruksiReferensi(finalPrompt, {
+    adaWajah: allFaceImages.length > 0, adaRuang: !!ruangImage,
+  })
 
   // Route ke provider
   switch (provider) {
@@ -367,30 +381,54 @@ export async function generateDocumentationImage({
 /**
  * Resize image ke max dimension (untuk hemat token/bandwidth).
  *
+ * Sprint 026 (FR-1): tambah img.onerror + timeout 5 dtk — file rusak/format
+ * aneh me-reject Error Indonesia, bukan menggantung selamanya.
+ *
  * @param {string} base64 — Base64 image
  * @param {number} maxSize — Max width/height
  * @returns {Promise<string>} — Resized base64
  */
+const BATAS_RESIZE_MS = 5000
 export function resizeImage(base64, maxSize = 512) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    let selesai = false
+    const gagal = (pesan) => {
+      if (selesai) return
+      selesai = true
+      reject(new Error(pesan))
+    }
+    const timer = setTimeout(() => gagal(
+      'Gambar tidak dapat dibaca (rusak atau format tidak didukung) — coba file JPG/PNG lain.'
+    ), BATAS_RESIZE_MS)
     const img = new Image()
+    img.onerror = () => {
+      clearTimeout(timer)
+      gagal('Gambar tidak dapat dibaca (rusak atau format tidak didukung) — coba file JPG/PNG lain.')
+    }
     img.onload = () => {
-      const canvas = document.createElement('canvas')
-      let { width, height } = img
+      if (selesai) return
+      selesai = true
+      clearTimeout(timer)
+      try {
+        const canvas = document.createElement('canvas')
+        let { width, height } = img
 
-      if (width > height && width > maxSize) {
-        height = (height * maxSize) / width
-        width = maxSize
-      } else if (height > maxSize) {
-        width = (width * maxSize) / height
-        height = maxSize
+        if (width > height && width > maxSize) {
+          height = (height * maxSize) / width
+          width = maxSize
+        } else if (height > maxSize) {
+          width = (width * maxSize) / height
+          height = maxSize
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', 0.8))
+      } catch (err) {
+        gagal('Gagal memproses gambar — coba file JPG/PNG lain.')
       }
-
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL('image/jpeg', 0.8))
     }
     img.src = base64
   })

@@ -118,7 +118,7 @@ export default function LicenseSyncCard() {
   }
 
   const Badge = ({ s }) => (
-    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_BADGE[s] || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_BADGE[s] || 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-transparent'}`}>
       {s || '—'}
     </span>
   )
@@ -139,7 +139,7 @@ export default function LicenseSyncCard() {
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               placeholder="ASIK-XXXX-XXXX-XXXX"
-              className="flex-1 h-11 px-4 border border-slate-200 rounded-xl text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7]"
+              className="flex-1 h-11 px-4 border border-slate-200 dark:border-transparent rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7]"
             />
             <button
               onClick={onConnect}

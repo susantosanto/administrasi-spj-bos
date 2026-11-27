@@ -10,7 +10,7 @@
  *   mode="edit" | "print"
  * />
  */
-import { Component, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   KopSurat,
   HeaderDokumen,
@@ -80,41 +80,8 @@ const BLOCK_RENDERERS = {
   'spanduk-preview': SpandukPreview,
 }
 
+// Daftar tipe blok yang dikenal — dipakai test konsistensi templateConfig.
 export const KNOWN_BLOCK_TYPES = Object.keys(BLOCK_RENDERERS)
-
-// Error boundary per-blok: satu blok rusak (mis. data BKU null) tidak
-// meruntuhkan seluruh dokumen. Menampilkan fallback + log.
-class BlockErrorBoundary extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { error: null }
-  }
-
-  static getDerivedStateFromError(error) {
-    return { error }
-  }
-
-  componentDidCatch(error, info) {
-    console.error(`TemplateEngine: block "${this.props.blockType}" gagal render:`, error, info)
-  }
-
-  render() {
-    if (this.state.error) {
-      if (this.props.mode === 'print') return null
-      return (
-        <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-          <div className="flex items-center gap-2 text-red-700">
-            <span className="material-symbols-outlined">error</span>
-            <span className="text-sm">
-              Bagian “{this.props.blockType}” gagal ditampilkan. Periksa data input lalu coba lagi.
-            </span>
-          </div>
-        </div>
-      )
-    }
-    return this.props.children
-  }
-}
 
 export default function TemplateEngine({
   templateConfig,
@@ -140,10 +107,6 @@ export default function TemplateEngine({
       onDataChange({ ...(safeData), [field]: value })
     }
   }
-
-  // Guard: data null/non-objek (mis. entri BKU kosong) → objek aman
-  const safeData = data && typeof data === 'object' ? data : {}
-  const blocks = Array.isArray(templateConfig.blocks) ? templateConfig.blocks : []
 
   // Kertas A4/F4 pilihan user (spj_kertas) — ikut tanpa reload.
   const [kertas, setKertas] = useState(getPaperSize())

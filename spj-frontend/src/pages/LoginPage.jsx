@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import storageHelper from "../utils/storageHelper";
 import { useToast } from "../components/ui/Toast";
@@ -118,8 +118,8 @@ export default function LoginPage() {
 
           {/* Header */}
           <div className="mb-4">
-            <h1 className="text-[22px] font-bold text-slate-900 mb-1">Masuk ke Akun</h1>
-            <p className="text-slate-500 text-[13px]">
+            <h1 className="text-[22px] font-bold text-slate-900 dark:text-white mb-1">Masuk ke Akun</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-[13px]">
               Selamat datang kembali! Silakan masuk untuk melanjutkan.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Username */}
             <div>
-              <label className="block text-[13px] font-medium text-slate-700 mb-1.5" htmlFor="username">
+              <label className="block text-[13px] font-medium text-slate-700 dark:text-slate-200 mb-1.5" htmlFor="username">
                 Username
               </label>
               <div className="relative">
@@ -143,7 +143,7 @@ export default function LoginPage() {
                   placeholder="Masukkan username"
                   required
                   autoComplete="username"
-                  className="w-full h-11 pl-11 pr-4 glass-input border border-slate-200 rounded-xl text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
+                  className="w-full h-11 pl-11 pr-4 glass-input border border-slate-200 dark:border-transparent rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
                 />
               </div>
             </div>
@@ -151,12 +151,13 @@ export default function LoginPage() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[13px] font-medium text-slate-700" htmlFor="password">
+                <label className="text-[13px] font-medium text-slate-700 dark:text-slate-200" htmlFor="password">
                   Password
                 </label>
                 <a
                   href="#"
                   onClick={(e) => { e.preventDefault(); toast.info("Fitur lupa password dalam pengembangan"); }}
+                  tabIndex={-1}
                   className="text-[12px] hover:underline"
                   style={{ color: isDark ? "#60A5FA" : "#2457A7" }}
                 >
@@ -175,12 +176,12 @@ export default function LoginPage() {
                   placeholder="Masukkan password"
                   required
                   autoComplete="current-password"
-                  className="w-full h-11 pl-11 pr-11 glass-input border border-slate-200 rounded-xl text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
+                  className="w-full h-11 pl-11 pr-11 glass-input border border-slate-200 dark:border-transparent rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-300 transition-colors"
                   aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -199,7 +200,7 @@ export default function LoginPage() {
                 onChange={(e) => setRemember(e.target.checked)}
                 className="w-4 h-4 text-[#2457A7] border-slate-300 rounded focus:ring-[#2457A7] cursor-pointer"
               />
-              <label htmlFor="remember" className="text-[13px] text-slate-600 cursor-pointer">
+              <label htmlFor="remember" className="text-[13px] text-slate-600 dark:text-slate-300 cursor-pointer">
                 Ingat saya
               </label>
             </div>
@@ -208,7 +209,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-[#2457A7] hover:bg-[#1D4688] text-white font-semibold rounded-xl shadow-lg shadow-[#2457A7]/20 hover:shadow-xl hover:shadow-[#2457A7]/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+              className="w-full h-11 bg-[#2457A7] hover:bg-[#1D4688] text-white font-semibold rounded-xl shadow-lg shadow-[#2457A7]/20 hover:shadow-[#2457A7]/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed mt-1"
             >
               {loading ? (
                 <>
@@ -235,7 +236,7 @@ export default function LoginPage() {
           </div>
 
           {/* Help */}
-          <p className="text-center text-[13px] text-slate-500">
+          <p className="text-center text-[13px] text-slate-500 dark:text-slate-400">
             Belum punya lisensi?{' '}
             <Link
               to="/daftar"
@@ -258,7 +259,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="flex items-center gap-3 mt-5 text-[11px] text-slate-400">
-          <span className="px-2.5 py-1 bg-slate-100 rounded-md font-medium text-slate-500">
+          <span className="px-2.5 py-1 bg-slate-100 dark:bg-white/10 rounded-md font-medium text-slate-500 dark:text-slate-400">
             PROTOTYPE
           </span>
           <span>© {new Date().getFullYear()} Aplikasi Dokumentasi LPJ</span>

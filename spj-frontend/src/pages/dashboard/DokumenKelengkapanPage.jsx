@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dokumen Kelengkapan Page — Premium Compact Design
  */
 import { useState, useEffect, useRef, Fragment } from 'react'
@@ -6,7 +6,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
-import { requireWrite } from '../../services/licenseService'
 import { logActivity } from '../../utils/activityLog'
 import TemplateEngine from '../../components/templates/TemplateEngine'
 import PanelPreviewDocument from '../../components/templates/PanelPreviewDocument'
@@ -624,7 +623,6 @@ export default function DokumenKelengkapanPage() {
   const fmtRpPecahan = (n) => `Rp ${(Number(n) || 0).toLocaleString('id-ID')}`
 
   const handleSaveForm = () => {
-    if (!requireWrite(toast)) return
     logActivity({ type: 'dokumen', title: `Simpan ${selectedDokumen.nama}`, detail: selectedDokumen.kategori || '' })
     toast.success(`Form "${selectedDokumen.nama}" berhasil disimpan`)
     setSelectedDokumen(null)
@@ -1104,9 +1102,9 @@ export default function DokumenKelengkapanPage() {
         className="relative mt-2 mb-8 w-full max-w-none glass-surface rounded-2xl overflow-x-clip">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary" />
         <div className="relative p-5 sm:p-7 lg:p-9 space-y-5">
-          <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan Kas">
+          <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200 dark:border-transparent/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan Kas">
             <button onClick={handleCloseKas}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 min-h-[44px] transition-all">
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 min-h-[44px] transition-all">
               <span className="material-symbols-outlined text-lg">arrow_back</span>
               Kembali ke Daftar
             </button>
@@ -1114,15 +1112,15 @@ export default function DokumenKelengkapanPage() {
           </div>
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
                 <span className="material-symbols-outlined text-2xl text-white">{selectedDokumen.icon}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
                   Kelengkapan Kas
                 </span>
-                <h2 className="text-sm font-bold text-slate-800 mt-1.5">{selectedDokumen.nama} — {kasDocAktif.label}</h2>
-                <p className="text-[11px] text-slate-500 mt-0.5">Pilih bulan → angka dari BKU → lengkapi field manual → cetak.</p>
+                <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1.5">{selectedDokumen.nama} — {kasDocAktif.label}</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Pilih bulan → angka dari BKU → lengkapi field manual → cetak.</p>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
@@ -1153,24 +1151,24 @@ export default function DokumenKelengkapanPage() {
                 </button>
               )}
               <button onClick={handleCloseKas} aria-label="Tutup detail Kas"
-                className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95">
-                <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
+                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-all duration-300 hover:scale-110 active:scale-95">
+                <span className="material-symbols-outlined text-slate-400 hover:text-slate-600 dark:text-slate-300">close</span>
               </button>
             </div>
           </div>
           {(bkuKas?.transactions || []).length === 0 && (
-            <div className="print:hidden glass-surface rounded-2xl px-5 py-4 text-xs text-slate-600">
+            <div className="print:hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 px-5 py-4 text-xs text-slate-600 dark:text-slate-300">
               Belum ada data BKU di aplikasi — angka dokumen kosong. Upload BKU dulu di halaman BKU agar D/K/A terisi otomatis.
             </div>
           )}
           <div className={`grid gap-4 items-start ${selectedDokumen?.id === 'RPAJAK' ? 'lg:grid-cols-1' : 'lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)]'}`}>
-            <div className="glass-surface rounded-2xl p-5 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm p-5 space-y-4">
               {fields.map((field) => (
                 <div key={field.name}>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">{field.label}</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">{field.label}</label>
                   {field.name === 'bulan' ? (
                     <select
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                       value={formData.bulan || ''}
                       onChange={(e) => handleFormChange('bulan', e.target.value)}
                     >
@@ -1182,7 +1180,7 @@ export default function DokumenKelengkapanPage() {
                   ) : (
                     <input
                       type={field.type === 'number' ? 'number' : 'text'}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                       placeholder={field.placeholder}
                       value={formData[field.name] || ''}
                       onChange={(e) => handleFormChange(field.name, e.target.value)}
@@ -1196,24 +1194,24 @@ export default function DokumenKelengkapanPage() {
                   Saldo Kas Tunai (greedy kertas→logam); ketikan menang per baris.
                   Kosong = 0 lembar (dicetak "0" + "Rp 0" seperti sumber). */}
               {selectedDokumen.id === 'RK' && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                <div className="rounded-xl border border-slate-200 dark:border-transparent bg-slate-50/60 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="text-xs font-bold text-slate-700">Lembar &amp; Keping Fisik</div>
+                    <div className="text-xs font-bold text-slate-700 dark:text-slate-200">Lembar &amp; Keping Fisik</div>
                     <div className="text-[10px] text-slate-400">
                       {adaKetikanPecahan() ? 'ketikan + otomatis' : 'otomatis dari saldo tunai BKU'}
                     </div>
                   </div>
                   <table className="w-full text-[11px] border-collapse">
                     <thead>
-                      <tr className="text-slate-500">
+                      <tr className="text-slate-500 dark:text-slate-400">
                         <th className="text-left font-medium py-1">Pecahan</th>
                         <th className="text-center font-medium py-1 w-20">Lembar/Keping</th>
                       </tr>
                     </thead>
                     <tbody>
                       {pecahanGabung().map((r) => (
-                        <tr key={r.id} className="border-t border-slate-200">
-                          <td className="py-1 text-slate-700">
+                        <tr key={r.id} className="border-t border-slate-200 dark:border-transparent">
+                          <td className="py-1 text-slate-700 dark:text-slate-200">
                             Rp {Number(r.nominal).toLocaleString('id-ID')}
                             <span className="text-slate-400"> · {r.jenis === 'Kertas' ? 'kertas' : 'logam'}</span>
                           </td>
@@ -1223,7 +1221,7 @@ export default function DokumenKelengkapanPage() {
                               min="0"
                               inputMode="numeric"
                               aria-label={`${r.jenis === 'Kertas' ? 'Lembar' : 'Keping'} Rp ${r.nominal}`}
-                              className="w-full px-2 py-1 text-sm text-center bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                              className="w-full px-2 py-1 text-sm text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                               placeholder="0"
                               value={r.lembar ?? ''}
                               onChange={(e) => handlePecahanChange(r.id, e.target.value)}
@@ -1233,17 +1231,17 @@ export default function DokumenKelengkapanPage() {
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="border-t border-slate-300 font-bold text-slate-700">
+                      <tr className="border-t border-slate-300 font-bold text-slate-700 dark:text-slate-200">
                         <td className="py-1">Sub Jumlah (1) — uang kertas</td>
                         <td className="py-1 text-center">{fmtRpPecahan(subPecahan('Kertas'))}</td>
                       </tr>
-                      <tr className="font-bold text-slate-700">
+                      <tr className="font-bold text-slate-700 dark:text-slate-200">
                         <td className="py-1">Sub Jumlah (2) — uang logam</td>
                         <td className="py-1 text-center">{fmtRpPecahan(subPecahan('Logam'))}</td>
                       </tr>
                     </tfoot>
                   </table>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                     {saldoTunaiKetikForm === '' ? (
                       <>Terisi otomatis <b>tunai berjalan</b> (akumulasi Tarik Tunai − belanja BPU; bulan ini Tarik {fmtRpPecahan(tunaiBkuForm.tarik)} − BPU {fmtRpPecahan(tunaiBkuForm.bpu)}) = <b>{fmtRpPecahan(saldoTunaiBkuForm)}</b>. </>
                     ) : (
@@ -1261,15 +1259,15 @@ export default function DokumenKelengkapanPage() {
                   tanggal transaksi BKU — boleh ditimpa di sini.
                   Isi → spj_pajak_manual (kunci stabil) → panel & cetak ikut. */}
               {selectedDokumen.id === 'RPAJAK' && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                <div className="rounded-xl border border-slate-200 dark:border-transparent bg-slate-50/60 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="text-xs font-bold text-slate-700">Kolom manual per baris</div>
+                    <div className="text-xs font-bold text-slate-700 dark:text-slate-200">Kolom manual per baris</div>
                     <div className="text-[10px] text-slate-400">
                       {pajakRowsAktif.filter((r) => r.jenis).length}/{pajakRowsAktif.length} baris punya jenis pajak
                     </div>
                   </div>
                   {pajakRowsAktif.length === 0 ? (
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
                       Belum ada transaksi pajak (Setor Pajak / Pajak Bunga) di BKU — baris terisi
                       otomatis setelah data BKU diunggah di halaman BKU.
                     </p>
@@ -1277,7 +1275,7 @@ export default function DokumenKelengkapanPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-[11px] border-collapse min-w-[860px]">
                         <thead>
-                          <tr className="text-slate-500">
+                          <tr className="text-slate-500 dark:text-slate-400">
                             <th className="text-left font-medium py-1 pr-1 w-8">No</th>
                             <th className="text-left font-medium py-1 pr-1 w-20">Bulan</th>
                             <th className="text-left font-medium py-1 pr-1 min-w-[180px]">Uraian pajak (dari BKU)</th>
@@ -1292,17 +1290,17 @@ export default function DokumenKelengkapanPage() {
                         </thead>
                         <tbody>
                           {pajakRowsAktif.map((r) => (
-                            <tr key={r.key} className="border-t border-slate-200 align-top">
-                              <td className="py-1 pr-1 text-slate-500">{r.no}</td>
-                              <td className="py-1 pr-1 text-slate-700 whitespace-nowrap">{r.bulan}</td>
-                              <td className="py-1 pr-1 text-slate-700">{r.uraian}</td>
-                              <td className="py-1 pr-1 text-right text-slate-700 whitespace-nowrap">
+                            <tr key={r.key} className="border-t border-slate-200 dark:border-transparent align-top">
+                              <td className="py-1 pr-1 text-slate-500 dark:text-slate-400">{r.no}</td>
+                              <td className="py-1 pr-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">{r.bulan}</td>
+                              <td className="py-1 pr-1 text-slate-700 dark:text-slate-200">{r.uraian}</td>
+                              <td className="py-1 pr-1 text-right text-slate-700 dark:text-slate-200 whitespace-nowrap">
                                 {(Number(r.nilai) || 0).toLocaleString('id-ID')}
                               </td>
                               <td className="py-1 pr-1">
                                 <select
                                   aria-label={`Jenis pajak baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.jenis}
                                   onChange={(e) => setPajakSel(r.key, 'jenis', e.target.value)}
                                 >
@@ -1314,7 +1312,7 @@ export default function DokumenKelengkapanPage() {
                                 <input
                                   type="date"
                                   aria-label={`Tanggal bayar baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.tglBayar}
                                   onChange={(e) => setPajakSel(r.key, 'tglBayar', e.target.value)}
                                 />
@@ -1323,7 +1321,7 @@ export default function DokumenKelengkapanPage() {
                                 <input
                                   type="date"
                                   aria-label={`Tanggal NTPN baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.tglNtpn}
                                   onChange={(e) => setPajakSel(r.key, 'tglNtpn', e.target.value)}
                                 />
@@ -1333,7 +1331,7 @@ export default function DokumenKelengkapanPage() {
                                   type="text"
                                   placeholder="NTPN"
                                   aria-label={`NTPN baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.ntpn}
                                   onChange={(e) => setPajakSel(r.key, 'ntpn', e.target.value)}
                                 />
@@ -1343,7 +1341,7 @@ export default function DokumenKelengkapanPage() {
                                   type="text"
                                   placeholder="Kode billing"
                                   aria-label={`Kode billing baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.kodeBilling}
                                   onChange={(e) => setPajakSel(r.key, 'kodeBilling', e.target.value)}
                                 />
@@ -1353,7 +1351,7 @@ export default function DokumenKelengkapanPage() {
                                   type="text"
                                   placeholder="—"
                                   aria-label={`Keterangan baris ${r.no}`}
-                                  className="w-full px-1.5 py-1 text-[11px] bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                  className="w-full px-1.5 py-1 text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                   value={r.keterangan}
                                   onChange={(e) => setPajakSel(r.key, 'keterangan', e.target.value)}
                                 />
@@ -1364,7 +1362,7 @@ export default function DokumenKelengkapanPage() {
                       </table>
                     </div>
                   )}
-                  <p className="text-[10px] text-slate-500 leading-relaxed">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                     Nilai &amp; tanggal bayar dari BKU (ketikan di sini menang). Pilih jenis pajak → nilai
                     pindah ke kolom PPh 21/22/23/PPN di dokumen; Total tetap nilai dari BKU. Isian
                     tersimpan otomatis di perangkat ini.
@@ -1377,24 +1375,24 @@ export default function DokumenKelengkapanPage() {
                   <div className="font-bold text-primary uppercase tracking-wider">Ringkasan BKU — {bulanPilih}</div>
                   {selectedDokumen.id === 'RK' ? (
                     <>
-                      <div className="flex justify-between"><span className="text-slate-600">Penerimaan (D)</span><span className="font-semibold text-slate-800">{fmtRpKas(ringKas.D)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-600">Pengeluaran (K)</span><span className="font-semibold text-slate-800">{fmtRpKas(ringKas.K)}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-600">Saldo Buku (A = D − K)</span><span className="font-semibold text-slate-800">{fmtRpKas(ringKas.A)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-300">Penerimaan (D)</span><span className="font-semibold text-slate-800 dark:text-slate-100">{fmtRpKas(ringKas.D)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-300">Pengeluaran (K)</span><span className="font-semibold text-slate-800 dark:text-slate-100">{fmtRpKas(ringKas.K)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-300">Saldo Buku (A = D − K)</span><span className="font-semibold text-slate-800 dark:text-slate-100">{fmtRpKas(ringKas.A)}</span></div>
                     </>
                   ) : (
-                    <div className="flex justify-between"><span className="text-slate-600">Saldo uang menurut Kas Umum</span><span className="font-semibold text-slate-800">{fmtRpKas(ringKas.saldoAkhir)}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-600 dark:text-slate-300">Saldo uang menurut Kas Umum</span><span className="font-semibold text-slate-800 dark:text-slate-100">{fmtRpKas(ringKas.saldoAkhir)}</span></div>
                   )}
-                  <div className="text-slate-500 pt-1">Terisi otomatis ke dokumen — field manual di atas menimpa bila diisi.</div>
+                  <div className="text-slate-500 dark:text-slate-400 pt-1">Terisi otomatis ke dokumen — field manual di atas menimpa bila diisi.</div>
                 </div>
               )}
               {isKasDoc && bulanPilih && !ringKas.adaData && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-500">
+                <div className="rounded-xl border border-slate-200 dark:border-transparent bg-slate-50 dark:bg-white/5 p-3 text-[11px] text-slate-500 dark:text-slate-400">
                   Tidak ada transaksi BKU untuk bulan <b>{bulanPilih}</b> — dokumen tampil kosong/jujur.
                 </div>
               )}
             </div>
             <aside className="print:hidden min-w-0 lg:sticky lg:top-[88px] self-start">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document</h3>
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Panel Preview Document</h3>
               <PanelPreviewDocument
                 title={kasDocAktif.label}
                 docs={[kasDocAktif]}
@@ -1444,9 +1442,9 @@ export default function DokumenKelengkapanPage() {
       <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-400 to-primary" />
       <div className="relative p-5 sm:p-7 lg:p-9 space-y-5">
         {/* ─── Revisi UX 011-65: tombol Kembali di atas (sticky) agar tanpa scroll ─── */}
-        <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan PBJ">
+        <div className="print:hidden sticky top-[88px] z-30 -mx-5 sm:-mx-7 lg:-mx-9 -mt-5 sm:-mt-7 lg:-mt-9 px-5 sm:px-7 lg:px-9 py-2.5 bg-white/95 backdrop-blur border-b border-slate-200 dark:border-transparent/90 flex items-center gap-2" role="navigation" aria-label="Navigasi atas Kelengkapan PBJ">
           <button onClick={handleClosePbj}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 min-h-[44px] transition-all">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 min-h-[44px] transition-all">
             <span className="material-symbols-outlined text-lg">arrow_back</span>
             Kembali ke Daftar
           </button>
@@ -1454,47 +1452,47 @@ export default function DokumenKelengkapanPage() {
         </div>
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl text-white">folder_shared</span>
             </div>
             <div>
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-wider">
                 Kelengkapan PBJ
               </span>
-              <h2 className="text-sm font-bold text-slate-800 mt-1.5">Kelengkapan PBJ — semua pengadaan</h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">Upload invoice sekali → terbaca otomatis → lengkapi dokumen → cetak.</p>
+              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1.5">Kelengkapan PBJ — semua pengadaan</h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Upload invoice sekali → terbaca otomatis → lengkapi dokumen → cetak.</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
             <button onClick={handleClosePbj} aria-label="Minimalkan kembali ke daftar dokumen"
               title="Minimalkan"
-              className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95">
-              <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">minimize</span>
+              className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-all duration-300 hover:scale-110 active:scale-95">
+              <span className="material-symbols-outlined text-slate-400 hover:text-slate-600 dark:text-slate-300">minimize</span>
             </button>
             <button onClick={handleClosePbj} aria-label="Tutup detail PBJ"
-              className="p-2.5 rounded-xl hover:bg-slate-100 transition-all duration-300 hover:scale-110 active:scale-95">
-              <span className="material-symbols-outlined text-slate-400 hover:text-slate-600">close</span>
+              className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-all duration-300 hover:scale-110 active:scale-95">
+              <span className="material-symbols-outlined text-slate-400 hover:text-slate-600 dark:text-slate-300">close</span>
             </button>
           </div>
         </div>
         {/* ─── Sprint 011 B-01: toggle SIPLAH/NON-SIPLAH (print:hidden) ─── */}
-        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center gap-3" role="group" aria-label="Mode pengadaan PBJ">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Mode pengadaan</span>
-          <div className="flex items-center gap-1.5 bg-slate-100 rounded-xl p-1" role="switch" aria-checked={modeSiplah === 'siplah'} aria-label="Toggle SIPLAH NON-SIPLAH" tabIndex={0}
+        <div className="print:hidden w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center gap-3" role="group" aria-label="Mode pengadaan PBJ">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mode pengadaan</span>
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/10 rounded-xl p-1" role="switch" aria-checked={modeSiplah === 'siplah'} aria-label="Toggle SIPLAH NON-SIPLAH" tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleMode(modeSiplah === 'siplah' ? 'non' : 'siplah') } }}>
             <button onClick={() => handleToggleMode('non')} aria-pressed={modeSiplah === 'non'}
-              className={`px-4 py-2 rounded-lg text-xs font-bold min-h-[44px] transition-all ${modeSiplah === 'non' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800'}`}>
+              className={`px-4 py-2 rounded-lg text-xs font-bold min-h-[44px] transition-all ${modeSiplah === 'non' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800 dark:text-slate-100'}`}>
               NON-SIPLAH
             </button>
             <button onClick={() => handleToggleMode('siplah')} aria-pressed={modeSiplah === 'siplah'}
-              className={`px-4 py-2 rounded-lg text-xs font-bold min-h-[44px] transition-all ${modeSiplah === 'siplah' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800'}`}>
+              className={`px-4 py-2 rounded-lg text-xs font-bold min-h-[44px] transition-all ${modeSiplah === 'siplah' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:text-slate-800 dark:text-slate-100'}`}>
               SIPLAH
             </button>
           </div>
-          <span className="text-[11px] text-slate-500" aria-live="polite">{modeSiplah === 'siplah' ? 'SIPLAH — hanya tab Perencanaan + cetak 1 dokumen' : 'NON-SIPLAH — keenam dokumen seperti biasa'}</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400" aria-live="polite">{modeSiplah === 'siplah' ? 'SIPLAH — hanya tab Perencanaan + cetak 1 dokumen' : 'NON-SIPLAH — keenam dokumen seperti biasa'}</span>
         </div>
         {/* ─── Sprint 011 B-03: command-bar satu pintu (print:hidden) ─── */}
-        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-5">
+        <div className="print:hidden w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm px-5 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Sumber baris PBJ — satu pintu">
             <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all cursor-pointer min-h-[44px]">
               <span className="material-symbols-outlined text-lg">upload_file</span>
@@ -1503,34 +1501,34 @@ export default function DokumenKelengkapanPage() {
                 onChange={(e) => { handleUploadPbj(e.target.files?.[0]); e.target.value = '' }} />
             </label>
             <button onClick={() => { muatKandidatBku(); setKeranjangBuka((v) => !v) }} aria-expanded={keranjangBuka}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all min-h-[44px]">
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent text-sm font-semibold hover:bg-slate-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all min-h-[44px]">
               <span className="material-symbols-outlined text-lg">inbox</span>
               Dari BKU
             </button>
             <button onClick={() => setManualBuka((v) => !v)} aria-expanded={manualBuka}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all min-h-[44px]">
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent text-sm font-semibold hover:bg-slate-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all min-h-[44px]">
               <span className="material-symbols-outlined text-lg">edit_note</span>
               Manual
             </button>
             <button onClick={handleKosongkanTabelPbj} disabled={pbjReading} aria-label="Kosongkan Tabel PBJ"
               title="Kosongkan tabel + form PBJ (bisa Urungkan)"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all min-h-[44px] disabled:opacity-50">
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent text-sm font-semibold hover:bg-slate-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all min-h-[44px] disabled:opacity-50">
               <span className="material-symbols-outlined text-lg">delete_sweep</span>
               Kosongkan Tabel
             </button>
             {pbjBisaUrungkan && (
-              <button onClick={handleUrungkanPbj} className="px-4 py-2.5 rounded-xl bg-white text-slate-700 border border-slate-200 text-sm font-semibold hover:bg-slate-50 min-h-[44px]">
+              <button onClick={handleUrungkanPbj} className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent text-sm font-semibold hover:bg-slate-50 dark:hover:bg-white/5 min-h-[44px]">
                 Urungkan
               </button>
             )}
-            <span className="text-[11px] text-slate-500 ml-1">Klik baris tabel untuk mengisi form otomatis (tetap bisa diedit).</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-1">Klik baris tabel untuk mengisi form otomatis (tetap bisa diedit).</span>
           </div>
           <div aria-live="polite" className="mt-2 space-y-1">
-            {pbjBadge && <p className="text-xs font-semibold text-slate-700">✓ {pbjBadge}</p>}
-            {pbjPesan && <p className="text-xs text-slate-500">{pbjPesan}</p>}
+            {pbjBadge && <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">✓ {pbjBadge}</p>}
+            {pbjPesan && <p className="text-xs text-slate-500 dark:text-slate-400">{pbjPesan}</p>}
             {invoiceMeta && <p className="text-[11px] text-slate-400">Arsip: {invoiceMeta.namaFile} · {invoiceMeta.nomorInvoice || 'tanpa nomor'} · Rp {(invoiceMeta.grandTotal || 0).toLocaleString('id-ID')}</p>}
-            {pbjBku && <p className="text-[11px] text-slate-500">dari BKU · {pbjBku.noBukti || '-'} · Rp {(pbjBku.nominal || 0).toLocaleString('id-ID')} · {pbjBku.tertimpa} field ditimpa</p>}
-            {pbjBarisAktif != null && pbjInvoices[pbjBarisAktif] && <p className="text-[11px] text-slate-500">Baris {pbjBarisAktif + 1} terpilih — form tab Data terisi + panel preview ikut.</p>}
+            {pbjBku && <p className="text-[11px] text-slate-500 dark:text-slate-400">dari BKU · {pbjBku.noBukti || '-'} · Rp {(pbjBku.nominal || 0).toLocaleString('id-ID')} · {pbjBku.tertimpa} field ditimpa</p>}
+            {pbjBarisAktif != null && pbjInvoices[pbjBarisAktif] && <p className="text-[11px] text-slate-500 dark:text-slate-400">Baris {pbjBarisAktif + 1} terpilih — form tab Data terisi + panel preview ikut.</p>}
           </div>
         </div>
         {/* ─── Task 66: ambil BKU Cari+centang — ganti chips+keranjang menumpuk (print:hidden) ───
@@ -1538,35 +1536,35 @@ export default function DokumenKelengkapanPage() {
             (default ON) + daftar ringkas grup per NoBukti (buka-tutup) +
             centang pilih + Terima ke PBJ sekaligus. */}
         {keranjangBuka && (
-          <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Ambil dari BKU — cari dan centang">
+          <div className="print:hidden w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Ambil dari BKU — cari dan centang">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ambil dari BKU — cari + centang · {bkuTampil.length} cocok · {bkuGrup.length} No. Bukti</p>
-              <button onClick={() => setKeranjangBuka(false)} className="text-xs font-semibold text-slate-500 hover:text-slate-700 min-h-[44px] px-2">Tutup</button>
+              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ambil dari BKU — cari + centang · {bkuTampil.length} cocok · {bkuGrup.length} No. Bukti</p>
+              <button onClick={() => setKeranjangBuka(false)} className="text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-200 min-h-[44px] px-2">Tutup</button>
             </div>
             <div className="grid sm:grid-cols-[minmax(0,1fr)_auto_auto] gap-2 mb-2">
-              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl bg-white min-h-[44px]">
+              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-transparent rounded-xl bg-white dark:bg-slate-900 min-h-[44px]">
                 <span className="material-symbols-outlined text-slate-400 text-lg">search</span>
                 <input type="search" aria-label="Cari No. Bukti atau uraian BKU" placeholder="Cari No. Bukti / uraian…" value={bkuCari}
                   onChange={(e) => setBkuCari(e.target.value)}
                   className="w-full text-sm outline-none placeholder:text-slate-400" />
               </label>
-              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-600 min-h-[44px]">
+              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-transparent rounded-xl text-xs text-slate-600 dark:text-slate-300 min-h-[44px]">
                 Dari
                 <input type="date" aria-label="Filter tanggal dari" value={bkuDari} onChange={(e) => setBkuDari(e.target.value)} className="text-xs outline-none" />
               </label>
-              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-600 min-h-[44px]">
+              <label className="flex items-center gap-2 px-3 py-2 border border-slate-200 dark:border-transparent rounded-xl text-xs text-slate-600 dark:text-slate-300 min-h-[44px]">
                 Sampai
                 <input type="date" aria-label="Filter tanggal sampai" value={bkuSampai} onChange={(e) => setBkuSampai(e.target.value)} className="text-xs outline-none" />
               </label>
             </div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 mb-3 cursor-pointer min-h-[32px]">
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200 mb-3 cursor-pointer min-h-[32px]">
               <input type="checkbox" checked={bkuHanyaBaru} onChange={(e) => setBkuHanyaBaru(e.target.checked)} className="w-4 h-4 accent-[#004ac6]" />
               Hanya yang belum berdokumen {bkuHanyaBaru ? '(aktif)' : '(mati — tampil semua)'}
             </label>
             {bkuCache.length === 0 ? (
-              <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Belum ada data BKU — upload BKU Excel dulu di halaman Kas & Dokumen.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-transparent rounded-lg px-4 py-6 text-center">Belum ada data BKU — upload BKU Excel dulu di halaman Kas & Dokumen.</p>
             ) : bkuGrup.length === 0 ? (
-              <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Tidak cocok — ubah kata kunci, rentang tanggal, atau matikan toggle belum-berdokumen.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-transparent rounded-lg px-4 py-6 text-center">Tidak cocok — ubah kata kunci, rentang tanggal, atau matikan toggle belum-berdokumen.</p>
             ) : (
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" role="list" aria-label="Daftar No. Bukti BKU">
                 {bkuGrup.map((g) => {
@@ -1576,7 +1574,7 @@ export default function DokumenKelengkapanPage() {
                   const sebagian = terpilih > 0 && !semua
                   const sudahSemua = g.items.every((t) => isSudahBerdokumen(t, pbjInvoices))
                   return (
-                    <div key={g.key} role="listitem" className="border border-slate-200 rounded-xl overflow-hidden">
+                    <div key={g.key} role="listitem" className="border border-slate-200 dark:border-transparent rounded-xl overflow-hidden">
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50/70">
                         <input type="checkbox" aria-label={`Pilih semua transaksi ${g.noBukti}`}
                           checked={semua} ref={(el) => { if (el) el.indeterminate = sebagian }}
@@ -1585,11 +1583,11 @@ export default function DokumenKelengkapanPage() {
                           aria-label={terbuka ? `Tutup rincian ${g.noBukti}` : `Buka rincian ${g.noBukti}`}
                           className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-left min-h-[44px]">
                           <span className="material-symbols-outlined text-slate-400 text-lg transition-transform" style={{ transform: terbuka ? 'rotate(90deg)' : 'none' }}>chevron_right</span>
-                          <span className="text-xs font-bold text-slate-800 font-mono">{g.noBukti}</span>
-                          <span className="text-[11px] text-slate-600 truncate max-w-[280px]" title={namaKegiatanGrup(g) || '—'}>· {namaKegiatanGrup(g) || '—'}</span>
-                          <span className="text-[11px] text-slate-500">{g.items.length} transaksi · Rp {Number(g.total || 0).toLocaleString('id-ID')}</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 font-mono">{g.noBukti}</span>
+                          <span className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[280px]" title={namaKegiatanGrup(g) || '—'}>· {namaKegiatanGrup(g) || '—'}</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">{g.items.length} transaksi · Rp {Number(g.total || 0).toLocaleString('id-ID')}</span>
                           {terpilih > 0 && <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{terpilih}/{g.items.length} dipilih</span>}
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${sudahSemua ? 'bg-slate-100 text-slate-500' : 'bg-primary/10 text-primary'}`}>{sudahSemua ? 'Sudah berdokumen' : 'Belum berdokumen'}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${sudahSemua ? 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400' : 'bg-primary/10 text-primary'}`}>{sudahSemua ? 'Sudah berdokumen' : 'Belum berdokumen'}</span>
                         </button>
                       </div>
                       {terbuka && (
@@ -1599,13 +1597,13 @@ export default function DokumenKelengkapanPage() {
                             const cek = !!bkuDipilih[k]
                             return (
                               <li key={k + ti}>
-                                <label className={`flex items-start gap-2.5 px-3 py-2 cursor-pointer min-h-[44px] ${cek ? 'bg-primary/[0.05]' : 'hover:bg-slate-50'}`}>
+                                <label className={`flex items-start gap-2.5 px-3 py-2 cursor-pointer min-h-[44px] ${cek ? 'bg-primary/[0.05]' : 'hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5'}`}>
                                   <input type="checkbox" checked={cek} onChange={() => togglePilihTx(tx)}
                                     aria-label={`Pilih ${tx.noBukti || 'transaksi'} — ${String(tx.uraian || '').slice(0, 50)}`}
                                     className="w-4 h-4 mt-0.5 shrink-0 accent-[#004ac6]" />
                                   <span className="flex-1 min-w-0">
-                                    <span className="block text-xs text-slate-700 leading-snug">{tx.uraian || '(tanpa uraian)'}</span>
-                                    <span className="block text-[11px] text-slate-500 mt-0.5">Kegiatan: {namaKegiatanTx(tx) || '—'}</span>
+                                    <span className="block text-xs text-slate-700 dark:text-slate-200 leading-snug">{tx.uraian || '(tanpa uraian)'}</span>
+                                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Kegiatan: {namaKegiatanTx(tx) || '—'}</span>
                                     <span className="block text-[11px] text-slate-400 mt-0.5">{tx.tanggalStr || isoBku(tx) || '-'} · Rp {Number(nominalBku(tx) || 0).toLocaleString('id-ID')}</span>
                                   </span>
                                 </label>
@@ -1625,40 +1623,40 @@ export default function DokumenKelengkapanPage() {
                 Terima ke PBJ ({jmlDipilih})
               </button>
               {jmlDipilih > 0 && (
-                <button onClick={() => setBkuDipilih({})} className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 min-h-[44px]">
+                <button onClick={() => setBkuDipilih({})} className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-sm font-semibold text-slate-700 dark:text-slate-200 min-h-[44px]">
                   Bersihkan pilihan
                 </button>
               )}
-              <span className="text-[11px] text-slate-500 ml-1">Centang grup/No. Bukti atau per transaksi — hanya yang dicentang yang masuk Tabel Data.</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-1">Centang grup/No. Bukti atau per transaksi — hanya yang dicentang yang masuk Tabel Data.</span>
             </div>
           </div>
         )}
         {/* ─── Sprint 011 B-08 + Revisi UX 011-65: panduan Manual + form subset A5 (print:hidden) ─── */}
         {manualBuka && (
-          <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Form manual PBJ">
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Manual — subset esensial (kolom lain tampil ‘-’)</p>
+          <div className="print:hidden w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Form manual PBJ">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Manual — subset esensial (kolom lain tampil ‘-’)</p>
             {/* ─── 011-65(a): panduan langkah jelas — selalu tampil saat form manual dibuka ─── */}
             <div className="mb-3 rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3" role="note" aria-label="Panduan isi manual">
               {pbjInvoices.length === 0 && (
-                <p className="text-xs text-slate-600 mb-2">Belum ada baris manual — ikuti 3 langkah di bawah untuk menambah baris pertama ke Tabel Data.</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">Belum ada baris manual — ikuti 3 langkah di bawah untuk menambah baris pertama ke Tabel Data.</p>
               )}
-              <ol className="list-decimal ml-4 space-y-1 text-xs text-slate-700">
+              <ol className="list-decimal ml-4 space-y-1 text-xs text-slate-700 dark:text-slate-200">
                 <li><strong>Langkah 1</strong> — Isi <strong>Uraian (wajib)</strong> + Qty &amp; Harga satuan.</li>
                 <li><strong>Langkah 2</strong> — Lengkapi Tanggal + Penyedia + Nomor acuan.</li>
                 <li><strong>Langkah 3</strong> — Klik <strong>“Simpan baris manual”</strong> — baris masuk Tabel Data &amp; form tab Data terisi otomatis.</li>
               </ol>
-              <p className="mt-2 text-[11px] text-slate-500">Contoh 6 field — Uraian: “Kertas HVS A4 80gr” · Qty: 10 · Harga satuan: Rp 55.000 · Tanggal: hari nota · Penyedia: “Toko Barokah” · Nomor acuan: “NOTA-001”. Kolom lain otomatis tampil ‘-’ di tabel 15 kolom.</p>
+              <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">Contoh 6 field — Uraian: “Kertas HVS A4 80gr” · Qty: 10 · Harga satuan: Rp 55.000 · Tanggal: hari nota · Penyedia: “Toko Barokah” · Nomor acuan: “NOTA-001”. Kolom lain otomatis tampil ‘-’ di tabel 15 kolom.</p>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Uraian *</label><input ref={manualUraianRef} type="text" value={manualForm.uraian} onChange={(e) => setManualForm((p) => ({ ...p, uraian: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 min-h-[44px]" /></div>
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Qty</label><input type="number" value={manualForm.qty} onChange={(e) => setManualForm((p) => ({ ...p, qty: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Harga satuan (Rp)</label><input type="number" value={manualForm.harga} onChange={(e) => setManualForm((p) => ({ ...p, harga: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Tanggal</label><input type="date" value={manualForm.tanggal} onChange={(e) => setManualForm((p) => ({ ...p, tanggal: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Penyedia</label><input type="text" value={manualForm.penyedia} onChange={(e) => setManualForm((p) => ({ ...p, penyedia: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
-              <div><label className="block text-xs font-medium text-slate-700 mb-1">Nomor acuan</label><input type="text" value={manualForm.noAcuan} onChange={(e) => setManualForm((p) => ({ ...p, noAcuan: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Uraian *</label><input ref={manualUraianRef} type="text" value={manualForm.uraian} onChange={(e) => setManualForm((p) => ({ ...p, uraian: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Qty</label><input type="number" value={manualForm.qty} onChange={(e) => setManualForm((p) => ({ ...p, qty: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Harga satuan (Rp)</label><input type="number" value={manualForm.harga} onChange={(e) => setManualForm((p) => ({ ...p, harga: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Tanggal</label><input type="date" value={manualForm.tanggal} onChange={(e) => setManualForm((p) => ({ ...p, tanggal: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Penyedia</label><input type="text" value={manualForm.penyedia} onChange={(e) => setManualForm((p) => ({ ...p, penyedia: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
+              <div><label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">Nomor acuan</label><input type="text" value={manualForm.noAcuan} onChange={(e) => setManualForm((p) => ({ ...p, noAcuan: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary min-h-[44px]" /></div>
             </div>
             <div className="flex justify-end gap-2 mt-3">
-              <button onClick={() => setManualBuka(false)} className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 min-h-[44px]">Batal</button>
+              <button onClick={() => setManualBuka(false)} className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-sm font-semibold text-slate-700 dark:text-slate-200 min-h-[44px]">Batal</button>
               <button onClick={handleSubmitManual} className="px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-bold min-h-[44px]">Simpan baris manual</button>
             </div>
           </div>
@@ -1667,16 +1665,16 @@ export default function DokumenKelengkapanPage() {
             15 kolom persis sheet + 1 kolom expand. Kontainer hanya overflow-x
             (horizontal muncul bila viewport sempit); TIDAK ada max-h /
             overflow-y sehingga semua baris terlihat penuh secara vertikal. */}
-        <div className="glass-surface w-full max-w-none rounded-2xl overflow-hidden">
+        <div className="w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm overflow-hidden">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 sm:px-6 lg:px-8 pt-5 pb-3">
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tabel Data — isi invoice PDF</p>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tabel Data — isi invoice PDF</p>
             <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">{pbjInvoices.length} baris · 15 kolom persis sheet</span>
           </div>
           <div className="px-5 sm:px-6 lg:px-8 pb-5 overflow-x-auto overflow-y-visible max-w-full min-w-0 [contain:inline-size]">
             {pbjInvoices.length === 0 ? (
-              <p className="text-xs text-slate-500 border border-dashed border-slate-200 rounded-lg px-4 py-6 text-center">Belum ada data — upload invoice PDF atau isi manual. Kosongkan Tabel mengosongkan tabel ini (bisa Urungkan).</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-transparent rounded-lg px-4 py-6 text-center">Belum ada data — upload invoice PDF atau isi manual. Kosongkan Tabel mengosongkan tabel ini (bisa Urungkan).</p>
             ) : (
-            <table className="w-full text-[11px] leading-snug border border-slate-200 rounded-xl overflow-hidden min-w-[1080px]">
+            <table className="w-full text-[11px] leading-snug border border-slate-200 dark:border-transparent rounded-xl overflow-hidden min-w-[1080px]">
               <thead><tr className="bg-primary text-white">
                 <th className="px-2 py-2 w-10 font-bold" aria-label="Buka rincian item"><span className="sr-only">Rincian</span></th>
                 {PBJ_SHEET_COLUMNS.map((c) => (
@@ -1691,12 +1689,12 @@ export default function DokumenKelengkapanPage() {
                     <Fragment key={inv.id || i}>
                     <tr onClick={() => handlePilihInvoiceRow(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handlePilihInvoiceRow(i) } }}
                       tabIndex={0} title={`Isi form dari baris ${i + 1} (${inv.items.length} item)`}
-                      className={`border-t border-slate-100 cursor-pointer hover:bg-primary/5 focus:bg-primary/5 focus:outline-none ${pbjBarisAktif === i ? 'bg-primary/10' : ''}`}>
+                      className={`border-t border-slate-100 dark:border-transparent cursor-pointer hover:bg-primary/5 focus:bg-primary/5 focus:outline-none ${pbjBarisAktif === i ? 'bg-primary/10' : ''}`}>
                       <td className="px-2 py-2 text-center align-top">
                         <button onClick={(e) => { e.stopPropagation(); toggleExpandInvoice(i) }}
                           aria-expanded={terbuka} aria-label={terbuka ? `Tutup rincian baris ${i + 1}` : `Buka rincian ${inv.items.length} item baris ${i + 1}`}
                           title={`${inv.items.length} item — klik untuk ${terbuka ? 'tutup' : 'lihat'}`}
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:bg-primary/10 hover:text-primary hover:border-primary/30 min-w-[28px]">
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary hover:border-primary/30 min-w-[28px]">
                           <span className="material-symbols-outlined text-base" style={{ transform: terbuka ? 'rotate(90deg)' : 'none' }}>chevron_right</span>
                         </button>
                       </td>
@@ -1717,17 +1715,17 @@ export default function DokumenKelengkapanPage() {
                         {/* ─── Task 66 lanjutan: nama kegiatan lengkap di baris
                             sebelum dropdown — user tahu ini kegiatan apa
                             (mamin apa / pembelian ATK bulan apa) ─── */}
-                        <p className="text-[11px] font-bold text-slate-600">Rincian {inv.items.length} barang/jasa — {inv.nomor || inv.namaFile || `baris ${i + 1}`}</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-[11px] font-bold text-slate-600 dark:text-slate-300">Rincian {inv.items.length} barang/jasa — {inv.nomor || inv.namaFile || `baris ${i + 1}`}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                           {(inv.tanggalISO ? tanggalPanjang(inv.tanggalISO) : (inv.tanggalTampil || '-'))}
                           {(inv.bulan || bulanDariISOPbj(inv.tanggalISO)) ? ` · ${inv.bulan || bulanDariISOPbj(inv.tanggalISO)}` : ''}
                           {inv.namaPenyedia ? ` · ${inv.namaPenyedia}` : ''}
                           {inv.sumber ? ` · sumber ${inv.sumber}` : (inv.namaFile ? ` · ${inv.namaFile}` : '')}
                           {` · Rp ${Number(inv.grandTotal || inv.alokasi || 0).toLocaleString('id-ID')}`}
                         </p>
-                        <p className="text-xs text-slate-700 leading-snug mt-1 mb-1.5">Kegiatan: {(inv.items || []).map((it) => it.uraian).filter(Boolean).join('; ') || inv.spesifikasi || '-'}</p>
-                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden bg-white">
-                          <thead><tr className="bg-slate-50 text-slate-500">
+                        <p className="text-xs text-slate-700 dark:text-slate-200 leading-snug mt-1 mb-1.5">Kegiatan: {(inv.items || []).map((it) => it.uraian).filter(Boolean).join('; ') || inv.spesifikasi || '-'}</p>
+                        <table className="w-full text-xs border border-slate-200 dark:border-transparent rounded-lg overflow-hidden bg-white dark:bg-slate-900">
+                          <thead><tr className="bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400">
                             <th className="px-2 py-1.5 text-left">No</th>
                             <th className="px-2 py-1.5 text-left">Nama Barang/Jasa</th>
                             <th className="px-2 py-1.5 text-right">Qty</th>
@@ -1736,11 +1734,11 @@ export default function DokumenKelengkapanPage() {
                           </tr></thead>
                           <tbody>
                             {inv.items.map((it, j) => (
-                              <tr key={j} className="border-t border-slate-100">
+                              <tr key={j} className="border-t border-slate-100 dark:border-transparent">
                                 <td className="px-2 py-1.5">{j + 1}</td>
-                                <td className="px-2 py-1.5"><input type="text" aria-label={`Uraian baris ${i + 1} item ${j + 1}`} value={it.uraian || ''} onChange={(e) => updateInvoiceItem(i, j, 'uraian', e.target.value)} onBlur={simpanEditInline} className="w-full min-w-[140px] px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
-                                <td className="px-2 py-1.5"><input type="number" aria-label={`Qty baris ${i + 1} item ${j + 1}`} value={it.qty ?? ''} onChange={(e) => updateInvoiceItem(i, j, 'qty', e.target.value)} onBlur={simpanEditInline} className="w-20 px-2 py-1 text-xs text-right border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
-                                <td className="px-2 py-1.5"><input type="number" aria-label={`Harga baris ${i + 1} item ${j + 1}`} value={it.harga ?? ''} onChange={(e) => updateInvoiceItem(i, j, 'harga', e.target.value)} onBlur={simpanEditInline} className="w-28 px-2 py-1 text-xs text-right border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
+                                <td className="px-2 py-1.5"><input type="text" aria-label={`Uraian baris ${i + 1} item ${j + 1}`} value={it.uraian || ''} onChange={(e) => updateInvoiceItem(i, j, 'uraian', e.target.value)} onBlur={simpanEditInline} className="w-full min-w-[140px] px-2 py-1 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
+                                <td className="px-2 py-1.5"><input type="number" aria-label={`Qty baris ${i + 1} item ${j + 1}`} value={it.qty ?? ''} onChange={(e) => updateInvoiceItem(i, j, 'qty', e.target.value)} onBlur={simpanEditInline} className="w-20 px-2 py-1 text-xs text-right border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
+                                <td className="px-2 py-1.5"><input type="number" aria-label={`Harga baris ${i + 1} item ${j + 1}`} value={it.harga ?? ''} onChange={(e) => updateInvoiceItem(i, j, 'harga', e.target.value)} onBlur={simpanEditInline} className="w-28 px-2 py-1 text-xs text-right border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
                                 <td className="px-2 py-1.5 text-right whitespace-nowrap">{Number(it.total || 0).toLocaleString('id-ID')}</td>
                               </tr>
                             ))}
@@ -1752,19 +1750,19 @@ export default function DokumenKelengkapanPage() {
                             Isi form dari invoice ini
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleArsipkanInvoice(i) }} aria-label={`Arsipkan baris ${i + 1}`}
-                            className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all min-h-[36px]">
+                            className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all min-h-[36px]">
                             Arsipkan
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); setTargetHapus(i) }} aria-label={`Hapus baris ${i + 1}`}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 hover:text-slate-800 active:scale-[0.98] transition-all min-h-[36px]">
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-800 dark:text-slate-100 active:scale-[0.98] transition-all min-h-[36px]">
                             <span className="material-symbols-outlined text-base">delete</span>
                             Hapus
                           </button>
                         </div>
                         <div className="mt-2 grid sm:grid-cols-3 gap-2">
-                          <label className="text-[11px] text-slate-500">No. acuan<input type="text" value={inv.nomor || ''} onChange={(e) => updateInvoiceField(i, 'nomor', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></label>
-                          <label className="text-[11px] text-slate-500">Penyedia<input type="text" value={inv.namaPenyedia || ''} onChange={(e) => updateInvoiceField(i, 'namaPenyedia', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></label>
-                          <label className="text-[11px] text-slate-500">Tanggal<input type="date" value={inv.tanggalISO || ''} onChange={(e) => updateInvoiceField(i, 'tanggalISO', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></label>
+                          <label className="text-[11px] text-slate-500 dark:text-slate-400">No. acuan<input type="text" value={inv.nomor || ''} onChange={(e) => updateInvoiceField(i, 'nomor', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></label>
+                          <label className="text-[11px] text-slate-500 dark:text-slate-400">Penyedia<input type="text" value={inv.namaPenyedia || ''} onChange={(e) => updateInvoiceField(i, 'namaPenyedia', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></label>
+                          <label className="text-[11px] text-slate-500 dark:text-slate-400">Tanggal<input type="date" value={inv.tanggalISO || ''} onChange={(e) => updateInvoiceField(i, 'tanggalISO', e.target.value)} onBlur={simpanEditInline} className="mt-0.5 w-full px-2 py-1.5 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></label>
                         </div>
                       </td>
                     </tr>
@@ -1789,36 +1787,36 @@ export default function DokumenKelengkapanPage() {
           </div>
         </div>
         {/* ─── Sprint 011 B-07: panel arsip halus tertutup default (print:hidden) ─── */}
-        <div className="glass-surface print:hidden w-full max-w-none rounded-2xl px-5 sm:px-6 lg:px-8 py-4" aria-label="Arsip baris PBJ">
-          <button onClick={() => setArsipBuka((v) => !v)} aria-expanded={arsipBuka} className="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider min-h-[44px]">
+        <div className="print:hidden w-full max-w-none bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent/90 shadow-sm px-5 sm:px-6 lg:px-8 py-4" aria-label="Arsip baris PBJ">
+          <button onClick={() => setArsipBuka((v) => !v)} aria-expanded={arsipBuka} className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider min-h-[44px]">
             <span className="material-symbols-outlined text-base">archive</span>
             Arsip ({pbjArsip.length} baris){arsipBuka ? ' — tutup' : ' — buka'}
           </button>
           {arsipBuka && (
             <div className="mt-2 space-y-2">
               {pbjArsip.length === 0 ? (
-                <p className="text-xs text-slate-500">Arsip kosong — baris yang diarsipkan bisa dikembalikan 100%.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Arsip kosong — baris yang diarsipkan bisa dikembalikan 100%.</p>
               ) : (
                 <>
                   {pbjArsip.map((r, ai) => (
-                    <div key={r.id || ai} className="flex flex-wrap items-center gap-2 border border-slate-200 rounded-xl px-3 py-2">
-                      <span className="text-xs text-slate-700 font-semibold">{r.nomor || '(tanpa nomor)'} — {String(r.spesifikasi || '').slice(0, 60)}</span>
+                    <div key={r.id || ai} className="flex flex-wrap items-center gap-2 border border-slate-200 dark:border-transparent rounded-xl px-3 py-2">
+                      <span className="text-xs text-slate-700 dark:text-slate-200 font-semibold">{r.nomor || '(tanpa nomor)'} — {String(r.spesifikasi || '').slice(0, 60)}</span>
                       <button onClick={() => handleKembalikanArsip(ai)} className="ml-auto px-3.5 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold min-h-[44px]">Kembalikan</button>
                     </div>
                   ))}
-                  <button onClick={handleKosongkanArsip} className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold min-h-[44px]">Kosongkan Arsip</button>
+                  <button onClick={handleKosongkanArsip} className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 text-xs font-semibold min-h-[44px]">Kosongkan Arsip</button>
                 </>
               )}
             </div>
           )}
         </div>
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,620px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,700px)] items-start">
-          <div className="glass-surface min-w-0 rounded-2xl overflow-hidden">
+          <div className="min-w-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm overflow-hidden">
             <div role="tablist" aria-label="Dokumen PBJ" className="flex flex-wrap gap-1.5 px-4 sm:px-5 pt-3">
               {PBJ_TABS_TAMPIL.map((t) => (
                 <button key={t.id} role="tab" aria-selected={pbjTab === t.id}
                   onClick={() => setPbjTab(t.id)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold min-h-[44px] transition-all ${pbjTab === t.id ? 'bg-primary text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold min-h-[44px] transition-all ${pbjTab === t.id ? 'bg-primary text-white shadow' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200'}`}>
                   {t.label}
                 </button>
               ))}
@@ -1826,41 +1824,41 @@ export default function DokumenKelengkapanPage() {
             <div className="p-4 sm:p-5 grid sm:grid-cols-2 gap-3">
               {(PBJ_TABS_TAMPIL.find((t) => t.id === pbjTab)?.fields || PBJ_TABS_TAMPIL[0]?.fields || []).map((f) => (
                 <div key={`${f.simpanKe || pbjTab}.${f.key}`} className={f.type === 'textarea' ? 'sm:col-span-2' : ''}>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">{f.label}</label>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-200 mb-1">{f.label}</label>
                   {f.type === 'date' ? (
                     <input type="date" value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
                   ) : f.type === 'select' ? (
                     <select value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]">
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]">
                       <option value="">Pilih…</option>
                       {(f.options || []).map((o) => <option key={o} value={o}>{o}</option>)}
                     </select>
                   ) : f.type === 'textarea' ? (
                     <textarea rows={3} value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
                   ) : (
                     <input type="text" value={pbjForm[f.simpanKe || pbjTab]?.[f.key] || ''} onChange={(e) => updatePbj(f.simpanKe || pbjTab, f.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
+                      className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none min-h-[44px]" />
                   )}
                 </div>
               ))}
             </div>
             {pbjTab === 'pesanan' && (pbjForm.pesanan.rows || []).length > 0 && (
               <div className="px-4 sm:px-5 pb-4 overflow-x-auto">
-                <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                  <thead><tr className="bg-slate-50 text-slate-500">
+                <table className="w-full text-xs border border-slate-200 dark:border-transparent rounded-lg overflow-hidden">
+                  <thead><tr className="bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400">
                     <th className="px-2 py-1.5 text-left">No</th><th className="px-2 py-1.5 text-left">Nama Barang/Jasa</th>
                     <th className="px-2 py-1.5 text-right">Jumlah</th><th className="px-2 py-1.5 text-left">Satuan</th>
                     <th className="px-2 py-1.5 text-right">Harga Satuan</th><th className="px-2 py-1.5 text-right">Total Harga termasuk Pajak</th>
                   </tr></thead>
                   <tbody>
                     {pbjForm.pesanan.rows.map((r, i) => (
-                      <tr key={i} className="border-t border-slate-100">
+                      <tr key={i} className="border-t border-slate-100 dark:border-transparent">
                         <td className="px-2 py-1.5">{i + 1}</td><td className="px-2 py-1.5">{r.uraian}</td>
                         <td className="px-2 py-1.5 text-right">{r.qty}</td>
                         <td className="px-2 py-1.5"><input type="text" aria-label={`Satuan baris ${i + 1}`} placeholder="Pcs" value={r.satuan || ''} onChange={(e) => updatePesananRow(i, 'satuan', e.target.value)}
-                          className="w-20 px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
+                          className="w-20 px-2 py-1 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
                         <td className="px-2 py-1.5 text-right">{Number(r.harga || 0).toLocaleString('id-ID')}</td>
                         <td className="px-2 py-1.5 text-right">{Number(r.total || 0).toLocaleString('id-ID')}</td>
                       </tr>
@@ -1871,20 +1869,20 @@ export default function DokumenKelengkapanPage() {
             )}
             {pbjTab === 'nego' && (pbjForm.nego.rows || []).length > 0 && (
               <div className="px-4 sm:px-5 pb-4 overflow-x-auto">
-                <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                  <thead><tr className="bg-slate-50 text-slate-500">
+                <table className="w-full text-xs border border-slate-200 dark:border-transparent rounded-lg overflow-hidden">
+                  <thead><tr className="bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400">
                     <th className="px-2 py-1.5 text-left">Produk</th><th className="px-2 py-1.5 text-right">Qty</th>
                     <th className="px-2 py-1.5 text-right">Penawaran</th><th className="px-2 py-1.5 text-right">Negosiasi</th><th className="px-2 py-1.5 text-left">Ket</th>
                   </tr></thead>
                   <tbody>
                     {pbjForm.nego.rows.map((r, i) => (
-                      <tr key={i} className="border-t border-slate-100">
+                      <tr key={i} className="border-t border-slate-100 dark:border-transparent">
                         <td className="px-2 py-1.5">{r.uraian}</td><td className="px-2 py-1.5 text-right">{r.qty}</td>
                         <td className="px-2 py-1.5 text-right">{Number(r.penawaran || 0).toLocaleString('id-ID')}</td>
                         <td className="px-2 py-1.5"><input type="number" aria-label={`Harga negosiasi baris ${i + 1}`} value={r.nego ?? ''} onChange={(e) => updateNegoRow(i, 'nego', e.target.value)}
-                          className="w-28 px-2 py-1 text-xs text-right border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
+                          className="w-28 px-2 py-1 text-xs text-right border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
                         <td className="px-2 py-1.5"><input type="text" aria-label={`Keterangan baris ${i + 1}`} value={r.ket || ''} onChange={(e) => updateNegoRow(i, 'ket', e.target.value)}
-                          className="w-24 px-2 py-1 text-xs border border-slate-200 rounded-lg outline-none focus:border-primary" /></td>
+                          className="w-24 px-2 py-1 text-xs border border-slate-200 dark:border-transparent rounded-lg outline-none focus:border-primary" /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -1893,7 +1891,7 @@ export default function DokumenKelengkapanPage() {
             )}
             <div className="px-4 sm:px-5 pb-4 flex flex-wrap gap-1.5">
               {pbjRingkasan.map((r) => (
-                <span key={r.id} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${r.lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'}`}>
+                <span key={r.id} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${r.lengkap ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>
                   <span className="material-symbols-outlined text-sm">{r.lengkap ? 'check_circle' : 'pending'}</span>
                   {r.label}: {r.lengkap ? `LENGKAP${r.nItem ? ` · ${r.nItem} item` : ''}` : 'KURANG'}
                 </span>
@@ -1901,19 +1899,19 @@ export default function DokumenKelengkapanPage() {
             </div>
           </div>
           <aside className="print:hidden min-w-0 lg:sticky lg:top-[88px] self-start">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Panel Preview Document — PBJ</h3>
+            <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Panel Preview Document — PBJ</h3>
             {pbjDocsList.length > 0 ? (
               <PanelPreviewDocument title="Panel Preview Document — PBJ" docs={pbjDocsList}
                 status={{ perlu: pbjKosong, violations: [] }} cetakAktif={pbjDocsList.length > 0}
                 onCek={handleCekPbj} onCetak={handleCetakPbj} />
             ) : (
-              <p className="text-xs text-slate-500 bg-white border border-slate-200 rounded-xl px-4 py-3">Belum ada dokumen PBJ — upload invoice atau isi manual.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl px-4 py-3">Belum ada dokumen PBJ — upload invoice atau isi manual.</p>
             )}
           </aside>
         </div>
         <div className="flex items-center justify-between pt-1">
           <button onClick={handleClosePbj}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-white transition-all duration-300 hover:scale-105 active:scale-95">
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-white dark:bg-slate-900 transition-all duration-300 active:scale-95">
             <span className="material-symbols-outlined text-lg">arrow_back</span>
             Kembali ke Daftar
           </button>
@@ -1944,10 +1942,10 @@ export default function DokumenKelengkapanPage() {
         {bkuKelompok && (
           <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
             <span className="material-symbols-outlined text-primary text-base">move_to_inbox</span>
-            <span className="font-semibold text-slate-800">
+            <span className="font-semibold text-slate-800 dark:text-slate-100">
               dari BKU · {bkuKelompok.count} baris{(bkuKelompok.nos || []).length > 0 ? ` (${(bkuKelompok.nos || []).join(', ')})` : ''} · Rp {(bkuKelompok.total || 0).toLocaleString('id-ID')}
             </span>
-            <button onClick={() => setBkuKelompok(null)} className="ml-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 font-semibold">Tutup</button>
+            <button onClick={() => setBkuKelompok(null)} className="ml-auto px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 font-semibold">Tutup</button>
           </div>
         )}
         {/* ─── Revisi PBJ (3): mode transformasi — card asal hilang, hanya card Kelengkapan tampil ─── */}
@@ -1993,7 +1991,7 @@ export default function DokumenKelengkapanPage() {
                     <button
                       key={item.id}
                       onClick={() => handleOpenDokumen(item, category)}
-                      className={`group relative bg-white rounded-xl border transition-all duration-200 overflow-hidden ${
+                      className={`dok-card group relative bg-white rounded-xl border transition-all duration-200 overflow-hidden hover:-translate-y-0.5 ${
                         selectedDokumen?.id === item.id
                           ? 'border-primary ring-2 ring-primary/20 shadow-md'
                           : isSelesai
@@ -2033,7 +2031,7 @@ export default function DokumenKelengkapanPage() {
           )
         })}
         {/* ─── Info Footer ──────────────────────────────────────────────── */}
-        <div className="bg-white rounded-xl border border-outline-variant p-4 flex items-center gap-3">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-outline-variant p-4 flex items-center gap-3">
           <span className="material-symbols-outlined text-primary">info</span>
           <div className="flex-1">
             <p className="text-xs text-text-low">
@@ -2067,7 +2065,7 @@ export default function DokumenKelengkapanPage() {
           onClick={() => setSelectedDokumen(null)}
         >
           <div
-            className="glass-surface rounded-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -2109,14 +2107,14 @@ export default function DokumenKelengkapanPage() {
                       {field.type === 'date' ? (
                         <input
                           type="date"
-                          className="w-full px-3 py-2 text-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                          className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                           value={formData[field.name] || ''}
                           onChange={(e) => handleFormChange(field.name, e.target.value)}
                         />
                       ) : field.type === 'number' ? (
                         <input
                           type="number"
-                          className="w-full px-3 py-2 text-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                          className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                           placeholder={field.placeholder}
                           value={formData[field.name] || ''}
                           onChange={(e) => handleFormChange(field.name, e.target.value)}
@@ -2124,7 +2122,7 @@ export default function DokumenKelengkapanPage() {
                       ) : (
                         <input
                           type="text"
-                          className="w-full px-3 py-2 text-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                          className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-900 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                           placeholder={field.placeholder}
                           value={formData[field.name] || ''}
                           onChange={(e) => handleFormChange(field.name, e.target.value)}
@@ -2178,7 +2176,7 @@ export default function DokumenKelengkapanPage() {
                 {selectedDokumen.formFields?.length > 0 && (
                   <button
                     onClick={handleSaveForm}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:brightness-110 shadow-sm transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary shadow-sm transition-all"
                   >
                     <span className="material-symbols-outlined text-lg">save</span>
                     Simpan

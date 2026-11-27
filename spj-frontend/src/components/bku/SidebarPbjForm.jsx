@@ -12,8 +12,8 @@
  */
 import { PBJ_TABS, fieldsTampil } from '../../utils/pbjTabs'
 
-const INPUT = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none'
-const LABEL = 'block text-[10px] font-semibold text-slate-500 uppercase mb-1'
+const INPUT = 'w-full px-3 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-[13px] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25'
+const LABEL = 'block text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 mb-1.5'
 
 export default function SidebarPbjForm({ tab = 'perencanaan', form = {}, onChange }) {
   const def = PBJ_TABS.find((t) => t.id === tab) || PBJ_TABS[0]
@@ -31,11 +31,11 @@ export default function SidebarPbjForm({ tab = 'perencanaan', form = {}, onChang
   return (
     <div className="space-y-3">
       {adaTurunan && (
-        <p className="flex items-start gap-1.5 text-[10px] text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+        <p className="flex items-start gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg px-2.5 py-2">
           <span className="material-symbols-outlined text-[13px] text-slate-400 leading-4">link</span>
           <span>
-            <span className="font-semibold text-slate-600">Tanggal</span> dan{' '}
-            <span className="font-semibold text-slate-600">Kegiatan/Pekerjaan</span> diambil otomatis dari
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Tanggal</span> dan{' '}
+            <span className="font-semibold text-slate-600 dark:text-slate-300">Kegiatan/Pekerjaan</span> diambil otomatis dari
             Identitas Kegiatan — tidak perlu diisi ulang di sini.
           </span>
         </p>

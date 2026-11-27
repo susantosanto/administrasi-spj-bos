@@ -35,6 +35,26 @@ function keyDari(block) {
   if (block.type === 'table-dinamis') {
     out.push({ key: 'rows', label: 'Daftar isi/penerima (minimal 1 baris)' })
   }
+  // Sprint 030: blok dokumen Lomba & Workshop + Desain Spanduk — field
+  // wajib dideklarasikan eksplisit di templateConfig (blok.fields).
+  if (['undangan-kegiatan', 'surat-tugas-kegiatan', 'daftar-hadir-kegiatan', 'spanduk-preview'].includes(block.type)
+    && Array.isArray(block.fields)) {
+    for (const f of block.fields) {
+      if (f?.key && f.wajib !== false) out.push({ key: f.key, label: f.label || f.key })
+    }
+  }
+  // Sprint 030: proposal — hanya subset wajib (block.wajib, key ke section
+  // fields); sisanya boleh kosong (placeholder cetak).
+  if (block.type === 'proposal-kegiatan' && Array.isArray(block.wajib)) {
+    const labelDari = (k) => {
+      for (const s of block.sections || []) {
+        const f = (s.fields || []).find((x) => x.key === k)
+        if (f) return f.label || k
+      }
+      return k
+    }
+    for (const k of block.wajib) out.push({ key: k, label: labelDari(k) })
+  }
   return out
 }
 

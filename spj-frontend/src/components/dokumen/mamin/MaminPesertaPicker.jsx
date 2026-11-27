@@ -15,9 +15,9 @@ export default function MaminPesertaPicker({ rows = [], onToggle }) {
   const terpilih = new Set(rows.map((r) => r.id).filter(Boolean))
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-56 overflow-y-auto space-y-1">
+    <div className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl p-3 max-h-56 overflow-y-auto space-y-1">
       {gtk.length === 0 && (
-        <p className="text-xs text-slate-500 p-2">
+        <p className="text-xs text-slate-500 dark:text-slate-400 p-2">
           Belum ada data. Upload Data Guru / Tendik terlebih dahulu.
         </p>
       )}
@@ -27,7 +27,7 @@ export default function MaminPesertaPicker({ rows = [], onToggle }) {
         return (
           <label
             key={key}
-            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${checked ? 'bg-primary/10' : 'hover:bg-white'}`}
+            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${checked ? 'bg-primary/10' : 'hover:bg-white dark:bg-slate-900'}`}
           >
             <input
               type="checkbox"
@@ -36,8 +36,8 @@ export default function MaminPesertaPicker({ rows = [], onToggle }) {
               className="w-4 h-4 accent-primary"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-slate-800 truncate">{o.nama}</p>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-xs font-medium text-slate-800 dark:text-slate-100 truncate">{o.nama}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">
                 {o.nip || o.nuptk ? `NIP ${o.nip || o.nuptk}` : 'NIP kosong'}
                 {o.jabatan ? ` · ${o.jabatan}` : ''}
               </p>

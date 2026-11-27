@@ -36,20 +36,23 @@ export default {
         "on-primary-container": "#eeefff",// Text on primary-container
 
         // ── Surface / Background ───────────────────────────────────
-        background: "#f8f9fb",            // Page bg
-        surface: "#f8f9fb",               // Alias page bg (38 usages)
-        "surface-container-lowest": "#ffffff", // Card bg (9 usages)
-        "surface-container-low": "#f3f4f6",    // Muted card / input bg
-        "surface-container": "#edeef0",        // Section bg
-        "surface-container-high": "#e7e8ea",   // Hover / elevated
-        "surface-variant": "#e1e2e4",          // Divider variant
-        "on-surface": "#191c1e",               // Primary text on surface
-        "on-surface-variant": "#434655",       // Secondary text
-        "on-background": "#191c1e",            // Alias
+        // NOTE: token surface/teks/border memakai CSS var agar dark mode
+        // otomatis mengikuti :root / .dark di index.css (tanpa dark: manual).
+        background: "var(--color-background)",            // Page bg
+        surface: "var(--color-surface)",               // Alias page bg (38 usages)
+        "surface-container-lowest": "var(--color-surface)", // Card bg (9 usages)
+        "surface-container-low": "var(--color-surface-muted)",    // Muted card / input bg
+        "surface-container": "var(--color-surface-container)",        // Section bg
+        "surface-container-high": "var(--color-surface-container-high)",   // Hover / elevated
+        "surface-variant": "var(--color-surface-container-high)",          // Divider variant
+        "on-surface": "var(--color-text-high)",               // Primary text on surface
+        "on-surface-variant": "var(--color-text-muted)",       // Secondary text
+        "on-background": "var(--color-text-high)",            // Alias
 
         // ── Outline / Border ───────────────────────────────────────
-        outline: "#737686",              // Strong border
-        "outline-variant": "#c3c6d7",     // Subtle border (42 usages)
+        // var(--color-border): light slate-200, dark TRANSPARAN (premium, tanpa garis gelap)
+        outline: "var(--color-border)",              // Strong border
+        "outline-variant": "var(--color-border)",     // Subtle border (42 usages)
 
         // ── Semantic ───────────────────────────────────────────────
         error: "#ba1a1a",                 // Form error (76 usages)
@@ -57,8 +60,8 @@ export default {
         warning: "#EAB308",               // Warning (16 usages)
         success: "#059669",               // Konsisten untuk emerald states (dashboard)
         "success-bright": "#12B76A",      // Success landing SaaS
-        "text-high": "#111827",           // Heading (28 usages)
-        "text-low": "#6B7280",            // Muted (31 usages)
+        "text-high": "var(--color-text-high)",           // Heading (28 usages)
+        "text-low": "var(--color-text-low)",            // Muted (31 usages)
         secondary: "#006c4a",             // Accent secondary (2 usages)
 
         // ── Deprecated aliases (keep for backward compat, jangan tambah baru) ──

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dashboard Home — Ultra Premium 2026 Design
  * HEADER: Stunning gradient + Glass morphism effects
  * ICON: Gelap/Profesional
@@ -19,7 +19,6 @@ import { DOCUMENTS_REF, isDocAvailable } from '../../utils/docHelper'
 import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
 import ArusKasChart from '../../components/dashboard/ArusKasChart'
 import ActivityPanel from '../../components/dashboard/ActivityPanel'
-import PaketProgressPanel from '../../components/dashboard/PaketProgressPanel'
 
 const fmtSingkat = (n) => {
   const v = Number(n) || 0
@@ -141,19 +140,9 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         <div className="relative overflow-hidden rounded-2xl border border-blue-300/25 shadow-lg shadow-primary/15">
           <div className={`absolute inset-0 bg-gradient-to-br living-gradient ${isDark ? 'from-[#0f172a] via-[#1e3a8a] to-[#2563eb]' : 'from-[#1e40af] via-[#2563eb] to-[#3b82f6]'}`} style={{ backgroundSize: '200% 200%' }} />
-          {/* Batik floral sangat tipis — sama dengan background */}
-          <div className="sidebar-batik absolute inset-0 pointer-events-none" aria-hidden="true" />
-          {/* Foto Kantor Bupati Bandung Barat — sisi kanan, tepi melebur via gradasi/mask (tanpa blok) */}
-          <div className="absolute inset-y-0 right-0 w-[56%] hidden sm:block">
-            <div className="hero-photo-mask absolute inset-0">
-              <img src="/hero-kantor-bupati.jpg" alt="" className="h-full w-full object-cover object-[62%_center]" draggable="false" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#1e40af]/75 via-[#1e40af]/15 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#1e3a8a]/25 via-transparent to-[#1e3a8a]/25" />
-            </div>
-          </div>
           <div className="absolute -right-12 -top-24 h-64 w-64 rounded-full border border-white/10 bg-white/5 blur-2xl" aria-hidden="true" />
-          <div className="relative p-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="flex items-center gap-4 flex-1 min-w-0 sm:max-w-[54%]">
+          <div className="relative p-5 sm:px-7 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-5">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
               <div className="w-16 h-12 rounded-xl bg-white/90 flex items-center justify-center border border-white/30 shadow-lg shadow-black/10 px-1.5 shrink-0 sm:hidden">
                 <img src="/asik-logo.png" alt="Asik" className="h-6 w-auto object-contain" draggable="false" />
               </div>
@@ -190,20 +179,20 @@ export default function DashboardHome() {
           const last = monthly[monthly.length - 1]
           const adaData = txs.length > 0
           const stats = [
-            { label: 'Dana BOSP diterima', value: adaData ? fmtSingkat(terima) : '—', hint: last ? `Data s.d. ${last.namaBulan}` : 'Impor BKU untuk melihat data', icon: Landmark, tone: 'text-white bg-gradient-to-br from-blue-500 to-blue-700' },
-            { label: 'Realisasi belanja', value: adaData ? fmtSingkat(pakai) : '—', hint: last ? `${fmtSingkat(last.totalPengeluaran)} bulan ${last.namaBulan}` : 'Berdasarkan transaksi BKU', icon: ReceiptText, tone: 'text-white bg-gradient-to-br from-blue-600 to-blue-800' },
-            { label: 'Saldo akhir BKU', value: adaData ? fmtSingkat(saldo) : '—', hint: adaData ? 'Saldo dari transaksi terakhir' : 'Belum ada saldo tercatat', icon: Wallet, tone: 'text-white bg-gradient-to-br from-slate-500 to-slate-700' },
-            { label: 'Rasio realisasi', value: adaData && terima > 0 ? `${rasioRealisasi}%` : '—', hint: terima > 0 ? `${fmtSingkat(pakai)} dari dana diterima` : 'Belum ada nilai penerimaan', icon: PieChart, tone: 'text-white bg-gradient-to-br from-slate-600 to-slate-800' },
+            { label: 'Dana BOSP diterima', value: adaData ? fmtSingkat(terima) : '—', hint: last ? `Data s.d. ${last.namaBulan}` : 'Impor BKU untuk melihat data', icon: Landmark, tone: 'text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10' },
+            { label: 'Realisasi belanja', value: adaData ? fmtSingkat(pakai) : '—', hint: last ? `${fmtSingkat(last.totalPengeluaran)} bulan ${last.namaBulan}` : 'Berdasarkan transaksi BKU', icon: ReceiptText, tone: 'text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-500/10' },
+            { label: 'Saldo akhir BKU', value: adaData ? fmtSingkat(saldo) : '—', hint: adaData ? 'Saldo dari transaksi terakhir' : 'Belum ada saldo tercatat', icon: Wallet, tone: 'text-slate-700 bg-slate-100 dark:text-slate-200 dark:bg-slate-700/60' },
+            { label: 'Rasio realisasi', value: adaData && terima > 0 ? `${rasioRealisasi}%` : '—', hint: terima > 0 ? `${fmtSingkat(pakai)} dari dana diterima` : 'Belum ada nilai penerimaan', icon: PieChart, tone: 'text-slate-700 bg-slate-100 dark:text-slate-200 dark:bg-slate-700/60' },
           ]
           return (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
               {stats.map((stat) => {
                 const Icon = stat.icon
                 return (
-                  <div key={stat.label} className="glass-surface group min-w-0 rounded-2xl p-4 sm:p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
+                  <div key={stat.label} className="group min-w-0 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">{stat.label}</p>
-                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl shadow-sm ${stat.tone}`}>
+                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${stat.tone}`}>
                         <Icon aria-hidden="true" className="block h-[18px] w-[18px]" />
                       </span>
                     </div>
@@ -222,19 +211,17 @@ export default function DashboardHome() {
         <ArusKasChart />
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PROGRES + AKTIVITAS — dua kolom ala referensi                        */}
+        {/* AKTIVITAS TERBARU (full-width; panel Progres Paket Kerja dihapus  */}
+        {/* 2026-11-26 atas permintaan user)                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-5 lg:grid-cols-2">
-          <PaketProgressPanel />
-          <ActivityPanel />
-        </div>
+        <ActivityPanel />
         {/* ═══════════════════════════════════════════════════════════════════ */}
 
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="glass-surface rounded-2xl p-4">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">download</span>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Dokumen Referensi</h3>
@@ -251,7 +238,7 @@ export default function DashboardHome() {
                     setSelectedDoc(doc)
                     setShowDocModal(true)
                   }}
-                  className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
+                  className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200 dark:border-transparent/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
                 >
                   <div className={`relative w-9 h-9 rounded-lg ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-105' : ''} transition-all duration-200 shrink-0`}>
                     <span className={`material-symbols-outlined ${doc.iconColor} text-lg transition-colors`}>
@@ -259,10 +246,10 @@ export default function DashboardHome() {
                     </span>
                   </div>
                   <div className="relative flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-800 truncate">{doc.judul}</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{doc.judul}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{doc.sub}</p>
                   </div>
-                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'} transition-all text-base`}>
+                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600 dark:text-slate-300' : 'text-slate-300'} transition-all text-base`}>
                     {available ? 'download' : 'block'}
                   </span>
                 </button>
@@ -274,7 +261,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="glass-surface rounded-2xl p-4">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">auto_awesome</span>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Fitur Unggulan</h3>
@@ -285,7 +272,7 @@ export default function DashboardHome() {
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
+                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-transparent hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
               >
                 <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:scale-105 transition-all duration-200">
                   <span className="material-symbols-outlined text-slate-700 dark:text-slate-200 text-lg group-hover:text-white transition-colors">

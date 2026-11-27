@@ -302,3 +302,8 @@ poin 3. Diverifikasi `cek-018-paritas.cjs` (8/8 PASS) + `R5.1b`.
 
 ❓ [OPEN] Q-3 — riwayat periode-dari-file: metadata FR-6 cukup atau perlu UI riwayat khusus?
   Default pack: metadata saja. Tidak memblokir.
+
+## Sprint 029 — Samakan tampilan BKU tahunan (DITUTUP 2026-11-06)
+
+✅ [CLOSED] 5 dimensi idea-clarifier — Jawaban user via question tool: acak = daftar transaksi BKU pasca-simpan · patokan `bku-tahunan.pdf` vs `bku-output-april.pdf` · target seidentik 12x bulanan · batas hanya tampil/ringkas (parser tabu) · selesai = angka + uraian benar.
+  Ditutup: 2026-11-06 (jawaban tercatat di sesi, jadi brief final).

@@ -1,6 +1,6 @@
-/**
+﻿/**
  * AskAIPanel.jsx — Panel Chat "Ask to AI" with File Upload (Premium 2026)
- * 
+ *
  * Fitur:
  * - Chat AI biasa
  * - Upload file (PDF, Excel, TXT, CSV, JSON)
@@ -78,7 +78,7 @@ function parseCSV(text) {
   if (lines.length === 0) return 'File kosong'
   const rows = lines.map(l => l.split(/[;,]/).map(c => c.trim()))
   const maxCols = Math.max(...rows.map(r => r.length))
-  
+
   let result = `📊 Data: ${rows.length} baris, ${maxCols} kolom\n\n`
   // Header
   if (rows[0]) result += `**Kolom:** ${rows[0].join(' | ')}\n\n`
@@ -122,17 +122,17 @@ async function processFile(file) {
     try {
       const pdfjsLib = await import('pdfjs-dist/build/pdf')
       pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
-      
+
       const arrayBuffer = await file.arrayBuffer()
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-      
+
       // ── COBA DETEKSI TABEL DULU ──
       let allText = `📄 **PDF: ${file.name}** (${pdf.numPages} halaman)\n\n`
-      
+
       try {
         const { extractTables, extractAllText } = await import('../../utils/pdfTableExtractor')
         const result = await extractTables(pdf, { maxPages: pdf.numPages })
-        
+
         if (result.tableCount > 0) {
           allText += `🔍 **${result.tableCount} tabel terdeteksi!**\n\n`
           allText += result.tableText
@@ -154,7 +154,7 @@ async function processFile(file) {
           }
         }
       }
-      
+
       return { type: 'pdf', text: allText, name: file.name, size: file.size, pages: pdf.numPages }
     } catch (err) {
       return { type: 'pdf', text: `📄 PDF: ${file.name}\n\n(Gagal mengekstrak teks: ${err.message}. Coba upload file Excel atau CSV sebagai gantinya.)`, name: file.name, size: file.size, extractionFailed: true }
@@ -168,13 +168,13 @@ async function processFile(file) {
       const arrayBuffer = await file.arrayBuffer()
       const workbook = XLSX.read(arrayBuffer, { type: 'array' })
       let result = `📊 **Excel: ${file.name}** (${workbook.SheetNames.length} sheet)\n\n`
-      
+
       workbook.SheetNames.forEach((sheetName, idx) => {
         const sheet = workbook.Sheets[sheetName]
         const data = XLSX.utils.sheet_to_csv(sheet)
         const lines = data.trim().split('\n')
         result += `**Sheet ${idx + 1}: ${sheetName}** (${lines.length} baris)\n`
-        
+
         // Show header + max 10 rows
         const rows = lines.slice(0, 12)
         rows.forEach((row, i) => {
@@ -183,7 +183,7 @@ async function processFile(file) {
         if (lines.length > 12) result += `  ... dan ${lines.length - 12} baris lagi\n`
         result += '\n'
       })
-      
+
       return { type: 'excel', text: result, name: file.name, size: file.size, sheets: workbook.SheetNames }
     } catch (err) {
       return { type: 'excel', text: `📊 Excel: ${file.name}\n\n(Tidak bisa membaca file: ${err.message})`, name: file.name, size: file.size }
@@ -266,7 +266,7 @@ function ChatBubble({ message }) {
         {/* Content text — clean, no bubble bg */}
         {message.content && (
           <div className={`text-[13.5px] leading-[1.7] whitespace-pre-wrap ${
-            isUser ? 'text-slate-800' : isErr ? 'text-red-700' : 'text-slate-700'
+            isUser ? 'text-slate-800 dark:text-slate-100' : isErr ? 'text-red-700' : 'text-slate-700'
           } [&_strong]:font-semibold`}>
             {formatContent(message.content)}
             {isStream && (
@@ -305,18 +305,18 @@ function FileChip({ file, onRemove }) {
   }
   const iconColors = { pdf: 'text-red-500', excel: 'text-emerald-600', text: 'text-slate-500', csv: 'text-emerald-600', unknown: 'text-slate-400' }
   const g = gradients[file.type] || gradients.unknown
-  
+
   return (
     <div className={`flex items-center gap-2.5 px-3 py-2 bg-gradient-to-br ${g} border rounded-xl shadow-sm group/file`}>
       <span className={`material-symbols-outlined text-[16px] ${iconColors[file.type] || iconColors.unknown}`} style={{ fontVariationSettings: "'FILL' 1" }}>
         {iconMap[file.type] || 'draft'}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-slate-700 truncate max-w-[140px]">{file.name}</p>
+        <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{file.name}</p>
         <p className="text-[8px] text-slate-400 font-medium">{formatFileSize(file.size)}</p>
       </div>
-      <button onClick={onRemove} 
-        className="p-0.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50/80 
+      <button onClick={onRemove}
+        className="p-0.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50/80
                    transition-all duration-200 opacity-60 hover:opacity-100 active:scale-90">
         <span className="material-symbols-outlined text-[14px]">close</span>
       </button>
@@ -334,9 +334,9 @@ function QuickChips({ chips, onSelect, visible }) {
     <div className="flex flex-wrap gap-1.5 px-5 pb-2">
       {chips.map((c, i) => (
         <button key={i} onClick={() => onSelect(c.question)}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 
-                     text-[11px] font-medium text-slate-500 
-                     hover:border-primary/30 hover:text-primary hover:bg-primary/5 
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent/80
+                     text-[11px] font-medium text-slate-500 dark:text-slate-400
+                     hover:border-primary/30 hover:text-primary hover:bg-primary/5
                      transition-all duration-200 active:scale-95">
           <span className="text-[10px]">{c.icon}</span>{c.label}
         </button>
@@ -388,10 +388,10 @@ export default function AskAIPanel({ onClose }) {
   const handleFileUpload = useCallback(async (e) => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
-    
+
     setIsProcessing(true)
     const processed = []
-    
+
     for (const file of files) {
       try {
         const result = await processFile(file)
@@ -400,7 +400,7 @@ export default function AskAIPanel({ onClose }) {
         processed.push({ type: 'unknown', text: `Error membaca ${file.name}: ${err.message}`, name: file.name, size: file.size })
       }
     }
-    
+
     setAttachedFiles(prev => [...prev, ...processed])
     setIsProcessing(false)
     e.target.value = ''
@@ -416,7 +416,7 @@ export default function AskAIPanel({ onClose }) {
 
     let finalMessage = input.trim()
     let displayMessage = finalMessage || 'Analisis file'
-    
+
     // If files attached, build structured prompt
     if (attachedFiles.length > 0) {
       const fileParts = []
@@ -424,24 +424,24 @@ export default function AskAIPanel({ onClose }) {
       const fileNames = attachedFiles.map(f => f.name).join(', ')
       const questionText = finalMessage || 'Analisis file ini'
       displayMessage = `${questionText} 📎 ${fileNames}`
-      
+
       for (const f of attachedFiles) {
         // Limit content: max 12000 chars per file
         const rawText = f.text || ''
         const limitedText = rawText.length > 12000 ? rawText.slice(0, 12000) + '\n... (dipotong, terlalu panjang)' : rawText
         fileParts.push(`=== FILE: ${f.name} (${f.type.toUpperCase()}, ${formatFileSize(f.size)}) ===\n${limitedText}\n=== AKHIR FILE ===`)
       }
-      
+
       const fileContent = fileParts.join('\n\n')
       const userQuestion = finalMessage || 'Analisis semua file yang saya upload secara detail. '
         + 'Jika ada tabel, jelaskan struktur dan data pentingnya. '
         + 'Beri ringkasan, data utama, analisis, dan rekomendasi.'
-      
+
       finalMessage = `[FILE_ANALYSIS]\n${userQuestion}\n\n${fileContent}`
     }
 
     if (!finalMessage) return
-    
+
     // Kirim: (text untuk AI, displayText untuk chat UI)
     sendMessage(finalMessage, displayMessage)
     setInput('')
@@ -472,13 +472,13 @@ export default function AskAIPanel({ onClose }) {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         {/* ── HEADER ── */}
-        <div className="relative flex items-center justify-between px-6 py-5 border-b border-slate-200/40 bg-white/50 backdrop-blur-xl">
+        <div className="relative flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-transparent/40 bg-white/50 backdrop-blur-xl">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 ring-1 ring-white/20">
+            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-white/20">
               <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
                 AI Assistant
                 <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-primary/10 to-blue-500/10 text-[9px] font-semibold text-primary tracking-wider uppercase">
                   Premium
@@ -489,15 +489,15 @@ export default function AskAIPanel({ onClose }) {
           </div>
           <div className="flex items-center gap-0.5">
             {hasChat && (
-              <button onClick={resetChat} 
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 
+              <button onClick={resetChat}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10/80
                            transition-all duration-200 active:scale-90 group relative"
                 title="Hapus riwayat">
                 <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">delete_sweep</span>
               </button>
             )}
-            <button onClick={onClose} 
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 
+            <button onClick={onClose}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10/80
                          transition-all duration-200 active:scale-90 group relative"
               title="Tutup">
               <span className="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform duration-300">close</span>
@@ -515,20 +515,20 @@ export default function AskAIPanel({ onClose }) {
           {/* Welcome */}
           {!hasChat && (
             <div className="flex flex-col items-center text-center pt-12 pb-6 px-4">
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-blue-500/10 
-                              flex items-center justify-center mb-5 
+              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-blue-500/10
+                              flex items-center justify-center mb-5
                               ring-1 ring-primary/15 shadow-inner shadow-primary/5">
                 <span className="material-symbols-outlined text-3xl text-primary/60" style={{ fontVariationSettings: "'FILL' 1" }}>chat_bubble</span>
               </div>
-              <h4 className="text-[17px] font-bold text-slate-800 mb-1.5 tracking-tight">Selamat datang! 👋</h4>
+              <h4 className="text-[17px] font-bold text-slate-800 dark:text-slate-100 mb-1.5 tracking-tight">Selamat datang! 👋</h4>
               <p className="text-[13px] text-slate-400 leading-relaxed max-w-[300px]">
                 Tanya apa saja seputar administrasi sekolah, atau upload file untuk dianalisis AI.
               </p>
-              
 
-              
+
+
               {/* Supported file types — premium minimal */}
-              <div className="flex items-center gap-3 mt-6 px-4 py-2.5 rounded-2xl bg-white/60 border border-slate-200/40 shadow-sm">
+              <div className="flex items-center gap-3 mt-6 px-4 py-2.5 rounded-2xl bg-white/60 border border-slate-200 dark:border-transparent/40 shadow-sm">
                 <span className="text-[10px] font-medium text-slate-400 tracking-wide uppercase">Analisis:</span>
                 <div className="flex items-center gap-2.5">
                   {[
@@ -539,12 +539,12 @@ export default function AskAIPanel({ onClose }) {
                   ].map((f) => (
                     <div key={f.label} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50/80">
                       <span className={`material-symbols-outlined text-[13px] ${f.color}`} style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
-                      <span className="text-[9px] font-semibold text-slate-500">{f.label}</span>
+                      <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{f.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div className="mt-5"><ApiStatus /></div>
             </div>
           )}
@@ -558,7 +558,7 @@ export default function AskAIPanel({ onClose }) {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <span className="material-symbols-outlined text-[15px] text-primary/50" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl rounded-tl-md px-5 py-3.5 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm border border-slate-200 dark:border-transparent/60 rounded-2xl rounded-tl-md px-5 py-3.5 shadow-sm">
                 <div className="flex gap-1.5">
                   {[0, 150, 300].map((d) => (
                     <div key={d} className="w-2 h-2 rounded-full bg-gradient-to-b from-primary/40 to-primary/20 animate-bounce" style={{ animationDelay: `${d}ms` }} />
@@ -572,7 +572,7 @@ export default function AskAIPanel({ onClose }) {
         </div>
 
         {/* ── INPUT AREA ── */}
-        <div className="px-5 py-4 border-t border-slate-200/40 bg-white/60 backdrop-blur-xl space-y-2.5">
+        <div className="px-5 py-4 border-t border-slate-200 dark:border-transparent/40 bg-white/60 backdrop-blur-xl space-y-2.5">
           {/* Attached files */}
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -593,12 +593,12 @@ export default function AskAIPanel({ onClose }) {
           {/* Input row */}
           <div className="flex items-center gap-2.5">
             {/* Upload button */}
-            <input ref={fileInputRef} type="file" className="hidden" multiple 
+            <input ref={fileInputRef} type="file" className="hidden" multiple
                    accept=".pdf,.xlsx,.xls,.csv,.txt,.md,.json,.xml,.html"
                    onChange={handleFileUpload} />
             <button onClick={() => fileInputRef.current?.click()} disabled={isLoading}
-              className="w-11 h-11 rounded-2xl flex items-center justify-center 
-                         bg-white border border-slate-200/70 text-slate-400 
+              className="w-11 h-11 rounded-2xl flex items-center justify-center
+                         bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent/70 text-slate-400
                          hover:border-primary/30 hover:text-primary hover:shadow-sm hover:shadow-primary/5
                          active:scale-90 transition-all duration-200 disabled:opacity-40 group relative"
               title="Upload file">
@@ -614,7 +614,7 @@ export default function AskAIPanel({ onClose }) {
                 onKeyDown={handleKeyDown}
                 placeholder={attachedFiles.length ? "Tanyakan tentang file..." : "Ketik pertanyaan..."}
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-white border border-slate-200/70 rounded-2xl text-[13.5px] text-slate-700
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent/70 rounded-2xl text-[13.5px] text-slate-700 dark:text-slate-200
                            outline-none focus:border-primary/40 focus:ring-[3px] focus:ring-primary/[0.08]
                            placeholder:text-slate-400/70 disabled:opacity-40 transition-all duration-200" />
               {/* Input glow */}
@@ -625,10 +625,10 @@ export default function AskAIPanel({ onClose }) {
             {/* Send / Stop */}
             {isStreaming ? (
               <button onClick={cancelStreaming}
-                className="w-11 h-11 rounded-2xl flex items-center justify-center 
-                           bg-gradient-to-br from-red-500 to-red-600 text-white 
-                           shadow-lg shadow-red-500/25 
-                           hover:shadow-xl hover:shadow-red-500/30 hover:scale-105 
+                className="w-11 h-11 rounded-2xl flex items-center justify-center
+                           bg-gradient-to-br from-red-500 to-red-600 text-white
+                           shadow-lg shadow-red-500/25
+                           hover:shadow-red-500/30
                            active:scale-90 transition-all duration-200">
                 <span className="material-symbols-outlined text-[20px]">stop</span>
               </button>
@@ -636,8 +636,8 @@ export default function AskAIPanel({ onClose }) {
               <button onClick={send} disabled={(!input.trim() && !attachedFiles.length) || isLoading}
                 className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                   (input.trim() || attachedFiles.length) && !isLoading
-                    ? 'bg-primary text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 active:scale-90'
-                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    ? 'bg-primary text-white active:scale-90'
+                    : 'bg-slate-100 dark:bg-white/10 text-slate-300 cursor-not-allowed'
                 }`}>
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
               </button>
