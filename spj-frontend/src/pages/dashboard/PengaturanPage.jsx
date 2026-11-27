@@ -29,6 +29,7 @@ export default function PengaturanPage() {
             { id: 'tampilan', label: 'Tampilan', icon: 'contrast' },
             { id: 'akun-ai', label: 'Akun AI', icon: 'manage_accounts' },
             { id: 'master', label: 'Data Master', icon: 'database' },
+            { id: 'lisensi', label: 'Lisensi & Sinkron', icon: 'verified' },
             { id: 'backup', label: 'Backup & Restore', icon: 'backup' },
             { id: 'tentang', label: 'Tentang', icon: 'info' },
           ].map(t => (
@@ -45,7 +46,7 @@ export default function PengaturanPage() {
 
         {/* Tab Content */}
         {tab === 'profil' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">school</span> Profil Sekolah
             </h3>
@@ -70,7 +71,7 @@ export default function PengaturanPage() {
         )}
 
         {tab === 'tampilan' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">contrast</span> Tampilan
             </h3>
@@ -84,7 +85,7 @@ export default function PengaturanPage() {
                   <p className="text-text-low text-sm">{isDark ? 'Nyaman di mata saat malam hari' : 'Cerah dan jelas untuk siang hari'}</p>
                 </div>
               </div>
-              <ThemeToggle />
+              <ThemeToggle variant="icon" />
             </div>
         <div className="grid grid-cols-2 gap-md">
               <button onClick={() => { if (isDark) toggle(); toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
@@ -104,7 +105,7 @@ export default function PengaturanPage() {
         {tab === 'akun-ai' && <PuterAkunManager variant="page" />}
 
         {tab === 'master' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">database</span> Data Master
             </h3>
@@ -123,8 +124,10 @@ export default function PengaturanPage() {
           </div>
         )}
 
+        {tab === 'lisensi' && <LicenseSyncCard />}
+
         {tab === 'backup' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">backup</span> Backup & Restore
             </h3>
@@ -162,7 +165,7 @@ export default function PengaturanPage() {
         )}
 
         {tab === 'tentang' && (
-          <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant space-y-md">
+          <div className="glass-surface p-lg rounded-2xl space-y-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-text-high flex items-center gap-sm">
               <span className="material-symbols-outlined text-primary">info</span> Tentang Aplikasi
             </h3>

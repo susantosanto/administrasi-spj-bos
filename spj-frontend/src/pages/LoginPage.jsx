@@ -6,6 +6,7 @@ import { logActivity } from "../utils/activityLog";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { useTheme } from "../contexts/ThemeContext";
 import { verifyLocalAccount } from "../utils/localAccount";
+import { useLoading } from "../contexts/LoadingContext";
 
 export default function LoginPage() {
   const { isDark } = useTheme();
@@ -16,10 +17,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+  const { show: showLoading, hide: hideLoading } = useLoading();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    showLoading('Masuk...', 'Memeriksa akun');
     try {
       const res = await verifyLocalAccount(username, password);
       if (!res.ok) {
@@ -37,6 +40,7 @@ export default function LoginPage() {
       toast.error("Gagal memeriksa akun: " + (err.message || err));
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 
@@ -77,7 +81,7 @@ export default function LoginPage() {
           <img src="/asik-logo.png" alt="Asik" className="h-10 w-auto mb-2.5" draggable="false" />
           <h2
             className="text-lg font-bold tracking-tight"
-            style={{ color: isDark ? "#F1F5F9" : "#1D2939" }}
+            style={{ color: isDark ? "#F8FAFC" : "#1D2939" }}
           >
             Aplikasi Dokumentasi LPJ
           </h2>

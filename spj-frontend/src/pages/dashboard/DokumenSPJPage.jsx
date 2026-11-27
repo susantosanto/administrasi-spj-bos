@@ -560,7 +560,7 @@ export default function DokumenSPJPage() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="dokumen-lpj-page flex flex-col min-h-screen bg-transparent">
       <Topbar title="Dokumen LPJ" subtitle="Susun dan cetak dokumen pertanggungjawaban" />
 
       {/* Lebar penuh (revisi 2026-10-06 task 34): grid kategori + panel detail
@@ -588,7 +588,7 @@ export default function DokumenSPJPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="dokumen-lpj-primary-cards grid grid-cols-1 md:grid-cols-2 gap-4">
             {bkuUtama.map((card) => renderCard(card))}
           </div>
         </div>
@@ -603,7 +603,7 @@ export default function DokumenSPJPage() {
             <span className="text-xs text-slate-500 dark:text-slate-400">— Informasi tambahan dan blanko</span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="dokumen-lpj-support-cards grid grid-cols-2 md:grid-cols-4 gap-3">
             {dokumenPendukung.map((card) => renderCard(card, true))}
           </div>
         </div>

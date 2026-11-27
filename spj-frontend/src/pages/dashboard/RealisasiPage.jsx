@@ -169,7 +169,7 @@ export default function RealisasiPage() {
         <MatriksRealisasi toast={toast} />
 
         {/* Info */}
-        <div className="bg-surface-container-lowest p-lg rounded-xl shadow-lg border border-outline-variant">
+        <div className="glass-surface p-lg rounded-2xl">
           <div className="flex items-start gap-sm">
             <span className="material-symbols-outlined text-primary text-lg">info</span>
             <div>

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { useLoading } from '../../contexts/LoadingContext'
 import UploadSurface from '../../components/ui/UploadSurface'
 import { requireWrite } from '../../services/licenseService'
 import { parseGuruTendikExcel } from '../../utils/guruTendikParser'
@@ -33,6 +34,7 @@ const ROLE_HONOR_OPTIONS = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DataGuruPage() {
+  const { withLoading } = useLoading()
   const [tab, setTab] = useState('guru')
   const [guru, setGuru] = useState([])
   const [tendik, setTendik] = useState([])
@@ -66,7 +68,7 @@ export default function DataGuruPage() {
 
     setIsUploading(true)
     try {
-      const result = await parseGuruTendikExcel(file)
+      const result = await withLoading(() => parseGuruTendikExcel(file), 'Memproses data guru & tendik', 'Membaca file Excel')
       if (result.total === 0) {
         toast.error('Tidak ada data yang ditemukan')
         return

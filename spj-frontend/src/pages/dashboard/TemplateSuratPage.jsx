@@ -398,7 +398,7 @@ const TemplateSuratPage = () => {
         
         {/* Empty State */}
         {!selectedTemplate && (
-          <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-12 border border-white/20 shadow-lg text-center">
+          <div className="glass-surface rounded-2xl p-12 text-center">
             <span className="text-6xl mb-4 block">📝</span>
             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
               Pilih Template Surat

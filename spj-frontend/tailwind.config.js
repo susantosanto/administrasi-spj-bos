@@ -14,21 +14,24 @@ export default {
       // Gradients & tertiary tokens yang tidak terpakai dihapus.
       // ═══════════════════════════════════════════════════════════════════
       colors: {
-        // ── Brand (landing SaaS 2026-10-11) ──────────────────────────
-        brand: "#155EEF",                // Primary blue identitas utama
-        "brand-hover": "#0E4FD6",        // Hover CTA
-        "brand-soft": "#EAF2FF",         // Soft blue background
-        navy: "#102A56",                 // Dark navy heading/CTA panel
-        ink: "#101828",                  // Heading
-        muted: "#475467",                // Body text
-        canvas: "#F7F9FC",               // Page background
-        line: "#E4EAF3",                 // Border lembut
-        // ── Brand (lama, dipakai dashboard — jangan ubah) ────────────
-        primary: "#004ac6",               // CTA, link, active state (539 usages)
-        "primary-hover": "#003ea8",       // Hover — on-primary-fixed-variant
-        "primary-light": "#dbe1ff",       // Soft bg — primary-fixed
-        "primary-fixed": "#dbe1ff",       // Alias kompatibilitas (3 usages)
-        "primary-container": "#2563eb",   // Solid container (1 usage, btn primary)
+        // ── Palette P2 — 2 core + 1 accent (R-29) ───────────────────
+        // Core 1: primary #004ac6 (CTA, link, active) — single blue, was dual #155EEF/#004ac6
+        // Core 2: navy #102A56 (heading/CTA panel) — Core 2
+        // Accent: success #059669 (emerald) — 1 accent only
+        brand: "#004ac6",                // Unified with primary (was #155EEF dual)
+        "brand-hover": "#003ea8",        // = primary-hover
+        "brand-soft": "#dbe1ff",         // = primary-light (was #EAF2FF)
+        navy: "#102A56",
+        ink: "#101828",
+        muted: "#475467",
+        canvas: "#f8f9fb",               // = background (was #F7F9FC diff)
+        line: "#E4EAF3",
+        // ── Brand core — keep primary as source ──────────────────────
+        primary: "#004ac6",
+        "primary-hover": "#003ea8",
+        "primary-light": "#dbe1ff",
+        "primary-fixed": "#dbe1ff",       // Alias keep compat
+        "primary-container": "#004ac6",   // Unified (was #2563eb diff blue)
         "on-primary": "#ffffff",          // Text on primary
         "on-primary-container": "#eeefff",// Text on primary-container
 

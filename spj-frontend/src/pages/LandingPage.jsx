@@ -377,7 +377,7 @@ export default function LandingPage() {
                 {item.label}
               </a>
             ))}
-            <ThemeToggleLanding />
+            <ThemeToggleLanding variant="icon" />
             <Link
               to="/login"
               className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-[#2457A7] transition-colors"

@@ -8,6 +8,7 @@ import cpApi, { CpError } from '../services/cpClient'
 import { licenseService } from '../services/licenseService'
 import { saveLocalAccount } from '../utils/localAccount'
 import LicenseCardModal from '../components/LicenseCardModal'
+import { useLoading } from '../contexts/LoadingContext'
 
 const INIT = {
   schoolName: '',
@@ -28,6 +29,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState(() => storageHelper.get('registration_pending') || INIT)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
+  const { show: showLoading, hide: hideLoading } = useLoading()
 
   // Jika lisensi sudah ada, beri tahu tapi jangan paksa redirect (biar bisa tes daftar di incognito / setelah clear).
   // Redirect otomatis hanya jika sudah login.
@@ -76,6 +78,7 @@ export default function RegisterPage() {
     // Password & konfirmasi tidak pernah disimpan di draf.
     storageHelper.set('registration_pending', { ...form, password: '', confirmPassword: '' })
     setLoading(true)
+    showLoading('Mendaftarkan...', 'Menghubungkan ke Control Plane')
     try {
       const payload = {
         schoolName: form.schoolName.trim(),
@@ -127,6 +130,7 @@ export default function RegisterPage() {
       }
     } finally {
       setLoading(false)
+      hideLoading()
     }
   }
 
@@ -164,7 +168,7 @@ export default function RegisterPage() {
           <img src="/asik-logo.png" alt="Asik" className="h-10 w-auto mb-2.5" draggable="false" />
           <h2
             className="text-lg font-bold tracking-tight"
-            style={{ color: isDark ? '#F1F5F9' : '#1D2939' }}
+            style={{ color: isDark ? '#F8FAFC' : '#1D2939' }}
           >
             Aplikasi Dokumentasi LPJ
           </h2>

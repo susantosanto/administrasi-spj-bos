@@ -104,7 +104,7 @@ export default function TemplateEngine({
   // Handler untuk perubahan data
   const handleChange = (field, value) => {
     if (onDataChange) {
-      onDataChange({ ...data, [field]: value })
+      onDataChange({ ...(safeData), [field]: value })
     }
   }
 
@@ -137,22 +137,35 @@ export default function TemplateEngine({
       ) */}
 
       {/* Render blocks berurutan sesuai config */}
-      {(templateConfig.blocks || []).map((block, i) => {
-        const BlockComponent = BLOCK_RENDERERS[block.type]
+      {blocks.map((block, i) => {
+        const BlockComponent = BLOCK_RENDERERS[block?.type]
 
         if (!BlockComponent) {
-          console.warn(`Block type "${block.type}" tidak dikenal`)
-          return null
+          console.warn(`Block type "${block?.type}" tidak dikenal`)
+          if (mode === 'print') return null
+          return (
+            <div key={`${templateConfig.id}-block-${i}`} className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-700">
+                <span className="material-symbols-outlined">warning</span>
+                <span className="text-sm">Blok “{String(block?.type)}” tidak dikenal — dilewati.</span>
+              </div>
+            </div>
+          )
         }
 
         return (
-          <BlockComponent
+          <BlockErrorBoundary
             key={`${templateConfig.id}-block-${i}`}
-            blockConfig={block}
-            data={data}
-            onChange={handleChange}
+            blockType={block.type}
             mode={mode}
-          />
+          >
+            <BlockComponent
+              blockConfig={block}
+              data={safeData}
+              onChange={handleChange}
+              mode={mode}
+            />
+          </BlockErrorBoundary>
         )
       })}
     </div>

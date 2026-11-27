@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
+import { useLoading } from '../../contexts/LoadingContext'
 import UploadSurface from '../../components/ui/UploadSurface'
 import { parseSekolahExcel } from '../../utils/sekolahParser'
 import { PEJABAT_ROLES, DEFAULT_PEJABAT, mergePejabat } from '../../utils/pejabatRoles'
@@ -88,6 +89,7 @@ function VerifikasiKs({ nama, nip, onPakai }) {
 }
 
 export default function DataSekolahPage() {
+  const { withLoading } = useLoading()
   const [tab, setTab] = useState('sekolah')
   const [data, setData] = useState(defaultData)
   const [isUploading, setIsUploading] = useState(false)
@@ -273,7 +275,7 @@ export default function DataSekolahPage() {
     }
     setIsUploading(true)
     try {
-      const result = await parseSekolahExcel(file)
+      const result = await withLoading(() => parseSekolahExcel(file), 'Memproses data sekolah', 'Membaca file Excel')
       const header = result.header
 
       const newData = {

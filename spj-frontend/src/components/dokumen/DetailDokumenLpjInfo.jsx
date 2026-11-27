@@ -135,7 +135,7 @@ export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData,
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-2xl border border-blue-200 p-6">
+              <div className="bg-gradient-to-br from-blue-50/50 to-white dark:from-slate-800/50 dark:to-slate-900 dark:border-slate-700 rounded-2xl border border-blue-200 p-6">
                 <TemplateEngine
                   templateConfig={TEMPLATE_CONFIGS.sppd}
                   data={sppdData}

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 import { ToastProvider } from './components/ui/Toast'
 import { AIProvider } from './contexts/AIContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -47,7 +48,7 @@ export default function App() {
     if (!splash) return
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const t0 = window.__BOOT_T0 || performance.now()
-    const MIN_SPIN = reduced ? 200 : 500
+    const MIN_SPIN = reduced ? 200 : 600
     const CAP = 6000
     let done = false
 
@@ -55,7 +56,7 @@ export default function App() {
       if (done) return
       done = true
       splash.classList.add('boot-hide')
-      setTimeout(() => splash.remove(), 600)
+      setTimeout(() => splash.remove(), 550)
     }
 
     // kesiapan logo mini (resolve juga bila error, jangan menggantung)
@@ -82,14 +83,14 @@ export default function App() {
       new Promise((r) => setTimeout(r, waitMore)),
     ]).then(finish)
 
-    // cleanup: kalau komponen App unmount (mis. hot reload), splash ikut dibersihkan
+    // cleanup: pengaman timer dibersihkan bila komponen di-unmount
     return () => {
       clearTimeout(cap)
-      splash.remove()
     }
   }, [])
 
   return (
+    <ErrorBoundary>
     <ThemeProvider>
       <ToastProvider>
         <LoadingProvider>
@@ -138,5 +139,6 @@ export default function App() {
         </LoadingProvider>
       </ToastProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   )
 }

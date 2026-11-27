@@ -9,6 +9,59 @@
 
 ## Daftar Keputusan
 
+[2026-11-26] Keputusan: Hapus seluruh efek motion zoom & terapkan transisi smooth fade langsung dari animasi loading ke landing page
+  Status: accepted
+  Alasan: pengguna mengevaluasi bahwa efek zoom in/motion zoom tidak efektif. Pengguna meminta seluruh efek zoom dihapus, dan alur disederhanakan: dari animasi loading (rolling motion orbit komet bawaan), splash screen melakukan transisi fade-out halus (smooth, 0.5s ease-out) langsung masuk ke landing page tanpa distorsi zoom atau scale.
+  Dibuat oleh: user (arahan revisi final) + agent (eksekusi)
+  Dampak: (a) `index.html` menghapus seluruh `@keyframes asik-logo-*` dan rule transform scale pada logo disc/ornamen, menyisakan transisi murni `transition: opacity 0.5s ease-out`; (b) `App.jsx` menyetel `MIN_SPIN = 600ms` dan timer pembersihan splash `550ms`; (c) `LandingPage.jsx` menghapus kelas `.landing-zoom-in` dan `.landing-header-reveal`; (d) `index.css` membersihkan keyframes zoom; (e) transisi kini bersih, elegan, dan instan.
+
+[2026-11-26] Keputusan: Optimasi visual ke arah referensi mockup (glass lebih kuat + sidebar gradien biru berbatik + hero foto Kantor Bupati) — palet TETAP biru/slate
+  Status: accepted
+  Alasan: pengguna memberi 3 gambar referensi (mockup dashboard, mockup landing, foto Kantor Bupati Kabupaten Bandung Barat) dan meminta optimasi desain UI/UX ke arah itu tanpa mengubah tombol/fitur apa pun. Saat ditanya, pengguna memilih: (1) palet TETAP biru/slate (BUKAN multi-warna seperti chip violet/emerald/oranye di mockup), (2) batik di sidebar YA, (3) "lebih glass", (4) foto hero = Kantor Bupati Bandung Barat.
+  Dibuat oleh: user (referensi + empat pilihan) + agent (eksekusi)
+  Dampak: (a) `index.css` menambah util `.sidebar-panel` (gradien navy→biru; dark lebih pekat), `.sidebar-batik`, `.glass-surface` (backdrop-blur lebih kuat), `.text-gradient-blue`; (b) `Sidebar.jsx` jadi panel gradien biru + motif batik dasar + logo glow + pill nav glass (teks terang); menu/grup/collapse/logout/profil TETAP; (c) `DashboardHome.jsx` hero memuat `public/hero-kantor-bupati.jpg` (1600×900, 323 KB, dikompres dari PNG 2,8 MB) menyatu via gradasi + aksen batik; kartu KPI jadi glass dengan chip biru/biru/slate/slate (BUKAN multi-warna); (d) `ArusKasChart.jsx`, `ActivityPanel.jsx`, `PaketProgressPanel.jsx` + kartu Dokumen Referensi & Fitur Unggulan → `glass-surface`. Nilai/data tetap dari localStorage (bukan angka contoh); sparkline mini sengaja TIDAK ditambah agar tidak memasang data palsu. Landing page sudah sesuai referensi sebelumnya (headline gradien, mockup mengambang, trust badge) → tidak diubah. Tidak ada commit.
+
+[2026-11-26] Keputusan: Perbaikan crash ArusKasChart pada data kosong — terbukti sebagai akar toast "Aplikasi gagal termuat"
+  Status: accepted
+  Alasan: `ArusKasChart` menghitung `areaMasuk`/`areaTahap1` lalu mengakses `pMasuk[pMasuk.length-1].x` SEBELUM empty-check. Saat `bku_data` kosong (fresh login), `pMasuk=[]` → `undefined.x` → TypeError → React unmount → `#root` kosong → fail-safe `index.html` menampilkan toast "Aplikasi gagal termuat". Bukti stack trace browser: "The above error occurred in the <ArusKasChart> component" (ArusKasChart.jsx). Ini menjawab pertanyaan lama yang belum terbukti soal penyebab toast.
+  Dibuat oleh: agent (temuan + perbaikan), termasuk scope pembersihan visual
+  Dampak: `ArusKasChart.jsx` menambah `tutupArea(pts)` yang mengembalikan string kosong bila `pts` kosong (guard `pMasuk[0]`/`pMasuk[len-1]`). Teruji: data kosong → empty state tanpa crash; data terisi → 5 path chart + KPI berisi. `npm test` 31/31; `vite build` exit 0. Catatan terbuka: `segments` filter Tahap 1/2 belum punya opsi "Semua" (default `view='semua'` menampilkan keduanya tapi tidak ada tombol aktif) — dibiarkan karena user meminta "tanpa mengubah tombol".
+[2026-11-24] Keputusan: Sidebar desktop tertutup 76 px sebagai default, ikon awal Lucide (diganti Heroicons), pola interaksi rail dari source referensi, tinggi header 76 px
+  Status: superseded
+  Alasan: pengguna memilih empat opsi saat ditanya (tertutup seperti source, coba lucide-react, adopsi interaksi rail, setuju header 76 px). Keputusan ini menimpa default 232 px pada entri dashboard sebelumnya.
+  Dibuat oleh: user (jawaban langsung) + builder
+  Dampak: `SidebarContext` memisahkan state mobile (`isOpen`) dan desktop (`isExpanded`, default false) dengan ambang 900 px; `DashboardLayout` memakai offset 108 px saat rail ciut dan 264 px saat terbuka; `Topbar` setinggi 76 px dan tombol drawer hanya tampil di bawah 900 px; `Sidebar` memakai ikon lucide-react, tooltip portal saat rail ciut, penutupan lewat klik di luar dan Escape, serta jarak grup dirapatkan agar rail 76 px memuat seluruh ikon pada tinggi layar 800 px. Tidak ada commit.
+
+[2026-11-24] Keputusan: Pindah dari Lucide ke Heroicons outline
+  Status: accepted
+  Alasan: pengguna menyetujui penambahan Heroicons dan meminta pergantian ikon dari Lucide; satu set outline dipakai agar gaya dan geometri konsisten.
+  Dibuat oleh: user (persetujuan eksplisit) + builder
+  Dampak: menambah `@heroicons/react` 2.2.0, mengganti seluruh pemakaian Lucide di Sidebar, KPI dashboard, dan halaman Pratinjau, lalu menghapus `lucide-react`; ikon KPI tetap terpusat di lingkaran 36×36 px dan Saldo memakai Wallet. Audit npm melaporkan 15 kerentanan pada dependency tree, tidak di-fix di luar cakupan. Tidak ada commit.
+
+[2026-11-24] Keputusan: Ikon KPI dashboard memakai lingkaran 36 px dengan glyph terpusat, tanpa ikon celengan
+  Status: accepted
+  Alasan: pengguna meminta setiap ikon berada tepat di tengah lingkaran dan melarang ikon yang menyerupai babi.
+  Dibuat oleh: user + builder
+  Dampak: ikon KPI pada `DashboardHome.jsx` memakai SVG lucide yang relevan di dalam wadah lingkaran 36×36 px dengan grid-centering eksplisit; saldo memakai ikon Wallet, bukan glyph `savings`. Tidak ada commit.
+
+[2026-11-24] Keputusan: Dashboard utama — sidebar desktop terbuka default 232 px, rail 76 px, dashboard keuangan berbasis data BKU dan surface solid
+  Status: accepted
+  Alasan: pengguna meminta penerapan prompt dashboard baru; lebar sidebar dan konten harus selaras tanpa overlap, metrik harus nyata, dan motif/palet ASIK tetap terjaga.
+  Dibuat oleh: user (arahan implementasi) + builder
+  Dampak: SidebarContext, DashboardLayout, Sidebar, Topbar, DashboardHome, dan panel dashboard terkait diperbarui; ambang desktop 900 px menyatukan state dengan layout, tombol drawer header hanya untuk layar kecil, kartu statistik dari ringkasan BKU dengan state kosong jujur. Tidak ada commit.
+
+[2026-11-23] Keputusan: Sprint 030 — kembalikan hero ke rancangan awal setelah pengguna meminta pembatalan adaptasi referensi
+  Status: accepted
+  Alasan: pengguna meminta kembali ke desain awal; motif batik bergerak dan glow biru bawaan dipertahankan, sementara gelombang/kontur/halo SVG dan kontrol jeda tambahan dihapus.
+  Dibuat oleh: user + builder
+  Dampak: markup hero di `LandingPage.jsx` kembali pada struktur awal dekorasi batik/glow; perubahan surface glass CTA/dock tetap dipertahankan sesuai persetujuan sebelumnya. FigCraft editable menunggu penyelarasan.
+
+[2026-11-23] Keputusan: Sprint 030 — batasi glassmorphism landing page pada header dan mockup dashboard; CTA dan dock memakai permukaan solid
+  Status: accepted
+  Alasan: pengguna meminta gaya glass pada landing page tanpa mengganggu elemen inti/layout; dua bidang kaca cukup untuk navigasi dan fokus visual produk, permukaan lain tetap jelas.
+  Dibuat oleh: user (persetujuan eksekusi Sprint 030) + builder
+  Dampak: hanya style pada `spj-frontend/src/pages/LandingPage.jsx`; DOM, layout, teks, tautan, perilaku, breakpoint, light/dark dipertahankan. CTA/dock memakai `P.surface`, tanpa backdrop blur.
+
 [2026-11-01] Keputusan: Template Surat Cerdas disambung ke sumber tunggal (getSchoolData/getPejabat); hapus fallback kota "Bandung"
   Status: accepted
   Alasan: audit menemukan getDataPejabat() membaca kunci mati `spj_pejabat_sekolah` (tak pernah ditulis) sehingga nama KS/bendahara+NIP tak pernah terisi otomatis di Template Surat; getDataSekolah() mentah tanpa resolver; fallback kota mengarang data. Bentuk return dipertahankan (TemplateSuratPage 0 diff)
@@ -1381,6 +1434,19 @@ membuat `redetectTypes()` mengklasifikasi ulang induk dan nominal `PEMBAYARAN` h
   Alasan: sumber data asli sudah tersedia sebagai file (Excel BKU, PDF, data sekolah), sehingga impor localStorage tidak menambah nilai; menghindari membangun alat migrasi + memperbaiki fitur export MVP yang belum bekerja; skema SQLite bisa dirancang bersih tanpa mengikuti bentuk data lama
   Dibuat oleh: user
   Dampak: (a) PRD migrasi DILARANG memuat FR impor/ekspor localStorage; (b) butir (f) ADR 2026-10-24 sebelumnya (export MVP prasyarat migrasi) DIBATALKAN sebagian - export hanya relevan untuk keamanan demo, bukan migrasi; (c) isian manual MVP (dokumen LPJ/PBJ, catatan, checklist, template surat kustom, foto) TIDAK ikut - operator mengisi ulang; (d) wajib fitur 'setel nomor surat awal' agar penomoran resmi tidak duplikat; (e) PRD memuat alur first-run 'mulai dari kosong'; (f) rencana lengkap: planning/sprints/sprint-021/PLANNING-PRD-MIGRASI-ELEKTRON-SQLITE.MD
+
+[2026-11-25] Keputusan: Grafik Arus Kas dashboard menampilkan 3 seri — Penerimaan, Tahap 1 (Bln 1–6), Tahap 2 (Bln 7–12).
+  Status: accepted
+  Alasan: pengguna meminta memisahkan pengeluaran menjadi tahap 1 dan tahap 2 agar alur dana terevaluasi per siklus pencairan.
+  Dibuat oleh: user (klarifikasi) + agent (eksekusi)
+  Dampak: `src/components/dashboard/ArusKasChart.jsx` diperbarui menjadi 3 seri (Penerimaan biru, Tahap 1 biru muda terasering, Tahap 2 abu), header tetap rata, legenda ditambahkan, state kosong tetap ditangani. Tidak ada commit.
+
+[2026-11-25] Keputusan: Tombol/Segment Kontrol Filter Tahap 1 dan Tahap 2 pada Grafik Arus Kas
+  Status: accepted
+  Alasan: pengguna meminta tombol khusus untuk menampilkan hanya Tahap 1 atau hanya Tahap 2 dalam grafik arus kas, sehingga pelacakan per siklus pencairan lebih jelas.
+  Dibuat oleh: user (klarifikasi) + agent (eksekusi)
+  Dampak: `src/components/dashboard/ArusKasChart.jsx` ditambahkan state `view` dengan opsi “Tahap 1” dan “Tahap 2”. Saat tombol “Tahap 1” dipilih, hanya seri Tahap 1 yang digambar (Penerimaan tetap). Saat “Tahap 2” dipilih, hanya seri Tahap 2 yang digambar. Tombol berukuran kecil, berwarna biru, dengan efek terpilih; tidak mengubah tinggi kartu. Tidak ada commit.
+
 
 [2026-10-31] Keputusan: Sprint 022 — AI generate dokumen memakai PROVIDER API (BFL, kredit prabayar), default FLUX 3 Klein 1K, eskalasi FLUX 3 Image 1K, tanpa self-host; FLUX.2 [pro] hanya jika A/B menang
   Status: accepted (keputusan user 2026-10-31, diminta "kunci keputusan ... dan simpan di file tahap sprint optimize generate documents ai")
