@@ -1777,3 +1777,24 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   background-clip: text;
   color: transparent;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE — SATUAN GLASS (rujukan: dashboard ASIK.V03)
+   Semua permukaan gelap (kartu, panel, tombol, input, chip) memakai
+   backdrop-blur + navy transparan yang sama dengan .glass-surface.
+   Kertas cetak & toast premium dikecualikan.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dark [class*="dark:bg-slate-900"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-slate-800"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-slate-700"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-slate-950"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-white/5"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-white/10"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-[#1e293b]"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="dark:bg-[#0f172a]"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface),
+.dark [class*="bg-surface-container"]:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not(.glass-surface) {
+  background-color: rgba(30, 41, 59, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
