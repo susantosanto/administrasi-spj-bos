@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Sidebar — ASIK
  * Desktop: rail 76 px (default tertutup) ↔ 232 px. Mobile: drawer overlay.
  * Ikon: Heroicons outline. Tooltip saat rail tertutup dirender lewat portal agar tidak terpotong.
@@ -45,7 +45,9 @@ const MENU_GROUPS = [
   {
     label: 'DOKUMEN',
     items: [
-      { label: 'Dokumen LPJ', icon: FileText, path: '/dashboard/dokumen-lpj' },
+      // HIDE-2026-11-26: menu Dokumen LPJ disembunyikan sementara pra-hapus permanen.
+      // Route /dashboard/dokumen-lpj TETAP hidup (deep-link dari sidebar BKU).
+      { label: 'Dokumen LPJ', icon: FileText, path: '/dashboard/dokumen-lpj', hidden: true },
       { label: 'Dokumen Kelengkapan', icon: FolderOpen, path: '/dashboard/dokumen-kelengkapan' },
       { label: 'Nomor Surat', icon: Hash, path: '/dashboard/nomor-surat' },
     ],
@@ -123,9 +125,10 @@ export default function Sidebar() {
     }, 850)
   }
 
-  // Tutup drawer saat berpindah halaman (mobile saja)
+  // Ciutkan sidebar tiap klik menu — mobile: tutup drawer; desktop: kuncup ke rail.
+  // Sama persis seperti klik di luar sidebar (close() menangani kedua mode).
   const handleNavClick = () => {
-    if (isMobile) close()
+    close()
   }
 
   const showTip = (e, label) => {
@@ -153,8 +156,8 @@ export default function Sidebar() {
         aria-label={item.label}
         {...tipProps(item.label)}
         className={({ isActive }) =>
-          `group relative flex min-h-[44px] items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl transition-colors duration-200 ${
-            isActive ? 'bg-primary/10 text-primary' : 'text-slate-500 hover:bg-slate-100/60 hover:text-slate-800'
+          `group relative flex min-h-[44px] items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center px-0'} py-2.5 rounded-xl transition-colors duration-200 text-on-surface-variant hover:bg-surface-container-low ${
+            isActive ? 'bg-primary/10 text-primary' : ''
           }`
         }
       >
@@ -164,7 +167,7 @@ export default function Sidebar() {
             <Icon
               aria-hidden="true"
               className={`h-5 w-5 shrink-0 transition-colors duration-200 ${
-                isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600'
+                isActive ? 'text-primary' : 'text-on-surface-variant'
               }`}
             />
             {isExpanded && (
@@ -197,38 +200,54 @@ export default function Sidebar() {
               : 'w-[76px]'
         }`}
       >
-        <div className="relative w-full h-full rounded-3xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-[0_16px_48px_rgba(15,23,42,0.18)] flex flex-col overflow-hidden">
+        <div className="relative w-full h-full rounded-3xl backdrop-blur-md border shadow-[0_16px_48px_rgba(15,23,42,0.18)] flex flex-col overflow-hidden" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 88%, transparent)', borderColor: 'var(--color-border)' }}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-primary/8 to-transparent rounded-full blur-3xl pointer-events-none opacity-60" aria-hidden="true" />
 
-          {/* LOGO */}
-          <div className={`relative pt-6 pb-4 ${isExpanded ? 'px-5' : 'px-1.5'}`}>
-            <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
-              <div className="relative">
-                <div className={`${isExpanded ? 'w-16' : 'w-10'} h-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-200/60 dark:border-slate-700 px-1.5`}>
-                  <img src="/asik-logo.png" alt="ASIK" className="h-5 w-full object-contain" draggable="false" />
+          {/* BRAND — satu panel premium: logo + wordmark + kontrol ciutkan */}
+          <div className={`relative pt-4 pb-2 ${isExpanded ? 'px-3' : 'px-1.5'}`}>
+            {isExpanded ? (
+              <div className="sidebar-brand relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-[#0040a8] to-[#00297a] p-3">
+                {/* aksen cahaya editorial */}
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
+                <div className="absolute -bottom-12 -left-8 w-28 h-28 bg-white/5 rounded-full blur-2xl pointer-events-none" aria-hidden="true" />
+                <div className="relative">
+                  <div className="flex items-center gap-2.5">
+                    <div className="sidebar-brand-logo w-11 h-11 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center shrink-0 shadow-md px-1.5">
+                      <img src="/asik-logo.png" alt="ASIK" className="h-6 w-full object-contain" draggable="false" />
+                    </div>
+                    <div className="flex-1 min-w-0" />
+                    <button
+                      type="button"
+                      onClick={isMobile ? close : toggle}
+                      aria-label={toggleLabel}
+                      title={toggleLabel}
+                      className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl text-white/80 bg-white/10 hover:bg-white/20 hover:text-white transition-colors"
+                    >
+                      <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="mt-2.5">
+                    <p className="text-[11px] text-white font-semibold leading-tight mt-0.5 tracking-wide">Sistem Dokumen Sekolah</p>
+                    <p className="text-[9px] text-white/50 font-medium leading-tight mt-0.5 tracking-[0.14em] uppercase">LPJ BOS · BOSP</p>
+                  </div>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-white dark:border-slate-900" aria-hidden="true" />
               </div>
-              {isExpanded && (
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-[15px] font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-0.5">LPJ BOS/BOSP</h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Sistem Dokumen Sekolah</p>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-200/60 dark:border-transparent px-1.5">
+                  <img src="/asik-logo.png" alt="ASIK" className="h-6 w-full object-contain" draggable="false" />
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Satu-satunya kontrol buka/tutup desktop */}
-          <div className={`relative px-3 ${isExpanded ? 'flex justify-end' : 'flex justify-center'}`}>
-            <button
-              type="button"
-              onClick={isMobile ? close : toggle}
-              aria-label={toggleLabel}
-              title={toggleLabel}
-              className="w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors"
-            >
-              <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-            </button>
+                <button
+                  type="button"
+                  onClick={isMobile ? close : toggle}
+                  aria-label={toggleLabel}
+                  title={toggleLabel}
+                  className="w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 transition-colors"
+                >
+                  <ToggleIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* MENU */}
@@ -239,7 +258,10 @@ export default function Sidebar() {
               <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
             </div>
 
-            {MENU_GROUPS.map((group, groupIdx) => (
+            {MENU_GROUPS.map((group, groupIdx) => {
+              const visibleItems = (group.items || []).filter((item) => !item.hidden)
+              if (visibleItems.length === 0) return null
+              return (
               <div key={group.label} className={groupIdx > 0 ? 'mt-1' : ''}>
                 {isExpanded && (
                   <button
@@ -258,10 +280,11 @@ export default function Sidebar() {
                 )}
 
                 {(expanded[group.label] || !isExpanded) && (
-                  <div className="space-y-1">{group.items.map((item) => renderLink(item))}</div>
+                  <div className="space-y-1">{visibleItems.map((item) => renderLink(item))}</div>
                 )}
               </div>
-            ))}
+              )
+            })}
           </nav>
 
           {/* BOTTOM — profil, Pengaturan, Keluar */}
@@ -293,7 +316,7 @@ export default function Sidebar() {
               onClick={() => { handleNavClick(); handleLogout() }}
               aria-label="Keluar"
               {...tipProps('Keluar')}
-              className={`group w-full min-h-[44px] flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-slate-500 hover:text-red-500 hover:bg-red-50/60 transition-colors duration-200`}
+              className={`group w-full min-h-[44px] flex items-center ${isExpanded ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50/60 transition-colors duration-200`}
             >
               <LogOut aria-hidden="true" className="h-5 w-5 shrink-0 text-slate-400 group-hover:text-red-500 transition-colors" />
               {isExpanded && <span className="text-[13px] font-medium">Keluar</span>}

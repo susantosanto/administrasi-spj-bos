@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BlankoHadir — Sprint 024: isian premium Daftar Hadir (blanko).
  * Split-view: form kiri (identitas + peserta dari Guru/Tendik + manual)
  * + Panel Preview kanan. Tersimpan `spj_blanko_dh`. Cetak A4 portrait.
@@ -98,7 +98,7 @@ export default function BlankoHadir({ onKembali }) {
             <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">Dari Data Tendik</h4>
             {daftarPilih(tendik, pilihTendik, setPilihTendik)}
           </div>
-          <button onClick={tambahTerpilih} className="w-full py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:brightness-110 active:scale-[0.98] min-h-[44px]">
+          <button onClick={tambahTerpilih} className="w-full py-2.5 rounded-xl bg-primary text-white text-xs font-bold active:scale-[0.98] min-h-[44px]">
             Tambah yang dicentang ({Object.values(pilihGuru).filter(Boolean).length + Object.values(pilihTendik).filter(Boolean).length})
           </button>
           <div>

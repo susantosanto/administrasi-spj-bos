@@ -8,15 +8,15 @@
 export default function MaminSeksiCard({ nomor, judul, ikon = 'edit_note', children, catatan }) {
   const nomorTampil = String(nomor || '').padStart(2, '0')
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+    <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent p-5 space-y-4">
       <div className="flex items-start gap-3">
         <span className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary text-[11px] font-bold tracking-wide">
           {nomorTampil}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="text-[13px] font-semibold text-slate-800 tracking-tight leading-5">{judul}</h3>
+          <h3 className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 tracking-tight leading-5">{judul}</h3>
           {catatan ? (
-            <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">{catatan}</p>
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">{catatan}</p>
           ) : null}
         </div>
         <span className="material-symbols-outlined text-slate-300 text-lg shrink-0">{ikon}</span>

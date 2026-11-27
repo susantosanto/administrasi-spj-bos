@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DetailDokumenLpjHeader — bagian kepala panel dokumen LPJ.
  *
  * Sprint 017 AD-1: dipindahkan APA ADANYA dari `DokumenSPJPage.jsx`
@@ -26,7 +26,7 @@ export default function DetailDokumenLpjHeader({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-3xl text-white">{card.icon}</span>
             </div>
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
@@ -87,10 +87,10 @@ export default function DetailDokumenLpjHeader({
                 disabled={sub.comingSoon}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all duration-300 ${
                   isActive
-                    ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105'
+                    ? 'bg-primary text-white scale-105'
                     : sub.comingSoon
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:scale-105'
+                      : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >

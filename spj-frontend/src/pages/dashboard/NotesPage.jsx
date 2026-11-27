@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Notes Page — Ultra Premium Design 2026
  * Catatan penting terkait BOS dengan note-taking premium
  */
@@ -236,22 +236,22 @@ export default function NotesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari catatan..."
-              className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-2xl text-sm font-medium text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             />
           </div>
 
           <div className="flex items-center justify-end gap-2">
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1">
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl p-1">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-200'}`}
               >
                 <span className="material-symbols-outlined text-base sm:text-lg">grid_view</span>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-200'}`}
               >
                 <span className="material-symbols-outlined text-lg">view_list</span>
               </button>
@@ -260,7 +260,7 @@ export default function NotesPage() {
             {/* Add Note Button */}
             <button
               onClick={handleCreateNote}
-              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-2xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-primary text-white rounded-2xl text-sm font-semibold hover:bg-primary-hover active:scale-[0.98] transition-all duration-300"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               <span className="hidden sm:inline">Buat Catatan</span>
@@ -282,14 +282,14 @@ export default function NotesPage() {
                 onClick={() => setSelectedCategory(cat.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   selectedCategory === cat.key
-                    ? 'bg-white text-primary shadow-md shadow-slate-200/50'
-                    : 'bg-white/50 text-slate-500 hover:bg-white hover:text-slate-700'
+                    ? 'bg-white dark:bg-slate-900 text-primary shadow-md shadow-slate-200/50'
+                    : 'bg-white/50 text-slate-500 hover:bg-white dark:bg-slate-900 hover:text-slate-700 dark:text-slate-200'
                 }`}
               >
                 <span className="material-symbols-outlined text-lg">{cat.icon}</span>
                 <span>{cat.label}</span>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  selectedCategory === cat.key ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-500'
+                  selectedCategory === cat.key ? 'bg-primary/10 text-primary' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'
                 }`}>
                   {count}
                 </span>
@@ -302,17 +302,17 @@ export default function NotesPage() {
         {/* NOTES GRID                                                      */}
         {/* ═══════════════════════════════════════════════════════════════ */}
         {sortedNotes.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-12 sm:p-16 text-center shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-transparent/80 p-12 sm:p-16 text-center shadow-sm">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center mx-auto mb-6 shadow-inner">
               <span className="material-symbols-outlined text-4xl sm:text-5xl text-slate-300">note_add</span>
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">Belum Ada Catatan</h3>
-            <p className="text-sm text-slate-500 mb-6 sm:mb-8 max-w-sm mx-auto">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3">Belum Ada Catatan</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 sm:mb-8 max-w-sm mx-auto">
               Buat catatan baru untuk menyimpan informasi penting terkait BOS
             </p>
             <button
               onClick={handleCreateNote}
-              className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] transition-all duration-300 active:scale-[0.98]"
+              className="inline-flex items-center gap-2.5 bg-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm transition-all duration-300 active:scale-[0.98]"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               Buat Catatan Pertama
@@ -344,7 +344,7 @@ export default function NotesPage() {
                       note.category === 'dokumen' ? 'bg-violet-100 text-violet-700' :
                       note.category === 'keuangan' ? 'bg-emerald-100 text-emerald-700' :
                       note.category === 'jadwal' ? 'bg-amber-100 text-amber-700' :
-                      'bg-slate-100 text-slate-700'
+                      'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200'
                     }`}>
                       <span className="material-symbols-outlined text-xs">{catInfo.icon}</span>
                       <span className="hidden sm:inline">{catInfo.label}</span>
@@ -363,7 +363,7 @@ export default function NotesPage() {
                   </p>
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-200/50 mt-auto">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-transparent/50 mt-auto">
                     <span className="text-[10px] text-slate-400 font-medium">
                       {formatDate(note.updatedAt)}
                     </span>
@@ -373,7 +373,7 @@ export default function NotesPage() {
                         className="p-1.5 hover:bg-white/80 rounded-lg transition-colors"
                         title={note.isPinned ? 'Unpin' : 'Pin'}
                       >
-                        <span className="material-symbols-outlined text-sm text-slate-500">push_pin</span>
+                        <span className="material-symbols-outlined text-sm text-slate-500 dark:text-slate-400">push_pin</span>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id) }}
@@ -414,7 +414,7 @@ export default function NotesPage() {
                           note.category === 'dokumen' ? 'bg-violet-100 text-violet-700' :
                           note.category === 'keuangan' ? 'bg-emerald-100 text-emerald-700' :
                           note.category === 'jadwal' ? 'bg-amber-100 text-amber-700' :
-                          'bg-slate-100 text-slate-700'
+                          'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200'
                         }`}>
                           {catInfo.label}
                         </span>
@@ -430,7 +430,7 @@ export default function NotesPage() {
                         onClick={(e) => { e.stopPropagation(); handleTogglePin(note.id) }}
                         className="p-1.5 sm:p-2 hover:bg-white/80 rounded-lg transition-colors"
                       >
-                        <span className="material-symbols-outlined text-sm text-slate-500">push_pin</span>
+                        <span className="material-symbols-outlined text-sm text-slate-500 dark:text-slate-400">push_pin</span>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id) }}
@@ -463,19 +463,19 @@ export default function NotesPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowEditor(false)}>
           <div
             ref={editorRef}
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
+            className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Editor Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-transparent flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                 {editingNote ? 'Edit Catatan' : 'Catatan Baru'}
               </h3>
               <button
                 onClick={() => setShowEditor(false)}
-                className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 rounded-xl transition-colors"
               >
-                <span className="material-symbols-outlined text-slate-500">close</span>
+                <span className="material-symbols-outlined text-slate-500 dark:text-slate-400">close</span>
               </button>
             </div>
 
@@ -483,32 +483,32 @@ export default function NotesPage() {
             <div className="p-6 space-y-5 overflow-y-auto max-h-[60vh]">
               {/* Title */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Judul</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Judul</label>
                 <input
                   type="text"
                   value={editorTitle}
                   onChange={(e) => setEditorTitle(e.target.value)}
                   placeholder="Judul catatan..."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 dark:border-transparent rounded-xl text-base font-semibold text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:bg-slate-900 outline-none transition-all"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Isi Catatan</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Isi Catatan</label>
                 <textarea
                   ref={editorRef}
                   value={editorContent}
                   onChange={(e) => setEditorContent(e.target.value)}
                   placeholder="Tulis catatan di sini..."
                   rows={8}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:bg-slate-900 outline-none transition-all resize-none"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kategori</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Kategori</label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.filter(c => c.key !== 'semua').map(cat => (
                     <button
@@ -517,7 +517,7 @@ export default function NotesPage() {
                       className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                         editorCategory === cat.key
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                       }`}
                     >
                       <span className="material-symbols-outlined text-sm">{cat.icon}</span>
@@ -529,7 +529,7 @@ export default function NotesPage() {
 
               {/* Color */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Warna</label>
+                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Warna</label>
                 <div className="flex items-center gap-2">
                   {COLORS.map(color => (
                     <button
@@ -538,7 +538,7 @@ export default function NotesPage() {
                       className={`w-10 h-10 rounded-xl ${color.bg} border-2 transition-all ${
                         editorColor === color.key
                           ? 'border-primary scale-110 shadow-md'
-                          : 'border-slate-200 hover:scale-105'
+                          : 'border-slate-200 dark:border-transparent'
                       }`}
                     />
                   ))}
@@ -547,16 +547,16 @@ export default function NotesPage() {
             </div>
 
             {/* Editor Footer */}
-            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            <div className="px-6 py-4 border-t border-slate-100 dark:border-transparent flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowEditor(false)}
-                className="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                className="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 rounded-xl transition-all"
               >
                 Batal
               </button>
               <button
                 onClick={handleSaveNote}
-                className="px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-[0.98]"
+                className="px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-hover transition-all active:scale-[0.98]"
               >
                 {editingNote ? 'Simpan Perubahan' : 'Buat Catatan'}
               </button>

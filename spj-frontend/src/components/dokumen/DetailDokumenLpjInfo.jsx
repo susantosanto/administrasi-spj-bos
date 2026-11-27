@@ -9,7 +9,7 @@ import TemplateEngine from '../templates/TemplateEngine'
 import AutoFillHonorButton from '../templates/blocks/AutoFillHonorButton'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 
-export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData, sppdData, setSppdData, getTemplateConfig }) {
+export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData, sppdData, setSppdData, getTemplateConfig, onAutoFill = null }) {
   const isTransport = card?.isTransport
   const isTransportSub = isTransport && selectedSub?.templateId !== null && selectedSub?.templateId !== 'sppd'
   const hasSppdData = isTransportSub && sppdData && sppdData.rows && sppdData.rows.length > 0
@@ -67,7 +67,11 @@ export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData,
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-6 space-y-6">
-          {/* Auto-Fill Button */}
+          {/* Auto-Fill Button — hanya bila handler tersedia (kartu honor).
+              Sprint 030 fix: onAutoFill kini prop resmi; tanpa ini jalur
+              kartu non-honor (mis. lomba_workshop lewat sidebar) crash
+              ReferenceError. */}
+          {onAutoFill && (
           <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-white rounded-xl p-4 border border-slate-100">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
@@ -83,6 +87,7 @@ export function DetailDokumenLpjInfo({ card, selectedSub, formData, setFormData,
               onAutoFill={onAutoFill}
             />
           </div>
+          )}
 
           {/* Kertas cetak A4/F4 — satu pengaturan global semua dokumen */}
           <div className="flex justify-end print:hidden">

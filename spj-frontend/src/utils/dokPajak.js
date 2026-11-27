@@ -37,6 +37,22 @@ export function kunciBarisPajak(tx) {
 }
 
 /**
+ * Uraian kolom laporan pajak (Sprint 030, AC-32): diawali TEPAT SATU
+ * label nama kegiatan sumber. Tidak duplikat — bila uraian BKU sudah
+ * memuat nama kegiatan, uraian dipakai apa adanya (tanpa label ganda).
+ * @param {Object} r baris pajak (pakai r.uraian)
+ * @param {string} namaKegiatan nama kegiatan sumber (kodeReferensi); '' bila tak ada
+ */
+export function uraianPajakTampil(r = {}, namaKegiatan = '') {
+  const label = String(namaKegiatan || '').trim()
+  const u = String(r?.uraian || '').trim()
+  if (!label) return u
+  if (!u) return label
+  if (u.toLowerCase().includes(label.toLowerCase())) return u
+  return `${label} — ${u}`
+}
+
+/**
  * Transaksi BKU → baris laporan (sudah urut bulan → tanggal).
  * @param {Array} transactions transaksi BKU mentah
  * @param {Object} manual peta kunciBarisPajak → { jenis, tglBayar, tglNtpn, ntpn, kodeBilling, keterangan }

@@ -380,7 +380,7 @@ export default function LandingPage() {
             <ThemeToggleLanding />
             <Link
               to="/login"
-              className="text-sm font-medium text-slate-500 hover:text-[#2457A7] transition-colors"
+              className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-[#2457A7] transition-colors"
             >
               Masuk
             </Link>

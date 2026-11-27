@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import storageHelper from '../../utils/storageHelper'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -7,18 +8,27 @@ import { logActivity } from '../../utils/activityLog'
 import bkuParser, { filterByMonth, redetectTypes } from '../../utils/bkuParser'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
 import { getNamaKegiatan } from '../../data/kodeReferensi'
-import { kategoriDenganKoreksi, grupDenganDominan, saringGrupBermasalah } from '../../utils/bkuKategori'
+import { kategoriDenganKoreksi, simpanKoreksi, cocokKoreksiGrup, PILIHAN_KATEGORI_UNIK, LABEL_KATEGORI, WARNA_KATEGORI, grupDenganDominan } from '../../utils/bkuKategori'
+import { Button } from '../../components/ui/button'
+import UploadDropzone from '../../components/ui/UploadDropzone'
+import UploadSurface from '../../components/ui/UploadSurface'
+import KategoriPicker from '../../components/bku/KategoriPicker'
+import ErrorBoundary from '../../components/ui/ErrorBoundary'
 import BKUSidebar from '../../components/bku/BKUSidebar'
+import BKUSidebarPajakMini from '../../components/bku/BKUSidebarPajakMini'
 import { hitungRingkasan } from '../../utils/bkuSummary'
 import BKUUploadPdf from '../../components/bku/BKUUploadPdf'
 
-// Label badge kategori BKU (Sprint 004 A.2)
+// Label badge kategori BKU (Sprint 004 A.2) — konsisten dengan LABEL_KATEGORI
 const KATEGORI_BADGE_LABEL = {
-  honor: 'Honor',
-  perjalanan_dinas: 'Perj. Dinas',
-  mamin: 'Mamin',
+  honor: 'Honorarium',
+  perjalanan_dinas: 'Perjalanan Dinas',
+  mamin: 'Makan & Minum',
   atk: 'ATK',
   pemeliharaan: 'Pemeliharaan',
+  lomba_workshop: 'Lomba & Workshop',
+  operasional: 'Operasional',
+  buku: 'Buku & Bahan Ajar',
 }
 
 // ─── Helpers ───────────────────────────────────────────────────
@@ -69,13 +79,13 @@ export default function BKUPage() {
   const [items, setItems] = useState([])
   const [filterBulan, setFilterBulan] = useState('Semua')
   const [isUploading, setIsUploading] = useState(false)
-  const [showUploadForm, setShowUploadForm] = useState(true)
-  const [showUploadPdf, setShowUploadPdf] = useState(false) // Sprint 015: pintu masuk PDF
   const [uploadedInfo, setUploadedInfo] = useState(null) // { header, summary }
   const [availableMonths, setAvailableMonths] = useState([])
   const [sidebarTransaction, setSidebarTransaction] = useState(null)
+  const [sidebarPajakMini, setSidebarPajakMini] = useState(null)
+  // Sumber upload terakhir untuk strip progresif (nama file + waktu).
+  const [sumberBku, setSumberBku] = useState({ file: null, at: null })
   const [selectedRowKey, setSelectedRowKey] = useState(null)
-  const [hanyaBelumDipetakan, setHanyaBelumDipetakan] = useState(false)
   // Tab Belanja (default) + Pajak — satu sumber transaksi, view filter
   const [activeTab, setActiveTab] = useState('belanja')
   const [filterBulanPajak, setFilterBulanPajak] = useState('Semua')
@@ -102,8 +112,22 @@ export default function BKUPage() {
 
       setItems(migrated)
       const realSummary = recalcSummary(migrated)
+      // Pulihkan sidebar detail bila ada baris yang sedang dibuka sebelum pindah halaman.
+      try {
+        const buka = storageHelper.get('bku_sidebar_terbuka', null)
+        const cocok = buka && Number.isInteger(buka.row)
+          ? migrated.find((t) => t.row === buka.row && t.tipe === 'PEMBAYARAN')
+          : null
+        if (cocok) {
+          setSidebarTransaction(cocok)
+          setSelectedRowKey(cocok.row || 0)
+        } else if (buka) {
+          storageHelper.remove('bku_sidebar_terbuka')
+        }
+      } catch { /* abaikan — sidebar tetap tertutup */ }
       // Sprint 025: teruskan riwayat impor PDF agar penanda periode tampil.
       setUploadedInfo({ header: stored.header, summary: realSummary, riwayatImporPdf: stored.riwayatImporPdf || [] })
+      setSumberBku({ file: stored.sourceFile || null, at: stored.uploadedAt || null })
       setAvailableMonths(realSummary.months)
       setFilterBulan('Semua')
       if (showToast) {
@@ -119,10 +143,7 @@ export default function BKUPage() {
 
   // Load stored data on mount
   useEffect(() => {
-    const result = loadFromStorage()
-    if (result) {
-      setShowUploadForm(false)
-    }
+    loadFromStorage()
   }, [])
 
   // ─── Keyboard shortcut: Escape closes sidebar ────────────
@@ -170,10 +191,11 @@ export default function BKUPage() {
         summary: result.summary,
         footer: result.footer,
         uploadedAt: result.parsedAt,
+        sourceFile: file.name,
       })
+      setSumberBku({ file: file.name, at: result.parsedAt })
 
-      // Hide upload form after successful upload
-      setShowUploadForm(false)
+      // Upload selesai — area upload tetap tampil (satu konsep, tanpa toggle).
 
       logActivity({
         type: 'bku_upload',
@@ -221,11 +243,8 @@ export default function BKUPage() {
   const itemsPajakAll = items.filter(isPajak)
   const baseItems = filterByMonth(itemsBelanja, filterBulan)
   const semuaGrup = grupDenganDominan(baseItems)
-  const tampilGrup = hanyaBelumDipetakan ? saringGrupBermasalah(semuaGrup) : semuaGrup
+  const tampilGrup = semuaGrup
   const filteredItems = tampilGrup.flatMap((g) => g.rows)
-
-  // Count grup bermasalah (T2 revisi): hitung grup bukan baris, se-bulan aktif
-  const belumDipetakanCount = saringGrupBermasalah(semuaGrup).length
 
   // ─── Tab Pajak: filter bulan + sort tanggal/nominal, nominal lengkap ──
   const nominalPajak = (t) => (t.pengeluaran || t.kredit || 0) + (t.penerimaan || t.debet || 0)
@@ -255,18 +274,65 @@ export default function BKUPage() {
 
   // ─── Sidebar Helper ───────────────────────────────────────────
 
-  const openSidebar = (transaction) => {
+  const openSidebar = (transaction, grup = null) => {
     if (!transaction) return
+    // Non-PEMBAYARAN (saldo awal, dana BOSP, pergeseran, bunga, pajak):
+    // klik MATI TOTAL — tanpa sidebar, tanpa notifikasi.
+    if (transaction.tipe !== 'PEMBAYARAN') return
+    // Baris/group BELUM terkategori → jangan buka detail (dulu: panel kosong).
+    // Non-PEMBAYARAN (saldo/pajak/penerimaan) selalu boleh: detailnya valid.
+    const grupBelum = !!grup && !grup.dominan
+    const barisBelum = transaction.tipe === 'PEMBAYARAN'
+      && !kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti, transaction.tanggalISO || transaction.tanggalStr, transaction.row)
+    if (grupBelum || barisBelum) {
+      toast.info(grupBelum
+        ? `Kelompok "${transaction.noBukti || 'tanpa No Bukti'}" belum punya kategori — klik chevron untuk buka rincian, pilih kategori di kolom Tipe, lalu klik lagi.`
+        : 'Baris ini belum punya kategori — pilih kategori di kolom Tipe, lalu klik lagi untuk membuka detail.')
+      return
+    }
     setSidebarTransaction(transaction)
     setSelectedRowKey(transaction.row || 0)
+    // Ingat baris terbuka supaya tetap terbuka saat kembali dari halaman lain.
+    try { storageHelper.set('bku_sidebar_terbuka', { row: transaction.row ?? null }) } catch { /* abaikan */ }
   }
 
   const closeSidebar = () => {
     setSidebarTransaction(null)
+    try { storageHelper.remove('bku_sidebar_terbuka') } catch { /* abaikan */ }
   }
 
   const sidebarToast = (msg) => {
     toast.info(msg)
+  }
+
+  const handleKategoriChange = (index, item) => {
+    const entry = index === '' || index == null ? null : PILIHAN_KATEGORI_UNIK[Number(index)]
+    if (!entry) return
+    const kategoriSaatIni = kategoriDenganKoreksi(item.kodeRekening, item.noBukti, item.tanggalISO || item.tanggalStr, item.row)
+    if (entry.kategori === kategoriSaatIni?.kategori) return
+    // Langsung simpan tanpa modal: cakupan grup (No Bukti + kode lengkap +
+    // tanggal sama). Baris tanpa triple lengkap jatuh ke satu baris saja.
+    let scope = 'grup'
+    let cocok = items.filter((row) => cocokKoreksiGrup(row, item))
+    if (cocok.length === 0) {
+      scope = 'baris'
+      cocok = [item]
+    }
+    if (!simpanKoreksi(
+      item.kodeRekening,
+      { ...entry, row: item.row },
+      item.noBukti,
+      item.tanggalISO || item.tanggalStr,
+      scope,
+    )) {
+      toast.error('Kategori gagal disimpan. Periksa ruang penyimpanan browser.')
+      return
+    }
+    setItems((current) => [...current])
+    const labelBaru = LABEL_KATEGORI[entry.kategori] || entry.label || entry.kategori
+    toast.success(cocok.length > 1
+      ? `Kategori ${labelBaru} diterapkan ke ${cocok.length} baris`
+      : `Kategori ${labelBaru} diterapkan`)
   }
 
   // Update field tertentu pada transaksi (misal: jenisPajak) → sync state + localStorage
@@ -282,72 +348,68 @@ export default function BKUPage() {
   }
 
   // T2 — satu baris BKU (dipakai baris tunggal maupun anggota grup saat expand)
-  const renderBaris = (item, idx, prefix = '') => {
+  // Baris non-PEMBAYARAN: klik mati total (tanpa sidebar, tanpa notifikasi).
+  const renderBaris = (item, idx) => {
     const badge = TYPE_BADGES[item.tipe] || TYPE_BADGES.LAINNYA
     const rowKey = item.row || idx
     const isSelected = selectedRowKey === rowKey
+    const bisaBuka = item.tipe === 'PEMBAYARAN'
     return (
       <tr
         key={`${item.row}-${idx}`}
-        onClick={() => openSidebar(item)}
-        className={`cursor-pointer transition-all duration-150 group border-l-2 ${
+        onClick={bisaBuka ? () => openSidebar(item) : undefined}
+        title={bisaBuka ? undefined : 'Baris non-belanja — detail nonaktif'}
+        className={`transition-colors duration-150 group border-l-2 ${
+          bisaBuka ? 'cursor-pointer' : 'cursor-default'
+        } ${
           isSelected
             ? 'bg-primary-fixed/30 border-primary shadow-sm'
-            : 'border-transparent hover:bg-slate-50'
+            : 'border-transparent'
         }`}
       >
-        <td className="px-2 py-2 text-text-low text-[11px]">{prefix}{String(idx + 1).padStart(2, '0')}</td>
-        <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
-        <td className="px-2 py-2 text-[11px]" title={item.uraian}>
-          <span className="text-text-high">{item.uraian}</span>
+        <td className="px-3 py-3 text-slate-400 text-[11px] tabular-nums">{String(idx + 1).padStart(2, '0')}</td>
+        <td className="px-3 py-3 whitespace-nowrap text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate" title={item.tanggalStr}>{item.tanggalStr}</td>
+        <td className="px-3 py-3 text-[12px] leading-snug" title={item.uraian}>
+          <span className="text-slate-800 dark:text-slate-100 font-medium">{item.uraian}</span>
           {item.kodeKegiatan && (() => {
             const namaKeg = getNamaKegiatan(item.kodeKegiatan)
             return namaKeg !== (item.kodeKegiatan?.replace(/\.$/, '')) ? (
-              <div className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[200px]" title={namaKeg}>
-                &#128203; {namaKeg}
+              <div className="text-[10px] text-slate-400 mt-0.5 truncate max-w-[220px]" title={namaKeg}>
+                {namaKeg}
               </div>
             ) : null
           })()}
         </td>
-        <td className="px-2 py-2 font-mono text-[10px] text-text-low truncate" title={item.noBukti || '-'}>
+        <td className="px-3 py-3 font-mono text-[10px] text-slate-400 truncate" title={item.noBukti || '-'}>
           {item.noBukti || '-'}
         </td>
-        <td className="px-2 py-2 text-[10px] text-text-low">
-          <span className="font-mono">{item.kodeRekening || '-'}</span>
-          {item.kodeKegiatan && (() => {
-            const namaKeg = getNamaKegiatan(item.kodeKegiatan) || item.kodeKegiatan
-            return (
-              <>
-                <br />
-                <span className="font-mono text-[8px] opacity-70 truncate block max-w-[120px]" title={namaKeg}>{namaKeg}</span>
-              </>
-            )
-          })()}
+        <td className="px-3 py-3 font-mono text-[10px] text-slate-400 truncate" title={item.kodeRekening || '-'}>
+          {item.kodeRekening || '-'}
         </td>
-        <td className="px-2 py-2 truncate">
-          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-medium ${badge.bg}`}>
+        <td className="px-3 py-3 min-w-[172px]">
+          <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">
             {badge.label}
           </span>
-          {item.tipe === 'PEMBAYARAN' && (() => {
-            const kat = kategoriDenganKoreksi(item.kodeRekening, item.noBukti)
-            return kat ? (
-              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
-                {KATEGORI_BADGE_LABEL[kat.kategori] || kat.kategori}
-              </span>
-            ) : (
-              <span className="block mt-0.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
-                Belum dipetakan
-              </span>
+          {(() => {
+            if (item.tipe !== 'PEMBAYARAN') return null;
+            const kat = kategoriDenganKoreksi(item.kodeRekening, item.noBukti, item.tanggalISO || item.tanggalStr, item.row)
+            return (
+              <KategoriPicker
+                value={kat?.kategori || ''}
+                options={PILIHAN_KATEGORI_UNIK}
+                ariaLabel={`Kategori transaksi ${item.uraian || item.noBukti || 'transaksi'}`}
+                onChange={(entryIndex) => handleKategoriChange(entryIndex, item)}
+              />
             )
           })()}
         </td>
-        <td className="px-2 py-2 text-right text-green-700 font-medium text-[11px] truncate" title={fmt(item.debet)}>
-          {item.debet > 0 ? fmt(item.debet) : '-'}
+        <td className="px-3 py-3 text-right font-medium text-[12px] tabular-nums text-slate-500 dark:text-slate-400 truncate" title={fmt(item.debet)}>
+          {item.debet > 0 ? fmt(item.debet) : <span className="text-slate-300">-</span>}
         </td>
-        <td className="px-2 py-2 text-right text-red-700 font-medium text-[11px] truncate" title={fmt(item.kredit)}>
-          {item.kredit > 0 ? fmt(item.kredit) : '-'}
+        <td className="px-3 py-3 text-right font-medium text-[12px] tabular-nums text-slate-700 dark:text-slate-200 truncate" title={fmt(item.kredit)}>
+          {item.kredit > 0 ? fmt(item.kredit) : <span className="text-slate-300">-</span>}
         </td>
-        <td className="px-2 py-2 text-right font-bold text-[11px] truncate" title={fmt(item.saldo)}>
+        <td className="px-3 py-3 text-right font-bold text-[12px] tabular-nums text-slate-900 dark:text-white truncate" title={fmt(item.saldo)}>
           {fmt(item.saldo)}
         </td>
       </tr>
@@ -357,100 +419,73 @@ export default function BKUPage() {
   // ─── Render ───────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100/80">
+    <div className="flex flex-col min-h-screen bg-slate-100/80 dark:bg-slate-950">
       <Topbar title="Kas & Dokumen" subtitle="Kelola kas BKU dan dokumen LPJ, Kelengkapan, Pajak dari baris belanja" />
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 max-w-[1400px] mx-auto w-full">
-        {/* ── Upload Toggle Buttons ──
-            Dua pintu upload (Excel & PDF) SALING EKSKLUSIF: hanya satu
-            panel hero yang tampil. Dua kotak upload bertumpuk terasa/nonpremium. */}
-        <div className="flex flex-wrap items-center gap-2">
-        <button
-          onClick={() => { const buka = !showUploadForm; setShowUploadForm(buka); if (buka) setShowUploadPdf(false) }}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
-            showUploadForm
-              ? 'bg-primary text-white shadow-lg shadow-primary/20'
-              : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-          }`}
-        >
-          <span className="material-symbols-outlined text-lg">{showUploadForm ? 'close' : 'upload_file'}</span>
-          {showUploadForm ? 'Tutup Form' : 'Upload Excel'}
-        </button>
-        <button
-          onClick={() => { const buka = !showUploadPdf; setShowUploadPdf(buka); if (buka) setShowUploadForm(false) }}
-          title="Import BKU dari PDF hasil scan (pintu masuk kedua, jalur Excel tidak berubah)"
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${
-            showUploadPdf
-              ? 'bg-primary text-white shadow-lg shadow-primary/20'
-              : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-          }`}
-        >
-          <span className="material-symbols-outlined text-lg">{showUploadPdf ? 'close' : 'picture_as_pdf'}</span>
-          {showUploadPdf ? 'Tutup Import PDF' : 'Upload PDF'}
-        </button>
-        </div>
-
-        {/* ── Import PDF (Sprint 015) — pintu masuk kedua, Excel tetap utuh ── */}
-        {showUploadPdf && (
-          <BKUUploadPdf
-            recalcSummary={recalcSummary}
-            onSelesai={() => loadFromStorage(true)}
-          />
-        )}
-
-        {/* ── Upload Area — kanon premium yang sama dengan form upload lain ── */}
-        {showUploadForm && (
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
-            <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
-                            hover:border-primary/40 transition-all duration-300
-                            bg-gradient-to-b from-slate-50/50 to-transparent">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
-                              flex items-center justify-center mx-auto mb-5 shadow-inner">
-                <span className="material-symbols-outlined text-4xl text-primary">table_view</span>
+        {/* ── UPLOAD SURFACE progresif — konsep sama seperti Data Sekolah/Guru/
+            Tendik: hero saat kosong, Source Strip tipis saat terisi (klik =
+            buka form PDF + Excel lagi), progress inline saat memproses. ── */}
+        <div id="bku-upload-area">
+          <UploadSurface
+            key={items.length}
+            id="bku-file-input"
+            loading={isUploading}
+            loadingText="Memproses..."
+            filled={items.length > 0}
+            filledLabel="Data BKU tersimpan"
+            fileName={sumberBku.file}
+            uploadedAt={sumberBku.at}
+            count={items.length}
+            onFiles={(files) => handleFileUpload({ target: { files } })}
+            form={(
+              <div className="grid gap-4 lg:grid-cols-2 items-stretch">
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-transparent p-6 shadow-sm flex flex-col">
+                  <BKUUploadPdf
+                    recalcSummary={recalcSummary}
+                    onSelesai={() => loadFromStorage(true)}
+                  />
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-transparent p-6 shadow-sm flex flex-col">
+                  <div className="flex flex-wrap items-center justify-center gap-2 mb-4" aria-hidden="true">
+                    <span className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400">
+                      Sumber: ARKAS Excel
+                    </span>
+                  </div>
+                  <div className="flex-1 flex flex-col">
+                    <UploadDropzone
+                      id="bku-file-input"
+                      icon="table_view"
+                      title="Upload File BKU Excel"
+                      description="File Excel dari ARKAS — transaksi akan langsung terisi otomatis"
+                      formatHint="Format: .xlsx atau .xls"
+                      accept=".xlsx,.xls"
+                      loading={isUploading}
+                      loadingText="Memproses..."
+                      actionText="Pilih File Excel BKU"
+                      onFiles={(files) => handleFileUpload({ target: { files } })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Upload File BKU Excel</h3>
-              <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-                File Excel dari ARKAS — transaksi akan langsung terisi otomatis
-              </p>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".xlsx,.xls"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="bku-file-input"
-              />
-              <label
-                htmlFor="bku-file-input"
-                className={`inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                            transition-all duration-300 cursor-pointer ${
-                  isUploading
-                    ? 'bg-slate-300 text-white cursor-not-allowed'
-                    : 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{isUploading ? 'sync' : 'upload'}</span>
-                {isUploading ? 'Memproses...' : 'Pilih File Excel BKU'}
-              </label>
-              <p className="text-xs text-slate-400 mt-4">Format: .xlsx atau .xls</p>
-            </div>
-          </div>
-        )}
+            )}
+          />
+        </div>
 
         {/* ── Sekolah Info Card (setelah upload) ── */}
         {uploadedInfo && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent p-6 shadow-sm">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-2xl">school</span>
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-slate-900">
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-white">
                     {uploadedInfo.header?.nama_sekolah || 'SD NEGERI ...'}
                   </h4>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     NPSN: {uploadedInfo.header?.npsn || '-'} | Tahun: {uploadedInfo.header?.tahunAnggaran || '-'}
                   </p>
                   <p className="text-xs text-slate-400">
@@ -460,51 +495,73 @@ export default function BKUPage() {
                   </p>
                 </div>
               </div>
-              <div className="text-right text-xs text-slate-500">
-                <p className="font-semibold">{uploadedInfo.summary.totalTransactions} transaksi</p>
-                <p className={uploadedInfo.summary.isBalanced ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                  {uploadedInfo.summary.isBalanced ? '✅ Balance' : '⚠️ Tidak Balance'}
-                </p>
+              <div className="text-right text-[11px] leading-relaxed tabular-nums shrink-0">
+                {(() => {
+                  const bln = [...(availableMonths || [])].sort((a, b) => a - b)
+                  const thn = uploadedInfo.header?.tahunAnggaran || ''
+                  const periode = bln.length
+                    ? `${MONTH_NAMES[bln[0] - 1]} – ${MONTH_NAMES[bln[bln.length - 1] - 1]}${thn ? ` ${thn}` : ''}`
+                    : '-'
+                  const upd = sumberBku.at
+                    ? new Date(sumberBku.at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : '-'
+                  const baris = [
+                    ['Periode data', periode],
+                    ['Update terakhir', upd],
+                  ]
+                  return baris.map(([label, nilai]) => (
+                    <p key={label} className="text-slate-500 dark:text-slate-400">
+                      {label} <span className="font-semibold text-slate-800 dark:text-slate-100">{nilai}</span>
+                    </p>
+                  ))
+                })()}
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Summary Cards ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-          <div className="glass-card p-lg rounded-xl shadow-lg border-l-4 border-green-600">
-            <div className="flex justify-between items-start mb-sm">
-              <span className="text-label-md text-on-surface-variant">Total Penerimaan</span>
-              <span className="material-symbols-outlined text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance</span>
+        {/* ── Summary Cards — minimalis premium: putih netral + saldo navy ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Total Penerimaan</span>
+              <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-slate-500 dark:text-slate-300 text-lg" aria-hidden="true">account_balance</span>
+              </span>
             </div>
-            <h3 className="font-headline-md text-headline-md font-bold text-green-700">Rp {fmt(totalDebet)}</h3>
+            <h3 className="text-[22px] leading-none font-bold text-slate-900 dark:text-white tabular-nums">Rp {fmt(totalDebet)}</h3>
             {uploadedInfo && (
-              <p className="text-xs text-text-low mt-1">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 tabular-nums">
                 {items.filter(i => i.penerimaan > 0).length} transaksi penerimaan
               </p>
             )}
           </div>
-          <div className="glass-card p-lg rounded-xl shadow-lg border-l-4 border-red-600">
-            <div className="flex justify-between items-start mb-sm">
-              <span className="text-label-md text-on-surface-variant">Total Pengeluaran</span>
-              <span className="material-symbols-outlined text-red-600" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">Total Pengeluaran</span>
+              <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-slate-500 dark:text-slate-300 text-lg" aria-hidden="true">payments</span>
+              </span>
             </div>
-            <h3 className="font-headline-md text-headline-md font-bold text-red-700">Rp {fmt(totalKredit)}</h3>
+            <h3 className="text-[22px] leading-none font-bold text-slate-900 dark:text-white tabular-nums">Rp {fmt(totalKredit)}</h3>
             {uploadedInfo && (
-              <p className="text-xs text-text-low mt-1">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 tabular-nums">
                 {items.filter(i => i.pengeluaran > 0).length} transaksi pengeluaran
               </p>
             )}
           </div>
-          <div className="bg-primary text-on-primary p-lg rounded-xl shadow-lg relative overflow-hidden">
-            <div className="relative z-10">
-              <div className="flex justify-between items-start mb-sm">
-                <span className="text-label-md opacity-80">Saldo Akhir</span>
-                <span className="material-symbols-outlined opacity-80">wallet</span>
+          <div className="saldo-hero bg-slate-900 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full pointer-events-none" aria-hidden="true" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/60">Saldo Akhir</span>
+                <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-white/80 text-lg" aria-hidden="true">wallet</span>
+                </span>
               </div>
-              <h3 className="font-headline-md text-headline-md font-bold">Rp {fmt(lastSaldo)}</h3>
+              <h3 className="text-[22px] leading-none font-bold text-white tabular-nums">Rp {fmt(lastSaldo)}</h3>
               {uploadedInfo && filterBulan !== 'Semua' && (
-                <p className="text-xs opacity-80 mt-1">
+                <p className="text-xs text-white/60 mt-1.5">
                   Filter: {MONTH_NAMES[parseInt(filterBulan) - 1]}
                 </p>
               )}
@@ -512,31 +569,31 @@ export default function BKUPage() {
           </div>
         </div>
 
-        {/* ── Tab Belanja / Pajak — satu sumber transaksi, view filter ── */}
-        <div className="flex gap-2" role="tablist" aria-label="Tab BKU">
+        {/* ── Tab Belanja / Pajak — segmented control minimalis ── */}
+        <div className="flex gap-1 rounded-2xl bg-slate-100 dark:bg-white/5 p-1" role="tablist" aria-label="Tab BKU">
           <button
             role="tab"
             aria-selected={activeTab === 'belanja'}
             onClick={() => setActiveTab('belanja')}
-            className={`flex-1 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+            className={`flex-1 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
               activeTab === 'belanja'
-                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
-            Belanja ({itemsBelanja.length})
+            Belanja <span className="tabular-nums">({itemsBelanja.length})</span>
           </button>
           <button
             role="tab"
             aria-selected={activeTab === 'pajak'}
             onClick={() => setActiveTab('pajak')}
-            className={`flex-1 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all border ${
+            className={`flex-1 px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
               activeTab === 'pajak'
-                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            Pajak ({itemsPajakAll.length})
+            Pajak <span className="tabular-nums">({itemsPajakAll.length})</span>
           </button>
         </div>
 
@@ -584,7 +641,7 @@ export default function BKUPage() {
                 href={CORETAX_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-lg py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-label-md font-medium shadow-lg shadow-primary/20"
+                className="inline-flex items-center gap-1 px-lg py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all text-label-md font-medium"
               >
                 Bayar via Coretax
                 <span className="material-symbols-outlined text-lg">open_in_new</span>
@@ -626,12 +683,16 @@ export default function BKUPage() {
                     const setor = !isPungut ? (item.pengeluaran || item.kredit || item.penerimaan || item.debet || 0) : 0
                     const nominal = nominalPajak(item)
                     const isSelected = selectedRowKey === (item.row || idx)
+                    // Pungut → mini sidebar Coretax. Pembayaran lain → sidebar penuh.
+                    // Non-pembayaran → mati total.
+                    const miniPajak = isPungut
+                    const barisBisaDibuka = item.tipe === 'PEMBAYARAN' && !isPungut
                     return (
                       <tr
                         key={`${item.row}-${idx}`}
-                        onClick={isPungut ? undefined : () => openSidebar(item)}
-                        title={isPungut ? 'Pungut pajak — detail nonaktif' : undefined}
-                        className={`transition-all duration-150 border-l-2 ${isPungut ? 'border-transparent' : `cursor-pointer ${isSelected ? 'bg-primary-fixed/30 border-primary shadow-sm' : 'border-transparent hover:bg-slate-50'}`}`}
+                        onClick={miniPajak ? () => setSidebarPajakMini(item) : barisBisaDibuka ? () => openSidebar(item) : undefined}
+                        title={miniPajak ? 'Buka pembayaran pajak (Coretax)' : item.tipe !== 'PEMBAYARAN' ? 'Baris non-belanja — detail nonaktif' : isPungut ? 'Pungut pajak — detail nonaktif' : undefined}
+                        className={`transition-all duration-150 border-l-2 ${(miniPajak || barisBisaDibuka) ? 'cursor-pointer' : 'cursor-default'} ${isPungut ? 'border-transparent' : `${isSelected ? 'bg-primary-fixed/30 border-primary shadow-sm' : 'border-transparent'}`}`}
                       >
                         <td className="px-2 py-2 text-text-low text-[11px]">{String(idx + 1).padStart(2, '0')}</td>
                         <td className="px-2 py-2 whitespace-nowrap text-[11px] font-medium" title={item.tanggalStr}>{item.tanggalStr}</td>
@@ -644,7 +705,7 @@ export default function BKUPage() {
                             {badge.label}
                           </span>
                         </td>
-                        <td className="px-2 py-2 text-[11px] font-medium text-slate-700">
+                        <td className="px-2 py-2 text-[11px] font-medium text-slate-700 dark:text-slate-200">
                           {deteksiJenisPajak(item.uraian) || '-'}
                         </td>
                         <td className="px-2 py-2 text-right text-[11px] font-medium" title={fmt(pungut)}>{pungut > 0 ? fmt(pungut) : '-'}</td>
@@ -706,28 +767,18 @@ export default function BKUPage() {
               {/* Action buttons */}
               {items.length > 0 && (
                 <>
-                  {/* Filter belum dipetakan (Sprint 004 A.2) */}
-                  <button
-                    onClick={() => setHanyaBelumDipetakan((v) => !v)}
-                    className={`flex items-center gap-1 px-lg py-2 rounded-lg transition-all text-label-md font-medium border ${
-                      hanyaBelumDipetakan
-                        ? 'bg-primary text-white border-primary'
-                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                    }`}
-                    title="Saring grup yang belum dipetakan"
-                  >
-                    <span className="material-symbols-outlined text-lg">filter_alt</span>
-                    Saring belum dipetakan ({belumDipetakanCount})
-                  </button>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={handleRefresh}
-                    className="flex items-center gap-1 px-lg py-2 bg-primary-fixed/30 text-primary border border-primary/30 rounded-lg hover:bg-primary-fixed/50 transition-all text-label-md font-medium"
                     title="Muat ulang data tersimpan"
                   >
                     <span className="material-symbols-outlined text-lg">refresh</span>
                     Refresh
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
                     onClick={() => {
                       if (!requireWrite(toast)) return
                       storageHelper.remove('bku_data')
@@ -739,11 +790,10 @@ export default function BKUPage() {
                       closeSidebar()
                       toast.info('Data BKU berhasil dihapus')
                     }}
-                    className="flex items-center gap-1 px-lg py-2 bg-danger/10 text-danger border border-danger/30 rounded-lg hover:bg-danger/20 transition-all text-label-md font-medium"
                   >
                     <span className="material-symbols-outlined text-lg">delete_forever</span>
                     Hapus Data
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -755,22 +805,22 @@ export default function BKUPage() {
               <p className="text-text-low">Belum ada data BKU. Upload file Excel untuk memulai.</p>
             </div>
           ) : (
-            <div className="min-w-0">
+            <div className="min-w-0 overflow-x-auto">
               <table className="w-full text-left table-fixed">
-                <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider">
-                  <tr>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[3%]">No</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[11%]">Tanggal</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[27%]">Uraian</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[9%]">No. Bukti</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Kode</th>
-                    <th className="px-2 py-2 font-bold text-[10px] w-[10%]">Tipe</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Debet</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Kredit</th>
-                    <th className="px-2 py-2 font-bold text-[10px] text-right w-[10%]">Saldo</th>
+                <thead className="sticky top-0 z-10 backdrop-blur-md" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 88%, transparent)' }}>
+                  <tr className="border-b" style={{ borderColor: 'var(--color-border)' }}>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[3%]">No</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[11%]">Tanggal</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[23%]">Uraian</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[9%]">No. Bukti</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[10%]">Kode</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant w-[14%]">Tipe</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant text-right w-[10%]">Debet</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant text-right w-[10%]">Kredit</th>
+                    <th className="px-3 pt-4 pb-3 font-semibold text-[10px] uppercase tracking-[0.14em] text-on-surface-variant text-right w-[10%]">Saldo</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant">
+                <tbody className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                   {(() => {
                     let nomor = 0
                     const keluar = []
@@ -779,37 +829,48 @@ export default function BKUPage() {
                         keluar.push(renderBaris(grup.rows[0], nomor++, ''))
                       } else {
                         const dibuka = !!grupExpand[grup.key]
+                        // Header group non-PEMBAYARAN: klik mati total.
+                        const grupBisaDibuka = grup.rows[0]?.tipe === 'PEMBAYARAN'
                         keluar.push(
                           <tr
                             key={`g-${grup.key}`}
-                            onClick={() => toggleGrup(grup.key)}
-                            title="Lihat rincian se-Bukti"
-                            className="cursor-pointer bg-slate-50 hover:bg-slate-100 border-l-2 border-primary"
+                            onClick={grupBisaDibuka ? () => openSidebar(grup.rows[0], grup) : undefined}
+                            title={!grupBisaDibuka
+                              ? 'Kelompok non-belanja — detail nonaktif'
+                              : grup.dominan
+                                ? `Buka detail transaksi kelompok${(grup.kodeList || []).length ? ` — Kode: ${(grup.kodeList || []).join(', ')}` : ''}`
+                                : 'Kelompok ini belum punya kategori — pilih kategori di kolom Tipe terlebih dahulu'}
+                            className={`${grupBisaDibuka ? 'cursor-pointer' : 'cursor-default'} bg-surface-container-low`}
                           >
-                            <td colSpan="9" className="px-2 py-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="material-symbols-outlined text-base text-primary">{dibuka ? 'expand_more' : 'chevron_right'}</span>
-                                <span className="font-mono font-bold text-[11px] text-slate-900">{grup.noBukti}</span>
+                            <td colSpan="9" className="px-3 py-2.5">
+                              <div className="flex items-center gap-2.5">
+                                <button
+                                  type="button"
+                                  aria-label={`${dibuka ? 'Tutup' : 'Lihat'} rincian kelompok ${grup.noBukti}`}
+                                  onClick={(event) => { event.stopPropagation(); toggleGrup(grup.key) }}
+                                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent shadow-sm hover:border-primary/40 hover:text-primary"
+                                >
+                                  <span className="material-symbols-outlined text-base text-primary">{dibuka ? 'expand_more' : 'chevron_right'}</span>
+                                </button>
+                                <span className="font-mono font-bold text-[12px] text-slate-900 dark:text-white tabular-nums">{grup.noBukti}</span>
                                 {grup.dominan ? (
-                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary">
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${WARNA_KATEGORI[grup.dominan.kategori]?.pill || 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 border-transparent'}`}>
+                                    <span className={`h-1 w-1 rounded-full ${WARNA_KATEGORI[grup.dominan.kategori]?.dot || 'bg-slate-300'}`} aria-hidden="true" />
                                     {KATEGORI_BADGE_LABEL[grup.dominan.kategori] || grup.dominan.kategori}
                                   </span>
                                 ) : (
-                                  <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400">
+                                    <span className="h-1 w-1 rounded-full bg-slate-300" aria-hidden="true" />
                                     Belum dipetakan
                                   </span>
                                 )}
-                                <span className="text-[11px] text-slate-500">{grup.rows.length} rincian se-Bukti &#183; Rp {fmt(grup.total)}</span>
-                                <span className="text-[10px] font-semibold text-primary">Lihat rincian</span>
-                                <span className="font-mono text-[9px] text-slate-400 truncate max-w-[280px]" title={(grup.kodeList || []).join(', ')}>
-                                  Kode: {(grup.kodeList || []).join(', ') || '-'}
-                                </span>
+                                <span className="text-[11px] text-slate-400 tabular-nums">{grup.rows.length} rincian · Rp {fmt(grup.total)}</span>
                               </div>
                             </td>
                           </tr>
                         )
                         if (dibuka) {
-                          for (const item of grup.rows) keluar.push(renderBaris(item, nomor++, '\u21B3 '))
+                          for (const item of grup.rows) keluar.push(renderBaris(item, nomor++))
                         }
                       }
                     }
@@ -818,15 +879,15 @@ export default function BKUPage() {
                 </tbody>
                 <tfoot className="bg-surface-container-low font-bold">
                   <tr>
-                    <td className="px-2 py-2" colSpan="6">
-                      <span className="text-text-high text-[11px]">TOTAL</span>
-                      <span className="text-text-low text-[9px] ml-1">
-                        ({tampilGrup.length} grup &#183; {filteredItems.length} rincian)
+                    <td className="px-3 py-3" colSpan="6">
+                      <span className="text-slate-900 dark:text-white text-[11px] font-bold tracking-wide">TOTAL</span>
+                      <span className="text-slate-400 text-[10px] ml-2 tabular-nums">
+                        ({tampilGrup.length} grup · {filteredItems.length} rincian)
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-right text-green-700 text-[11px]">{fmt(totalDebetBelanja)}</td>
-                    <td className="px-2 py-2 text-right text-red-700 text-[11px]">{fmt(totalKreditBelanja)}</td>
-                    <td className="px-2 py-2 text-right text-primary font-bold text-[12px]">{fmt(lastSaldoBelanja)}</td>
+                    <td className="px-3 py-3 text-right text-slate-500 dark:text-slate-400 font-semibold text-[11px] tabular-nums">{fmt(totalDebetBelanja)}</td>
+                    <td className="px-3 py-3 text-right text-slate-700 dark:text-slate-200 font-semibold text-[11px] tabular-nums">{fmt(totalKreditBelanja)}</td>
+                    <td className="px-3 py-3 text-right text-primary font-bold text-[13px] tabular-nums">{fmt(lastSaldoBelanja)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -836,19 +897,52 @@ export default function BKUPage() {
         )}
       </div>
 
-      {/* ── Premium BKU Sidebar ── */}
-      {sidebarTransaction && (
-        <BKUSidebar
-          transaction={sidebarTransaction}
-          allTransactions={items}
-          onClose={closeSidebar}
-          onNavigate={(tx) => setSidebarTransaction(tx)}
-          showToast={sidebarToast}
-          onUpdateTransaction={updateTransaction}
-          onOpenMamin={(tx) => {
-            toast.info('Dokumen khusus Mamin: ' + (tx.uraian || ''))
-          }}
-        />
+      {/* ── Premium BKU Sidebar (anti-blank: crash render jadi kartu aman).
+          Portal ke body (seperti mini pajak): wrapper rute memakai
+          animate-fade-in fill-forwards yang menyisakan transform → tanpa
+          portal, panel fixed nempel ke dokumen, bukan viewport. ── */}
+      {sidebarTransaction && createPortal(
+        <ErrorBoundary
+          key={sidebarTransaction.row}
+          onTutup={closeSidebar}
+          fallbackJudul="Detail transaksi tidak dapat ditampilkan"
+          fallbackPesan="Terjadi galat saat membuka baris ini. Data BKU aman — tutup panel dan coba baris lain, atau muat ulang."
+        >
+          <BKUSidebar
+            transaction={sidebarTransaction}
+            allTransactions={items}
+            onClose={closeSidebar}
+            onNavigate={(tx) => {
+              if (!tx) return
+              setSidebarTransaction(tx)
+              setSelectedRowKey(tx.row || 0)
+              try { storageHelper.set('bku_sidebar_terbuka', { row: tx.row ?? null }) } catch { /* abaikan */ }
+            }}
+            showToast={sidebarToast}
+            onUpdateTransaction={updateTransaction}
+            onOpenMamin={(tx) => {
+              toast.info('Dokumen khusus Mamin: ' + (tx.uraian || ''))
+            }}
+          />
+        </ErrorBoundary>,
+        document.body,
+      )}
+
+      {/* ── Mini Sidebar Pajak Pungut → tombol Coretax (portal: lepas dari
+          ancestor ber-transform agar fixed selalu relatif viewport) ── */}
+      {sidebarPajakMini && createPortal(
+        <ErrorBoundary
+          key={`pajak-${sidebarPajakMini.row}`}
+          onTutup={() => setSidebarPajakMini(null)}
+          fallbackJudul="Panel pajak tidak dapat ditampilkan"
+          fallbackPesan="Tutup panel dan coba baris lain."
+        >
+          <BKUSidebarPajakMini
+            transaction={sidebarPajakMini}
+            onClose={() => setSidebarPajakMini(null)}
+          />
+        </ErrorBoundary>,
+        document.body,
       )}
 
     </div>

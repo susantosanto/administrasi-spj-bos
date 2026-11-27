@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MaminSeksi6Notulen — Seksi 6 "Notulen (AI)" (Sprint 018, permintaan user 2026-10-21).
  *
  * "tambahkan juga input form generate untuk hasil notula rapat / kegiatan,
@@ -49,8 +49,8 @@ export default function MaminSeksi6Notulen({ formData = {}, setFormData }) {
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold text-slate-500 uppercase">Hasil Generate AI</p>
-          <p className="text-[11px] text-slate-500 truncate">
+          <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">Hasil Generate AI</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
             {formData.acara ? `untuk: ${formData.acara}` : 'Isi Nama Kegiatan lebih dulu'}
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function MaminSeksi6Notulen({ formData = {}, setFormData }) {
           onClick={onGenerate}
           disabled={busy}
           className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
-            busy ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-md shadow-primary/25 hover:brightness-110 active:scale-95'
+            busy ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-primary text-white active:scale-95'
           }`}
         >
           <span className="material-symbols-outlined text-sm">{busy ? 'hourglass_top' : 'auto_awesome'}</span>
@@ -72,7 +72,7 @@ export default function MaminSeksi6Notulen({ formData = {}, setFormData }) {
           value={formData.resume}
           onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
           rows={5}
-          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none"
+          className="w-full px-3 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none resize-none"
         />
       ) : (
         <p className="text-[10px] text-slate-400 italic">Belum ada ringkasan. Tekan Generate AI Notulen di atas.</p>

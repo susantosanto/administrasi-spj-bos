@@ -87,7 +87,7 @@ export default function SKHonorer({ data = {}, onChange, mode, highlightEmpty })
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ flex: '0 0 64px', textAlign: 'center' }}>
           {logoKop ? (
-            <img src={logoKop} alt="Logo" style={{ width: 60, height: 60, objectFit: 'contain' }} />
+            <img src={logoKop} alt="Logo" style={{ width: 56, height: 56, objectFit: 'contain' }} />
           ) : (
           /* Placeholder logo — tampil bila storage logo_dinas/logo_sekolah kosong */
           <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{ width: 60, height: 60 }}>

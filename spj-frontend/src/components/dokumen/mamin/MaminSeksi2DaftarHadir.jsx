@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MaminSeksi2DaftarHadir — Seksi 2 "Daftar Hadir" (Sprint 018, K-9).
  *
  * Berubah dari form lama:
@@ -92,13 +92,13 @@ export default function MaminSeksi2DaftarHadir({ formData = {}, setFormData }) {
       catatan="Pilih peserta dari Data Guru/Tendik — NIP terisi otomatis. Tanda tangan ditulis tangan di kertas (kolom TANDA TANGAN tetap tercetak)."
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Daftar Hadir ({rows.length})
         </span>
         <button
           type="button"
           onClick={() => setShowPeserta((v) => !v)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white text-xs font-semibold shadow-lg shadow-primary/25 hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs font-semibold transition-all"
         >
           <span className="material-symbols-outlined text-base">{showPeserta ? 'expand_less' : 'group_add'}</span>
           {showPeserta ? 'Tutup Daftar' : `Pilih Peserta${rows.length ? ` (${rows.length})` : ''}`}

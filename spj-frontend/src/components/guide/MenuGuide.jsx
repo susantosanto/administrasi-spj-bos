@@ -136,7 +136,7 @@ export default function MenuGuide({ menuId, ctx = {}, onJump }) {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           title={cfg.title}
-          className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 text-sm font-bold hover:bg-primary/10 hover:text-primary transition-colors"
+          className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 text-sm font-bold hover:bg-primary/10 hover:text-primary transition-colors"
         >
           ?
         </button>
@@ -159,15 +159,15 @@ export default function MenuGuide({ menuId, ctx = {}, onJump }) {
         <div
           role="dialog"
           aria-label={cfg.title}
-          className="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white rounded-2xl border border-slate-200 shadow-xl z-50 overflow-hidden"
+          className="absolute right-0 top-full mt-2 w-[360px] max-w-[90vw] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-xl z-50 overflow-hidden"
         >
-          <div className="flex items-center justify-between px-4 py-3 bg-primary/5 border-b border-slate-200">
-            <p className="text-sm font-bold text-slate-800">{cfg.title}</p>
+          <div className="flex items-center justify-between px-4 py-3 bg-primary/5 border-b border-slate-200 dark:border-transparent">
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{cfg.title}</p>
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Tutup panduan"
-              className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 hover:text-slate-600 dark:text-slate-300"
             >
               <span className="material-symbols-outlined text-lg">close</span>
             </button>
@@ -183,7 +183,7 @@ export default function MenuGuide({ menuId, ctx = {}, onJump }) {
                     onClick={() => onJump?.(s.jump)}
                     title="Klik untuk buka langkah ini"
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition-colors ${
-                      active ? 'bg-primary/5' : 'hover:bg-slate-50'
+                      active ? 'bg-primary/5' : 'hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5'
                     }`}
                   >
                   {done ? (
@@ -195,7 +195,7 @@ export default function MenuGuide({ menuId, ctx = {}, onJump }) {
                       {active && <span className="w-2 h-2 rounded-full bg-primary" />}
                     </span>
                   )}
-                  <span className={`flex-1 ${done ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
+                  <span className={`flex-1 ${done ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
                     {s.label}
                   </span>
                   {active && (
@@ -209,11 +209,11 @@ export default function MenuGuide({ menuId, ctx = {}, onJump }) {
               )
             })}
           </ul>
-          <div className="px-4 py-3 border-t border-slate-100">
+          <div className="px-4 py-3 border-t border-slate-100 dark:border-transparent">
             <button
               type="button"
               onClick={dismiss}
-              className="w-full px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition-colors"
+              className="w-full px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-colors"
             >
               Selesai — jangan buka otomatis lagi
             </button>

@@ -109,7 +109,7 @@ export default function PuterAkunManager({ variant = 'card', refreshKey = 0 }) {
     >
       {/* Header */}
       <div className={`flex items-center justify-between gap-2 ${halaman ? 'mb-md' : 'mb-1.5'}`}>
-        <span className={`${halaman ? 'font-headline-sm text-headline-sm font-bold text-text-high' : 'text-[11px] font-bold text-slate-700'} flex items-center gap-1.5`}>
+        <span className={`${halaman ? 'font-headline-sm text-headline-sm font-bold text-text-high' : 'text-[11px] font-bold text-slate-700 dark:text-slate-200'} flex items-center gap-1.5`}>
           <span className={`material-symbols-outlined ${halaman ? 'text-primary text-xl' : 'text-sm text-primary'}`}>manage_accounts</span>
           Akun Puter ({daftarAkun.length})
         </span>
@@ -117,7 +117,7 @@ export default function PuterAkunManager({ variant = 'card', refreshKey = 0 }) {
           type="button"
           onClick={handleTambahAkun}
           disabled={akunBusy}
-          className={`flex items-center gap-1 font-bold text-primary bg-white ring-1 ring-primary/30 hover:bg-primary/5 transition-all active:scale-[0.97]
+          className={`flex items-center gap-1 font-bold text-primary bg-white dark:bg-slate-900 ring-1 ring-primary/30 hover:bg-primary/5 transition-all active:scale-[0.97]
             disabled:opacity-50 disabled:cursor-not-allowed
             ${halaman ? 'px-md py-2 rounded-lg text-sm shadow-sm' : 'px-2.5 py-1.5 rounded-lg text-[11px]'}`}
         >
@@ -154,7 +154,7 @@ export default function PuterAkunManager({ variant = 'card', refreshKey = 0 }) {
                     ${halaman ? 'px-md py-2 rounded-lg text-sm' : 'px-2 py-1.5 rounded-lg text-[11px]'}
                     ${aktif
                       ? 'bg-primary/10 text-primary ring-1 ring-primary/30'
-                      : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:ring-primary/30'}`}
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 ring-1 ring-slate-200 hover:ring-primary/30'}`}
                   title={aktif ? 'Akun aktif — dipakai Generate berikutnya' : 'Klik untuk jadikan akun aktif'}
                 >
                   <span className="material-symbols-outlined text-base shrink-0">
@@ -163,14 +163,14 @@ export default function PuterAkunManager({ variant = 'card', refreshKey = 0 }) {
                   <span className="truncate">{a.label}</span>
                 </button>
                 {a.habisAt && (
-                  <span className={`shrink-0 rounded-md bg-slate-200 text-slate-500 font-bold ${halaman ? 'px-2 py-1 text-[10px]' : 'px-1.5 py-0.5 text-[9px]'}`}>
+                  <span className={`shrink-0 rounded-md bg-slate-200 text-slate-500 dark:text-slate-400 font-bold ${halaman ? 'px-2 py-1 text-[10px]' : 'px-1.5 py-0.5 text-[9px]'}`}>
                     habis kuota
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={() => handleHapusAkun(a.id)}
-                  className={`shrink-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors ${halaman ? 'p-2' : 'p-1'}`}
+                  className={`shrink-0 rounded-md text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors ${halaman ? 'p-2' : 'p-1'}`}
                   title="Hapus dari daftar rotasi"
                 >
                   <span className="material-symbols-outlined text-base">close</span>
@@ -183,7 +183,7 @@ export default function PuterAkunManager({ variant = 'card', refreshKey = 0 }) {
 
       {/* Error lokal (sign-in gagal / aktivasi gagal) */}
       {errorLokal && (
-        <p className={`${halaman ? 'text-xs' : 'text-[10px]'} text-slate-500 bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5`}>
+        <p className={`${halaman ? 'text-xs' : 'text-[10px]'} text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-transparent rounded-lg px-2 py-1.5`}>
           {errorLokal}
         </p>
       )}

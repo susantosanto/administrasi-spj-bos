@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import {
   getAllTemplates,
   getTemplate,
@@ -150,7 +150,7 @@ const TemplateSuratPage = () => {
           onChange={(e) => handleInputChange(field.id, e.target.value)}
           placeholder={field.placeholder}
           rows={4}
-          className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
+          className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
         />
       );
     }
@@ -162,7 +162,7 @@ const TemplateSuratPage = () => {
         value={value}
         onChange={(e) => handleInputChange(field.id, e.target.value)}
         placeholder={field.placeholder}
-        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+        className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
       />
     );
   };
@@ -170,7 +170,7 @@ const TemplateSuratPage = () => {
   return (
     <div className="min-h-screen bg-slate-100/80 pb-8">
       {/* Hero Header */}
-      <div className={`bg-gradient-to-r from-primary to-blue-600 text-white ${isMobile ? 'px-4 py-6' : 'px-8 py-10'} mb-6`}>
+      <div className={`bg-primary text-white ${isMobile ? 'px-4 py-6' : 'px-8 py-10'} mb-6`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">📝</span>
@@ -207,7 +207,7 @@ const TemplateSuratPage = () => {
         
         {/* Template Selection */}
         <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
             <span className="text-xl">📋</span>
             Pilih Template Surat
           </h2>
@@ -220,15 +220,15 @@ const TemplateSuratPage = () => {
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   selectedTemplate?.id === template.id
                     ? 'border-primary bg-primary/5'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <span className="text-3xl">{template.icon}</span>
                   <div>
-                    <h3 className="font-semibold text-slate-800">{template.nama}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{template.deskripsi}</p>
-                    <span className="inline-block mt-2 px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">
+                    <h3 className="font-semibold text-slate-800 dark:text-slate-100">{template.nama}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{template.deskripsi}</p>
+                    <span className="inline-block mt-2 px-2 py-1 bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-medium">
                       {template.kode}
                     </span>
                   </div>
@@ -243,7 +243,7 @@ const TemplateSuratPage = () => {
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Left: Form */}
             <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span className="text-xl">✏️</span>
                 Form {selectedTemplate.nama}
               </h2>
@@ -258,26 +258,26 @@ const TemplateSuratPage = () => {
                     <span className={autoFillStatus?.hasSekolah ? 'text-green-500' : 'text-red-500'}>
                       {autoFillStatus?.hasSekolah ? '✅' : '❌'}
                     </span>
-                    <span className="text-slate-600">Nama Sekolah</span>
+                    <span className="text-slate-600 dark:text-slate-300">Nama Sekolah</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={autoFillStatus?.hasKepsek ? 'text-green-500' : 'text-red-500'}>
                       {autoFillStatus?.hasKepsek ? '✅' : '❌'}
                     </span>
-                    <span className="text-slate-600">Kepala Sekolah</span>
+                    <span className="text-slate-600 dark:text-slate-300">Kepala Sekolah</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={autoFillStatus?.hasBendahara ? 'text-green-500' : 'text-red-500'}>
                       {autoFillStatus?.hasBendahara ? '✅' : '❌'}
                     </span>
-                    <span className="text-slate-600">Bendahara</span>
+                    <span className="text-slate-600 dark:text-slate-300">Bendahara</span>
                   </div>
                 </div>
               </div>
               
               {/* Nomor Surat */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                   Nomor Surat
                 </label>
                 <div className="flex gap-2">
@@ -286,11 +286,11 @@ const TemplateSuratPage = () => {
                     value={values.nomorSurat || ''}
                     onChange={(e) => handleInputChange('nomorSurat', e.target.value)}
                     placeholder="Masukkan atau generate nomor"
-                    className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-mono"
+                    className="flex-1 px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-mono"
                   />
                   <button
                     onClick={handleGenerateNomor}
-                    className="px-4 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl transition-colors"
+                    className="px-4 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl transition-colors"
                     title="Generate nomor otomatis"
                   >
                     🔢
@@ -302,7 +302,7 @@ const TemplateSuratPage = () => {
               <div className="space-y-4 mb-4">
                 {selectedTemplate.fields.map((field) => (
                   <div key={field.id}>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                       {field.label}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
@@ -313,7 +313,7 @@ const TemplateSuratPage = () => {
               
               {/* Kota */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                   Kota/Kabupaten
                 </label>
                 <input
@@ -321,27 +321,27 @@ const TemplateSuratPage = () => {
                   value={values.kota || ''}
                   onChange={(e) => handleInputChange('kota', e.target.value)}
                   placeholder="Kota/Kabupaten"
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                 />
               </div>
               
               {/* Actions */}
-              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200 dark:border-transparent">
                 <button
                   onClick={handleUpdatePreview}
-                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
                 >
                   👁️ Preview
                 </button>
                 <button
                   onClick={handleSaveDraft}
-                  className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+                  className="flex-1 px-4 py-3 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
                 >
                   💾 Simpan Draft
                 </button>
                 <button
                   onClick={handleReset}
-                  className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+                  className="px-4 py-3 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
                 >
                   ↩️ Reset
                 </button>
@@ -350,28 +350,28 @@ const TemplateSuratPage = () => {
             
             {/* Right: Preview */}
             <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                 <span className="text-xl">📄</span>
                 Preview Surat
               </h2>
               
               {showPreview && previewHtml ? (
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <div className="border border-slate-200 dark:border-transparent rounded-xl overflow-hidden">
                   <div 
                     ref={previewRef}
-                    className="bg-white p-4 max-h-[600px] overflow-y-auto"
+                    className="bg-white dark:bg-slate-900 p-4 max-h-[600px] overflow-y-auto"
                     style={{ minHeight: '400px' }}
                   >
-                    <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed text-slate-800">
+                    <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                       {previewHtml}
                     </pre>
                   </div>
                   
                   {/* Download Actions */}
-                  <div className="p-4 bg-slate-50 border-t border-slate-200 flex gap-2">
+                  <div className="p-4 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-transparent flex gap-2">
                     <button
                       onClick={handleDownload}
-                      className="flex-1 px-4 py-3 bg-primary hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+                      className="flex-1 px-4 py-3 bg-primary hover:bg-primary-hover text-white font-medium rounded-xl transition-colors"
                     >
                       📥 Download HTML
                     </button>
@@ -384,9 +384,9 @@ const TemplateSuratPage = () => {
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center" style={{ minHeight: '400px' }}>
+                <div className="border-2 border-dashed border-slate-200 dark:border-transparent rounded-xl p-8 text-center" style={{ minHeight: '400px' }}>
                   <span className="text-5xl mb-4 block">📄</span>
-                  <p className="text-slate-500 mb-2">Belum ada preview</p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-2">Belum ada preview</p>
                   <p className="text-sm text-slate-400">
                     Isi form di sebelah kiri, lalu klik "Preview" untuk melihat surat
                   </p>
@@ -400,10 +400,10 @@ const TemplateSuratPage = () => {
         {!selectedTemplate && (
           <div className="bg-white/60 backdrop-blur-2xl rounded-2xl p-12 border border-white/20 shadow-lg text-center">
             <span className="text-6xl mb-4 block">📝</span>
-            <h3 className="text-xl font-semibold text-slate-800 mb-2">
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
               Pilih Template Surat
             </h3>
-            <p className="text-slate-500 max-w-md mx-auto">
+            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
               Pilih salah satu template di atas untuk mulai membuat surat. 
               Data sekolah dan pejabat akan terisi otomatis.
             </p>

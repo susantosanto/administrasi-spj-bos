@@ -46,6 +46,9 @@ export default function DetailDokumenLpjBody({
   // Sprint 019 (D-1): chip banner gate klik → sorotPelanggaran(v).
   onSorot = null,
   isSpecial = false,
+  centralizedPrint = false,
+  onCetakTerpilih = null,
+  printSnapshot = null,
 }) {
   const isTransport = card?.isTransport
   const isTransportSub = isTransport && selectedSub?.templateId !== null && selectedSub?.templateId !== 'sppd'
@@ -59,11 +62,59 @@ export default function DetailDokumenLpjBody({
   // dibatasi setinggi layar dan digulir sendiri — kalau tidak, `sticky` akan
   // memaku kartu yang lebih tinggi dari layar sehingga bagian bawahnya tak
   // pernah bisa dilihat.
-  const asideClass = `print:hidden min-w-0 self-start${
+  const asideClass = `scroll-mt-24 print:hidden min-w-0 self-start${
     layout === 'side'
       ? ' lg:sticky lg:top-[88px] lg:max-h-[calc(100vh-104px)] lg:overflow-y-auto lg:[scrollbar-gutter:stable]'
       : ''
   }`
+
+  // Sprint 030: tab dokumen premium ringkas untuk Lomba & Workshop.
+  // Proposal punya TAB SENDIRI (tidak digabung dengan dokumen lain) —
+  // satu klik = satu dokumen tampil, tanpa langkah kerja tambahan.
+  // KUNCI 2026-11-26: Proposal masih dalam pengembangan → tombol dikunci
+  // (disabled + gembok + SEGERA), tak bisa dipilih maupun tercetak.
+  const TAB_LOMBA = [
+    { id: 'undangan', label: 'Undangan', icon: 'mail_outline' },
+    { id: 'surat_tugas', label: 'Surat Tugas', icon: 'badge' },
+    { id: 'daftar_hadir', label: 'Daftar Hadir', icon: 'groups' },
+    { id: 'proposal', label: 'Proposal', icon: 'lock', khusus: true, terkunci: true },
+  ]
+  const panelHeaderLomba = card?.id === 'lomba_workshop'
+    ? ({ tabAktif, onPilih }) => (
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Tab dokumen kegiatan">
+          {TAB_LOMBA.map((t) => {
+            const kunci = !!t.terkunci
+            const aktif = tabAktif === t.id && !kunci
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={aktif}
+                aria-disabled={kunci || undefined}
+                title={kunci ? 'Proposal masih dalam pengembangan' : undefined}
+                onClick={() => { if (!kunci) onPilih(t.id) }}
+                disabled={kunci}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
+                  kunci
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-white/5 dark:text-slate-500'
+                    : aktif ? 'bg-primary text-white shadow-sm' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">{t.icon}</span>
+                {t.label}
+                {t.khusus && (
+                  <span className={`ml-0.5 px-1 py-px rounded text-[8px] font-bold tracking-wide ${
+                    kunci ? 'bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-slate-400'
+                    : aktif ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
+                  }`}>{kunci ? 'SEGERA' : 'KONSEP'}</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )
+    : null
 
   return (
     <div className="space-y-4">
@@ -86,6 +137,7 @@ export default function DetailDokumenLpjBody({
             onClose={onClose}
             varianForm={varianForm}
             bkuInfo={bkuInfo}
+            centralizedPrint={centralizedPrint}
           />
         </section>
 
@@ -98,7 +150,7 @@ export default function DetailDokumenLpjBody({
             Hanya sidebar yang mengoper; halaman LPJ tidak → hash tidak berubah. */}
         {blokDokumentasi}
 
-        <aside className={asideClass}>
+        <aside id="seksi-cetak" aria-label="Zona C — Panel Preview Document" className={asideClass}>
           <section aria-label="Zona B — Panel Preview Document">
             {/* Peringatan kelengkapan (keputusan user 2026-10-21: preview SELALU tampil,
                 gate hanya memberi tahu field wajib yang belum terisi).
@@ -131,9 +183,12 @@ export default function DetailDokumenLpjBody({
             <PanelPreviewDocument
               title={`Panel Preview Document — ${card?.nama || ''}${selectedSub?.label ? ` — ${selectedSub.label}` : ''}`}
               docs={[...previewDocs, ...fotoDocs]}
+              centralizedPrint={centralizedPrint}
               status={{ perlu: pelanggaran.length, violations: pelanggaran }}
               onCek={onCek}
-              onCetak={onCetak}
+              onCetak={onCetakTerpilih || onCetak}
+              printSnapshot={printSnapshot}
+              panelHeader={panelHeaderLomba}
             />
           </section>
         </aside>

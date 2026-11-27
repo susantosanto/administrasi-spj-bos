@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DetailDokumenLpj — panel dokumen LPJ (satu komponen, dua pemakai).
  *
  * Sprint 017 AD-1/AD-2: hasil ekstraksi `renderDetailPanel()` dari
@@ -12,7 +12,7 @@ import DetailDokumenLpjHeader from './DetailDokumenLpjHeader'
 import DetailDokumenLpjBody from './DetailDokumenLpjBody'
 import { DetailDokumenLpjInfo } from './DetailDokumenLpjInfo'
 
-const SPECIAL = ['honor', 'perjalanan_dinas', 'mamin', 'pemeliharaan']
+const SPECIAL = ['honor', 'perjalanan_dinas', 'mamin', 'pemeliharaan', 'lomba_workshop', 'cetak_banner', 'buku']
 
 export default function DetailDokumenLpj({
   card,
@@ -57,6 +57,9 @@ export default function DetailDokumenLpj({
   isAnimating = false,
   detailRef = null,
   tampilkanFooter = true,
+  centralizedPrint = false,
+  onCetakTerpilih = null,
+  printSnapshot = null,
 }) {
   if (!card) return null
 
@@ -76,10 +79,8 @@ export default function DetailDokumenLpj({
           : 'opacity-100 translate-y-0 scale-100'
       }`}
     >
-      <div className="relative bg-gradient-to-br from-white via-primary/5 to-blue-50/30 rounded-3xl border border-primary/20 shadow-xl shadow-primary/10 overflow-x-clip">
-        {/* Premium Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-blue-500 to-primary" />
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-full" />
+      <div className="relative rounded-3xl bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-black/40 overflow-x-clip">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent" aria-hidden="true" />
 
         <div className="relative p-6 space-y-5">
           <DetailDokumenLpjHeader
@@ -127,6 +128,9 @@ export default function DetailDokumenLpj({
               fotoDocs={fotoDocs}
               onSorot={onSorot}
               isSpecial={isSpecial}
+              centralizedPrint={centralizedPrint}
+              onCetakTerpilih={onCetakTerpilih}
+              printSnapshot={printSnapshot}
             />
           ) : (
             <DetailDokumenLpjInfo
@@ -137,6 +141,7 @@ export default function DetailDokumenLpj({
               sppdData={sppdData}
               setSppdData={setSppdData}
               getTemplateConfig={getTemplateConfig}
+              onAutoFill={onAutoFill}
             />
           )}
 
@@ -145,17 +150,17 @@ export default function DetailDokumenLpj({
             <div className="flex items-center justify-between pt-2">
               <button
                 onClick={onClose}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-all duration-300 active:scale-95"
               >
                 <span className="material-symbols-outlined text-lg">arrow_back</span>
                 Kembali ke Daftar
               </button>
 
-              {!isSpecial && (
+              {!isSpecial && !centralizedPrint && (
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={onPrint}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary to-blue-600 text-white hover:brightness-110 shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95"
+                    onClick={centralizedPrint ? () => onCetakTerpilih?.(previewDocs) : onPrint}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium bg-primary text-white transition-all duration-300 active:scale-95"
                   >
                     <span className="material-symbols-outlined text-lg">print</span>
                     Cetak Dokumen

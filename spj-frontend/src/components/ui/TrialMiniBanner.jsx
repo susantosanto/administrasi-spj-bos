@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+﻿import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLicenseStatus } from '../../services/licenseService'
 
@@ -78,7 +78,7 @@ export default function TrialMiniBanner({ variant = 'banner' }) {
         onDoubleClick={() => setPos({ x: 0, y: 0, abs: false })}
         title="Geser untuk pindah — klik 2× untuk reset"
         style={style}
-        className={`fixed z-50 select-none max-w-[340px] w-[calc(100vw-32px)] bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800/50 rounded-2xl shadow-xl shadow-amber-900/10 p-3.5 flex gap-3 items-center cursor-grab active:cursor-grabbing ${dragging ? 'opacity-95 scale-[1.01]' : ''} transition-[opacity,transform]`}
+        className={`fixed z-50 select-none max-w-[340px] w-[calc(100vw-32px)] bg-white dark:bg-slate-800 border border-amber-200 dark:border-transparent rounded-2xl shadow-xl shadow-amber-900/10 p-3.5 flex gap-3 items-center cursor-grab active:cursor-grabbing ${dragging ? 'opacity-95 scale-[1.01]' : ''} transition-[opacity,transform]`}
       >
         <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
           <span className="material-symbols-outlined text-[20px]">hourglass_top</span>
@@ -99,7 +99,7 @@ export default function TrialMiniBanner({ variant = 'banner' }) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => setDismiss(true)}
             aria-label="Tutup"
-            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-slate-700"
           >
             <span className="material-symbols-outlined text-lg">close</span>
           </button>
@@ -109,7 +109,7 @@ export default function TrialMiniBanner({ variant = 'banner' }) {
   }
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-xs font-semibold text-amber-800 dark:text-amber-200">
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-transparent text-xs font-semibold text-amber-800 dark:text-amber-200">
       <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
       Uji Coba: {days} Hari
       <button

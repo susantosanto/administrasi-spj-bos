@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 
 /**
  * BKU Premium Sidebar
@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react'
  * Design 2026 — minimalis premium: permukaan solid putih, header tanpa blur,
  * tab pakai underline indicator (revisi user 2026-10-21).
  */
-import { REKENING_KE_MENU, kategoriDenganKoreksi, simpanKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan } from '../../utils/bkuKategori'
+import { kategoriDenganKoreksi, gabungKonsumsi, kelompokATK, loadAtkFlag, simpanAtkFlag, parseMamin, grupDenganDominan, WARNA_KATEGORI, LABEL_KATEGORI } from '../../utils/bkuKategori'
 import { getNamaKegiatan, getNamaRekening } from '../../data/kodeReferensi'
 import { deteksiJenisPajak } from '../../utils/dokPajak'
 // Sprint 017: tab "Dokumen LPJ" — panel bersama, disimpan per NoBukti.
@@ -23,19 +23,36 @@ import { cardBerpanel } from '../../data/kategoriLpj'
 // ─── Constants ─────────────────────────────────────────────────
 
 const TYPE_BADGES = {
-  PENERIMAAN_BOSP: { bg: 'bg-emerald-100 text-emerald-700', label: 'Dana BOSP' },
-  PUNGUT_PPH: { bg: 'bg-amber-100 text-amber-700', label: 'Pungut PPh' },
-  PERGESERAN_BANK: { bg: 'bg-blue-100 text-blue-700', label: 'Pergeseran' },
-  SETOR_PAJAK: { bg: 'bg-rose-100 text-rose-700', label: 'Setor Pajak' },
-  TARIK_TUNAI: { bg: 'bg-orange-100 text-orange-700', label: 'Tarik Tunai' },
-  BUNGA_BANK: { bg: 'bg-teal-100 text-teal-700', label: 'Bunga Bank' },
-  PAJAK_BUNGA: { bg: 'bg-pink-100 text-pink-700', label: 'Pajak Bunga' },
-  PEMBAYARAN: { bg: 'bg-slate-200 text-slate-700', label: 'Pembayaran' },
-  SALDO_AWAL: { bg: 'bg-purple-100 text-purple-700', label: 'Saldo Awal' },
+  PENERIMAAN_BOSP: { bg: 'bg-slate-100 text-slate-600', label: 'Dana BOSP' },
+  PUNGUT_PPH: { bg: 'bg-slate-100 text-slate-600', label: 'Pungut PPh' },
+  PERGESERAN_BANK: { bg: 'bg-slate-100 text-slate-600', label: 'Pergeseran' },
+  SETOR_PAJAK: { bg: 'bg-slate-100 text-slate-600', label: 'Setor Pajak' },
+  TARIK_TUNAI: { bg: 'bg-slate-100 text-slate-600', label: 'Tarik Tunai' },
+  BUNGA_BANK: { bg: 'bg-slate-100 text-slate-600', label: 'Bunga Bank' },
+  PAJAK_BUNGA: { bg: 'bg-slate-100 text-slate-600', label: 'Pajak Bunga' },
+  PEMBAYARAN: { bg: 'bg-slate-100 text-slate-600', label: 'Pembayaran' },
+  SALDO_AWAL: { bg: 'bg-slate-100 text-slate-600', label: 'Saldo Awal' },
   LAINNYA: { bg: 'bg-slate-100 text-slate-500', label: '-' },
 }
 
 const fmt = (n) => (n ?? 0).toLocaleString('id-ID')
+
+// ─── Dossier — satu alur bernomor, tanpa tab mati ────────────────────────────
+// Setiap seksi punya id jangkar agar sticky bar bisa melompat (smooth scroll
+// di dalam panel, tanpa mengubah state).
+
+function Seksi({ id, no, judul, aksi, children }) {
+  return (
+    <section id={id} aria-label={judul} className="scroll-mt-28">
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="text-[10px] font-bold text-primary tabular-nums" aria-hidden="true">{no}</span>
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{judul}</h4>
+        <span className="ml-auto flex items-center gap-1.5">{aksi}</span>
+      </div>
+      {children}
+    </section>
+  )
+}
 
 // ─── Helper: extract Saldo Awal ────────────────────────────────
 
@@ -55,7 +72,7 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   // efek reset berpindah (kedip yang sama seperti bug prefill BKUSidebarLpj).
   // Semua fungsi di bawah murni (transaction + allTransactions), tanpa state.
   const katRekening = transaction
-    ? kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti)
+    ? kategoriDenganKoreksi(transaction.kodeRekening, transaction.noBukti, transaction.tanggalISO || transaction.tanggalStr, transaction.row)
     : null
   const grupSaya = katRekening?.kategori === 'mamin'
     ? gabungKonsumsi(allTransactions || []).grup.find((g) => g.rows.some((r) => r.row === transaction.row)) || null
@@ -85,18 +102,10 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const hasNext = currentIdx < allTransactions.length - 1
   const saldoAwal = getSaldoAwal(allTransactions)
 
-  // Sprint 004 B.1 — koreksi manual kategori (koreksiTick memicu render ulang
-  // karena `kategoriDenganKoreksi` membaca storage; memori lihat MEMORY.md).
+  // Flag ATK/SIPLAH dibaca dari storage; tick memicu render ulang setelah
+  // pengguna mengubah pilihan. Dropdown kategori tidak lagi ada di sidebar.
   const [koreksiTick, setKoreksiTick] = useState(0)
   void koreksiTick
-  const handleKoreksi = (idx) => {
-    if (idx === '' || idx == null) return
-    const entri = REKENING_KE_MENU[Number(idx)]
-    if (!entri) return
-    simpanKoreksi(transaction.kodeRekening, entri, transaction.noBukti)
-    setKoreksiTick((t) => t + 1)
-    if (showToast) showToast('Koreksi kategori tersimpan permanen')
-  }
 
   // Sprint 004 D.1 — info kelompok ATK transaksi ini
   const atkGroup = katRekening?.kategori === 'atk'
@@ -105,10 +114,16 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   const atkFlagKey = String(transaction.noBukti || '').trim().toLowerCase().replace(/\s+/g, ' ')
   const atkFlag = atkFlagKey ? (loadAtkFlag()[atkFlagKey] || null) : null
 
-  // Reset tampilan tiap ganti baris. Sengaja SETELAH `isLpj` dihitung:
-  // K-2 — baris berkategori LPJ langsung membuka tab Dokumen LPJ.
+  // Reset tampilan tiap ganti baris + SELALU gulir ke atas (perintah user:
+  // buka baris baru harus mulai dari atas, bukan posisi scroll lama).
+  // Sengaja SETELAH `isLpj` dihitung: K-2 — baris berkategori LPJ langsung
+  // membuka tab Dokumen LPJ.
   useEffect(() => {
     sidebarRef.current?.focus()
+    // Instan (bukan smooth): ganti konteks = panel mulai dari atas.
+    // Panel di-portal (fixed terhadap viewport, scroll internal sendiri);
+    // scroll window DIBIARKAN agar posisi tabel kembali utuh saat tutup.
+    if (sidebarRef.current) sidebarRef.current.scrollTop = 0
     setActiveTab(isLpj ? 'lpj' : 'detail')
   }, [transaction, isLpj])
 
@@ -161,15 +176,20 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
   // Sprint 019 (K-5): tab "Dokumentasi" DIHAPUS untuk semua baris — bloknya pindah
   // ke tab "Dokumen LPJ" (BKUSidebarDokumentasi). Tiap baris kini 1 tab → baris
   // tab hilang otomatis (guard `tabs.length > 1`).
-  const tabs = [
-    ...(isLpj
-      ? [{ id: 'lpj', label: 'Dokumen LPJ', icon: 'description' }]
-      : [{ id: 'detail', label: 'Detail', icon: 'info' }]),
-  ]
+  // Daftar tab dihapus (selalu 1 tab) — activeTab tetap menggerakkan konten.
 
   // Nominal ringkasan
   const nominalRingkasan = transaction.pengeluaran || transaction.kredit
     || transaction.penerimaan || transaction.debet || 0
+
+  // Lompat antar-seksi (sticky bar) — smooth scroll di dalam panel.
+  const lompat = (selector) => {
+    const panel = sidebarRef.current
+    if (!panel) return
+    const el = selector ? panel.querySelector(selector) : null
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    else panel.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handlePrev = () => {
     if (hasPrev && onNavigate) onNavigate(allTransactions[currentIdx - 1])
@@ -189,345 +209,262 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
     <>
       {/* Backdrop — click outside to close */}
       <div
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] animate-fade-in"
+        className="fixed inset-0 bg-slate-900/30 z-[100] animate-fade-in"
         onClick={onClose}
       />
 
-      {/* ══ PANEL DETAIL — permukaan solid putih, tanpa glassmorphism ══ */}
+      {/* ══ PANEL DETAIL — full-bleed, tanpa celah tepi ══ */}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 right-0 h-full w-full ${isLpj ? 'max-w-none' : 'max-w-xl'} bg-white shadow-[-8px_0_32px_rgba(15,23,42,0.10)] z-[110] overflow-y-auto animate-slide-in-left border-l border-slate-200/80 outline-none`}
+        className={`fixed inset-y-0 right-0 h-full w-full ${isLpj ? 'left-0 max-w-none' : 'left-auto max-w-xl md:rounded-l-3xl md:border-l md:border-slate-200 dark:border-transparent/60'} bg-white dark:bg-slate-900 shadow-[-16px_0_48px_rgba(15,23,42,0.12)] z-[110] overflow-y-auto animate-slide-in-left outline-none`}
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        {/* ── Sticky Header — solid, tab underline ── */}
-        <div className="sticky top-0 z-20 bg-white border-b border-slate-200/80">
-          <div className="flex items-center justify-between px-5 py-3.5">
-            <div className="flex items-center gap-2.5">
-              <button
-                onClick={onClose}
-                className="p-2 -ml-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"
-                title="Tutup"
-              >
-                <span className="material-symbols-outlined text-[22px]">close</span>
-              </button>
-              <div className="min-w-0">
-                <h3 className="text-[15px] font-semibold text-slate-900 tracking-tight leading-tight">Detail Transaksi</h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  {transaction.tanggalStr} · Baris {transaction.row} / {allTransactions.length}
-                </p>
-              </div>
+        {/* ── Sticky Header — identitas + navigasi sebaris (tanpa tab mati) ── */}
+        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-100 dark:border-transparent">
+          <div className="flex items-center gap-1.5 pl-2 pr-3 py-2.5">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 hover:text-slate-900 dark:text-white transition-colors active:scale-95"
+              title="Tutup"
+              aria-label="Tutup panel detail"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+            <span
+              className={`h-2 w-2 shrink-0 rounded-full ${WARNA_KATEGORI[katEfektif?.kategori]?.dot || 'bg-slate-300'}`}
+              aria-hidden="true"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-slate-900 dark:text-white tracking-tight leading-tight truncate font-mono">
+                {transaction.noBukti || 'Tanpa No Bukti'}
+              </p>
+              <p className="text-[11px] text-slate-400 tabular-nums truncate">
+                {transaction.tanggalStr} · Baris {transaction.row} / {allTransactions.length}
+              </p>
             </div>
             {/* Navigation */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center shrink-0">
               <button
                 onClick={handlePrev}
                 disabled={!hasPrev}
-                className={`h-9 w-9 grid place-items-center rounded-full transition-all ${
+                className={`h-8 w-8 grid place-items-center rounded-full transition-colors ${
                   hasPrev
-                    ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-95'
-                    : 'text-slate-300 cursor-not-allowed'
+                    ? 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 hover:text-slate-900 dark:text-white active:scale-95'
+                    : 'text-slate-200 cursor-not-allowed'
                 }`}
                 title="Sebelumnya (←)"
               >
-                <span className="material-symbols-outlined text-[22px]">chevron_left</span>
+                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
               </button>
-              <span className="text-[11px] text-slate-400 font-mono tabular-nums min-w-[2.5rem] text-center">
+              <span className="text-[11px] text-slate-400 tabular-nums min-w-[2.5rem] text-center">
                 {currentIdx + 1}/{allTransactions.length}
               </span>
               <button
                 onClick={handleNext}
                 disabled={!hasNext}
-                className={`h-9 w-9 grid place-items-center rounded-full transition-all ${
+                className={`h-8 w-8 grid place-items-center rounded-full transition-colors ${
                   hasNext
-                    ? 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-95'
-                    : 'text-slate-300 cursor-not-allowed'
+                    ? 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 hover:text-slate-900 dark:text-white active:scale-95'
+                    : 'text-slate-200 cursor-not-allowed'
                 }`}
                 title="Berikutnya (→)"
               >
-                <span className="material-symbols-outlined text-[22px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
               </button>
             </div>
           </div>
-          {/* ── Tabs (underline indicator minimalis) ── */}
-          {tabs.length > 1 && (
-            <div className="flex items-center gap-1 px-4">
-              {tabs.map((t) => {
-                const aktif = activeTab === t.id
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setActiveTab(t.id)}
-                    aria-pressed={aktif}
-                    className={`relative flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] transition-colors ${
-                      aktif
-                        ? 'font-semibold text-primary'
-                        : 'font-medium text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">{t.icon}</span>
-                    {t.label}
-                    {aktif && (
-                      <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-primary" />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          )}
         </div>
 
         {/* ── Content ── */}
-        <div className="p-5 space-y-4 bg-white">
+        <div className="p-5 space-y-4 bg-white dark:bg-slate-900">
 
         {activeTab === 'detail' ? (
           <>
-          {/* ── Ringkasan atas: nominal + kategori + no bukti + aksi ── */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>receipt_long</span>
+          {/* ── 02 NILAI — satu angka hero + meta sebaris ── */}
+          <Seksi id="seksi-nilai" no="02" judul="Nilai Transaksi">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${badge.bg}`}>
+                {badge.label}
               </span>
-              Ringkasan Transaksi
-            </h4>
-            <dl className="divide-y divide-slate-100">
-              <div className="flex items-center justify-between py-2">
-                <dt className="text-sm text-slate-500">Nominal</dt>
-                <dd className="text-sm font-semibold text-slate-900">Rp {fmt(nominalRingkasan)}</dd>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <dt className="text-sm text-slate-500">Kategori</dt>
-                <dd className="text-sm font-semibold text-slate-900">
-                  {katEfektif ? katEfektif.kategori : badge.label}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <dt className="text-sm text-slate-500">No. Bukti</dt>
-                <dd className="text-sm font-semibold text-slate-900 font-mono">{transaction.noBukti || '-'}</dd>
-              </div>
-            </dl>
+              {katEfektif?.kategori && katEfektif.kategori !== 'belum' && (
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${WARNA_KATEGORI[katEfektif.kategori]?.pill || 'bg-slate-100 text-slate-700'}`}>
+                  <span className={`h-1 w-1 rounded-full ${WARNA_KATEGORI[katEfektif.kategori]?.dot || 'bg-slate-400'}`} aria-hidden="true" />
+                  {LABEL_KATEGORI[katEfektif.kategori] || katEfektif.kategori}
+                </span>
+              )}
+              <span className="ml-auto font-mono text-[11px] text-slate-400 tabular-nums">{transaction.noBukti || '-'}</span>
+            </div>
+            <p className="mt-3 text-[30px] leading-none font-bold text-slate-900 dark:text-white tabular-nums tracking-tight">
+              Rp {fmt(nominalRingkasan)}
+            </p>
+            <p className="mt-2 text-[13px] font-medium text-slate-700 dark:text-slate-200 leading-snug">
+              {transaction.uraian || '-'}
+            </p>
+            {transaction.kodeKegiatan && (() => {
+              const normalized = transaction.kodeKegiatan.replace(/\.$/, '')
+              const namaKeg = getNamaKegiatan(transaction.kodeKegiatan)
+              if (!namaKeg || namaKeg === normalized || namaKeg === '-') return null
+              return (
+                <p className="mt-1.5 text-[11px] text-slate-400 leading-relaxed">
+                  {namaKeg} <span className="font-mono">· {normalized}</span>
+                </p>
+              )
+            })()}
+            {/* Angka kunci — satu strip ringkas, bukan 3 kartu */}
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-transparent">
+              {[
+                ['Debet', transaction.debet],
+                ['Kredit', transaction.kredit],
+                ['Saldo', transaction.saldo],
+              ].map(([label, nilai]) => (
+                <div key={label}>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+                    {nilai > 0 ? fmt(nilai) : <span className="text-slate-300 font-medium">-</span>}
+                  </p>
+                </div>
+              ))}
+            </div>
             {isSetorPajak && (
-              <div className="grid grid-cols-2 gap-2.5 mt-3">
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <a
                   href={CORETAX_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Bayar pajak via Coretax DJP (tab baru)"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-[13px] font-semibold hover:bg-slate-800 active:scale-[0.98] transition-all"
                 >
-                  <span className="material-symbols-outlined text-lg">open_in_new</span>
+                  <span className="material-symbols-outlined text-base">open_in_new</span>
                   Bayar via Coretax
                 </a>
-                {/* Tampilkan jenis pajak hasil deteksi dari uraian */}
-                <div className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary/5 text-primary text-sm font-semibold border border-primary/20">
-                  <span className="material-symbols-outlined text-lg">receipt_long</span>
+                <div className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 text-[13px] font-semibold">
+                  <span className="material-symbols-outlined text-base">receipt_long</span>
                   {deteksiJenisPajak(transaction.uraian) || 'Jenis pajak tidak dikenali'}
                 </div>
               </div>
             )}
           </div>
-          {/* ── Hero Card: Uraian + Angka Kunci ── */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-xl bg-primary shadow-md shadow-primary/30 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-500 mb-1">Uraian Kegiatan</p>
-                <p className="text-lg font-bold text-slate-900 leading-snug">
-                  {transaction.uraian || '-'}
-                </p>
-                {/* Keterangan kegiatan dari kode kegiatan */}
-                {transaction.kodeKegiatan && (() => {
-                  const normalized = transaction.kodeKegiatan.replace(/\.$/, '')
-                  const namaKeg = getNamaKegiatan(transaction.kodeKegiatan)
-                  if (!namaKeg || namaKeg === normalized || namaKeg === '-') return null
-                  return (
-                    <div className="mt-2.5 flex items-start gap-2 bg-primary/10 rounded-xl p-3 border border-primary/25">
-                      <span className="material-symbols-outlined text-[18px] text-primary flex-shrink-0 mt-0.5">meeting_room</span>
-                      <div className="min-w-0">
-                        <p className="text-[11px] text-primary font-bold uppercase tracking-[0.1em]">Kegiatan</p>
-                        <p className="text-sm font-bold text-slate-900 leading-relaxed mt-0.5">{namaKeg}</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5 font-mono">{normalized}</p>
-                      </div>
-                    </div>
-                  )
-                })()}
-              </div>
-            </div>
+          </Seksi>
 
-            {/* Angka kunci — blue-only: primary + slate */}
-            <div className="grid grid-cols-3 gap-2.5 mt-4">
-              <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-1">Debet</p>
-                <p className="text-base font-bold text-slate-900 leading-tight">
-                  {transaction.debet > 0 ? `Rp ${fmt(transaction.debet)}` : '-'}
-                </p>
+          {/* ── 04 RINCIAN — grid 2 kolom ringkas (ganti dl 5-baris) ── */}
+          <Seksi id="seksi-rincian" no="04" judul="Rincian Transaksi">
+          <div>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <div>
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">No. Bukti</dt>
+                <dd className="text-sm font-semibold text-slate-900 dark:text-white font-mono mt-0.5">{transaction.noBukti || '-'}</dd>
               </div>
-              <div className="rounded-xl bg-slate-100 border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Kredit</p>
-                <p className="text-base font-bold text-slate-900 leading-tight">
-                  {transaction.kredit > 0 ? `Rp ${fmt(transaction.kredit)}` : '-'}
-                </p>
+              <div>
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Tanggal</dt>
+                <dd className="text-sm font-semibold text-slate-900 dark:text-white mt-0.5">{transaction.tanggalStr}</dd>
               </div>
-              <div className="rounded-xl bg-slate-100 border border-slate-200 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Saldo</p>
-                <p className="text-base font-bold text-slate-900 leading-tight">
-                  Rp {fmt(transaction.saldo)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Informasi Referensi ── */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
-              </span>
-              Informasi Referensi
-            </h4>
-            <dl className="divide-y divide-slate-100">
-              <div className="flex items-start justify-between gap-3 py-2.5">
-                <dt className="text-sm font-medium text-slate-600 flex-shrink-0">No. Bukti</dt>
-                <dd className="text-sm font-semibold text-slate-900 font-mono text-right">{transaction.noBukti || '-'}</dd>
-              </div>
-              <div className="flex items-start justify-between gap-3 py-2.5">
-                <dt className="text-sm font-medium text-slate-600 flex-shrink-0">Kode Kegiatan</dt>
-                <dd className="text-right min-w-0">
-                  <span className="text-sm font-semibold text-slate-900 font-mono block">{transaction.kodeKegiatan || '-'}</span>
+              <div className="col-span-2">
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Kode Kegiatan</dt>
+                <dd className="mt-0.5">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white font-mono">{transaction.kodeKegiatan || '-'}</span>
                   {transaction.kodeKegiatan && (() => {
                     const namaKeg = getNamaKegiatan(transaction.kodeKegiatan)
-                    return namaKeg ? <span className="text-xs text-slate-600 block mt-1 leading-relaxed">{namaKeg}</span> : null
+                    return namaKeg ? <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{namaKeg}</span> : null
                   })()}
                 </dd>
               </div>
-              <div className="flex items-start justify-between gap-3 py-2.5">
-                <dt className="text-sm font-medium text-slate-600 flex-shrink-0">Kode Rekening</dt>
-                <dd className="text-right min-w-0">
-                  <span className="text-sm font-semibold text-slate-900 font-mono block">{transaction.kodeRekening || '-'}</span>
+              <div className="col-span-2">
+                <dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Kode Rekening</dt>
+                <dd className="mt-0.5">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white font-mono">{transaction.kodeRekening || '-'}</span>
                   {transaction.kodeRekening && (() => {
                     const namaRek = getNamaRekening(transaction.kodeRekening)
                     return namaRek !== transaction.kodeRekening ? (
-                      <span className="text-xs text-slate-600 block mt-1 leading-relaxed">{namaRek}</span>
+                      <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{namaRek}</span>
                     ) : null
                   })()}
                 </dd>
               </div>
-              <div className="flex items-start justify-between gap-3 py-2.5">
-                <dt className="text-sm font-medium text-slate-600 flex-shrink-0">Tanggal</dt>
-                <dd className="text-sm font-semibold text-slate-900">{transaction.tanggalStr}</dd>
-              </div>
-              <div className="flex items-start justify-between gap-3 py-2.5">
-                <dt className="text-sm font-medium text-slate-600 flex-shrink-0">Tipe Transaksi</dt>
-                <dd>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badge.bg}`}>
-                    {badge.label}
-                  </span>
-                </dd>
-              </div>
             </dl>
           </div>
+          </Seksi>
 
           {/* ── Kategori Belanja (Sprint 004: sumber rekening) ──
               Sprint 023 (R-2): baris setor pajak tidak punya dokumen LPJ —
               card ini disembunyikan khusus untuk isSetorPajak. Informasi
-              Referensi di atas tetap tampil. */}
+              Referensi di atas tetap tampil.
+              Kunci 2026-11-26: kategori operasional = info-only (cukup
+              struk/nota/kwitansi atau arsip tagihan) — tanpa dokumen LPJ. */}
           {!isSetorPajak && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
-              </span>
-              Kategori Belanja
-            </h4>
-            {katRekening ? (
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10">
-                  <span className="material-symbols-outlined text-primary text-xl">folder_open</span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{katRekening.menu}</p>
-                  <p className="text-[11px] text-slate-400 font-mono">Kode: {transaction.kodeRekening}</p>
+          <Seksi id="seksi-kategori" judul="Kategori Belanja">
+            {katEfektif?.kategori === 'operasional' ? (
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-slate-400 text-lg shrink-0 mt-0.5">receipt_long</span>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">Operasional</span> — cukup
+                  struk / nota / kwitansi sebagai bukti. Tidak ada dokumen LPJ yang perlu dibuat.
+                </p>
+              </div>
+            ) : katRekening ? (
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-slate-900 shrink-0" aria-hidden="true" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">{katRekening.menu}</p>
+                  <p className="text-[11px] text-slate-400 font-mono truncate">{transaction.kodeRekening}</p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-slate-500">Belum dipetakan</p>
-                <label className="text-[11px] text-slate-500">Koreksi manual (tersimpan permanen):</label>
-                <select
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none"
-                  defaultValue=""
-                  onChange={(e) => handleKoreksi(e.target.value)}
-                >
-                  <option value="" disabled>Pilih kategori…</option>
-                  {REKENING_KE_MENU.map((m, i) => (
-                    <option key={m.prefix} value={String(i)}>{m.kategori} → {m.menu}</option>
-                  ))}
-                </select>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Belum dipetakan</p>
+                <p className="text-[11px] text-slate-400">
+                  Pilih kategori melalui kolom <strong>Tipe</strong> pada tabel BKU.
+                </p>
               </div>
             )}
-          </div>
+          </Seksi>
           )}
-          {/* ── Rincian Mamin (deep-link pindah ke kartu Ringkasan di atas) ── */}
-          {maminParsed && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Rincian Mamin</p>
-              <p className="text-sm text-slate-800">Acara: <span className="font-semibold text-slate-900">{maminParsed.acara || '-'}</span></p>
-              <p className="text-xs text-slate-500 mt-0.5">Jenis: {maminParsed.jenis === 'rapat' ? 'Rapat' : maminParsed.jenis === 'kegiatan' ? 'Kegiatan' : '—'}</p>
-            </div>
-          )}
-          {/* ── T2: Anggota grup se-NoBukti (satu bukti satu kelompok) ── */}
+          {/* Rincian Mamin sudah terwakili di seksi 03 STATUS (acara + jenis) — kartu ganda dihapus. */}
+          {/* ── Anggota grup se-NoBukti ── */}
           {grupSeBukti && grupSeBukti.rows.length > 1 && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-2">
-                <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-slate-600 text-[18px]">folder_open</span>
-                </span>
-                Rincian se-Bukti {grupSeBukti.noBukti || '-'} ({grupSeBukti.rows.length})
-              </h4>
-              <p className="text-[11px] text-slate-500 mb-3">
-                Kategori: <span className="font-semibold text-primary">{grupSeBukti.dominan ? grupSeBukti.dominan.kategori : 'Belum dipetakan'}</span>
-                <span className="font-mono"> &#183; Kode: {(grupSeBukti.kodeList || []).join(', ') || '-'}</span>
-              </p>
+            <Seksi
+              id="seksi-anggota"
+              judul={`Anggota se-Bukti ${grupSeBukti.noBukti || '-'} · ${grupSeBukti.rows.length} baris`}
+              aksi={<span className="text-[11px] text-slate-400 tabular-nums">Rp {fmt(grupSeBukti.total)}</span>}
+            >
               <ul className="divide-y divide-slate-100">
                 {grupSeBukti.rows.map((r, gi) => {
-                  const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti)
+                  const kat = kategoriDenganKoreksi(r.kodeRekening, r.noBukti, r.tanggalISO || r.tanggalStr, r.row)
                   const aktif = r.row === transaction.row
                   return (
                     <li key={`${r.row}-${r.uraian || 'x'}-${gi}`}>
                       <button
                         onClick={() => { if (onNavigate && !aktif) onNavigate(r) }}
-                        className={`w-full text-left py-2 flex items-center gap-2 ${aktif ? '' : 'hover:bg-slate-50'} rounded-lg px-1`}
+                        className="w-full text-left py-2 flex items-center gap-2 rounded-lg px-1 transition-colors"
                         title={r.uraian || ''}
                       >
                         <span className={`w-1.5 self-stretch rounded-full ${aktif ? 'bg-primary' : 'bg-slate-200'}`} />
                         <span className="flex-1 min-w-0">
-                          <span className={`block text-xs truncate ${aktif ? 'font-bold text-slate-900' : 'text-slate-700'}`}>{r.uraian || '-'}</span>
+                          <span className={`block text-xs truncate ${aktif ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-700'}`}>{r.uraian || '-'}</span>
                           <span className="block font-mono text-[10px] text-slate-400 truncate">{r.kodeRekening || '-'} &#183; Rp {fmt(r.pengeluaran || r.kredit || 0)}</span>
                         </span>
                         {kat ? (
                           <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-primary/10 text-primary flex-shrink-0">{kat.kategori}</span>
                         ) : (
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500 flex-shrink-0">Belum</span>
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 flex-shrink-0">Belum</span>
                         )}
                       </button>
                     </li>
                   )
                 })}
               </ul>
-            </div>
+            </Seksi>
           )}
-          {/* ── Kelompok ATK (Sprint 004 D.1) ── */}
+          {/* ── Kelompok ATK (Sprint 004 D.1) — panel fungsional, tanpa nomor ── */}
           {atkGroup && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Kelompok ATK</h4>
-              <p className="text-sm text-slate-800">↳ {atkGroup.rows.length} baris se-Nomor <span className="font-mono font-semibold">{atkGroup.noBukti || '-'}</span> · Rp {fmt(atkGroup.total)}</p>
+            <Seksi judul="Kelompok ATK">
+              <p className="text-sm text-slate-800 dark:text-slate-100">↳ {atkGroup.rows.length} baris se-Nomor <span className="font-mono font-semibold">{atkGroup.noBukti || '-'}</span> · Rp {fmt(atkGroup.total)}</p>
               <div className="flex items-center gap-1.5 mt-2.5">
-                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'siplah'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>SIPLAH</button>
-                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'non'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-500'}`}>Non-SIPLAH</button>
+                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'siplah'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'siplah' ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>SIPLAH</button>
+                <button onClick={() => { simpanAtkFlag(transaction.noBukti, 'non'); setKoreksiTick((t) => t + 1) }} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${atkFlag === 'non' ? 'bg-slate-700 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400'}`}>Non-SIPLAH</button>
               </div>
-            </div>
+            </Seksi>
           )}
           </>
         ) : activeTab === 'lpj' ? (
@@ -555,6 +492,40 @@ export default function BKUSidebar({ transaction, allTransactions, onClose, onNa
         ) : null}
 
           <div className="h-12" />
+        </div>
+
+        {/* ── Sticky bottom bar: konteks + lompat seksi + tutup ── */}
+        <div className="sticky bottom-0 z-10 -mx-5 px-5 py-2.5 bg-white/90 dark:bg-[#0d1424]/90 backdrop-blur border-t border-slate-100 dark:border-transparent">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap ${WARNA_KATEGORI[katEfektif?.kategori]?.pill || 'bg-slate-100 text-slate-600'}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${WARNA_KATEGORI[katEfektif?.kategori]?.dot || 'bg-slate-300'}`} aria-hidden="true" />
+              {katEfektif?.kategori && katEfektif.kategori !== 'belum'
+                ? (LABEL_KATEGORI[katEfektif.kategori] || katEfektif.kategori)
+                : 'Belum dipetakan'}
+            </span>
+            {isLpj ? (
+              <>
+                <button type="button" onClick={() => lompat(null)} className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary whitespace-nowrap transition-colors">Isian</button>
+                <button type="button" onClick={() => lompat('[data-blok="pbj"]')} className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary whitespace-nowrap transition-colors">Lampiran</button>
+                <button type="button" onClick={() => lompat('#seksi-cetak')} className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary whitespace-nowrap transition-colors">Cetak</button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={() => lompat('#seksi-rincian')} className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary whitespace-nowrap transition-colors">Rincian</button>
+                {grupSeBukti && grupSeBukti.rows.length > 1 && (
+                  <button type="button" onClick={() => lompat('#seksi-anggota')} className="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary whitespace-nowrap transition-colors">Anggota</button>
+                )}
+              </>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="ml-auto shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-900 text-white dark:bg-white dark:text-slate-900 active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined text-sm">close</span>
+              Tutup
+            </button>
+          </div>
         </div>
       </div>
     </>

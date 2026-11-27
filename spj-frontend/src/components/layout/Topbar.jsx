@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Topbar — Premium Responsive Design 2026
  * With user profile dropdown menu
  */
@@ -10,6 +10,8 @@ import storageHelper from '../../utils/storageHelper'
 import { useLicenseStatus, licenseService } from '../../services/licenseService'
 import ThemeToggle from '../ui/ThemeToggle'
 import BrandedLoader from '../ui/BrandedLoader'
+import { SearchInput } from '../ui/input'
+import { Button } from '../ui/button'
 
 export default function Topbar({ title, subtitle }) {
   const { isOpen, toggle } = useSidebar()
@@ -105,12 +107,12 @@ export default function Topbar({ title, subtitle }) {
   ]
 
   return (
-    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 shadow-sm flex justify-between items-center h-[76px] px-3 sm:px-4">
+    <header className="sticky top-3 z-40 mx-3 sm:mx-6 mt-3 rounded-2xl backdrop-blur-md border shadow-sm flex justify-between items-center h-[76px] px-3 sm:px-4" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 88%, transparent)', borderColor: 'var(--color-border)' }}>
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Toggle Button — 44px tap target */}
         <button
           onClick={toggle}
-          className="w-11 h-11 min-[900px]:hidden flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          className="w-11 h-11 min-[900px]:hidden flex items-center justify-center rounded-xl transition-colors" style={{ color: 'var(--color-text-muted)' }}
           title={isOpen ? 'Tutup menu' : 'Buka menu'}
           aria-label={isOpen ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={isOpen}
@@ -129,7 +131,7 @@ export default function Topbar({ title, subtitle }) {
               onClick={() => setShowLicInfo(true)}
               title="Lihat info lisensi"
               aria-haspopup="dialog"
-              className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:bg-red-900/30 dark:text-red-200 border-red-500/25 dark:border-red-700/30 hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200 border-amber-500/25 dark:border-amber-700/30 hover:bg-amber-500/15'}`}
+              className={`flex items-center gap-1.5 shrink-0 rounded-full pl-2.5 pr-3 py-1.5 text-xs font-bold transition-colors border ${licTone === 'dang' ? 'bg-red-500/10 text-red-700 dark:bg-red-900/30 dark:text-red-200 border-red-500/25 dark:border-transparent hover:bg-red-500/15' : 'bg-amber-500/10 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200 border-amber-500/25 dark:border-transparent hover:bg-amber-500/15'}`}
             >
               <span className={`w-2 h-2 rounded-full relative shrink-0 ${licTone === 'dang' ? 'bg-red-500' : 'bg-amber-500'}`} aria-hidden="true">
                 <span className="lic-ring absolute inset-0 rounded-full bg-inherit" />
@@ -145,13 +147,13 @@ export default function Topbar({ title, subtitle }) {
                 aria-label="Info masa percobaan"
               >
                 <div
-                  className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-white/10 shadow-2xl p-4"
+                  className="w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-transparent shadow-2xl p-4"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Kartu trial ala referensi: ikon | divider | label + pil durasi */}
-                  <div className="relative overflow-hidden flex items-center gap-4 p-4 rounded-[22px] border border-[#c9ddff] dark:border-slate-700/40 bg-[linear-gradient(125deg,#ffffff,#f2f7ff_65%,#e2efff)] dark:bg-[linear-gradient(125deg,#1e293b,#0f172a_65%,#1e3a5f)]">
+                  <div className="relative overflow-hidden flex items-center gap-4 p-4 rounded-[22px] border border-[#c9ddff] dark:border-transparent bg-[linear-gradient(125deg,#ffffff,#f2f7ff_65%,#e2efff)] dark:bg-[linear-gradient(125deg,#1e293b,#0f172a_65%,#1e3a5f)]">
                     <div className="absolute w-40 h-40 rounded-full bg-[#70a9ff]/10 dark:bg-white/5 -right-12 -top-20 pointer-events-none" aria-hidden="true" />
-                    <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center text-[#2676dc] dark:text-blue-300 bg-[linear-gradient(145deg,#d8eaff,#edf5ff)] dark:bg-slate-700/70 border dark:border-slate-600/30">
+                    <div className="w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center text-[#2676dc] dark:text-blue-300 bg-[linear-gradient(145deg,#d8eaff,#edf5ff)] dark:bg-slate-700/70 border dark:border-transparent">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10" aria-hidden="true">
                         <rect x="3" y="5" width="18" height="16" rx="3" />
                         <path d="M16 3v4M8 3v4" />
@@ -165,7 +167,7 @@ export default function Topbar({ title, subtitle }) {
                       <p className="text-sm font-semibold text-[#294776] dark:text-slate-200 mb-1.5">
                         {lic.status === 'TRIAL' ? 'Masa Percobaan :' : `${licMain} :`}
                       </p>
-                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-[#9fc4ff] dark:border-white/15 bg-[linear-gradient(120deg,#edf5ff,#dceaff)] dark:bg-white/5 text-[#123c82] dark:text-blue-200 text-2xl font-extrabold tracking-tight">
+                      <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl border border-[#9fc4ff] dark:border-transparent bg-[linear-gradient(120deg,#edf5ff,#dceaff)] dark:bg-white/5 text-[#123c82] dark:text-blue-200 text-2xl font-extrabold tracking-tight">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6" aria-hidden="true">
                           <circle cx="12" cy="12" r="9" />
                           <path d="M12 7v5l3 2" />
@@ -177,7 +179,7 @@ export default function Topbar({ title, subtitle }) {
                       type="button"
                       onClick={() => setShowLicInfo(false)}
                       aria-label="Tutup"
-                      className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                      className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-white/10 transition-colors"
                     >
                       <span className="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                     </button>
@@ -187,20 +189,23 @@ export default function Topbar({ title, subtitle }) {
                     <p>Selama masa percobaan semua fitur tulis aktif. Setelah berakhir, aplikasi jadi mode baca — hubungi admin pusat untuk perpanjangan.</p>
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
                       onClick={() => { licenseService.refresh(); }}
-                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
                     >
                       Periksa ulang
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      size="sm"
+                      className="flex-1"
                       onClick={() => { setShowLicInfo(false); navigate('/dashboard/pengaturan?tab=lisensi'); }}
-                      className="flex-1 px-3 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:brightness-110 transition-all"
                     >
                       Kelola lisensi
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -218,18 +223,15 @@ export default function Topbar({ title, subtitle }) {
 
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Search Bar — visible sm+, icon button on mobile */}
-        <div className="relative hidden sm:block">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" aria-hidden="true">search</span>
-          <input
-            className="pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm w-48 lg:w-64 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none placeholder:text-slate-400"
-            placeholder="Cari..."
-            type="search"
-            aria-label="Cari di aplikasi"
-          />
-        </div>
-        <button className="sm:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Cari">
+        <SearchInput
+          className="hidden sm:block w-48 lg:w-64"
+          placeholder="Cari..."
+          type="search"
+          aria-label="Cari di aplikasi"
+        />
+        <Button variant="ghost" size="icon" className="sm:hidden" aria-label="Cari">
           <span className="material-symbols-outlined text-xl" aria-hidden="true">search</span>
-        </button>
+        </Button>
 
         {/* Theme Toggle */}
         <ThemeToggle variant="icon" />
@@ -238,10 +240,10 @@ export default function Topbar({ title, subtitle }) {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-2xl transition-all duration-200 ${
+            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-2xl transition-all duration-200 hover:bg-surface-container-low ${
               showDropdown
                 ? 'bg-primary/10 shadow-sm'
-                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                : ''
             }`}
             aria-haspopup="menu"
             aria-expanded={showDropdown}
@@ -251,7 +253,7 @@ export default function Topbar({ title, subtitle }) {
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</p>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">{user.email || 'operator@sekolah.id'}</p>
             </div>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-base sm:text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
             </div>
             <span className={`material-symbols-outlined text-slate-400 text-lg transition-transform duration-200 hidden sm:block ${showDropdown ? 'rotate-180' : ''}`}>
@@ -261,11 +263,11 @@ export default function Topbar({ title, subtitle }) {
 
           {/* ═══ Dropdown Menu ═══ */}
           {showDropdown && (
-            <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/40 border border-slate-200/80 dark:border-slate-700 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/40 border border-slate-200/80 dark:border-transparent overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
               {/* User Info Header */}
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100 dark:border-slate-700">
+              <div className="px-5 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-slate-100 dark:border-transparent">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
                     <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
                   </div>
                   <div className="min-w-0">
@@ -281,7 +283,7 @@ export default function Topbar({ title, subtitle }) {
                   <button
                     key={idx}
                     onClick={item.action}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className="w-full flex items-center gap-3 px-5 py-3 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-slate-800 transition-colors"
                   >
                     <span className="material-symbols-outlined text-xl text-slate-400">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>

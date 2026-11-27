@@ -65,7 +65,7 @@ const FOOTER_FEATURES = [
 function PreviewNavbar() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-100">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-100 dark:border-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="#pratinjau-landing" className="flex items-center gap-2 shrink-0">
           <span className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -75,7 +75,7 @@ function PreviewNavbar() {
         </a>
         <nav className="hidden md:flex items-center gap-7" aria-label="Navigasi pratinjau">
           {NAV_LINKS.map((l) => (
-            <a key={l} href="#pratinjau-landing" className="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+            <a key={l} href="#pratinjau-landing" className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors">
               {l}
             </a>
           ))}
@@ -88,14 +88,14 @@ function PreviewNavbar() {
             Mulai Sekarang
           </a>
         </div>
-        <button className="md:hidden p-2 text-slate-500 hover:text-blue-600" onClick={() => setOpen((v) => !v)} aria-label="Menu navigasi">
+        <button className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600" onClick={() => setOpen((v) => !v)} aria-label="Menu navigasi">
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
       {open && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
+        <div className="md:hidden border-t border-slate-100 dark:border-transparent bg-white dark:bg-slate-900 px-4 py-3 space-y-1">
           {NAV_LINKS.map((l) => (
-            <a key={l} href="#pratinjau-landing" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-slate-500 hover:text-blue-600">
+            <a key={l} href="#pratinjau-landing" onClick={() => setOpen(false)} className="block py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-blue-600">
               {l}
             </a>
           ))}
@@ -115,7 +115,7 @@ function PreviewNavbar() {
 
 function LandingView() {
   return (
-    <section id="pratinjau-landing" className="bg-slate-50 scroll-mt-20">
+    <section id="pratinjau-landing" className="bg-slate-50 dark:bg-white/5 scroll-mt-20">
       <PreviewNavbar />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 lg:py-20 grid lg:grid-cols-2 gap-12 items-center">
         <div>
@@ -123,10 +123,10 @@ function LandingView() {
             <Sparkles className="w-3.5 h-3.5" />
             Sistem Administrasi Keuangan Sekolah
           </span>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 leading-[1.1] mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1] mb-4">
             Selamat Datang di Aplikasi <span className="text-blue-600">LPJ BOS/BOSP</span>
           </h1>
-          <p className="text-base sm:text-lg text-slate-500 leading-relaxed max-w-lg mb-8">
+          <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mb-8">
             Solusi cerdas, efisien, dan transparan untuk mengelola administrasi keuangan sekolah Anda.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -134,7 +134,7 @@ function LandingView() {
               Mulai Sekarang
               <ArrowRight className="w-4 h-4" />
             </a>
-            <a href="#pratinjau-fitur" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-[15px] font-semibold text-blue-600 border border-blue-200 bg-white hover:bg-blue-50 transition-colors min-h-[50px]">
+            <a href="#pratinjau-fitur" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-[15px] font-semibold text-blue-600 border border-blue-200 bg-white dark:bg-slate-900 hover:bg-blue-50 transition-colors min-h-[50px]">
               <Play className="w-4 h-4" />
               Lihat Fitur
             </a>
@@ -144,8 +144,8 @@ function LandingView() {
         {/* Mockup laptop + dokumen melayang */}
         <div className="relative" aria-hidden="true">
           <div className="bg-slate-900 rounded-t-2xl p-2 pb-0 shadow-xl">
-            <div className="bg-white rounded-t-xl overflow-hidden">
-              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100">
+            <div className="bg-white dark:bg-slate-900 rounded-t-xl overflow-hidden">
+              <div className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 dark:bg-white/10">
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
@@ -153,7 +153,7 @@ function LandingView() {
               <div className="flex">
                 <div className="w-14 bg-blue-600 py-4 flex flex-col items-center gap-3">
                   <span className="w-6 h-6 rounded-md bg-white/20" />
-                  <span className="w-6 h-6 rounded-md bg-white" />
+                  <span className="w-6 h-6 rounded-md bg-white dark:bg-slate-900" />
                   <span className="w-6 h-6 rounded-md bg-white/20" />
                   <span className="w-6 h-6 rounded-md bg-white/20" />
                 </div>
@@ -164,26 +164,26 @@ function LandingView() {
                     <div className="h-12 rounded-lg bg-emerald-50 border border-emerald-100" />
                     <div className="h-12 rounded-lg bg-amber-50 border border-amber-100" />
                   </div>
-                  <div className="h-16 rounded-lg bg-slate-100" />
+                  <div className="h-16 rounded-lg bg-slate-100 dark:bg-white/10" />
                 </div>
               </div>
             </div>
           </div>
           <div className="mx-auto h-3 w-4/5 bg-slate-300 rounded-b-2xl" />
-          <div className="absolute -right-2 sm:-right-5 -bottom-6 w-44 sm:w-52 bg-white rounded-xl border border-slate-100 shadow-md p-4 rotate-3">
+          <div className="absolute -right-2 sm:-right-5 -bottom-6 w-44 sm:w-52 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-transparent shadow-md p-4 rotate-3">
             <FileText className="w-7 h-7 text-blue-600 mb-2" />
-            <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wide">Laporan</p>
-            <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wide mb-2">Pertanggungjawaban</p>
+            <p className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wide">Laporan</p>
+            <p className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-2">Pertanggungjawaban</p>
             <div className="space-y-1.5">
-              <div className="h-1.5 rounded bg-slate-100" />
-              <div className="h-1.5 w-4/5 rounded bg-slate-100" />
+              <div className="h-1.5 rounded bg-slate-100 dark:bg-white/10" />
+              <div className="h-1.5 w-4/5 rounded bg-slate-100 dark:bg-white/10" />
               <div className="h-1.5 w-3/5 rounded bg-blue-100" />
             </div>
           </div>
         </div>
       </div>
 
-      <div id="pratinjau-fitur" className="border-t border-slate-100 bg-white scroll-mt-20">
+      <div id="pratinjau-fitur" className="border-t border-slate-100 dark:border-transparent bg-white dark:bg-slate-900 scroll-mt-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {HERO_FEATURES.map((f) => (
             <div key={f.title} className="flex gap-3">
@@ -191,8 +191,8 @@ function LandingView() {
                 <f.icon className="w-5 h-5 text-blue-600" />
               </span>
               <span>
-                <span className="block text-sm font-bold text-slate-900">{f.title}</span>
-                <span className="block text-[13px] text-slate-500 mt-0.5">{f.desc}</span>
+                <span className="block text-sm font-bold text-slate-900 dark:text-white">{f.title}</span>
+                <span className="block text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">{f.desc}</span>
               </span>
             </div>
           ))}
@@ -206,7 +206,7 @@ function LandingView() {
 function LoginView() {
   const [show, setShow] = useState(false);
   return (
-    <section id="pratinjau-login" className="bg-white scroll-mt-20">
+    <section id="pratinjau-login" className="bg-white dark:bg-slate-900 scroll-mt-20">
       <div className="grid lg:grid-cols-2 min-h-[640px]">
         {/* Panel kiri */}
         <div className="relative hidden lg:flex flex-col justify-end overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500 p-12">
@@ -214,7 +214,7 @@ function LoginView() {
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-flex flex-col w-10 rounded-md overflow-hidden shadow-md" aria-label="Bendera Indonesia">
               <span className="h-3 bg-red-500" />
-              <span className="h-3 bg-white" />
+              <span className="h-3 bg-white dark:bg-slate-900" />
             </span>
             <p className="text-white font-semibold">Sekolah Indonesia</p>
           </div>
@@ -235,28 +235,28 @@ function LoginView() {
                 <GraduationCap className="w-6 h-6 text-white" />
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 text-center">Selamat Datang Kembali</h2>
-            <p className="text-sm text-slate-500 text-center mt-1.5 mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">Selamat Datang Kembali</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-1.5 mb-8">
               Masuk untuk melanjutkan ke sistem LPJ BOS/BOSP
             </p>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
               <div>
-                <label htmlFor="pv-email" className="block text-sm font-medium text-slate-900 mb-1.5">
+                <label htmlFor="pv-email" className="block text-sm font-medium text-slate-900 dark:text-white mb-1.5">
                   Email atau Username
                 </label>
                 <input
                   id="pv-email" type="text" placeholder="nama@sekolah.id"
-                  className="w-full h-12 px-4 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
+                  className="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-transparent text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
                 />
               </div>
               <div>
-                <label htmlFor="pv-pass" className="block text-sm font-medium text-slate-900 mb-1.5">
+                <label htmlFor="pv-pass" className="block text-sm font-medium text-slate-900 dark:text-white mb-1.5">
                   Password
                 </label>
                 <div className="relative">
                   <input
                     id="pv-pass" type={show ? "text" : "password"} placeholder="••••••••"
-                    className="w-full h-12 px-4 pr-12 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
+                    className="w-full h-12 px-4 pr-12 rounded-xl border border-slate-200 dark:border-transparent text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
                   />
                   <button
                     type="button" onClick={() => setShow((v) => !v)}
@@ -268,7 +268,7 @@ function LoginView() {
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-slate-500 cursor-pointer">
+                <label className="flex items-center gap-2 text-slate-500 dark:text-slate-400 cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600/30" />
                   Ingat saya
                 </label>
@@ -280,7 +280,7 @@ function LoginView() {
                 Masuk
               </button>
             </form>
-            <p className="text-[13px] text-slate-500 text-center mt-6">
+            <p className="text-[13px] text-slate-500 dark:text-slate-400 text-center mt-6">
               Belum punya akun? Hubungi administrator sekolah Anda.
             </p>
           </div>
@@ -300,12 +300,12 @@ function DashboardView() {
     { icon: Settings, label: "Pengaturan", active: false },
   ];
   return (
-    <section id="pratinjau-dashboard" className="bg-slate-50 py-14 scroll-mt-20">
+    <section id="pratinjau-dashboard" className="bg-slate-50 dark:bg-white/5 py-14 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Pratinjau 03 — Dashboard</p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-8">Tampilan Dashboard</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-8">Tampilan Dashboard</h2>
 
-        <div className="rounded-xl overflow-hidden border border-slate-100 shadow-md flex flex-col md:flex-row min-h-[560px]">
+        <div className="rounded-xl overflow-hidden border border-slate-100 dark:border-transparent shadow-md flex flex-col md:flex-row min-h-[560px]">
           {/* Sidebar */}
           <aside className="w-full md:w-56 shrink-0 bg-blue-600 p-4 flex md:flex-col gap-1 overflow-x-auto">
             <div className="hidden md:flex items-center gap-2 px-2 py-3 mb-3">
@@ -328,20 +328,20 @@ function DashboardView() {
           </aside>
 
           {/* Konten */}
-          <div className="flex-1 bg-slate-50 min-w-0">
-            <div className="bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
-              <p className="text-sm font-bold text-slate-900 truncate">SMP Negeri 1 Harapan Jaya</p>
+          <div className="flex-1 bg-slate-50 dark:bg-white/5 min-w-0">
+            <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-transparent px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">SMP Negeri 1 Harapan Jaya</p>
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                <button aria-label="Notifikasi" className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 transition-colors">
+                <button aria-label="Notifikasi" className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-colors">
                   <Bell className="w-5 h-5" />
                 </button>
-                <button className="flex items-center gap-2 p-1.5 pr-2 rounded-lg hover:bg-slate-100 transition-colors">
+                <button className="flex items-center gap-2 p-1.5 pr-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 transition-colors">
                   <span className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
                     AS
                   </span>
                   <span className="hidden sm:block text-left">
-                    <span className="block text-[13px] font-semibold text-slate-900 leading-tight">Admin Sekolah</span>
-                    <span className="block text-[11px] text-slate-500 leading-tight">admin@sekolah.id</span>
+                    <span className="block text-[13px] font-semibold text-slate-900 dark:text-white leading-tight">Admin Sekolah</span>
+                    <span className="block text-[11px] text-slate-500 dark:text-slate-400 leading-tight">admin@sekolah.id</span>
                   </span>
                   <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
                 </button>
@@ -349,35 +349,35 @@ function DashboardView() {
             </div>
 
             <div className="p-4 sm:p-6">
-              <h3 className="text-xl font-bold text-slate-900">Halo, Admin Sekolah</h3>
-              <p className="text-sm text-slate-500 mt-0.5 mb-5">Berikut ringkasan administrasi keuangan hari ini.</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Halo, Admin Sekolah</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 mb-5">Berikut ringkasan administrasi keuangan hari ini.</p>
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                 {STATS.map((s) => (
-                  <div key={s.label} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 hover:shadow-md transition-shadow">
+                  <div key={s.label} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-transparent p-4 hover:shadow-md transition-shadow">
                     <span className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${s.tint}`}>
                       <s.icon className="w-5 h-5" />
                     </span>
-                    <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.number}</p>
-                    <p className="text-[13px] text-slate-500 mt-0.5">{s.label}</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{s.number}</p>
+                    <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">{s.label}</p>
                   </div>
                 ))}
               </div>
 
               <div className="grid lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-                  <p className="text-sm font-bold text-slate-900 mb-1">Realisasi Dana</p>
-                  <p className="text-[13px] text-slate-500 mb-3">
-                    <span className="font-bold text-slate-900">Rp 245.000.000</span> / Rp 350.000.000
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-transparent p-5">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white mb-1">Realisasi Dana</p>
+                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mb-3">
+                    <span className="font-bold text-slate-900 dark:text-white">Rp 245.000.000</span> / Rp 350.000.000
                   </p>
-                  <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden mb-1.5">
+                  <div className="h-2.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden mb-1.5">
                     <div className="h-full w-[70%] rounded-full bg-blue-600" />
                   </div>
                   <p className="text-xs font-semibold text-blue-600">70% terserap</p>
                 </div>
-                <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-transparent p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-bold text-slate-900">Dokumen Terbaru</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">Dokumen Terbaru</p>
                     <a href="#pratinjau-dashboard" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
                       Lihat Semua
                     </a>
@@ -389,8 +389,8 @@ function DashboardView() {
                           <FileText className="w-4 h-4 text-blue-600" />
                         </span>
                         <span className="flex-1 min-w-0">
-                          <span className="block text-[13px] font-semibold text-slate-900 truncate">{d.title}</span>
-                          <span className="block text-[11px] text-slate-500">{d.date}</span>
+                          <span className="block text-[13px] font-semibold text-slate-900 dark:text-white truncate">{d.title}</span>
+                          <span className="block text-[11px] text-slate-500 dark:text-slate-400">{d.date}</span>
                         </span>
                         <span className="shrink-0 text-[11px] font-bold text-emerald-700 bg-emerald-50 rounded-full px-2.5 py-0.5">
                           Selesai
@@ -401,13 +401,13 @@ function DashboardView() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-                <p className="text-sm font-bold text-slate-900 mb-3">Akses Cepat</p>
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-transparent p-5">
+                <p className="text-sm font-bold text-slate-900 dark:text-white mb-3">Akses Cepat</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {QUICK_ACCESS.map((q) => (
                     <a
                       key={q.label} href="#pratinjau-dashboard"
-                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
+                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-slate-100 dark:border-transparent text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
                     >
                       <q.icon className="w-6 h-6" />
                       <span className="text-xs font-semibold">{q.label}</span>
@@ -426,23 +426,23 @@ function DashboardView() {
 // ─── 4. Template ─────────────────────────────────────────────────────────────
 function TemplateView() {
   return (
-    <section id="pratinjau-template" className="bg-white py-14 scroll-mt-20">
+    <section id="pratinjau-template" className="bg-white dark:bg-slate-900 py-14 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2">Pratinjau 04 — Template</p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Template Dokumen</h2>
-        <p className="text-sm text-slate-500 mt-1 mb-6">Pilih template resmi yang siap diunduh dan digunakan.</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Template Dokumen</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">Pilih template resmi yang siap diunduh dan digunakan.</p>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <label className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="search" placeholder="Cari template…"
-              className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
+              className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-transparent text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
             />
           </label>
           <label className="relative sm:w-52">
             <select
-              className="w-full h-11 appearance-none pl-4 pr-10 rounded-xl border border-slate-200 text-sm text-slate-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition cursor-pointer"
+              className="w-full h-11 appearance-none pl-4 pr-10 rounded-xl border border-slate-200 dark:border-transparent text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition cursor-pointer"
               defaultValue="Semua Kategori"
             >
               {["Semua Kategori", "LPJ", "Kas", "Perencanaan", "Berita Acara"].map((c) => (
@@ -455,10 +455,10 @@ function TemplateView() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {TEMPLATES.map((t) => (
-            <article key={t.title} className="bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col">
+            <article key={t.title} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-transparent shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col">
               <FileText className="w-8 h-8 text-blue-600 mb-3" />
-              <h3 className="text-[15px] font-bold text-slate-900 mb-1">{t.title}</h3>
-              <p className="text-[13px] text-slate-500 leading-relaxed mb-4 flex-1">{t.desc}</p>
+              <h3 className="text-[15px] font-bold text-slate-900 dark:text-white mb-1">{t.title}</h3>
+              <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-1">{t.desc}</p>
               <a
                 href="#pratinjau-template"
                 className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 rounded-lg text-sm font-semibold text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
@@ -477,22 +477,22 @@ function TemplateView() {
 // ─── 5. Footer banner ────────────────────────────────────────────────────────
 function FooterBanner() {
   return (
-    <section className="bg-slate-50 border-t border-slate-100">
+    <section className="bg-slate-50 dark:bg-white/5 border-t border-slate-100 dark:border-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 text-center mb-10">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white text-center mb-10">
           Kenapa Memilih LPJ BOS/BOSP?
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {FOOTER_FEATURES.map((f) => (
-            <div key={f.title} className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+            <div key={f.title} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-transparent shadow-sm p-5 hover:shadow-md transition-shadow">
               <f.icon className="w-6 h-6 text-blue-600 mb-3" />
-              <p className="text-[15px] font-bold text-slate-900 mb-1">{f.title}</p>
-              <p className="text-[13px] text-slate-500 leading-relaxed">{f.desc}</p>
+              <p className="text-[15px] font-bold text-slate-900 dark:text-white mb-1">{f.title}</p>
+              <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>
         <blockquote className="max-w-2xl mx-auto text-center border-l-4 border-blue-600 pl-6 py-1">
-          <p className="text-lg sm:text-xl font-medium text-slate-900 italic leading-relaxed">
+          <p className="text-lg sm:text-xl font-medium text-slate-900 dark:text-white italic leading-relaxed">
             “Transparansi pengelolaan dana, untuk pendidikan yang lebih baik.”
           </p>
         </blockquote>
@@ -511,7 +511,7 @@ const SECTIONS = [
 
 export default function PratinjauPage() {
   return (
-    <div className="min-h-screen bg-white font-sans antialiased">
+    <div className="min-h-screen bg-white dark:bg-slate-900 font-sans antialiased">
       <div className="bg-gradient-to-r from-[#102A56] via-[#004ac6] to-[#155EEF] text-white shadow-md shadow-blue-900/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-x-5 gap-y-2">
           <Link to="/" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-100 hover:text-white transition-colors">
@@ -536,7 +536,7 @@ export default function PratinjauPage() {
       <TemplateView />
       <FooterBanner />
 
-      <footer className="bg-white border-t border-slate-100">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-transparent">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 text-center text-xs text-slate-400">
           Halaman pratinjau desain — bukan bagian dari aplikasi. © {new Date().getFullYear()} LPJ BOS/BOSP Indonesia.
         </div>

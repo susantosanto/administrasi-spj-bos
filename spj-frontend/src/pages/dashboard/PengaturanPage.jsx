@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Topbar from '../../components/layout/Topbar'
 import { useToast } from '../../components/ui/Toast'
@@ -52,18 +52,18 @@ export default function PengaturanPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div className="space-y-xs">
                 <label className="font-label-md text-text-high">Tahun Anggaran</label>
-                <select className="w-full px-md py-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                <select className="w-full px-md py-2 bg-white dark:bg-slate-900 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                   <option>2025</option><option>2024</option><option>2023</option>
                 </select>
               </div>
               <div className="space-y-xs">
                 <label className="font-label-md text-text-high">Semester</label>
-                <select className="w-full px-md py-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+                <select className="w-full px-md py-2 bg-white dark:bg-slate-900 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
                   <option>Semester 1 (Ganjil)</option><option>Semester 2 (Genap)</option>
                 </select>
               </div>
             </div>
-            <button onClick={() => toast.success('Pengaturan profil disimpan')} className="flex items-center gap-sm bg-primary text-on-primary px-lg py-2 rounded-lg hover:brightness-110 shadow-md transition-all active:scale-95 font-label-md">
+            <button onClick={() => toast.success('Pengaturan profil disimpan')} className="flex items-center gap-sm bg-primary text-on-primary px-lg py-2 rounded-lg shadow-md transition-all active:scale-95 font-label-md">
               <span className="material-symbols-outlined">save</span> Simpan
             </button>
           </div>
@@ -86,9 +86,9 @@ export default function PengaturanPage() {
               </div>
               <ThemeToggle />
             </div>
-            <div className="grid grid-cols-2 gap-md">
+        <div className="grid grid-cols-2 gap-md">
               <button onClick={() => { if (isDark) toggle(); toast.success('Mode terang diaktifkan') }} className={`p-4 rounded-xl border-2 transition-all text-left ${!isDark ? 'border-primary bg-primary/5' : 'border-outline-variant hover:border-primary/30'}`}>
-                <div className="w-full h-20 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-200 mb-3" />
+                <div className="w-full h-20 bg-gradient-to-br from-slate-50 to-white rounded-lg border border-slate-200 dark:border-transparent mb-3" />
                 <p className="font-semibold text-sm text-text-high">Terang</p>
                 <p className="text-xs text-text-low">Background putih, kontras tinggi</p>
               </button>
@@ -117,7 +117,7 @@ export default function PengaturanPage() {
                 onClick={() => { setSiplah(!siplah); toast.success(siplah ? 'Mode Non-SIPLAH diaktifkan' : 'Mode SIPLAH diaktifkan'); }}
                 className={`w-14 h-7 rounded-full transition-colors relative ${siplah ? 'bg-primary' : 'bg-outline-variant'}`}
               >
-                <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${siplah ? 'translate-x-7' : 'translate-x-0.5'}`}></span>
+                <span className={`absolute top-0.5 w-6 h-6 bg-white dark:bg-slate-900 rounded-full shadow transition-transform ${siplah ? 'translate-x-7' : 'translate-x-0.5'}`}></span>
               </button>
             </div>
           </div>

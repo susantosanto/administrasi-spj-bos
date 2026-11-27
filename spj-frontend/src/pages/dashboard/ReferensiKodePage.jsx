@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ReferensiKodePage.jsx — Referensi Kode Kegiatan & Kode Rekening ARKAS
  *
  * Menampilkan tabel referensi kode kegiatan dan kode rekening dari ARKAS.
@@ -126,14 +126,14 @@ export default function ReferensiKodePage() {
 
       <div className="p-lg space-y-lg flex-1">
         {/* ── Header Info ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-lg">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-transparent p-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-lg">book_2</span>
                 Referensi Kode ARKAS
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Sumber:{' '}
                 <a
                   href="https://pusatinformasi.rumahpendidikan.kemendikdasmen.go.id/hc/id/articles/52436049920153-Kode-Referensi-Pada-ARKAS-4"
@@ -155,7 +155,7 @@ export default function ReferensiKodePage() {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-primary/20 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
             >
               <span className={`material-symbols-outlined text-base ${refreshing ? 'animate-spin' : ''}`}>
                 {refreshing ? 'sync' : 'refresh'}
@@ -166,9 +166,9 @@ export default function ReferensiKodePage() {
         </div>
 
         {/* ── Tab Navigation ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-transparent overflow-hidden">
           {/* Tab buttons + Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100 dark:border-transparent">
             <div className="flex gap-1">
               {TABS.map(t => (
                 <button
@@ -177,13 +177,13 @@ export default function ReferensiKodePage() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                     tab === t.id
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                      : 'bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-200'
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm">{t.icon}</span>
                   {t.label}
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                    tab === t.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'
+                    tab === t.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500 dark:text-slate-400'
                   }`}>
                     {t.count}
                   </span>
@@ -199,7 +199,7 @@ export default function ReferensiKodePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={`Cari ${tab === 'kegiatan' ? 'kegiatan' : 'rekening'}...`}
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function ReferensiKodePage() {
                       {items.map((k, i) => (
                         <div
                           key={k.kode}
-                          className="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 transition-colors"
+                          className="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5 transition-colors"
                         >
                           {/* Kode */}
                           <code className="text-xs font-mono font-bold text-primary bg-primary/5 px-2 py-1 rounded-lg min-w-[80px] shrink-0">
@@ -223,7 +223,7 @@ export default function ReferensiKodePage() {
                           </code>
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-slate-800 font-medium leading-relaxed">
+                            <p className="text-xs text-slate-800 dark:text-slate-100 font-medium leading-relaxed">
                               {k.uraian}
                             </p>
                             <p className="text-[10px] text-slate-400 mt-0.5">
@@ -257,7 +257,7 @@ export default function ReferensiKodePage() {
                       {items.map((r, i) => (
                         <div
                           key={r.kode}
-                          className="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 transition-colors"
+                          className="flex items-start gap-4 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5 transition-colors"
                         >
                           {/* Kode */}
                           <code className="text-xs font-mono font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg min-w-[140px] shrink-0">
@@ -265,10 +265,10 @@ export default function ReferensiKodePage() {
                           </code>
                           {/* Label */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs text-slate-800 font-medium">{r.label}</p>
+                            <p className="text-xs text-slate-800 dark:text-slate-100 font-medium">{r.label}</p>
                           </div>
                           {/* Kelompok badge */}
-                          <span className="text-[10px] font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-full shrink-0">
+                          <span className="text-[10px] font-semibold px-2 py-1 bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 rounded-full shrink-0">
                             {r.kelompok}
                           </span>
                         </div>

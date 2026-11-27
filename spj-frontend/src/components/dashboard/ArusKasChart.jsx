@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ArusKasChart — Arus kas BKU per bulan (SVG mandiri, tanpa deps chart).
  * Sumber: `bku_data.summary.monthlySummaries` (penerimaan vs pengeluaran).
  * Lebar SVG mengikuti lebar kartu (ResizeObserver) agar teks tetap 11 px.
@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import storageHelper from '../../utils/storageHelper'
+import { ringkasanSemester } from '../../utils/arusKasSummary'
 
 const H = 232
 const PAD = { l: 60, r: 16, t: 16, b: 34 }
@@ -36,7 +37,7 @@ const kePath = (pts) => pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1
 
 function Header() {
   return (
-    <div className="px-5 py-4 border-b border-slate-100 dark:border-white/10">
+    <div className="px-5 py-4 border-b border-slate-100 dark:border-transparent">
       <h3 className="text-base font-bold text-slate-900 dark:text-white">Arus Kas</h3>
       <p className="text-xs text-slate-500 dark:text-slate-400">Penerimaan vs pengeluaran per bulan (BKU)</p>
     </div>
@@ -66,7 +67,7 @@ export default function ArusKasChart() {
   }, [])
 
   const w = lebar > 0 ? lebar - 24 : 600
-  const cardClass = 'bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl overflow-hidden shadow-sm'
+  const cardClass = 'bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl overflow-hidden shadow-sm'
 
   if (monthly.length === 0) {
     return (
@@ -81,7 +82,7 @@ export default function ArusKasChart() {
             <line x1={PAD.l} y1={H - PAD.b} x2={w - PAD.r} y2={H - PAD.b} className="stroke-slate-300 dark:stroke-slate-600" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center px-4">
-            <div className="flex flex-col items-center text-center gap-1 rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-[#1e293b] px-5 py-4 shadow-sm">
+            <div className="flex flex-col items-center text-center gap-1 rounded-xl border border-slate-200 dark:border-transparent bg-white dark:bg-[#1e293b] px-5 py-4 shadow-sm">
               <span className="material-symbols-outlined text-2xl text-slate-400 dark:text-slate-500">bar_chart</span>
               <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Belum ada data arus kas</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">Upload BKU agar grafik penerimaan vs pengeluaran muncul.</p>
@@ -97,6 +98,7 @@ export default function ArusKasChart() {
 
   const masuk = monthly.map((m) => Number(m.totalPenerimaan) || 0)
   const keluar = monthly.map((m) => Number(m.totalPengeluaran) || 0)
+  const semesterTotals = ringkasanSemester(monthly)
   const max = Math.max(...masuk, ...keluar, 1)
   const pMasuk = titik(masuk, max, w)
   const pKeluar = titik(keluar, max, w)
@@ -137,6 +139,15 @@ export default function ArusKasChart() {
         <div className="flex items-center gap-4 px-2 pt-1 pb-1 text-xs text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1.5"><span className="w-4 h-0.5 bg-[#2457A7] rounded" /> Penerimaan</span>
           <span className="flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-slate-400" /> Pengeluaran</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 px-2 pt-3" aria-label="Ringkasan pengeluaran per semester">
+          {semesterTotals.map((semester) => (
+            <section key={semester.id} className="rounded-xl border border-slate-200 dark:border-transparent px-3 py-2.5">
+              <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-300">{semester.label}</h4>
+              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">{fmtSingkat(semester.pengeluaran)}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Pengeluaran · {semester.rincianBulanan.filter((month) => month.pengeluaran > 0).length} bulan bertransaksi</p>
+            </section>
+          ))}
         </div>
       </div>
     </div>

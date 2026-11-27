@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BKUUploadPdf.jsx — Sprint 025: import BKU PDF 3 mode (Bulanan / Semester / Tahunan).
  *
  * Alur: pilih mode (dropdown) → pilih periode → pilih file PDF → proses
@@ -19,6 +19,7 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useToast } from '../ui/Toast'
+import UploadDropzone from '../ui/UploadDropzone'
 import storageHelper from '../../utils/storageHelper'
 import { redetectTypes } from '../../utils/bkuParser'
 import { bukaPdf, renderHalaman, periksaFilePdf, headerPdfValid, pesanGagalPdf, ukurTextLayer, bacaTeksNative } from '../../utils/bkuPdfPages'
@@ -38,10 +39,8 @@ const MODE_LABEL = { bulanan: 'BKU Per Bulan', semester: 'BKU Per Semester', tah
 
 export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
   const toast = useToast()
-  const fileRef = useRef(null)
   const abortRef = useRef(null)
   const [mode, setMode] = useState('bulanan')
-  const [menuMode, setMenuMode] = useState(false)
   const [tahap, setTahap] = useState('pilih') // pilih | proses | ringkas
   const [fileName, setFileName] = useState('')
   const [progres, setProgres] = useState({ hal: 0, total: 0 })
@@ -50,7 +49,7 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
 
   const reset = () => {
     setTahap('pilih'); setHasil(null); setKonfirmTahunan(false)
-    setProgres({ hal: 0, total: 0 }); setMenuMode(false)
+    setProgres({ hal: 0, total: 0 })
   }
 
   // Rev3: TANPA pemilih periode — periode murni dari PDF (deteksiPeriodeDariPdf).
@@ -152,7 +151,6 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
       else toast.info('Proses dibatalkan. Data tidak diubah.')
     } finally {
       abortRef.current = null
-      if (fileRef.current) fileRef.current.value = ''
     }
   }
 
@@ -229,74 +227,60 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
   const btn = 'flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all'
   const thn = 'text-left font-semibold px-3 py-2 whitespace-nowrap'
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm print:hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-transparent/80 p-8 shadow-sm print:hidden">
       {tahap !== 'pilih' && (
         <div className="flex items-center justify-end mb-4">
-          <button onClick={reset} className={`${btn} bg-white text-slate-700 border border-slate-200 hover:bg-slate-50`}>
+          <button onClick={reset} className={`${btn} bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-white/5`}>
             <span className="material-symbols-outlined text-lg">close</span>Batal
           </button>
         </div>
       )}
       {tahap === 'pilih' && (
-        <div className="border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center
-                        hover:border-primary/40 transition-all duration-300
-                        bg-gradient-to-b from-slate-50/50 to-transparent">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5
-                          flex items-center justify-center mx-auto mb-5 shadow-inner">
-            <span className="material-symbols-outlined text-4xl text-primary">picture_as_pdf</span>
-          </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Upload File BKU PDF</h3>
-          <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
-            Pilih mode lalu pilih file — bulan/tahun dibaca otomatis dari PDF,
-            data langsung tersimpan tanpa koreksi manual
-          </p>
-          {/* Pemilih mode SAJA (Rev3: tanpa pemilih periode). Visual final = ranah tim UI. */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
-            <div className="relative">
-              <button onClick={() => setMenuMode((v) => !v)} aria-haspopup="listbox" aria-expanded={menuMode}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-                           bg-white text-slate-700 border border-slate-200 hover:bg-slate-50">
-                <span className="material-symbols-outlined text-lg">filter_list</span>
-                {MODE_LABEL[mode]}
-                <span className="material-symbols-outlined text-lg">expand_more</span>
+        <div className="flex-1 flex flex-col">
+          {/* Pemilih mode — ringkas, di atas dropzone */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4" role="listbox" aria-label="Mode import PDF">
+            {Object.entries(MODE_LABEL).map(([m, label]) => (
+              <button
+                key={m}
+                type="button"
+                role="option"
+                aria-selected={mode === m}
+                onClick={() => setMode(m)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  mode === m
+                    ? 'bg-primary text-white'
+                    : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                {label}
               </button>
-              {menuMode && (
-                <div role="listbox" className="absolute z-10 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl text-left">
-                  {Object.entries(MODE_LABEL).map(([m, label]) => (
-                    <button key={m} role="option" aria-selected={mode === m}
-                      onClick={() => { setMode(m); setMenuMode(false) }}
-                      className={`block w-full px-4 py-2.5 text-sm hover:bg-slate-50 ${mode === m ? 'font-bold text-primary' : 'text-slate-700'}`}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-          <input ref={fileRef} type="file" accept="application/pdf,.pdf"
-            onChange={pilihFile} className="hidden" id="bku-pdf-input" />
-          <label htmlFor="bku-pdf-input"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-semibold
-                       transition-all duration-300 cursor-pointer
-                       bg-gradient-to-r from-primary to-blue-600 text-white
-                       hover:shadow-xl hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98]">
-            <span className="material-symbols-outlined text-lg">upload</span> Pilih File PDF BKU
-          </label>
-          <p className="text-xs text-slate-400 mt-4">Format: .pdf &nbsp;•&nbsp; diproses sepenuhnya di perangkat ini</p>
+          <UploadDropzone
+            id="bku-pdf-input"
+            icon="picture_as_pdf"
+            title="Upload File BKU PDF"
+            description="Pilih mode lalu pilih file — bulan/tahun dibaca otomatis dari PDF, data langsung tersimpan tanpa koreksi manual"
+            formatHint="Format: .pdf • diproses sepenuhnya di perangkat ini"
+            accept="application/pdf,.pdf"
+            actionText="Pilih File PDF BKU"
+            onFiles={(files) => pilihFile({ target: { files, value: '' } })}
+            className="flex-1"
+          />
         </div>
       )}
 
       {tahap === 'proses' && (
         <div className="py-10 text-center">
           <span className="material-symbols-outlined text-4xl text-primary animate-spin block mx-auto mb-4">sync</span>
-          <p className="text-sm font-semibold text-slate-900">Membaca halaman {progres.hal} dari {progres.total}…</p>
-          <p className="text-xs text-slate-500 mt-1">{fileName} — proses berjalan di perangkat ini.</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-white">Membaca halaman {progres.hal} dari {progres.total}…</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{fileName} — proses berjalan di perangkat ini.</p>
           <div className="w-full max-w-sm mx-auto mt-4 h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <div className="h-full bg-primary transition-all"
               style={{ width: progres.total ? (progres.hal / progres.total) * 100 + '%' : '5%' }} />
           </div>
           <button onClick={() => abortRef.current?.abort()}
-            className={`${btn} mt-5 mx-auto bg-white text-slate-700 border border-slate-200 hover:bg-slate-50`}>
+            className={`${btn} mt-5 mx-auto bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-white/5`}>
             <span className="material-symbols-outlined text-lg">stop_circle</span>Batalkan proses
           </button>
         </div>
@@ -307,10 +291,10 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
         <>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span className="font-semibold text-primary">{fileName}</span>
-            <span className="text-slate-700">Mode: <b>{MODE_LABEL[mode]}</b> · Periode terbaca: <b>{hasil.label}</b></span>
-            {hasil.kop?.namaSekolah && <span className="text-slate-700">Sekolah: <b>{hasil.kop.namaSekolah}</b></span>}
-            {hasil.kop?.npsn && <span className="text-slate-700">NPSN: {hasil.kop.npsn}</span>}
-            <span className="text-slate-700">{hasil.baris.length} baris terbaca</span>
+            <span className="text-slate-700 dark:text-slate-200">Mode: <b>{MODE_LABEL[mode]}</b> · Periode terbaca: <b>{hasil.label}</b></span>
+            {hasil.kop?.namaSekolah && <span className="text-slate-700 dark:text-slate-200">Sekolah: <b>{hasil.kop.namaSekolah}</b></span>}
+            {hasil.kop?.npsn && <span className="text-slate-700 dark:text-slate-200">NPSN: {hasil.kop.npsn}</span>}
+            <span className="text-slate-700 dark:text-slate-200">{hasil.baris.length} baris terbaca</span>
             {hasil.masalah.length > 0 && <span className="text-primary font-medium">{hasil.masalah.length} catatan baca</span>}
             {hasil.saldoTakRuntun > 0 && (
               <span className="text-primary font-medium">
@@ -324,45 +308,45 @@ export default function BKUUploadPdf({ recalcSummary, onSelesai }) {
             </div>
           )}
           {mode === 'tahunan' && (
-            <label className="flex items-start gap-2 mb-4 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3">
+            <label className="flex items-start gap-2 mb-4 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl p-3">
               <input type="checkbox" checked={konfirmTahunan}
                 onChange={(e) => setKonfirmTahunan(e.target.checked)} className="mt-1" />
               Saya paham: upload tahunan akan MENGGANTI SELURUH data BKU (termasuk akumulasi bulanan/semester).
             </label>
           )}
 
-          <div className="overflow-x-auto border border-slate-200 rounded-xl mb-4">
+          <div className="overflow-x-auto border border-slate-200 dark:border-transparent rounded-xl mb-4">
             <table className="w-full text-sm min-w-[640px]">
-              <thead className="bg-slate-50 text-slate-600">
+              <thead className="bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-300">
                 <tr>{['Bulan', 'Masuk', 'Keluar', 'Saldo Akhir'].map((h) => (
                   <th key={h} className={thn}>{h}</th>
                 ))}</tr>
               </thead>
               <tbody>
                 {ringkasBulan.map((g) => (
-                  <tr key={g.kunci} className="border-t border-slate-100">
-                    <td className="px-3 py-1.5 text-slate-700">{g.namaBulan} {g.tahun}</td>
-                    <td className="px-3 py-1.5 text-slate-700">{rp(g.masuk)}</td>
-                    <td className="px-3 py-1.5 text-slate-700">{rp(g.keluar)}</td>
-                    <td className="px-3 py-1.5 text-slate-700 font-semibold">{rp(g.saldoAkhir)}</td>
+                  <tr key={g.kunci} className="border-t border-slate-100 dark:border-transparent">
+                    <td className="px-3 py-1.5 text-slate-700 dark:text-slate-200">{g.namaBulan} {g.tahun}</td>
+                    <td className="px-3 py-1.5 text-slate-700 dark:text-slate-200">{rp(g.masuk)}</td>
+                    <td className="px-3 py-1.5 text-slate-700 dark:text-slate-200">{rp(g.keluar)}</td>
+                    <td className="px-3 py-1.5 text-slate-700 dark:text-slate-200 font-semibold">{rp(g.saldoAkhir)}</td>
                   </tr>
                 ))}
-                <tr className="border-t border-slate-200 bg-slate-50/60">
-                  <td className="px-3 py-1.5 font-semibold text-slate-900">Total file ini</td>
-                  <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(totalMasuk)}</td>
-                  <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(totalKeluar)}</td>
-                  <td className="px-3 py-1.5 font-semibold text-slate-900">{rp(saldoAkhir)}</td>
+                <tr className="border-t border-slate-200 dark:border-transparent bg-slate-50/60">
+                  <td className="px-3 py-1.5 font-semibold text-slate-900 dark:text-white">Total file ini</td>
+                  <td className="px-3 py-1.5 font-semibold text-slate-900 dark:text-white">{rp(totalMasuk)}</td>
+                  <td className="px-3 py-1.5 font-semibold text-slate-900 dark:text-white">{rp(totalKeluar)}</td>
+                  <td className="px-3 py-1.5 font-semibold text-slate-900 dark:text-white">{rp(saldoAkhir)}</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-            <div className="text-sm text-slate-600">
+            <div className="text-sm text-slate-600 dark:text-slate-300">
               <b>{hasil.baris.length}</b> baris akan disimpan ke periode <b>{hasil.label}</b>
             </div>
             <button onClick={simpan}
-              className={`${btn} bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20`}>
+              className={`${btn} bg-primary text-white hover:bg-primary/90`}>
               <span className="material-symbols-outlined text-lg">save</span>Simpan ke Data BKU
             </button>
           </div>

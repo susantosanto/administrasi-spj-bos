@@ -48,16 +48,12 @@ export function ToastProvider({ children }) {
         {toasts.map(t => (
           <div
             key={t.id}
-            className={`animate-toast-in bg-on-background text-on-primary-container px-lg py-md rounded-xl shadow-2xl flex items-center gap-md min-w-[300px] max-w-[400px] ${
-              t.type === 'success' ? '' :
-              t.type === 'error' ? '' :
-              t.type === 'warning' ? '' : ''
-            }`}
+            className="toast-premium animate-toast-in px-lg py-md rounded-xl shadow-2xl flex items-center gap-md min-w-[300px] max-w-[400px]"
           >
             <span className={`material-symbols-outlined ${
-              t.type === 'success' ? 'text-secondary' :
-              t.type === 'error' ? 'text-danger' :
-              t.type === 'warning' ? 'text-warning' : 'text-primary'
+              t.type === 'success' ? 'text-[#12B76A]' :
+              t.type === 'error' ? 'text-[#F04438]' :
+              t.type === 'warning' ? 'text-[#F59E0B]' : 'text-[#2E90FA]'
             }`}>
               {t.type === 'success' ? 'check_circle' :
                t.type === 'error' ? 'error' :
@@ -72,7 +68,7 @@ export function ToastProvider({ children }) {
               <p className="text-xs opacity-70">{t.message}</p>
             </div>
             <button
-              className="ml-auto hover:bg-white/10 p-1 rounded-full transition-colors"
+              className="ml-auto hover:bg-black/5 dark:hover:bg-white/10 p-1 rounded-full transition-colors"
               onClick={() => setToasts(prev => prev.filter(toast => toast.id !== t.id))}
             >
               <span className="material-symbols-outlined text-sm">close</span>

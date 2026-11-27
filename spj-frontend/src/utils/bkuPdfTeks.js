@@ -116,8 +116,8 @@ export function pisahTeks(baris, edges = []) {
     // Token di kolom uang dikeluarkan: nilai "0." / "0" (sel kosong yang
     // masih terbaca) akan masuk ke kolom uraian dan mengotori uraian.
     if (edges.some((e) => Math.abs((it.x + it.w) - e) <= TOL_EDGE)) continue
-    if (RE_KODE.test(s) && titikKode(s) >= 3) rek.push(s)
-    else if (RE_KODE.test(s)) keg.push(s)
+    if (RE_KODE.test(s) && titikKode(s) >= 3) rek.push({ s, x: it.x, w: it.w })
+    else if (RE_KODE.test(s)) keg.push({ s, x: it.x, w: it.w })
     else sisa.push(it)
   }
   // Pecah token teks jadi grup berdasarkan celah x. Kolom URAIAN adalah
@@ -168,25 +168,42 @@ export function pisahTeks(baris, edges = []) {
       if (i < idxBukti) {
         // Sebelum bukti: kode rekening pecah ("52") → polos; kata lain
         // (celah lebar, mis. sisa uraian) → uraian, bukan dibuang.
-        if (RE_KODE_POLOS.test(s)) { polos.push(s); continue }
+        if (RE_KODE_POLOS.test(s)) { polos.push({ s, x: it.x }); continue }
         uraian.push(s); continue
       }
       // Sesudah bukti: kode rekening pecah tetap ke polos (mis. "52"
       // menempel di kanan uraian pada scan miring); sonst uraian.
-      if (RE_KODE_POLOS.test(s)) { polos.push(s); continue }
+      if (RE_KODE_POLOS.test(s)) { polos.push({ s, x: it.x }); continue }
       uraian.push(s); continue
     }
     if (it.x >= mulai) { uraian.push(s); continue }
     // Tanpa bukti terdeteksi dan di kiri `mulai`: kode polos → polos,
     // kata mirip kode → bukti (diekstrak rapikanNoBukti), kata biasa → uraian.
-    if (RE_KODE_POLOS.test(s)) { polos.push(s); continue }
+    if (RE_KODE_POLOS.test(s)) { polos.push({ s, x: it.x }); continue }
     if (/^[A-Z]{2,4}/.test(s.toUpperCase())) bukti.push(s)
     else uraian.push(s)
   }
-  let kodeRekening = rek.join('').replace(/\.$/, '')
-  if (!kodeRekening && polos.length === 1) kodeRekening = polos[0]
+  // Fragmen ekor kode rekening ("52" dari "…01.0052" yang terpisah saat
+  // scan) hanya digabung bila BERDEKATAN dengan token kode (< 40px).
+  // Tanpa syarat kedekatan, angka uraian ("PPh 23") ikut tersedot dan
+  // kode justru rusak. Urutan gabungan mengikuti posisi x.
+  const GAP_FRAGMEN = 40
+  let sisaPolos = [...polos]
+  const rangkai = (list) => {
+    const frag = sisaPolos.filter((p) =>
+      list.some((r) => p.x < r.x + r.w + GAP_FRAGMEN && p.x > r.x - GAP_FRAGMEN),
+    )
+    sisaPolos = sisaPolos.filter((p) => !frag.includes(p))
+    return [...list.map((r) => ({ s: r.s, x: r.x })), ...frag.map((p) => ({ s: p.s, x: p.x }))]
+      .sort((a, b) => a.x - b.x)
+      .map((t) => t.s)
+      .join('')
+      .replace(/\.$/, '')
+  }
+  const kodeRekening = rangkai(rek) || (sisaPolos.length === 1 ? sisaPolos[0].s : '')
+  const kodeKegiatan = rangkai(keg)
   return {
-    kodeKegiatan: keg.join('').replace(/\.$/, ''),
+    kodeKegiatan,
     kodeRekening,
     noBukti: rapikanNoBukti(bukti.join(' ')),
     uraian: rapikanUraian(uraian.join(' ')),

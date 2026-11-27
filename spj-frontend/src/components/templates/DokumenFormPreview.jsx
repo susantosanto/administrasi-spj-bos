@@ -16,9 +16,7 @@ import TemplateEngine from './TemplateEngine'
 import MaminPreview from './MaminPreview'
 import MaminForm6Seksi from '../dokumen/mamin/MaminForm6Seksi'
 import MaminPesananRincian from '../dokumen/mamin/MaminPesananRincian'
-import SkHonorerEditor from './blocks/SkHonorerEditor'
 import TabelDinamis from './blocks/TabelDinamis'
-import { loadSkPasal, saveSkPasal, cloneDefaultPasal } from '../../data/skPasal'
 import NomorSuratPopup from './blocks/NomorSuratPopup'
 import { TEMPLATE_CONFIGS } from '../../data/templateConfig'
 import {
@@ -214,10 +212,10 @@ function getTransportTabs(subId) {
 
 // â”€â”€â”€ Field helper: labeled input/select/textarea compact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Field({ label, value, onChange, placeholder, type = 'text', options, textarea = false, rows = 2, readOnly = false, className = '' }) {
-  const base = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-primary outline-none'
+  const base = 'w-full px-3 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-[13px] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25'
   return (
     <div className={className}>
-      <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">{label}</label>
+      <label className="block text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 mb-1.5">{label}</label>
       {textarea ? (
         <textarea rows={rows} value={value || ''} onChange={onChange} placeholder={placeholder || ''} readOnly={readOnly} className={`${base} resize-none`} />
       ) : options ? (
@@ -253,6 +251,7 @@ export default function DokumenFormPreview({
   // TIDAK berubah). 'sidebar6' = form Mamin 6 seksi, HANYA untuk sidebar BKU.
   varianForm = 'lama',
   bkuInfo = null,
+  centralizedPrint = false,
 }) {
   const [showRecipients, setShowRecipients] = useState(false)
   const [showNomorPopup, setShowNomorPopup] = useState(false)
@@ -443,7 +442,7 @@ export default function DokumenFormPreview({
                     }}
                     className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                       selectedSub?.id === sub.id
-                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                        ? 'bg-primary text-white'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
@@ -486,7 +485,7 @@ export default function DokumenFormPreview({
                 <select
                   value={formData.bulan || 'Januari'}
                   onChange={(e) => setFormData({ ...formData, bulan: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                  className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                 >
                   {BULAN_LIST.map((b) => (
                     <option key={b} value={b}>{b}</option>
@@ -499,7 +498,7 @@ export default function DokumenFormPreview({
                   type="text"
                   value={formData.tahun || '2026'}
                   onChange={(e) => setFormData({ ...formData, tahun: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                  className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                 />
               </div>
             </div>
@@ -520,7 +519,7 @@ export default function DokumenFormPreview({
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
                   placeholder="422.1/SK-001/SDN-PSR/VII/2026"
-                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                  className="flex-1 px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                 />
                 <button
                   type="button"
@@ -549,7 +548,7 @@ export default function DokumenFormPreview({
                 type="date"
                 value={formData.tanggalDanaMasuk || ''}
                 onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
               />
               <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
                 <span className="material-symbols-outlined text-sm">visibility</span>
@@ -573,7 +572,7 @@ export default function DokumenFormPreview({
                         <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                       </button>
                     </div>
-                    <input type="text" value={formData.nomorSpt || ''} onChange={(e) => setFormData({ ...formData, nomorSpt: e.target.value })} placeholder="400.3.7.6/018-SD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="text" value={formData.nomorSpt || ''} onChange={(e) => setFormData({ ...formData, nomorSpt: e.target.value })} placeholder="400.3.7.6/018-SD/2026" className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25" />
                   </div>
                   <Field label="Tanggal Surat" value={formData.tanggalSpt} onChange={(e) => setFormData({ ...formData, tanggalSpt: e.target.value })} placeholder="Cikalongwetan, 7 Mei 2026" />
                 </div>
@@ -637,7 +636,7 @@ export default function DokumenFormPreview({
                         <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                       </button>
                     </div>
-                    <input type="text" value={sppdData.nomorSurat || ''} onChange={(e) => setSppdData({ ...sppdData, nomorSurat: e.target.value })} placeholder="427/SPD-001/SDN-PSR/VII/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="text" value={sppdData.nomorSurat || ''} onChange={(e) => setSppdData({ ...sppdData, nomorSurat: e.target.value })} placeholder="427/SPD-001/SDN-PSR/VII/2026" className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25" />
                   </div>
                   <Field label="Untuk Keperluan" value={sppdData.tujuan} onChange={(e) => setSppdData({ ...sppdData, tujuan: e.target.value })} placeholder="Rapat Kerja Teknis Operator..." />
                   {/* Audit gugus task 41 (G11, P1): field generik Tempat/Tanggal
@@ -778,7 +777,7 @@ export default function DokumenFormPreview({
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                         generatingRingkasan
                           ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          : 'bg-primary text-white shadow-md hover:brightness-110 active:scale-95'
+                          : 'bg-primary text-white shadow-md active:scale-95'
                       }`}
                     >
                       <span className="material-symbols-outlined text-sm">
@@ -792,7 +791,7 @@ export default function DokumenFormPreview({
                     onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
                     rows={4}
                     placeholder={generatingRingkasan ? 'AI sedang menulis ringkasan...' : 'Atau tulis manual resume kegiatan...'}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25 resize-none transition-all"
                   />
                 </div>
               </div>
@@ -813,7 +812,7 @@ export default function DokumenFormPreview({
                         <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                       </button>
                     </div>
-                    <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="400.3.7.6/018/G-KHD/2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="400.3.7.6/018/G-KHD/2026" className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25" />
                   </div>
                   <Field label="Sifat" options={['-', 'Biasa', 'Penting', 'Segera']} value={formData.sifatUndangan || '-'} onChange={(e) => setFormData({ ...formData, sifatUndangan: e.target.value })} />
                   <Field label="Lampiran" value={formData.lampiranUndangan} onChange={(e) => setFormData({ ...formData, lampiranUndangan: e.target.value })} placeholder="-" />
@@ -870,7 +869,7 @@ export default function DokumenFormPreview({
                 <button
                   type="button"
                   onClick={() => setShowRecipients((v) => !v)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold transition-all active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">{showRecipients ? 'expand_less' : 'group_add'}</span>
                   {showRecipients ? 'Tutup Daftar Penerima' : `Pilih Penerima${selectedIds.size ? ` (${selectedIds.size})` : ''}`}
@@ -985,43 +984,18 @@ export default function DokumenFormPreview({
             {/* Revisi 2026-10-06 (task 37): editor SK satu-satunya sumber
                 cetak SK (tab preview SK dihapus) sehingga area cetak editor
                 WAJIB ikut; panel kanan baca formData.pasal yg sama). */}
-            {!isTransport && (() => {
-              const skConfig = TEMPLATE_CONFIGS.sk_honorer
-              if (!skConfig) return null
-              const skPasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
-              const setSkPasal = (p) => {
-                setFormData({ ...formData, pasal: p })
-                saveSkPasal(p)
-              }
-              const buildSkData = (row) => ({
-                ...skConfig.defaults,
-                ...formData,
-                pasal: skPasal,
-                nomorSurat: formData.nomor || '',
-                namaPihakKedua: row.nama || '',
-                ttlPihakKedua: row.ttl || row.tempatLahir || '',
-                pendidikanPihakKedua: row.pendidikan || '',
-                alamatPihakKedua: row.alamat || '',
-                kelasGuru: row.kelasGuru || '',
-                namaPihakKesatu: formData.namaPihakKesatu || skConfig.defaults.namaPihakKesatu,
-                nipPihakKesatu: formData.nipPihakKesatu || skConfig.defaults.nipPihakKesatu,
-                jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
-                tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
-                tanggalTtd: formData.tanggalTtd || '',
-              })
-              const skList = (formData.rows || []).map((row) => ({ row, skData: buildSkData(row) }))
-              return (
-                <SkHonorerEditor
-                  skList={skList}
-                  pasal={skPasal}
-                  onPasalChange={setSkPasal}
-                  onResetPasal={() => setSkPasal(cloneDefaultPasal())}
-                  onUpdateRow={updateRow}
-                  onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
-                  onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
-                />
-              )
-            })()}
+            {!isTransport && (formData.rows || []).length > 0 && (
+              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+                  <span className="material-symbols-outlined text-primary">gavel</span>
+                  SK Perjanjian Kerja Honorer
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                  Satu SK siap cetak dibuat untuk setiap penerima terpilih. Pilih atau kecualikan SK pada daftar dokumen di Panel Preview sebelum mencetak.
+                </p>
+              </div>
+            )}
+
           </>
         ) : pakaiSeksi6 ? (
           /* Sprint 018 (AD-3): form Mamin 6 seksi — HANYA sidebar BKU.
@@ -1037,7 +1011,7 @@ export default function DokumenFormPreview({
                   <select
                     value={formData.bulan || 'Januari'}
                     onChange={(e) => setFormData({ ...formData, bulan: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                   >
                     {BULAN_LIST.map((b) => (
                       <option key={b} value={b}>{b}</option>
@@ -1050,7 +1024,7 @@ export default function DokumenFormPreview({
                     type="text"
                     value={formData.tahun || '2026'}
                     onChange={(e) => setFormData({ ...formData, tahun: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                   />
                 </div>
               </div>
@@ -1068,7 +1042,7 @@ export default function DokumenFormPreview({
                   value={formData.nomor || ''}
                   onChange={(e) => setFormData({ ...formData, nomor: e.target.value })}
                   placeholder={isMamin ? '422.1/UND-001/SDN-PSR/VII/2026' : '422.1/SPJ-001/SDN-PSR/VII/2026'}
-                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                  className="flex-1 px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                 />
                 <button
                   type="button"
@@ -1095,7 +1069,7 @@ export default function DokumenFormPreview({
                 type="date"
                 value={formData.tanggalDanaMasuk || ''}
                 onChange={(e) => setFormData({ ...formData, tanggalDanaMasuk: e.target.value })}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
               />
               <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-medium text-primary">
                 <span className="material-symbols-outlined text-sm">visibility</span>
@@ -1114,7 +1088,7 @@ export default function DokumenFormPreview({
                       type="date"
                       value={formData.tanggal || ''}
                       onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                     />
                   </div>
                   <div>
@@ -1124,7 +1098,7 @@ export default function DokumenFormPreview({
                       value={formData.waktu || ''}
                       onChange={(e) => setFormData({ ...formData, waktu: e.target.value })}
                       placeholder="08.00 s.d. 10.00"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                     />
                   </div>
                   <div>
@@ -1134,7 +1108,7 @@ export default function DokumenFormPreview({
                       value={formData.tempat || ''}
                       onChange={(e) => setFormData({ ...formData, tempat: e.target.value })}
                       placeholder={bakuNotulen006?.tempat || 'Aula / Ruang rapat ...'}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                     />
                   </div>
                   <div>
@@ -1143,7 +1117,7 @@ export default function DokumenFormPreview({
                       type="text"
                       value={formData.acara || ''}
                       onChange={(e) => setFormData({ ...formData, acara: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
                     />
                   </div>
                 </div>
@@ -1176,7 +1150,7 @@ export default function DokumenFormPreview({
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                         generatingRingkasan
                           ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                          : 'bg-primary text-white shadow-md hover:brightness-110 active:scale-95'
+                          : 'bg-primary text-white shadow-md active:scale-95'
                       }`}
                     >
                       <span className="material-symbols-outlined text-sm">
@@ -1190,7 +1164,7 @@ export default function DokumenFormPreview({
                     onChange={(e) => setFormData({ ...formData, resume: e.target.value })}
                     rows={4}
                     placeholder={generatingRingkasan ? 'AI sedang menulis ringkasan...' : 'Atau tulis manual poin pembahasan rapat...'}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25 resize-none transition-all"
                   />
                 </div>
 
@@ -1212,7 +1186,7 @@ export default function DokumenFormPreview({
                           <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                         </button>
                       </div>
-                      <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="007/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.nomorUndangan || ''} onChange={(e) => setFormData({ ...formData, nomorUndangan: e.target.value })} placeholder="007/KKKS/.../2026" className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Sifat</label>
@@ -1284,7 +1258,7 @@ export default function DokumenFormPreview({
                           <span className="material-symbols-outlined text-[10px]">auto_fix_high</span> Generate
                         </button>
                       </div>
-                      <input type="text" value={formData.nomorPesanan || ''} onChange={(e) => setFormData({ ...formData, nomorPesanan: e.target.value })} placeholder="008/KKKS/.../2026" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-primary outline-none" />
+                      <input type="text" value={formData.nomorPesanan || ''} onChange={(e) => setFormData({ ...formData, nomorPesanan: e.target.value })} placeholder="008/KKKS/.../2026" className="w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-xs font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 transition-all duration-150 outline-none hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">Sifat</label>
@@ -1399,7 +1373,7 @@ export default function DokumenFormPreview({
                 <button
                   type="button"
                   onClick={() => setShowRecipients((v) => !v)}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:brightness-110 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-white text-sm font-semibold transition-all active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-lg">{showRecipients ? 'expand_less' : 'group_add'}</span>
                   {showRecipients ? 'Tutup Daftar' : `Pilih Peserta${selectedIds.size ? ` (${selectedIds.size})` : ''}`}
@@ -1532,16 +1506,18 @@ export default function DokumenFormPreview({
             </div>
           </>
         ) : (
-          /* Generic template form (Pemeliharaan: Mebeler / Bangunan, dll) */
+          /* Generic template form (Pemeliharaan: Mebeler / Bangunan, dll).
+             Kartu infoOnly (penggandaan, buku) sengaja tanpa template LPJ —
+             dokumennya lewat PBJ/perencanaan, jadi tanpa peringatan. */
           config ? (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 overflow-auto">
               <TemplateEngine templateConfig={config} data={formData} onDataChange={setFormData} mode="edit" />
             </div>
-          ) : (
+          ) : !card?.infoOnly ? (
             <p className="text-sm text-amber-600 p-4 bg-amber-50 rounded-xl">
               Template belum tersedia untuk sub-kategori ini.
             </p>
-          )
+          ) : null
         )}
 
         {/* Revisi 2026-10-06 (task 37): tombol Lihat Ringkasan DIHAPUS.
@@ -1611,60 +1587,11 @@ export default function DokumenFormPreview({
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // RENDER: SK HONORER (per-recipient)
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const renderSkHonorer = () => {
-    const skConfig = TEMPLATE_CONFIGS.sk_honorer
-    if (!skConfig) return null
-    const rows = formData.rows || []
-    if (rows.length === 0) {
-      return (
-        <p className="text-sm text-slate-500 p-6 text-center">
-          Belum ada penerima yang dipilih. Pilih penerima terlebih dahulu.
-        </p>
-      )
-    }
-    // Pasal: pakai data terbaru di form, fallback template tersimpan, terakhir standar
-    const pasal = formData.pasal || loadSkPasal() || cloneDefaultPasal()
-    const setPasal = (p) => {
-      setFormData({ ...formData, pasal: p })
-      saveSkPasal(p)
-    }
-    const buildSkData = (row) => ({
-      ...skConfig.defaults,
-      ...formData,
-      pasal,
-      nomorSurat: formData.nomor || '',
-      // PIHAK KEDUA (Guru Honorer) — dari row + Data Guru/Tendik
-      namaPihakKedua: row.nama || '',
-      ttlPihakKedua: row.ttl || row.tempatLahir || '',
-      pendidikanPihakKedua: row.pendidikan || '',
-      alamatPihakKedua: row.alamat || '',
-      kelasGuru: row.kelasGuru || '',
-      // PIHAK KESATU — dari sekolah: ketikan user → Data Sekolah (live) → ''.
-      // Tanpa fallback live, TTD SK kosong walau pejabat sudah diisi.
-      namaPihakKesatu: formData.namaPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nama || '',
-      nipPihakKesatu: formData.nipPihakKesatu || getSignatureRoles()['kepala-sekolah']?.nip || '',
-      jabatanPihakKesatu: formData.jabatanPihakKesatu || skConfig.defaults.jabatanPihakKesatu,
-      tempatTtd: formData.tempatTtd || skConfig.defaults.tempatTtd,
-      tanggalTtd: formData.tanggalTtd || '',
-    })
-    const skList = rows.map((row) => ({ row, skData: buildSkData(row) }))
-    return (
-      <SkHonorerEditor
-        skList={skList}
-        pasal={pasal}
-        onPasalChange={setPasal}
-        onResetPasal={() => setPasal(cloneDefaultPasal())}
-        onUpdateRow={updateRow}
-        onRemoveRow={(row) => toggleRecipient({ ...row, __remove: true })}
-        onUpdateForm={(key, value) => setFormData({ ...formData, [key]: value })}
-      />
-    )
-  }
-
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // AREA CETAK (revisi 2026-10-06 task 37, dulu RENDER: PREVIEW)
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   const renderPrintArea = () => {
+    if (centralizedPrint) return null
     if (isMamin) return <MaminPreview formData={formData} setViewMode={setViewMode} selectedSub={selectedSub} printOnly />
     const config = TEMPLATE_CONFIGS[selectedSub?.templateId]
     if (!config) {
@@ -1899,7 +1826,8 @@ export default function DokumenFormPreview({
     // pratinjau tunggal = Panel Preview Document (Zona B).
     return (
       <>
-
+        {!centralizedPrint && (
+        <>
         {/* Area cetak Daftar Penerima: dokumen lengkap (judul + info keuangan + tabel + ttd) */}
         {isDaftarTab && !isTransport && (
           <div className="sk-print-area">
@@ -1954,6 +1882,8 @@ export default function DokumenFormPreview({
               <TemplateEngine templateConfig={config} data={previewData} mode="print" />
             </div>
           </div>
+        )}
+        </>
         )}
       </>
     )

@@ -45,7 +45,7 @@ export default function MaminSeksi1Dasar({ formData = {}, setFormData, bku = {},
             type="text"
             readOnly
             value={bku?.tanggalStr || formData.tanggal || ''}
-            className={`${INPUT} bg-slate-100 text-slate-600 cursor-default`}
+            className={`${INPUT} bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 cursor-default`}
             title="Otomatis dari baris BKU"
           />
         </div>

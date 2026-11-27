@@ -70,7 +70,7 @@ export default function AutoFillHonorButton({ templateId, onAutoFill }) {
         className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl transition-all active:scale-[0.98] ${
           count > 0 
             ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:shadow-lg hover:shadow-emerald-500/25' 
-            : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+            : 'bg-slate-200 text-slate-500 dark:text-slate-400 cursor-not-allowed'
         }`}
       >
         <span className="material-symbols-outlined text-sm">auto_awesome</span>
@@ -84,7 +84,7 @@ export default function AutoFillHonorButton({ templateId, onAutoFill }) {
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
           <div 
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-4 mb-4">
@@ -92,16 +92,16 @@ export default function AutoFillHonorButton({ templateId, onAutoFill }) {
                 <span className="material-symbols-outlined text-2xl text-emerald-600">auto_awesome</span>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Auto Fill Data</h3>
-                <p className="text-sm text-slate-500">Isi data dari profil guru/tendik</p>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Auto Fill Data</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Isi data dari profil guru/tendik</p>
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 mb-6">
-              <p className="text-sm text-slate-700 mb-2">
+            <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-4 mb-6">
+              <p className="text-sm text-slate-700 dark:text-slate-200 mb-2">
                 Akan mengisi <span className="font-bold text-emerald-600">{count} data {getLabel()}</span> ke dalam tabel:
               </p>
-              <ul className="text-xs text-slate-500 space-y-1">
+              <ul className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
                 <li>• Nama PTK</li>
                 <li>• NUPTK</li>
                 <li>• Jabatan</li>
@@ -115,7 +115,7 @@ export default function AutoFillHonorButton({ templateId, onAutoFill }) {
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all"
+                className="px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/10 dark:bg-white/10 rounded-xl transition-all"
               >
                 Batal
               </button>

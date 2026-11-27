@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dashboard Home — Ultra Premium 2026 Design
  * HEADER: Stunning gradient + Glass morphism effects
  * ICON: Gelap/Profesional
@@ -19,7 +19,6 @@ import { DOCUMENTS_REF, isDocAvailable } from '../../utils/docHelper'
 import DownloadConfirmModal from '../../components/ui/DownloadConfirmModal'
 import ArusKasChart from '../../components/dashboard/ArusKasChart'
 import ActivityPanel from '../../components/dashboard/ActivityPanel'
-import PaketProgressPanel from '../../components/dashboard/PaketProgressPanel'
 
 const fmtSingkat = (n) => {
   const v = Number(n) || 0
@@ -190,7 +189,7 @@ export default function DashboardHome() {
               {stats.map((stat) => {
                 const Icon = stat.icon
                 return (
-                  <div key={stat.label} className="group min-w-0 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                  <div key={stat.label} className="group min-w-0 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <p className="text-xs font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">{stat.label}</p>
                       <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${stat.tone}`}>
@@ -212,19 +211,17 @@ export default function DashboardHome() {
         <ArusKasChart />
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* PROGRES + AKTIVITAS — dua kolom ala referensi                        */}
+        {/* AKTIVITAS TERBARU (full-width; panel Progres Paket Kerja dihapus  */}
+        {/* 2026-11-26 atas permintaan user)                                    */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="grid gap-5 lg:grid-cols-2">
-          <PaketProgressPanel />
-          <ActivityPanel />
-        </div>
+        <ActivityPanel />
         {/* ═══════════════════════════════════════════════════════════════════ */}
 
 
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* DOKUMEN REFERENSI                                                   */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">download</span>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Dokumen Referensi</h3>
@@ -241,7 +238,7 @@ export default function DashboardHome() {
                     setSelectedDoc(doc)
                     setShowDocModal(true)
                   }}
-                  className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
+                  className={`relative flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-br ${doc.gradient} border ${available ? 'border-white/60 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'border-slate-200 dark:border-transparent/60 opacity-60 cursor-not-allowed'} transition-all duration-200 group text-left w-full`}
                 >
                   <div className={`relative w-9 h-9 rounded-lg ${doc.iconBg} flex items-center justify-center ${available ? 'group-hover:scale-105' : ''} transition-all duration-200 shrink-0`}>
                     <span className={`material-symbols-outlined ${doc.iconColor} text-lg transition-colors`}>
@@ -249,10 +246,10 @@ export default function DashboardHome() {
                     </span>
                   </div>
                   <div className="relative flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-800 truncate">{doc.judul}</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{doc.judul}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{doc.sub}</p>
                   </div>
-                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600' : 'text-slate-300'} transition-all text-base`}>
+                  <span className={`material-symbols-outlined ${available ? 'text-slate-400 group-hover:text-slate-600 dark:text-slate-300' : 'text-slate-300'} transition-all text-base`}>
                     {available ? 'download' : 'block'}
                   </span>
                 </button>
@@ -264,7 +261,7 @@ export default function DashboardHome() {
         {/* ═══════════════════════════════════════════════════════════════════ */}
         {/* FITUR UNGGULAN — pintu masuk fitur utama (selaras main)             */}
         {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-transparent rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-slate-700 dark:text-slate-300">auto_awesome</span>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Fitur Unggulan</h3>
@@ -275,7 +272,7 @@ export default function DashboardHome() {
               <Link
                 key={feature.id}
                 to={feature.path}
-                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
+                className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-white/70 dark:bg-white/5 border border-white/60 dark:border-transparent hover:shadow-md hover:scale-[1.01] transition-all duration-200 text-left w-full"
               >
                 <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:scale-105 transition-all duration-200">
                   <span className="material-symbols-outlined text-slate-700 dark:text-slate-200 text-lg group-hover:text-white transition-colors">

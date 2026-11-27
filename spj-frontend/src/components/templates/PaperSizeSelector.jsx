@@ -21,12 +21,12 @@ export default function PaperSizeSelector({ ringkas = false }) {
 
   return (
     <div
-      className="inline-flex items-center gap-1 rounded-xl bg-slate-100 p-1"
+      className="inline-flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-white/10 p-1"
       role="group"
       aria-label="Pilih ukuran kertas cetak"
       title="Ukuran kertas cetak — berlaku untuk semua dokumen"
     >
-      <span className="material-symbols-outlined text-base text-slate-500 pl-1" aria-hidden="true">
+      <span className="material-symbols-outlined text-base text-slate-500 dark:text-slate-400 pl-1" aria-hidden="true">
         description
       </span>
       {Object.values(PAPER_SIZES).map((p) => {
@@ -41,7 +41,7 @@ export default function PaperSizeSelector({ ringkas = false }) {
             className={`rounded-lg px-3 min-h-[36px] text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-primary ${
               aktif
                 ? 'bg-primary text-white shadow-sm'
-                : 'text-slate-600 hover:bg-white hover:text-slate-900'
+                : 'text-slate-600 hover:bg-white dark:bg-slate-900 hover:text-slate-900 dark:text-white'
             }`}
           >
             {ringkas ? p.id : p.label}

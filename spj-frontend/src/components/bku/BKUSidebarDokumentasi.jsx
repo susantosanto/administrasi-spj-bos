@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BKUSidebarDokumentasi — blok Dokumentasi foto di tab "Dokumen LPJ" sidebar.
  *
  * REVISI USER 2026-10-23 (Sprint 019):
@@ -38,10 +38,10 @@ export default function BKUSidebarDokumentasi({
     <>
       <div className="space-y-4">
         {/* Template Terdeteksi */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm p-5">
+          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-slate-600 dark:text-slate-300 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
             </span>
             Template Dokumen Terdeteksi
           </h4>
@@ -51,17 +51,17 @@ export default function BKUSidebarDokumentasi({
                 <span className={`material-symbols-outlined ${detectedTemplate.color} text-xl`}>{detectedTemplate.icon}</span>
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-slate-900">{detectedTemplate.label}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">{detectedTemplate.label}</p>
                 <p className="text-[11px] text-slate-400">Template: {detectedTemplate.templateId}</p>
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
                 <span className="material-symbols-outlined text-slate-400 text-xl">help_outline</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">Tidak ada template spesifik</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Tidak ada template spesifik</p>
                 <p className="text-[11px] text-slate-400">Transaksi ini tidak perlu dokumen tambahan</p>
               </div>
             </div>
@@ -69,10 +69,10 @@ export default function BKUSidebarDokumentasi({
         </div>
 
         {/* Upload Dokumen Pendukung (Foto) — daftar gabungan upload + AI */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-slate-600 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>upload_file</span>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm p-5">
+          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
+            <span className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-slate-600 dark:text-slate-300 text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>upload_file</span>
             </span>
             Dokumen Pendukung (Foto)
           </h4>
@@ -86,14 +86,14 @@ export default function BKUSidebarDokumentasi({
           />
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-xl border border-dashed border-slate-300 bg-slate-50 text-center cursor-pointer hover:bg-slate-100 hover:border-blue-400 transition-colors p-5"
+            className="rounded-xl border border-dashed border-slate-300 bg-slate-50 dark:bg-white/5 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 hover:border-blue-400 transition-colors p-5"
           >
-            <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mx-auto mb-2">
+            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center mx-auto mb-2">
               <span className="material-symbols-outlined text-3xl text-slate-400">cloud_upload</span>
             </div>
-            <p className="text-sm font-semibold text-slate-700 mb-0.5">Upload Foto Bukti</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-0.5">Upload Foto Bukti</p>
             <p className="text-[11px] text-slate-400 mb-3">JPG, PNG — bisa pilih banyak</p>
-            <div className="inline-flex items-center gap-2 px-5 min-h-[44px] bg-primary text-white rounded-xl text-xs font-bold hover:brightness-110 transition-all shadow-md shadow-primary/25">
+            <div className="inline-flex items-center gap-2 px-5 min-h-[44px] bg-primary text-white rounded-xl text-xs font-bold transition-all">
               <span className="material-symbols-outlined text-sm">add</span>
               Pilih File
             </div>
@@ -101,25 +101,25 @@ export default function BKUSidebarDokumentasi({
 
           {fotoDokumen.length > 0 && (
             <div className="mt-3 space-y-2">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {fotoDokumen.length} foto — tampil di Panel Preview Document
               </p>
               {fotoDokumen.map((p) => (
-                <div key={p.id} className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2">
+                <div key={p.id} className="flex items-center gap-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl p-2">
                   <img src={p.dataUrl} alt={p.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0" />
                   <input
                     type="text"
                     value={p.caption}
                     onChange={(e) => onUpdateCaption?.(p.id, e.target.value)}
                     placeholder="Keterangan foto"
-                    className="flex-1 px-2.5 py-1.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-slate-800"
+                    className="flex-1 px-2.5 py-1.5 text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent rounded-lg outline-none focus:ring-2 focus:ring-primary/40 text-slate-800 dark:text-slate-100"
                   />
                   {p.source === 'ai' && (
                     <span className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-[9px] font-bold flex-shrink-0">AI</span>
                   )}
                   <button
                     onClick={() => onHapusFoto?.(p.id)}
-                    className="p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-lg flex-shrink-0 transition-colors"
+                    className="p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-600 dark:text-slate-300 rounded-lg flex-shrink-0 transition-colors"
                     title="Hapus"
                   >
                     <span className="material-symbols-outlined text-sm">delete</span>
@@ -150,7 +150,7 @@ export default function BKUSidebarDokumentasi({
         <div className="sk-print-area" aria-hidden="true">
           {buildFotoDocs(fotoDokumen, transaction).map((doc) => (
             <div key={doc.key} className="sk-doc-print">
-              <div className="print-container portrait bg-white" style={{ width: '210mm', minHeight: '297mm', padding: '15mm 20mm' }}>
+              <div className="print-container portrait bg-white dark:bg-slate-900" style={{ width: '210mm', minHeight: '297mm', padding: '15mm 20mm' }}>
                 <FotoDokumenPaper data={doc.data} />
               </div>
             </div>

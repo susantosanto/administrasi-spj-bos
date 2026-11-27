@@ -18,19 +18,19 @@ export default function FotoDokumenPaper({ data = {} }) {
   const photos = data.photos || []
 
   return (
-    <div className="flex flex-col h-full text-slate-900">
+    <div className="flex flex-col h-full text-slate-900 dark:text-white">
       {/* Kop surat — gaya dokumen formal (border double, hitam saat cetak) */}
       <div className="border-b-2 border-double border-slate-800 pb-2 mb-3 text-center flex-shrink-0">
         <h2 className="text-[13px] font-bold uppercase tracking-wide">{sekolah?.namaSekolah || 'SD NEGERI ...'}</h2>
-        <p className="text-[9px] text-slate-700 leading-tight">{sekolah?.alamat || 'Alamat Sekolah'}</p>
-        <p className="text-[9px] text-slate-700 leading-tight">
+        <p className="text-[9px] text-slate-700 dark:text-slate-200 leading-tight">{sekolah?.alamat || 'Alamat Sekolah'}</p>
+        <p className="text-[9px] text-slate-700 dark:text-slate-200 leading-tight">
           Telp: {sekolah?.telepon || '-'} | Email: {sekolah?.email || '-'}
         </p>
       </div>
 
       {/* Judul + identitas kegiatan */}
       <p className="text-[11px] font-bold text-center uppercase tracking-wider mb-0.5">Dokumentasi Foto Kegiatan</p>
-      <p className="text-[9px] text-slate-600 text-center mb-3">
+      <p className="text-[9px] text-slate-600 dark:text-slate-300 text-center mb-3">
         {data.uraian || '-'}{data.tanggalStr ? ` — ${data.tanggalStr}` : ''}
         {(data.totalHalaman || 1) > 1 ? ` (Halaman ${data.halaman || 1}/${data.totalHalaman})` : ''}
       </p>
@@ -49,14 +49,14 @@ export default function FotoDokumenPaper({ data = {} }) {
           return (
             <div key={p.id || i} className="border border-slate-300 rounded-lg p-1 flex flex-col">
               <img src={p.dataUrl} alt={p.caption || p.name || `Foto ${i + 1}`} className="w-full rounded object-cover" style={{ aspectRatio: '4 / 3' }} />
-              <p className="text-[8px] text-slate-700 mt-1 px-0.5 leading-tight">{p.caption || p.name || 'Tanpa keterangan'}</p>
+              <p className="text-[8px] text-slate-700 dark:text-slate-200 mt-1 px-0.5 leading-tight">{p.caption || p.name || 'Tanpa keterangan'}</p>
             </div>
           )
         })}
       </div>
 
       {/* Tanda tangan */}
-      <div className="mt-4 flex justify-between text-[10px] font-semibold text-slate-800 flex-shrink-0">
+      <div className="mt-4 flex justify-between text-[10px] font-semibold text-slate-800 dark:text-slate-100 flex-shrink-0">
         <div className="text-center">
           <div className="border-t border-slate-500 pt-1 w-40">Kepala Sekolah</div>
         </div>

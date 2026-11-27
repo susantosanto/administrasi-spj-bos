@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PeringatanData — Banner merah "data belum diisi" (Sprint 001 FASE 5, task 5.1)
  *
  * Dua varian pesan (US-15):
@@ -51,10 +51,10 @@ export default function PeringatanData({ cetakGate = null }) {
       window.print()
     }
     return (
-      <div className="print:hidden rounded-2xl border border-slate-200 bg-white shadow-sm p-4 space-y-3" role="group" aria-label="Gate pra-cetak">
-        <p className="text-sm font-bold text-slate-800">Siap cetak?</p>
+      <div className="print:hidden rounded-2xl border border-slate-200 dark:border-transparent bg-white dark:bg-slate-900 shadow-sm p-4 space-y-3" role="group" aria-label="Gate pra-cetak">
+        <p className="text-sm font-bold text-slate-800 dark:text-slate-100">Siap cetak?</p>
         {pernyataan.map((teks, i) => (
-          <label key={i} className="flex items-start gap-3 text-sm text-slate-700 cursor-pointer min-h-[44px]">
+          <label key={i} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200 cursor-pointer min-h-[44px]">
             <input
               type="checkbox"
               checked={!!centang[i]}
@@ -65,19 +65,19 @@ export default function PeringatanData({ cetakGate = null }) {
           </label>
         ))}
         {!siap && (
-          <p className="text-xs text-slate-600" role="alert">
+          <p className="text-xs text-slate-600 dark:text-slate-300" role="alert">
             Masih ada yang perlu diisi{cetakGate.pelanggaran?.length ? `: ${cetakGate.pelanggaran.join(', ')}` : ''} — tekan Cek di Panel Preview Document untuk melompat ke field-nya.
           </p>
         )}
         {siap && !semuaCentang && (
-          <p className="text-xs text-slate-600">Centang semua pernyataan untuk membuka tombol Cetak.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-300">Centang semua pernyataan untuk membuka tombol Cetak.</p>
         )}
         <button
           type="button"
           onClick={handleCetak}
           disabled={!bolehCetak}
           title={bolehCetak ? 'Cetak dokumen' : 'Terhalang: lengkapi checklist dan data'}
-          className="inline-flex items-center gap-2 px-5 min-h-[44px] rounded-xl text-sm font-semibold text-white bg-primary shadow-lg shadow-primary/30 hover:brightness-110 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
+          className="inline-flex items-center gap-2 px-5 min-h-[44px] rounded-xl text-sm font-semibold text-white bg-primary transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-primary"
         >
           <span className="material-symbols-outlined text-lg">print</span>
           Cetak

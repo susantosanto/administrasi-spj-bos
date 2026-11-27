@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AskAIPanel.jsx — Panel Chat "Ask to AI" with File Upload (Premium 2026)
  * 
  * Fitur:
@@ -266,7 +266,7 @@ function ChatBubble({ message }) {
         {/* Content text — clean, no bubble bg */}
         {message.content && (
           <div className={`text-[13.5px] leading-[1.7] whitespace-pre-wrap ${
-            isUser ? 'text-slate-800' : isErr ? 'text-red-700' : 'text-slate-700'
+            isUser ? 'text-slate-800 dark:text-slate-100' : isErr ? 'text-red-700' : 'text-slate-700'
           } [&_strong]:font-semibold`}>
             {formatContent(message.content)}
             {isStream && (
@@ -312,7 +312,7 @@ function FileChip({ file, onRemove }) {
         {iconMap[file.type] || 'draft'}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-semibold text-slate-700 truncate max-w-[140px]">{file.name}</p>
+        <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{file.name}</p>
         <p className="text-[8px] text-slate-400 font-medium">{formatFileSize(file.size)}</p>
       </div>
       <button onClick={onRemove} 
@@ -334,8 +334,8 @@ function QuickChips({ chips, onSelect, visible }) {
     <div className="flex flex-wrap gap-1.5 px-5 pb-2">
       {chips.map((c, i) => (
         <button key={i} onClick={() => onSelect(c.question)}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 
-                     text-[11px] font-medium text-slate-500 
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent/80 
+                     text-[11px] font-medium text-slate-500 dark:text-slate-400 
                      hover:border-primary/30 hover:text-primary hover:bg-primary/5 
                      transition-all duration-200 active:scale-95">
           <span className="text-[10px]">{c.icon}</span>{c.label}
@@ -472,13 +472,13 @@ export default function AskAIPanel({ onClose }) {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         {/* ── HEADER ── */}
-        <div className="relative flex items-center justify-between px-6 py-5 border-b border-slate-200/40 bg-white/50 backdrop-blur-xl">
+        <div className="relative flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-transparent/40 bg-white/50 backdrop-blur-xl">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20 ring-1 ring-white/20">
+            <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center ring-1 ring-white/20">
               <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
                 AI Assistant
                 <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-primary/10 to-blue-500/10 text-[9px] font-semibold text-primary tracking-wider uppercase">
                   Premium
@@ -490,14 +490,14 @@ export default function AskAIPanel({ onClose }) {
           <div className="flex items-center gap-0.5">
             {hasChat && (
               <button onClick={resetChat} 
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10/80 
                            transition-all duration-200 active:scale-90 group relative"
                 title="Hapus riwayat">
                 <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">delete_sweep</span>
               </button>
             )}
             <button onClick={onClose} 
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10/80 
                          transition-all duration-200 active:scale-90 group relative"
               title="Tutup">
               <span className="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform duration-300">close</span>
@@ -520,7 +520,7 @@ export default function AskAIPanel({ onClose }) {
                               ring-1 ring-primary/15 shadow-inner shadow-primary/5">
                 <span className="material-symbols-outlined text-3xl text-primary/60" style={{ fontVariationSettings: "'FILL' 1" }}>chat_bubble</span>
               </div>
-              <h4 className="text-[17px] font-bold text-slate-800 mb-1.5 tracking-tight">Selamat datang! 👋</h4>
+              <h4 className="text-[17px] font-bold text-slate-800 dark:text-slate-100 mb-1.5 tracking-tight">Selamat datang! 👋</h4>
               <p className="text-[13px] text-slate-400 leading-relaxed max-w-[300px]">
                 Tanya apa saja seputar administrasi sekolah, atau upload file untuk dianalisis AI.
               </p>
@@ -528,7 +528,7 @@ export default function AskAIPanel({ onClose }) {
 
               
               {/* Supported file types — premium minimal */}
-              <div className="flex items-center gap-3 mt-6 px-4 py-2.5 rounded-2xl bg-white/60 border border-slate-200/40 shadow-sm">
+              <div className="flex items-center gap-3 mt-6 px-4 py-2.5 rounded-2xl bg-white/60 border border-slate-200 dark:border-transparent/40 shadow-sm">
                 <span className="text-[10px] font-medium text-slate-400 tracking-wide uppercase">Analisis:</span>
                 <div className="flex items-center gap-2.5">
                   {[
@@ -539,7 +539,7 @@ export default function AskAIPanel({ onClose }) {
                   ].map((f) => (
                     <div key={f.label} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50/80">
                       <span className={`material-symbols-outlined text-[13px] ${f.color}`} style={{ fontVariationSettings: "'FILL' 1" }}>{f.icon}</span>
-                      <span className="text-[9px] font-semibold text-slate-500">{f.label}</span>
+                      <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400">{f.label}</span>
                     </div>
                   ))}
                 </div>
@@ -558,7 +558,7 @@ export default function AskAIPanel({ onClose }) {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <span className="material-symbols-outlined text-[15px] text-primary/50" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
               </div>
-              <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl rounded-tl-md px-5 py-3.5 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm border border-slate-200 dark:border-transparent/60 rounded-2xl rounded-tl-md px-5 py-3.5 shadow-sm">
                 <div className="flex gap-1.5">
                   {[0, 150, 300].map((d) => (
                     <div key={d} className="w-2 h-2 rounded-full bg-gradient-to-b from-primary/40 to-primary/20 animate-bounce" style={{ animationDelay: `${d}ms` }} />
@@ -572,7 +572,7 @@ export default function AskAIPanel({ onClose }) {
         </div>
 
         {/* ── INPUT AREA ── */}
-        <div className="px-5 py-4 border-t border-slate-200/40 bg-white/60 backdrop-blur-xl space-y-2.5">
+        <div className="px-5 py-4 border-t border-slate-200 dark:border-transparent/40 bg-white/60 backdrop-blur-xl space-y-2.5">
           {/* Attached files */}
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -598,7 +598,7 @@ export default function AskAIPanel({ onClose }) {
                    onChange={handleFileUpload} />
             <button onClick={() => fileInputRef.current?.click()} disabled={isLoading}
               className="w-11 h-11 rounded-2xl flex items-center justify-center 
-                         bg-white border border-slate-200/70 text-slate-400 
+                         bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent/70 text-slate-400 
                          hover:border-primary/30 hover:text-primary hover:shadow-sm hover:shadow-primary/5
                          active:scale-90 transition-all duration-200 disabled:opacity-40 group relative"
               title="Upload file">
@@ -614,7 +614,7 @@ export default function AskAIPanel({ onClose }) {
                 onKeyDown={handleKeyDown}
                 placeholder={attachedFiles.length ? "Tanyakan tentang file..." : "Ketik pertanyaan..."}
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-white border border-slate-200/70 rounded-2xl text-[13.5px] text-slate-700
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent/70 rounded-2xl text-[13.5px] text-slate-700 dark:text-slate-200
                            outline-none focus:border-primary/40 focus:ring-[3px] focus:ring-primary/[0.08]
                            placeholder:text-slate-400/70 disabled:opacity-40 transition-all duration-200" />
               {/* Input glow */}
@@ -628,7 +628,7 @@ export default function AskAIPanel({ onClose }) {
                 className="w-11 h-11 rounded-2xl flex items-center justify-center 
                            bg-gradient-to-br from-red-500 to-red-600 text-white 
                            shadow-lg shadow-red-500/25 
-                           hover:shadow-xl hover:shadow-red-500/30 hover:scale-105 
+                           hover:shadow-red-500/30
                            active:scale-90 transition-all duration-200">
                 <span className="material-symbols-outlined text-[20px]">stop</span>
               </button>
@@ -636,8 +636,8 @@ export default function AskAIPanel({ onClose }) {
               <button onClick={send} disabled={(!input.trim() && !attachedFiles.length) || isLoading}
                 className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 ${
                   (input.trim() || attachedFiles.length) && !isLoading
-                    ? 'bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105 active:scale-90'
-                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                    ? 'bg-primary text-white active:scale-90'
+                    : 'bg-slate-100 dark:bg-white/10 text-slate-300 cursor-not-allowed'
                 }`}>
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
               </button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import storageHelper from '../utils/storageHelper'
 import { useToast } from '../components/ui/Toast'
@@ -199,8 +199,8 @@ export default function RegisterPage() {
 
           <>
               <div className="mb-4">
-                <h1 className="text-[22px] font-bold text-slate-900 mb-1">Daftar Sekolah</h1>
-                <p className="text-slate-500 text-[13px]">
+                <h1 className="text-[22px] font-bold text-slate-900 dark:text-white mb-1">Daftar Sekolah</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-[13px]">
                   Daftarkan sekolah, buat username &amp; password Anda, lalu perangkat ini langsung diaktivasi.
                 </p>
               </div>
@@ -249,7 +249,7 @@ export default function RegisterPage() {
                   isDark={isDark}
                   autoComplete="new-password"
                 />
-                <p className="text-[11px] text-slate-500 -mt-1">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-1">
                   Username dan password ini dipakai untuk masuk ke aplikasi dan akan tercetak pada kartu lisensi.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -265,7 +265,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-11 bg-[#2457A7] hover:bg-[#1D4688] text-white font-semibold rounded-xl shadow-lg shadow-[#2457A7]/20 hover:shadow-xl hover:shadow-[#2457A7]/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full h-11 bg-[#2457A7] hover:bg-[#1D4688] text-white font-semibold rounded-xl shadow-lg shadow-[#2457A7]/20 hover:shadow-[#2457A7]/30 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
@@ -290,7 +290,7 @@ export default function RegisterPage() {
                 <div className="flex-1 h-px bg-slate-200" />
               </div>
 
-              <p className="text-center text-[13px] text-slate-500">
+              <p className="text-center text-[13px] text-slate-500 dark:text-slate-400">
                 Sudah punya lisensi?{' '}
                 <Link to="/login" className="font-medium hover:underline" style={{ color: isDark ? '#60A5FA' : '#2457A7' }}>
                   Masuk / Hubungkan lewat Pengaturan
@@ -300,7 +300,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="flex items-center gap-3 mt-5 text-[11px] text-slate-400">
-          <span className="px-2.5 py-1 bg-slate-100 rounded-md font-medium text-slate-500">PROTOTYPE</span>
+          <span className="px-2.5 py-1 bg-slate-100 dark:bg-white/10 rounded-md font-medium text-slate-500 dark:text-slate-400">PROTOTYPE</span>
           <span>© {new Date().getFullYear()} Aplikasi Dokumentasi LPJ</span>
         </div>
       </div>
@@ -318,7 +318,7 @@ export default function RegisterPage() {
 function Field({ label, id, value, onChange, placeholder, isDark, type = 'text', optional, ...rest }) {
   return (
     <div>
-      <label className="block text-[13px] font-medium text-slate-700 mb-1.5" htmlFor={id}>
+      <label className="block text-[13px] font-medium text-slate-700 dark:text-slate-200 mb-1.5" htmlFor={id}>
         {label}
         {optional && <span className="text-slate-400 font-normal"> (opsional)</span>}
       </label>
@@ -328,7 +328,7 @@ function Field({ label, id, value, onChange, placeholder, isDark, type = 'text',
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full h-11 px-4 glass-input border border-slate-200 rounded-xl text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
+        className="w-full h-11 px-4 glass-input border border-slate-200 dark:border-transparent rounded-xl text-[14px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2457A7]/10 focus:border-[#2457A7] transition-all"
         {...rest}
       />
     </div>

@@ -51,101 +51,68 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   DARK MODE — Premium Blue Dark — GRADASI ANIMASI (dari Dark Mode.jpeg)
-   Aktif saat <html class="dark">. Body bukan hitam, tapi gradasi animasi
-   biru → ungu → magenta → pink yang mengalir (sesuai referensi jpeg).
-   Semua (body, bukan hanya sisi) berubah.
+   DARK MODE — Clean Premium Blue (2026-11-26)
+   Surface navy-solid, bukan abu-abu & bukan gradasi ungu/magenta.
+   Hilangkan semua layer aura/efek "kotor": satu bidang gelap bersih,
+   hairline putih transparan, aksen blue-only. Tidak ada slate solid.
    ═══════════════════════════════════════════════════════════════════════════ */
 .dark {
-  --color-background: #0f0f3e;
-  --color-surface: rgba(19,29,51,0.85);
-  --color-surface-muted: rgba(30,43,74,0.9);
-  --color-surface-container: #1a2642;
-  --color-surface-container-high: #24365f;
-  --color-outline: #3a4a6b;
-  --color-outline-variant: #2a3a5c;
+  --color-background: #070c18;
+  --color-surface: #0d1424;
+  --color-surface-muted: #111b30;
+  --color-surface-container: #16233c;
+  --color-surface-container-high: #1c2d4c;
+  --color-outline: rgba(255,255,255,0.16);
+  --color-outline-variant: rgba(255,255,255,0.08);
   --color-border: rgba(255,255,255,0.08);
   --color-text-high: #ffffff;
-  --color-text-muted: #e2e8f0;
-  --color-text-low: #cbd5e1;
+  --color-text-muted: #dbe4f0;
+  --color-text-low: #a8b8cf;
   --color-primary: #60a5fa;
   --color-primary-hover: #3b82f6;
-  --color-primary-light: #1e3a5f;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-  --shadow-lg: 0 10px 24px -6px rgba(0,0,0,0.6), 0 4px 12px -4px rgba(0,0,0,0.5);
-  --shadow-primary: 0 8px 24px rgba(96,165,250,0.35);
+  --color-primary-light: rgba(96,165,250,0.14);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.45);
+  --shadow-lg: 0 12px 28px -8px rgba(0,0,0,0.6);
+  --shadow-primary: 0 8px 24px rgba(96,165,250,0.22);
   color-scheme: dark;
 }
 .dark body {
   color: #ffffff;
-  /* Body gradasi statis — meniru Dark Mode.jpeg (biru → ungu → pink) */
-  background: linear-gradient(135deg, #0f0cc0 0%, #3a00b8 18%, #6d00c2 32%, #9a00a8 48%, #c8007a 62%, #e6006b 78%, #1a1a6c 90%, #0f0cc0 100%) !important;
-  background-size: 100% 100% !important;
-  position: relative;
+  background: var(--color-background) !important;
+  background-image: none !important;
   min-height: 100vh;
 }
-/* Layer aura tambahan (dark) — statis, tanpa animasi agar tidak berat */
-.dark body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 800px 600px at 15% 20%, rgba(26,0,255,0.55) 0%, transparent 60%),
-    radial-gradient(ellipse 700px 500px at 85% 30%, rgba(196,0,122,0.45) 0%, transparent 60%),
-    radial-gradient(ellipse 900px 700px at 50% 85%, rgba(255,0,107,0.35) 0%, transparent 65%),
-    radial-gradient(ellipse 600px 400px at 70% 15%, rgba(106,0,194,0.5) 0%, transparent 60%);
-  filter: saturate(1.2);
-  opacity: 0.9;
-}
-/* Hapus layer wave kedua yang duplikat (penyebab double background) */
-@keyframes dark-body-gradient {
-  0% { background-position: 0% 50%; }
-  25% { background-position: 100% 50%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes dark-aura-drift {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.9; }
-  33% { transform: translate(18px, -14px) scale(1.04); opacity: 1; }
-  66% { transform: translate(-12px, 10px) scale(0.98); opacity: 0.85; }
-  100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
-}
-@keyframes dark-wave-sweep {
-  0% { background-position: -100% 0; }
-  50% { background-position: 200% 0; }
-  100% { background-position: -100% 0; }
-}
-/* glass-input — field kaca asli untuk kartu login glassmorphism (tembus, bukan solid).
-   Sengaja bukan bg-slate-50 karena global .dark .bg-slate-50 memaksa opaque 0.88 !important. */
+/* Matikan aura lama (sumber kesan abu-abu/gradasi kotor). */
+.dark body::before { display: none !important; }
+/* glass-input — field kaca untuk kartu login (tembus, bukan slate solid) */
 .glass-input { background-color: rgba(255, 255, 255, 0.55); }
-.dark .glass-input { background-color: rgba(255, 255, 255, 0.08); }
+.dark .glass-input { background-color: rgba(255, 255, 255, 0.05); }
 
-/* Global dark overrides — body gradasi terlihat, card jadi glass (bukan solid hitam) */
-.dark .bg-white { background-color: rgba(19,29,51,0.88) !important; border-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-slate-50 { background-color: rgba(15,26,46,0.88) !important; }
-.dark .bg-slate-100 { background-color: rgba(26,38,66,0.9) !important; }
-.dark .bg-slate-50\/50 { background-color: rgba(15,26,46,0.6) !important; }
-.dark .bg-slate-50\/80 { background-color: rgba(15,26,46,0.82) !important; }
-.dark .bg-white\/80 { background-color: rgba(19,29,51,0.82) !important; }
-.dark .bg-white\/60 { background-color: rgba(19,29,51,0.65) !important; }
-.dark .bg-white\/10 { background-color: rgba(255,255,255,0.08) !important; }
-.dark .bg-white\/90 { background-color: rgba(19,29,51,0.88) !important; }
-.dark .bg-slate-100\/80 { background-color: rgba(26,38,66,0.75) !important; }
-.dark .bg-slate-200 { background-color: rgba(26,38,66,0.9) !important; }
-.dark .from-slate-200 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
-.dark .to-slate-300 { --tw-gradient-to: rgba(30,45,80,0.9) !important; }
-.dark .from-slate-100 { --tw-gradient-from: rgba(26,38,66,0.9) !important; }
-.dark .border-white\/60 { border-color: rgba(255,255,255,0.12) !important; }
-.dark .border-slate-100 { border-color: rgba(255,255,255,0.06) !important; }
-.dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.08) !important; }
-/* Pastikan semua wrapper dashboard ikut transparan agar gradasi body terlihat */
-.dark .bg-slate-100\/80 { background-color: transparent !important; }
+/* Global dark overrides — SATU surface navy konsisten. Tidak ada slate/abu. */
+.dark .bg-white { background-color: var(--color-surface) !important; }
+.dark .bg-slate-50,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/80,
+.dark .bg-slate-100,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-200,
+.dark .bg-white\/80,
+.dark .bg-white\/60,
+.dark .bg-white\/90 { background-color: var(--color-surface-muted) !important; }
+.dark .bg-white\/10 { background-color: rgba(255,255,255,0.05) !important; }
+.dark .from-slate-200,
+.dark .from-slate-100 { --tw-gradient-from: var(--color-surface-muted) !important; }
+.dark .to-slate-300 { --tw-gradient-to: var(--color-surface-container) !important; }
+.dark .border-white\/60,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/50 { border-color: var(--color-border) !important; }
+.dark .bg-slate-100.rounded-full { background-color: rgba(255,255,255,0.06) !important; }
+/* Wrapper dashboard = background halaman bersih (bukan abu transparan). */
 .dark .min-h-screen.bg-slate-100\/80,
-.dark .flex-1.bg-slate-100\/80 { background: transparent !important; }
+.dark .flex-1.bg-slate-100\/80 { background: var(--color-background) !important; }
 /* ── FIX KHUSUS: Hero CTA putih di dark harus tetap putih dengan teks gelap ── */
 .dark .hero-cta-primary { background-color: #ffffff !important; border-color: #ffffff !important; }
 .dark .hero-cta-primary .hero-cta-text,
@@ -158,7 +125,7 @@
 .hero-cta-primary .hero-cta-text,
 .hero-cta-primary .hero-cta-icon { color: #ffffff; }
 /* ── FIX KHUSUS: PremiumTypingCard di dark — card jadi glass gelap, teks putih terbaca ── */
-.dark .premium-typing-card { background-color: rgba(19,29,51,0.92) !important; border-color: rgba(255,255,255,0.12) !important; }
+.dark .premium-typing-card { background-color: var(--color-surface) !important; border-color: var(--color-border) !important; }
 .dark .premium-typing-card .text-slate-700 { color: #ffffff !important; }
 .dark .premium-typing-card .text-slate-500 { color: rgba(255,255,255,0.75) !important; }
 .dark .premium-typing-card .text-slate-400 { color: rgba(255,255,255,0.55) !important; }
@@ -196,7 +163,7 @@
   color: #f1f5f9 !important;
 }
 .dark .text-slate-400 { color: #cbd5e1 !important; }
-.dark .text-slate-300 { color: #94a3b8 !important; }
+.dark .text-slate-300 { color: var(--color-text-low) !important; }
 /* Primary & biru gelap khusus — light: #004ac6/#0f172a/#111827, dark: putih */
 .dark .text-primary { color: #ffffff !important; }
 .dark .text-blue-600 { color: #f1f5f9 !important; }
@@ -205,18 +172,237 @@
 .dark .text-slate-900.font-bold,
 .dark .text-slate-800.font-bold,
 .dark .font-bold { color: #ffffff !important; }
-.dark .border-slate-100 { border-color: #1e2e50 !important; }
-.dark .border-slate-200 { border-color: #24365f !important; }
-.dark .border-slate-200\/80 { border-color: rgba(36,54,95,0.8) !important; }
-.dark .border-slate-200\/50 { border-color: rgba(36,54,95,0.5) !important; }
-.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1e2e50 !important; }
-.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
-.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
-/* Scrollbar dark */
-.dark ::-webkit-scrollbar-thumb { background: #2a3a5c !important; }
-.dark ::-webkit-scrollbar-thumb:hover { background: #3a4a6b !important; }
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-border) !important; }
+.dark .shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.dark .shadow-lg { box-shadow: var(--shadow-lg) !important; }
+/* Scrollbar dark — hairline, bukan abu tebal */
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14) !important; }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24) !important; }
 /* Selection dark */
-.dark ::selection { background: #1e3a5f; color: #dbeafe; }
+.dark ::selection { background: rgba(96,165,250,0.28); color: #ffffff; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK SLATE KILLER (2026-11-26) — audit mendalam sisa abu-abu.
+   Masalah: ratusan class slate/gray/zinc/neutral + dark:bg-white/5|10
+   (white wash = abu) + dark:bg-slate-900 (#0f172a) + dark:hover:bg-slate-800
+   lolos dari override per-class sebelumnya (yang hanya menutup sebagian
+   utilitas light tanpa prefix dark:).
+   Solusi: attribute-substring selector menangkap SEMUA varian
+   (bg-slate-900, dark:bg-slate-900/85, hover:bg-slate-100, dst) sekaligus.
+   Palet: surface navy solid + blue-tinted wash (bukan white/grey wash) +
+   teks blue-grey + hairline rgba(148,178,255,.12).
+   Scope: di luar .sk-print-area/.print-container/.preview-container
+   (guard kertas putih di bawah tetap menang karena posisi lebih akhir).
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ── BG solid gelap (900/800) → surface navy ──
+   PENTING: :not mengecualikan varian opacity (/30, /85…) agar backdrop
+   seperti bg-slate-900/30 tetap translusen, bukan opak. */
+.dark [class*="bg-slate-900"]:not([class*="bg-slate-900/"]),
+.dark [class*="bg-slate-800"]:not([class*="bg-slate-800/"]),
+.dark [class*="bg-gray-900"]:not([class*="bg-gray-900/"]),
+.dark [class*="bg-gray-800"]:not([class*="bg-gray-800/"]),
+.dark [class*="bg-zinc-900"]:not([class*="bg-zinc-900/"]),
+.dark [class*="bg-zinc-800"]:not([class*="bg-zinc-800/"]),
+.dark [class*="bg-neutral-900"]:not([class*="bg-neutral-900/"]),
+.dark [class*="bg-neutral-800"]:not([class*="bg-neutral-800/"]),
+.dark [class*="bg-stone-900"]:not([class*="bg-stone-900/"]),
+.dark [class*="bg-stone-800"]:not([class*="bg-stone-800/"]) { background-color: var(--color-surface) !important; }
+/* ── BG terang (50/100/200/300) → surface-muted navy (bukan abu) ── */
+.dark [class*="bg-slate-50"]:not([class*="bg-slate-50/"]),
+.dark [class*="bg-slate-100"]:not([class*="bg-slate-100/"]),
+.dark [class*="bg-slate-200"]:not([class*="bg-slate-200/"]),
+.dark [class*="bg-slate-300"]:not([class*="bg-slate-300/"]),
+.dark [class*="bg-gray-50"]:not([class*="bg-gray-50/"]),
+.dark [class*="bg-gray-100"]:not([class*="bg-gray-100/"]),
+.dark [class*="bg-gray-200"]:not([class*="bg-gray-200/"]),
+.dark [class*="bg-zinc-100"]:not([class*="bg-zinc-100/"]),
+.dark [class*="bg-neutral-100"]:not([class*="bg-neutral-100/"]),
+.dark [class*="bg-stone-100"]:not([class*="bg-stone-100/"]) { background-color: var(--color-surface-muted) !important; }
+/* ── White wash (sumber utama kesan abu) → blue-tinted wash ── */
+.dark [class*="bg-white/5"] { background-color: rgba(148,178,255,0.06) !important; }
+.dark [class*="bg-white/10"] { background-color: rgba(148,178,255,0.10) !important; }
+.dark [class*="bg-white/15"],
+.dark [class*="bg-white/20"] { background-color: rgba(148,178,255,0.14) !important; }
+/* ── Putih pekat (/60–/95) di dark → surface (bukan kilatan putih) ── */
+.dark [class*="bg-white/6"],
+.dark [class*="bg-white/7"],
+.dark [class*="bg-white/8"],
+.dark [class*="bg-white/9"] { background-color: var(--color-surface) !important; }
+/* ── Teks abu → blue-grey premium ── */
+.dark [class*="text-slate-500"],
+.dark [class*="text-gray-500"],
+.dark [class*="text-zinc-500"],
+.dark [class*="text-slate-400"],
+.dark [class*="text-gray-400"] { color: var(--color-text-low) !important; }
+.dark [class*="text-slate-300"],
+.dark [class*="text-gray-300"] { color: var(--color-text-muted) !important; }
+.dark [class*="text-slate-600"],
+.dark [class*="text-gray-600"],
+.dark [class*="text-slate-700"],
+.dark [class*="text-gray-700"] { color: #f1f5f9 !important; }
+/* ── Placeholder abu (tanpa varian dark) → blue-grey ── */
+.dark [class*="placeholder:text-slate-"],
+.dark [class*="placeholder:text-gray-"]::placeholder { color: #7d90ad !important; opacity: 1; }
+/* ── Border/divide abu atau dark:border-transparent → hairline biru ── */
+.dark [class*="border-slate-"],
+.dark [class*="border-gray-"],
+.dark [class*="border-zinc-"],
+.dark [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]),
+.dark [class*="divide-gray-"] > :not([hidden]) ~ :not([hidden]),
+.dark [class*="dark:border-transparent"] { border-color: rgba(148,178,255,0.12) !important; }
+/* ── Gradient abu → transparan/blue (stop white wash bergradasi) ── */
+.dark [class*="from-slate-"],
+.dark [class*="from-gray-"] { --tw-gradient-from: rgba(148,178,255,0.08) !important; }
+.dark [class*="to-slate-"],
+.dark [class*="to-gray-"] { --tw-gradient-to: transparent !important; }
+.dark [class*="from-white/5"] { --tw-gradient-from: rgba(148,178,255,0.06) !important; }
+/* ── Gradien putih/slate-800-900 di dark → navy (bukan putih/abu) ── */
+.dark [class*="to-white"] { --tw-gradient-to: var(--color-surface) !important; }
+.dark [class*="from-white"]:not([class*="from-white/"]) { --tw-gradient-from: var(--color-surface-muted) !important; }
+.dark [class*="from-slate-800"],
+.dark [class*="from-slate-900"],
+.dark [class*="from-gray-800"],
+.dark [class*="from-gray-900"] { --tw-gradient-from: var(--color-surface-container) !important; }
+.dark [class*="to-slate-800"],
+.dark [class*="to-slate-900"],
+.dark [class*="to-gray-800"],
+.dark [class*="to-gray-900"] { --tw-gradient-to: var(--color-surface) !important; }
+/* ── Pastel *-50 di dark → tint hue (bukan putih kusam) ── */
+.dark [class*="bg-blue-50"],
+.dark [class*="bg-indigo-50"],
+.dark [class*="bg-sky-50"],
+.dark [class*="bg-cyan-50"],
+.dark [class*="bg-violet-50"] { background-color: rgba(96,165,250,0.12) !important; }
+.dark [class*="bg-emerald-50"],
+.dark [class*="bg-teal-50"],
+.dark [class*="bg-green-50"],
+.dark [class*="bg-lime-50"] { background-color: rgba(52,211,153,0.10) !important; }
+.dark [class*="bg-amber-50"],
+.dark [class*="bg-yellow-50"],
+.dark [class*="bg-orange-50"] { background-color: rgba(251,191,36,0.10) !important; }
+.dark [class*="bg-red-50"],
+.dark [class*="bg-rose-50"],
+.dark [class*="bg-pink-50"] { background-color: rgba(248,113,113,0.10) !important; }
+/* ── Pastel *-100 di dark → tint hue (pil Catatan: bg-*-100 + teks terang) ── */
+.dark [class*="bg-blue-100"],
+.dark [class*="bg-indigo-100"],
+.dark [class*="bg-sky-100"],
+.dark [class*="bg-cyan-100"],
+.dark [class*="bg-violet-100"] { background-color: rgba(96,165,250,0.14) !important; }
+.dark [class*="bg-emerald-100"],
+.dark [class*="bg-teal-100"],
+.dark [class*="bg-green-100"] { background-color: rgba(52,211,153,0.14) !important; }
+.dark [class*="bg-amber-100"],
+.dark [class*="bg-yellow-100"],
+.dark [class*="bg-orange-100"] { background-color: rgba(251,191,36,0.14) !important; }
+.dark [class*="bg-red-100"],
+.dark [class*="bg-rose-100"],
+.dark [class*="bg-pink-100"] { background-color: rgba(248,113,113,0.14) !important; }
+.dark [class*="from-blue-50"],
+.dark [class*="to-blue-50"],
+.dark [class*="from-indigo-50"] { --tw-gradient-from: rgba(96,165,250,0.12) !important; }
+.dark [class*="from-emerald-50"],
+.dark [class*="to-emerald-50"],
+.dark [class*="from-teal-50"],
+.dark [class*="to-teal-50"] { --tw-gradient-from: rgba(52,211,153,0.10) !important; }
+.dark [class*="to-teal-50"] { --tw-gradient-to: transparent !important; }
+/* ── Border pastel → hairline hue ── */
+.dark [class*="border-blue-"],
+.dark [class*="border-indigo-"],
+.dark [class*="ring-blue-"],
+.dark [class*="ring-indigo-"] { border-color: rgba(96,165,250,0.25) !important; }
+.dark [class*="border-emerald-"],
+.dark [class*="border-teal-"],
+.dark [class*="border-green-"],
+.dark [class*="ring-emerald-"],
+.dark [class*="ring-teal-"] { border-color: rgba(52,211,153,0.25) !important; }
+.dark [class*="border-amber-"],
+.dark [class*="border-yellow-"],
+.dark [class*="ring-amber-"] { border-color: rgba(251,191,36,0.25) !important; }
+.dark [class*="border-red-"],
+.dark [class*="border-rose-"] { border-color: rgba(248,113,113,0.25) !important; }
+/* ── Teks pastel gelap → terang terbaca ── */
+.dark [class*="text-blue-700"],
+.dark [class*="text-blue-800"],
+.dark [class*="text-blue-600"],
+.dark [class*="text-indigo-600"] { color: #bfdbfe !important; }
+.dark [class*="text-emerald-700"],
+.dark [class*="text-emerald-800"],
+.dark [class*="text-emerald-600"],
+.dark [class*="text-teal-600"] { color: #a7f3d0 !important; }
+.dark [class*="text-amber-700"],
+.dark [class*="text-amber-800"],
+.dark [class*="text-amber-600"] { color: #fde68a !important; }
+.dark [class*="text-violet-700"],
+.dark [class*="text-violet-800"],
+.dark [class*="text-violet-600"],
+.dark [class*="text-purple-700"],
+.dark [class*="text-indigo-700"],
+.dark [class*="text-indigo-800"] { color: #ddd6fe !important; }
+.dark [class*="text-rose-700"],
+.dark [class*="text-rose-800"],
+.dark [class*="text-pink-600"],
+.dark [class*="text-orange-600"],
+.dark [class*="text-cyan-600"],
+.dark [class*="text-teal-700"] { color: #fecdd3 !important; }
+.dark [class*="text-red-600"],
+.dark [class*="text-red-500"] { color: #fca5a5 !important; }
+/* ═══════════════════════════════════════════════════════════════════════════
+   BORDERLESS DARK (permintaan user 2026-11-26): nol border terlihat di dark.
+   Semua border/divide netral → transparan. Satu-satunya yang hidup:
+   border-primary (indikator aktif/fokus brand, bukan abu).
+   Kertas cetak (.sk-print-area/.print-container/.preview-container)
+   dikecualikan — guard putih di bawah tetap menang.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dark *:not(.sk-print-area):not(.sk-print-area *):not(.print-container):not(.print-container *):not(.preview-container):not(.preview-container *):not(.toast-premium):not(.toast-premium *):not([class*="border-primary"]) {
+  border-color: transparent !important;
+}
+.dark [class*="border-primary"] { border-color: rgba(96,165,250,0.28) !important; }
+/* Varian focus:/hover: hanya tampil saat berinteraksi — saat idle ikut borderless */
+.dark [class*="focus:border-primary"]:not(:focus):not(:focus-visible),
+.dark [class*="hover:border-primary"]:not(:hover) { border-color: transparent !important; }
+/* ── Toast premium: selaras tapi beda dari tema (light + dark) ── */
+.toast-premium {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+  box-shadow: 0 12px 32px -8px rgba(0,74,198,0.28);
+}
+.toast-premium .font-bold { color: inherit; }
+.dark .toast-premium {
+  background: linear-gradient(135deg, #101f3d 0%, #16305c 100%) !important;
+  border: 1px solid rgba(96,165,250,0.38) !important;
+  color: #ffffff;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.65), 0 0 24px -6px rgba(96,165,250,0.25);
+}
+/* ── Kartu Saldo Akhir: pembeda brand di dark (netral di light) ── */
+.dark .saldo-hero {
+  background: linear-gradient(135deg, #12306e 0%, #1a4aa8 55%, #004ac6 100%) !important;
+  border: 1px solid rgba(147,197,253,0.4) !important;
+  box-shadow: 0 12px 32px -8px rgba(0,74,198,0.55), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+/* ── Kartu dokumen kelengkapan: di dark harus terangkat dari page (bukan larut).
+   State selesai (bg-emerald) dikecualikan agar tint semantiknya utuh. ── */
+.dark .dok-card:not([class*="bg-emerald-50"]) {
+  background: linear-gradient(180deg, rgba(148,178,255,0.09) 0%, rgba(148,178,255,0.02) 100%), var(--color-surface) !important;
+  box-shadow: 0 8px 24px -12px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.dark .dok-card:not([class*="bg-emerald-50"]):hover {
+  box-shadow: 0 12px 32px -12px rgba(0,0,0,0.65), 0 0 20px -6px rgba(96,165,250,0.25), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+/* ── Brand sidebar premium di dark: navy glass menyatu (bukan biru terang) ── */
+.dark .sidebar-brand {
+  background: linear-gradient(135deg, #101f3d 0%, #182c55 60%, #1c2d4c 100%) !important;
+  border: 1px solid rgba(96,165,250,0.22) !important;
+  box-shadow: 0 8px 24px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.dark .sidebar-brand .sidebar-brand-logo {
+  background: rgba(96,165,250,0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(96,165,250,0.18);
+}
+/* Chrome fused di dark: sidebar/topbar tanpa bayangan tepi (seam hilang) */
+.dark .dashboard-sidebar > div,
+.dark header.sticky { box-shadow: none !important; }
 
 * {
   margin: 0;
@@ -460,6 +646,38 @@ textarea:focus-visible {
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
 
+/* Upload collapse — animasi buka/tutup form upload (grid-rows trick) */
+.upload-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.upload-collapse[data-buka="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+}
+.upload-collapse > div {
+  overflow: hidden;
+  min-height: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .upload-collapse { transition: none; transform: none; }
+}
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.sidebar-nav:hover {
+  scrollbar-color: rgba(0, 74, 198, 0.25) transparent;
+}
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
+.sidebar-nav:hover::-webkit-scrollbar-thumb { background: rgba(0, 74, 198, 0.25); }
+
 /* Theme transition — smooth, tidak statis */
 html { transition: background-color 0.35s ease, color 0.35s ease; }
 
@@ -506,12 +724,12 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
     @apply bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300;
   }
   .card-premium-active {
-    @apply border-primary ring-4 ring-primary/10 shadow-lg shadow-primary/10;
+    @apply border-primary ring-4 ring-primary/10;
   }
 
   /* Button — primary (audit: 539x bg-primary, fragment focus → unified) */
   .btn-primary {
-    @apply bg-primary text-white font-semibold shadow-sm shadow-primary/20 hover:bg-primary-hover hover:shadow-md active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none;
+    @apply bg-primary text-white font-semibold shadow-sm hover:bg-primary-hover active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none;
   }
   .btn-secondary {
     @apply bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 font-semibold transition-all active:scale-[0.98];
@@ -833,6 +1051,24 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
     transform: translateX(0);
   }
 }
+/* Popover cepat & ringan (dropdown kategori, menu): fade + scale mikro */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-pop-in {
+  animation: pop-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+/* Dialog terpusat: pertahankan centering di semua frame (tanpa snap) */
+@keyframes dialog-in {
+  0% { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.animate-dialog-in {
+  animation: dialog-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
 
 /* Apply Animations */
 .animate-fade-in {
@@ -857,6 +1093,25 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
 
 .animate-stagger-child {
   animation: stagger-child 0.3s ease-out forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MINI SIDEBAR entrance (portal, viewport-centered).
+   slide-in-left generik TIDAK cocok: keyframe-nya menimpa -translate-y-1/2
+   selama animasi → panel tidak terpusat lalu SNAP di akhir.
+   mini-in mempertahankan Y-centering di semua frame (GPU: transform+opacity).
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes mini-in {
+  0% { opacity: 0; transform: translate(64px, -50%) scale(0.96); }
+  60% { opacity: 1; transform: translate(-8px, -50%) scale(1); }
+  100% { opacity: 1; transform: translate(0, -50%) scale(1); }
+}
+.animate-mini-in {
+  animation: mini-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-mini-in { animation: none !important; }
 }
 
 /* Scrollbar Hide Utility */
@@ -893,6 +1148,10 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
     background: white;
   }
 
+  .print-container ~ .print-container {
+    top: auto;
+  }
+
   /* Portrait mode (default) */
   .print-container.portrait {
     width: 210mm;
@@ -902,6 +1161,21 @@ html { transition: background-color 0.35s ease, color 0.35s ease; }
   .print-container.landscape {
     width: 297mm;
     padding: 15mm 20mm;
+  }
+
+  .sk-print-area .print-container {
+    position: relative;
+    inset: auto;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+  }
+
+  .sk-print-area .print-container.landscape {
+    page: landscape;
+  }
+
+  .sk-print-area .print-container.portrait {
+    page: auto;
   }
 
   /* Hide edit-mode elements */
@@ -1063,7 +1337,7 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
 .app-loader-overlay.is-exiting { animation: app-loader-fade-out 0.3s ease forwards; }
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up, .animate-float-soft, .animate-view-switch, .text-shimmer, .animate-batik-drift,
-  .app-loader-screen, .app-loader-overlay { animation: none !important; }
+  .app-loader-screen, .app-loader-overlay, .animate-mini-in, .animate-pop-in, .animate-dialog-in { animation: none !important; }
 }
 
 /* ── Card slash motion — sapuan diagonal halus saat hover ── */
@@ -1227,9 +1501,42 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   padding: 0 2px;
 }
 
-/* Area cetak SK Honorer: tersembunyi di layar, muncul saat print */
+/* Area cetak dokumen formal: tersembunyi di layar, hanya render pilihan cetak. */
 .sk-print-area {
   display: none;
+}
+
+/* Dark mode: kertas pratinjau formal TETAP putih (WYSIWYG cetak).
+   Guard ini mengalahkan varian dark Tailwind DAN killer slate. */
+.dark .panel-a4-paper,
+.dark .panel-a4-paper .print-container {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #e2e8f0 !important;
+}
+.dark .panel-a4-paper * {
+  box-shadow: none !important;
+}
+
+/* Dark mode: kertas cetak formal TETAP putih (preview setia cetak).
+   Guard ini mengalahkan varian dark: Tailwind di dalam area cetak saja. */
+.dark .sk-print-area,
+.dark .sk-print-area .print-container,
+.dark .print-container {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #e2e8f0 !important;
+}
+.dark .sk-print-area *,
+.dark .print-container * {
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+.dark .sk-print-area p, .dark .sk-print-area td, .dark .sk-print-area th,
+.dark .sk-print-area span, .dark .sk-print-area div,
+.dark .print-container p, .dark .print-container td, .dark .print-container th,
+.dark .print-container span, .dark .print-container div {
+  color: inherit !important;
 }
 
 /* Konten layar (mis. preview tabel saja) yang disembunyikan saat print */
@@ -1247,6 +1554,23 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   }
 
   .sk-print-area .sk-doc-print:last-child {
+    page-break-after: auto;
+  }
+
+  .sk-print-area .print-container {
+    position: relative;
+    inset: auto;
+    box-sizing: border-box;
+    page-break-inside: avoid;
+  }
+
+  .sk-print-area .sk-doc-print {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .sk-print-area .sk-doc-print:last-child {
+    break-after: auto;
     page-break-after: auto;
   }
 

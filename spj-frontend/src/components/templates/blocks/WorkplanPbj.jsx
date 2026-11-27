@@ -28,13 +28,13 @@ function BarisMeta({ kiri, nilaiKiri, labelKiri, kanan }) {
   return (
     <div className="flex items-start justify-between gap-3 py-1">
       <div className="flex items-start gap-2 min-w-0">
-        <span className={`${KECIL} text-slate-700 shrink-0 w-40`}>{kiri}</span>
-        <span className={`${KECIL} text-slate-700`}>:</span>
-        <span className={`${KECIL} text-slate-900 break-words`}>
+        <span className={`${KECIL} text-slate-700 dark:text-slate-200 shrink-0 w-40`}>{kiri}</span>
+        <span className={`${KECIL} text-slate-700 dark:text-slate-200`}>:</span>
+        <span className={`${KECIL} text-slate-900 dark:text-white break-words`}>
           <Nilai value={nilaiKiri} label={labelKiri} />
         </span>
       </div>
-      {kanan && <div className={`${KECIL} text-slate-900 text-right shrink-0`}>{kanan}</div>}
+      {kanan && <div className={`${KECIL} text-slate-900 dark:text-white text-right shrink-0`}>{kanan}</div>}
     </div>
   )
 }
@@ -84,7 +84,7 @@ export default function WorkplanPbj({ data = {}, onChange, mode }) {
   if (edit) {
     const Input = ({ k, label, textarea, select }) => (
       <label className="block">
-        <span className="block text-[10px] font-semibold text-slate-500 uppercase mb-1">{label}</span>
+        <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">{label}</span>
         {textarea ? (
           <textarea rows={2} value={d[k] || ''} onChange={ubah(k)} className="w-full border border-slate-300 rounded px-2 py-1 text-xs outline-none" />
         ) : select ? (
@@ -124,15 +124,15 @@ export default function WorkplanPbj({ data = {}, onChange, mode }) {
       <div className="mb-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2 min-w-0">
-            <span className={`${KECIL} text-slate-700 shrink-0`}>No.</span>
-            <span className={`${KECIL} text-slate-700`}>:</span>
-            <span className={`${KECIL} text-slate-900 break-words`}>
+            <span className={`${KECIL} text-slate-700 dark:text-slate-200 shrink-0`}>No.</span>
+            <span className={`${KECIL} text-slate-700 dark:text-slate-200`}>:</span>
+            <span className={`${KECIL} text-slate-900 dark:text-white break-words`}>
               <Nilai value={d.noBukti} label="No. Bukti" />
             </span>
           </div>
           <div className="flex items-start gap-6 shrink-0">
-            <span className={`${KECIL} text-slate-900`}><Nilai value={d.bulanTahun} label="Bulan" /></span>
-            <span className={`${KECIL} text-slate-900`}><Nilai value={d.hari} label="Hari" /></span>
+            <span className={`${KECIL} text-slate-900 dark:text-white`}><Nilai value={d.bulanTahun} label="Bulan" /></span>
+            <span className={`${KECIL} text-slate-900 dark:text-white`}><Nilai value={d.hari} label="Hari" /></span>
           </div>
         </div>
         <BarisMeta kiri="Nama Satuan pendidikan" nilaiKiri={d.namaSekolah} labelKiri="Nama sekolah" />

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Pejabat Sekolah Page — Ultra Premium Design 2026
  * Separate page for managing school officials
  */
@@ -111,8 +111,8 @@ export default function PejabatSekolahPage() {
         {/* ═══════════════════════════════════════════════════════════════ */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Pejabat Sekolah</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Pejabat Sekolah</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {sekolah?.namaSekolah || 'Lengkapi data pejabat untuk dokumen'}
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function PejabatSekolahPage() {
             {hasChanges && (
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-all"
+                className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-transparent text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
               >
                 <span className="material-symbols-outlined text-lg">restart_alt</span>
                 Reset
@@ -132,8 +132,8 @@ export default function PejabatSekolahPage() {
               disabled={!hasChanges}
               className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                 hasChanges
-                  ? 'bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-[0.98]'
-                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  ? 'bg-primary text-white hover:bg-primary/90 active:scale-[0.98]'
+                  : 'bg-slate-100 dark:bg-white/10 text-slate-400 cursor-not-allowed'
               }`}
             >
               <span className="material-symbols-outlined text-lg">save</span>
@@ -149,10 +149,10 @@ export default function PejabatSekolahPage() {
           {PEJABAT_ROLES.map((role) => (
             <div
               key={role.key}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Card Header — blue-only (Sprint 001 task 2.7) */}
-              <div className="relative bg-gradient-to-r from-primary to-blue-600 p-5 overflow-hidden">
+              <div className="relative bg-primary p-5 overflow-hidden">
                 {/* Decorative */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-2xl" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4 blur-2xl" />
@@ -172,7 +172,7 @@ export default function PejabatSekolahPage() {
               <div className="p-5 space-y-4">
                 {/* Nama */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                     Nama Lengkap
                   </label>
                   <div className="relative">
@@ -184,14 +184,14 @@ export default function PejabatSekolahPage() {
                       value={pejabat?.[role.key]?.nama || ''}
                       onChange={(e) => updateField(role.key, 'nama', e.target.value)}
                       placeholder={`Nama ${role.label}`}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm font-medium text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* NIP */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                     NIP
                   </label>
                   <div className="relative">
@@ -203,18 +203,18 @@ export default function PejabatSekolahPage() {
                       value={pejabat?.[role.key]?.nip || ''}
                       onChange={(e) => updateField(role.key, 'nip', e.target.value)}
                       placeholder="NIP. 000000000000000000"
-                      className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl text-sm font-medium text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 {/* Preview */}
                 {pejabat?.[role.key]?.nama && (
-                  <div className="pt-3 border-t border-slate-100">
+                  <div className="pt-3 border-t border-slate-100 dark:border-transparent">
                     <p className="text-xs text-slate-400 mb-2">Preview:</p>
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <p className="text-sm font-bold text-slate-800">{pejabat[role.key].nama}</p>
-                      <p className="text-xs text-slate-500 mt-1">
+                    <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-3 text-center">
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{pejabat[role.key].nama}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         NIP. {pejabat[role.key].nip || '......................................'}
                       </p>
                     </div>
@@ -229,27 +229,27 @@ export default function PejabatSekolahPage() {
         {/* RIWAYAT PERIODE (Sprint 004 C.2) — dokumen mengunci pejabat     */}
         {/* per tanggal BKU; daftar ini tidak mengubah dokumen lama.       */}
         {/* ═══════════════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-          <h3 className="text-base font-bold text-slate-900">Riwayat Pejabat</h3>
-          <p className="text-xs text-slate-500 mt-0.5 mb-4">Periode per tanggal — dokumen LPJ dari BKU mengunci pejabat sesuai tanggal transaksi.</p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm p-5">
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">Riwayat Pejabat</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Periode per tanggal — dokumen LPJ dari BKU mengunci pejabat sesuai tanggal transaksi.</p>
           {riwayat.length > 0 && (
             <ul className="divide-y divide-slate-100 mb-4">
               {riwayat.map((r) => (
                 <li key={r.id} className="py-2 flex items-center gap-2 text-sm">
-                  <span className="font-semibold text-slate-800">{r.nama}</span>
-                  <span className="text-xs text-slate-500">{r.peran} · {r.nip || '-'}</span>
-                  <span className="ml-auto text-xs font-mono text-slate-500">sejak {r.berlaku_dari}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">{r.nama}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{r.peran} · {r.nip || '-'}</span>
+                  <span className="ml-auto text-xs font-mono text-slate-500 dark:text-slate-400">sejak {r.berlaku_dari}</span>
                 </li>
               ))}
             </ul>
           )}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            <select value={rpPeran} onChange={(e) => setRpPeran(e.target.value)} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none">
+            <select value={rpPeran} onChange={(e) => setRpPeran(e.target.value)} className="px-3 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-sm outline-none">
               {PEJABAT_ROLES.map((r) => (<option key={r.key} value={r.key}>{r.label}</option>))}
             </select>
-            <input value={rpNama} onChange={(e) => setRpNama(e.target.value)} placeholder="Nama" className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
-            <input value={rpNip} onChange={(e) => setRpNip(e.target.value)} placeholder="NIP" className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
-            <input type="date" value={rpDari} onChange={(e) => setRpDari(e.target.value)} className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none" />
+            <input value={rpNama} onChange={(e) => setRpNama(e.target.value)} placeholder="Nama" className="px-3 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-sm outline-none" />
+            <input value={rpNip} onChange={(e) => setRpNip(e.target.value)} placeholder="NIP" className="px-3 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-sm outline-none" />
+            <input type="date" value={rpDari} onChange={(e) => setRpDari(e.target.value)} className="px-3 py-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-lg text-sm outline-none" />
             <button onClick={handleTambahPeriode} className="px-3 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all">Tambah</button>
           </div>
         </div>

@@ -34,6 +34,7 @@ import { prefillPbjDariBku, sinkronPbjDariSumber } from '../../utils/pbjPrefill'
 import { cekKelengkapan, peringatanDariPelanggaran } from '../../utils/fieldWajib'
 import { terapkanOtomatisMamin } from '../../utils/maminOtomatis'
 import { readinessSidebar } from '../../utils/readinessSidebar'
+import { pbjEligible } from '../../utils/pbjEligibility'
 import { readinessCheck, sorotPelanggaran } from '../templates/SummaryCard'
 import { snapshotSebelumTimpa } from '../../utils/aturanUndangan'
 import storageHelper from '../../utils/storageHelper'
@@ -69,9 +70,17 @@ export default function BKUSidebarLpj({
   const [selectedSub, setSelectedSub] = useState(awal?.sub ?? null)
   const [formData, setFormDataRaw] = useState(awal?.formData ?? {})
   const [sppdData, setSppdData] = useState(awal?.sppdData ?? {})
+
+  // ── Sprint 030: formData DATAR seperti semua kartu lain (Perjalanan Dinas,
+  // Mamin, Honor). Namespace `dok_<subId>` DIHAPUS — sumber duplikat Undangan
+  // & Daftar Hadir di panel (flat fallback menyalin seluruh objek bersarang).
+  // Ganti sub mengosongkan form = perilaku standar seluruh aplikasi.
+  const isLomba = card?.id === 'lomba_workshop'
+  const formDataEfektif = formData
   const [viewMode, setViewMode] = useState(awal?.viewMode ?? 'form')
   const [formTab, setFormTab] = useState(awal?.formTab ?? 'daftar')
   const [previewTab, setPreviewTab] = useState(awal?.previewTab ?? 'daftar')
+  const [printDocs, setPrintDocs] = useState([])
   const [prefillBadge, setPrefillBadge] = useState(awal?.prefillBadge ?? null)
   const [savedAt, setSavedAt] = useState(awal?.savedAt ?? null)
 
@@ -161,13 +170,22 @@ export default function BKUSidebarLpj({
       subId: selectedSub?.id,
       formData,
       sppdData,
-      formPbj,
+      formPbj: pbjEligible(kategori) ? formPbj : null,
       pbjMode: modePbj,
     })
   // Sprint 018 (AD-2): gate sidebar TIDAK menagih "Tanggal dana masuk"
   // (inputnya dihapus di sidebar; nilainya otomatis dari BKU).
-  const pelanggaran = readinessSidebar(readinessCheck(formData))
-  const kelengkapan = cfg ? cekKelengkapan(cfg, formData) : peringatanDariPelanggaran(pelanggaran)
+  // Sprint 030: kartu lomba memakai gate berbasis TEMPLATE (cekKelengkapan)
+  // — readinessCheck generik menagih nomor/rows yang tidak dimiliki
+  // dokumen lomba, sehingga chip/Cetak tidak pernah bisa terbuka.
+  const kelengkapan = card?.id === 'buku'
+    ? { lengkap: true, kurang: [] }
+    : cfg ? cekKelengkapan(cfg, formDataEfektif) : peringatanDariPelanggaran(readinessSidebar(readinessCheck(formData)))
+  const pelanggaran = card?.id === 'buku'
+    ? []
+    : isLomba
+      ? (kelengkapan.kurang || []).map((k) => ({ fieldId: `f-${k.key}`, label: k.label }))
+      : readinessSidebar(readinessCheck(formData))
 
   const bisaSimpan = noBuktiSah(transaction?.noBukti)
 
@@ -186,7 +204,8 @@ export default function BKUSidebarLpj({
     const hasil = simpanEntri(card.id, transaction?.noBukti, {
       subId: selectedSub?.id || '',
       templateId,
-      formData,
+      // Sprint 030: formData datar (sama seperti semua kartu lain).
+      formData: formDataEfektif,
       sppdData,
     })
     if (hasil.ok) {
@@ -237,19 +256,31 @@ export default function BKUSidebarLpj({
     if (!sorotPelanggaran(v)) toast.info(v.label)
   }
 
-  const handleCetak = () => {
-    snapshotSebelumTimpa(
-      { ...formData, sppdData: { ...sppdData } },
-      [...new Set(Object.keys(formData))],
-      transaction?.noBukti || '',
-    )
-    const printContainer = document.querySelector('.sk-print-area .print-container')
-    if (printContainer) {
-      printContainer.classList.remove('portrait', 'landscape')
-      printContainer.classList.add(cfg?.orientation || 'portrait')
-    }
-    window.print()
+  const handleCetak = (selectedDocs = previewDocs) => {
+    if (!Array.isArray(selectedDocs) || selectedDocs.length === 0) return
+    setPrintDocs(selectedDocs)
   }
+
+  useEffect(() => {
+    if (printDocs.length === 0) return undefined
+    let frame
+    const cetak = () => {
+      snapshotSebelumTimpa(
+        { ...formData, sppdData: { ...sppdData } },
+        [...new Set(Object.keys(formData))],
+        transaction?.noBukti || '',
+      )
+      window.print()
+    }
+    frame = window.requestAnimationFrame ? window.requestAnimationFrame(cetak) : setTimeout(cetak, 0)
+    const reset = () => setPrintDocs([])
+    window.addEventListener('afterprint', reset, { once: true })
+    return () => {
+      window.removeEventListener('afterprint', reset)
+      if (window.cancelAnimationFrame) window.cancelAnimationFrame(frame)
+      else clearTimeout(frame)
+    }
+  }, [printDocs, formData, sppdData, transaction?.noBukti])
 
   const getStatus = (cardId, subId) => {
     const stored = storageHelper.get('dokumen_lpj', {})
@@ -275,21 +306,21 @@ export default function BKUSidebarLpj({
       {/* Sprint 023 (R-5): pemeliharaan ada yang ber-dokumen upah, ada yang
           tidak (mis. service alat sekolah). Pilihan manual per NoBukti. */}
       {card?.id === 'pemeliharaan' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-2">
-          <label htmlFor="jenis-pemeliharaan" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-transparent shadow-sm p-4 space-y-2">
+          <label htmlFor="jenis-pemeliharaan" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Jenis Pemeliharaan
           </label>
           <select
             id="jenis-pemeliharaan"
             value={jenisPemeliharaan}
             onChange={(e) => ubahJenisPemeliharaan(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-100 outline-none transition-all duration-150 hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/25"
           >
             <option value="upah">Upah — dengan Daftar Penerima Upah</option>
             <option value="non-upah">Non-Upah — service/jasa tanpa daftar upah</option>
           </select>
           {sembunyiUpah && (
-            <p className="text-[11px] text-slate-500 leading-relaxed">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
               Dokumen Daftar Penerima Upah disembunyikan (jenis Non-Upah). Lengkapi Kwitansi/Nota + Berita Acara di halaman Dokumen Kelengkapan.
             </p>
           )}
@@ -301,7 +332,7 @@ export default function BKUSidebarLpj({
         selectedSub={selectedSub}
         onSubChange={(sub) => { setSelectedSub(sub); setFormData({}); setSppdData({}) }}
         getStatus={getStatus}
-        formData={formData}
+        formData={formDataEfektif}
         setFormData={setFormData}
         sppdData={sppdData}
         setSppdData={setSppdData}
@@ -314,6 +345,9 @@ export default function BKUSidebarLpj({
         onClose={onClose}
         onCek={handleCek}
         onCetak={handleCetak}
+        onCetakTerpilih={handleCetak}
+        centralizedPrint
+        printSnapshot={printDocs}
         onPrint={handleCetak}
         previewDocs={previewDocs}
         pelanggaran={pelanggaran}
@@ -326,7 +360,7 @@ export default function BKUSidebarLpj({
         tampilkanFooter={false}
         varianForm="sidebar6"
         bkuInfo={{ ...(bkuPrefill || {}), tanggalStr: bkuPrefill?.tanggal || '' }}
-        blokTambahan={(
+        blokTambahan={pbjEligible(kategori) ? (
           <SidebarPbj
             kategori={kategori}
             transaction={transaction}
@@ -334,12 +368,13 @@ export default function BKUSidebarLpj({
             onChange={setFormPbj}
             savedAt={savedAtPbj}
             onSimpan={handleSimpanPbj}
-            mode={modePbj}
-            onModeChange={ubahModePbj}
+            mode={kategori === 'buku' ? 'siplah' : modePbj}
+            onModeChange={kategori === 'buku' ? undefined : ubahModePbj}
             onPrefillInvoice={handlePrefillPbjInvoice}
+            sembunyiMode={kategori === 'buku'}
           />
-        )}
-        blokDokumentasi={blokDokumentasi}
+        ) : null}
+        blokDokumentasi={kategori === 'buku' ? null : blokDokumentasi}
         fotoDocs={fotoDocs}
         onSorot={sorot}
       />

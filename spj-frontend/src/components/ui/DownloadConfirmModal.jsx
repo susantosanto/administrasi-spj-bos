@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DownloadConfirmModal.jsx — Modal konfirmasi unduh dokumen referensi
  * 
  * Muncul saat user klik card Dokumen Referensi di Dashboard.
@@ -76,7 +76,7 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
         aria-labelledby="confirm-download-title"
         className="relative w-full max-w-sm animate-scale-in"
       >
-        <div className="bg-white rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
           {/* Top Accent */}
           <div className="h-1.5 bg-gradient-to-r from-primary via-blue-500 to-primary" />
 
@@ -93,17 +93,17 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
             {/* Title */}
             <h2
               id="confirm-download-title"
-              className="text-lg font-bold text-slate-900 text-center mb-1"
+              className="text-lg font-bold text-slate-900 dark:text-white text-center mb-1"
             >
               {doc.judul}
             </h2>
-            <p className="text-sm text-slate-500 text-center mb-2">{doc.sub || 'Dokumen referensi'}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-2">{doc.sub || 'Dokumen referensi'}</p>
 
             {/* File info */}
-            <div className="bg-slate-50 rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
+            <div className="bg-slate-50 dark:bg-white/5 rounded-xl px-4 py-3 mb-6 flex items-center gap-3">
               <span className="material-symbols-outlined text-slate-400 text-base">picture_as_pdf</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-700 truncate">{doc.file || 'Belum tersedia'}</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{doc.file || 'Belum tersedia'}</p>
                 <p className="text-[11px] text-slate-400">Dokumen PDF</p>
               </div>
               <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-lg tracking-wide">
@@ -112,8 +112,8 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
             </div>
 
             {/* Confirmation text */}
-            <p className="text-sm text-slate-600 text-center mb-6">
-              Unduh dokumen <span className="font-semibold text-slate-800">{doc.judul}</span>?
+            <p className="text-sm text-slate-600 dark:text-slate-300 text-center mb-6">
+              Unduh dokumen <span className="font-semibold text-slate-800 dark:text-slate-100">{doc.judul}</span>?
               <br />
               File akan terbuka di tab browser / PDF reader Anda.
             </p>
@@ -122,7 +122,7 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-300 active:bg-slate-100 transition-all"
+                className="flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-transparent text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 dark:bg-white/5 hover:border-slate-300 active:bg-slate-100 transition-all"
               >
                 Batal
               </button>
@@ -132,8 +132,8 @@ export default function DownloadConfirmModal({ doc, isOpen, onClose }) {
                 disabled={!doc.file}
                 className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2
                   ${doc.file
-                    ? 'bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/30 hover:brightness-110 active:scale-[0.98]'
-                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    ? 'bg-primary text-white active:scale-[0.98]'
+                    : 'bg-slate-100 dark:bg-white/10 text-slate-400 cursor-not-allowed'
                   }`}
               >
                 <span className="material-symbols-outlined text-base">download</span>
