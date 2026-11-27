@@ -1798,3 +1798,20 @@ html.dark .app-loader-overlay { background: rgba(15, 23, 42, 0.82); }
   -webkit-backdrop-filter: blur(18px) saturate(1.25);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIDEBAR DARK — aturan sama dengan light: tidak ada lingkaran/background
+   di belakang ikon saat idle. Muncul hanya saat hover / focus / aktif.
+   (Rule umum dark:bg-white/* sebelumnya salah mencocok `hover:bg-white/10`.)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dark .dashboard-sidebar a:not([aria-current="page"]),
+.dark .dashboard-sidebar button {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+.dark .dashboard-sidebar a:not([aria-current="page"]):hover,
+.dark .dashboard-sidebar button:hover,
+.dark .dashboard-sidebar a:not([aria-current="page"]):focus-visible,
+.dark .dashboard-sidebar button:focus-visible {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
